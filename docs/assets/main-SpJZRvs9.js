@@ -1,0 +1,1 @@
+import{n as e}from"./index-D6G_GPK9.js";import{t}from"./chat-preview-DtVyVZqR.js";var n=e();function r(){return(0,n.jsx)(t,{showAvatars:!0,showMetadata:!0,assistantVariant:`ghost`,placeholder:`Ask a follow-up…`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

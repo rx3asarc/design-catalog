@@ -1,0 +1,1 @@
+import{n as e}from"./index-D6G_GPK9.js";import{t}from"./button-BxOY9eRX.js";import{t as n}from"./IconGitBranch-Bqep740W.js";var r=e();function i(){return(0,r.jsxs)(t,{variant:`outline`,size:`sm`,children:[(0,r.jsx)(n,{}),` New Branch`]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

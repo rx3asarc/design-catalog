@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{t}from"./button-BBgUzZjH.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`secondary`,children:`Secondary`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonSecondary,i as default};

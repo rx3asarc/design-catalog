@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{t}from"./button-BBgUzZjH.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`link`,children:`Link`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonLink,i as default};

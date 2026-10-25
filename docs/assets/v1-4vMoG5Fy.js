@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{o as t,r as n,t as r}from"./avatar-BtLG0H8m.js";var i=e();function a(){return(0,i.jsxs)(r,{children:[(0,i.jsx)(t,{src:`https://github.com/shadcn.png`,alt:`@shadcn`,className:`grayscale`}),(0,i.jsx)(n,{children:`CN`})]})}function o(){return(0,i.jsx)(a,{})}export{a as AvatarDemo,o as default};

@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t,n}from"./index-B3p_eWJH.js";var r=e(t(),1);n();var i=Object.defineProperty,a=(e,t)=>i(e,`name`,{value:t,configurable:!0}),o={LTR:`ltr`,RTL:`rtl`},s=r.createContext(void 0);function c(e){let t=r.useContext(s);return e||t||o.LTR}a(c,`useDirection`);export{c as t};

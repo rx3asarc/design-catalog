@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{t}from"./italic-C_ZwHKjG.js";import{t as n}from"./toggle-BCtWhPEx.js";var r=e();function i(){return(0,r.jsxs)(n,{"aria-label":`Toggle italic`,children:[(0,r.jsx)(t,{}),`Italic`]})}function a(){return(0,r.jsx)(i,{})}export{i as ToggleText,a as default};

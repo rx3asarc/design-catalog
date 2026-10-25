@@ -1,0 +1,1 @@
+import{n as e}from"./index-D6G_GPK9.js";import{t}from"./input-Cr45AVK3.js";var n=e();function r(){return(0,n.jsx)(t,{type:`email`,placeholder:`Email`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

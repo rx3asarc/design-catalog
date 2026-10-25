@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{i as t,r as n,s as r}from"./navigation-menu-BtAkj5Za.js";import{t as i}from"./link-Bo04jbB1.js";var a=e();function o(){return(0,a.jsx)(n,{children:(0,a.jsx)(t,{render:(0,a.jsx)(i,{href:`/docs`}),className:r(),children:`Documentation`})})}function s(){return(0,a.jsx)(o,{})}export{o as NavigationMenuDemo,s as default};

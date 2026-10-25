@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";var t=e();function n(){return(0,t.jsx)(`p`,{className:`text-xl text-muted-foreground`,children:`A modal dialog that interrupts the user with important content and expects a response.`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

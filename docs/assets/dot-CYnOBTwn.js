@@ -1,1 +1,0 @@
-import{t as e}from"./createLucideIcon-DRa5b0Et.js";var t={name:`dot`,size:24,node:[[`circle`,{cx:`12`,cy:`12`,r:`1`,key:`41hilf`}]]};t.node;var n=e(t);export{n as t};

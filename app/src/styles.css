@@ -226,3 +226,19 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .cmd > * { min-width: 0; }
 .withheld a, .page-in a, .verdict code, .badges .badge { overflow-wrap: anywhere; word-break: break-word; }
 .page-in { max-width: 100%; }
+
+/* ---- phone: every control we own clears 44px, and nothing we own is under 12px ---- */
+@media (max-width: 860px) {
+  .brand { display: inline-flex; align-items: center; min-height: 44px; }
+  .demo-head button, .demo-head .copied { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; }
+  .demo-head { padding: 6px 10px; }
+  .tabs button { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; }
+  .cmd button { min-height: 44px; }
+  .badge, .cmd-label, .rail-group, .crumb { font-size: 12px; }
+  .badge { padding: 4px 9px; }
+  .hint { font-size: 13.5px; }
+  .withheld { font-size: 14px; }
+  .nav2 a { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
+@media (max-width: 860px) { pre { font-size: 12px; } }

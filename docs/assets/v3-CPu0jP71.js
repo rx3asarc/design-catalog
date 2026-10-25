@@ -1,1 +1,0 @@
-import{n as e}from"./index-B3p_eWJH.js";import{t}from"./calendar-Dt6FXoUQ.js";var n=e();function r(){return(0,n.jsx)(t,{mode:`single`,className:`rounded-lg border`})}function i(){return(0,n.jsx)(r,{})}export{r as CalendarBasic,i as default};
