@@ -1,0 +1,1 @@
+import{n as e}from"./index-DhoTojkF.js";var t=e();function n(){return(0,t.jsx)(`h3`,{className:`scroll-m-20 text-2xl font-semibold tracking-tight`,children:`The Joke Tax`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

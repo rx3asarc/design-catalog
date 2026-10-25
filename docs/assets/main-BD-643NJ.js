@@ -1,1 +1,0 @@
-import{n as e}from"./index-D6G_GPK9.js";var t=e();function n(){return(0,t.jsx)(`h1`,{className:`scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance`,children:`Taxing Laughter: The Joke Tax Chronicles`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

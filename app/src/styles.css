@@ -241,4 +241,4 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .nav2 a { display: inline-flex; align-items: center; min-height: 44px; }
 }
 
-@media (max-width: 860px) { pre { font-size: 12px; } }
+@media (max-width: 860px) { pre { font-size: 12px; } .tabs button { font-size: 12.5px; } }

@@ -1,1 +1,0 @@
-import{n as e}from"./index-D6G_GPK9.js";import{t}from"./utils-D0T3A-kS.js";import{t as n}from"./slider-DPtDuyLF.js";var r=e();function i({className:e,...i}){return(0,r.jsx)(n,{defaultValue:[50],max:100,step:1,className:t(`w-[60%]`,e),...i})}function a(){return(0,r.jsx)(i,{})}export{a as default};

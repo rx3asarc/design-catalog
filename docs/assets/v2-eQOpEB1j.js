@@ -1,1 +1,0 @@
-import{n as e}from"./index-D6G_GPK9.js";import{t}from"./button-BxOY9eRX.js";import{t as n}from"./kbd-CPRqu9Ci.js";var r=e();function i(){return(0,r.jsxs)(t,{variant:`outline`,children:[`Accept`,` `,(0,r.jsx)(n,{"data-icon":`inline-end`,className:`translate-x-0.5`,children:`⏎`})]})}function a(){return(0,r.jsx)(i,{})}export{i as KbdButton,a as default};

@@ -1,1 +1,0 @@
-import{n as e}from"./index-D6G_GPK9.js";import{t}from"./arrow-up-right-kBjwGb6-.js";import{t as n}from"./badge-DYqr4SjX.js";var r=e();function i(){return(0,r.jsxs)(n,{render:(0,r.jsx)(`a`,{href:`#link`}),children:[`Open Link `,(0,r.jsx)(t,{"data-icon":`inline-end`})]})}function a(){return(0,r.jsx)(i,{})}export{i as BadgeAsLink,a as default};

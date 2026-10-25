@@ -1,0 +1,1 @@
+import{r as e}from"./proxy-DtI3l-CE.js";function t({children:t}){let n=e();return t({isPresent:n,gate:{inert:!n,style:{pointerEvents:n?`auto`:`none`}}})}export{t};
