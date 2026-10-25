@@ -235,11 +235,12 @@ async function open(it) {
   $("#d-title").textContent = it.name;
   $("#d-sub").textContent = `${it.source} · ${it.kind} · ${it.licence}`;
   const full = await fetch(it.path).then(r => r.json()).catch(() => null);
+  // No affordance that does nothing: a withheld item has no files, so it gets no Copy-code button.
   const actions = [];
-  actions.push(`<button class="btn primary" id="copyAll">Copy code</button>`);
+  if (full?.files?.length) actions.push(`<button class="btn primary" id="copyAll">Copy code</button>`);
   if (it.install) actions.push(`<button class="btn" id="copyInstall">Copy install command</button>`);
   if (it.page) actions.push(`<a class="btn" href="${esc(it.page)}" target="_blank" rel="noreferrer">Their page ↗</a>`);
-  if (it.page && !it.withheld) actions.push(`<button class="btn" id="showDemo">Show live demo</button>`);
+  if (it.page) actions.push(`<button class="btn" id="showDemo">Show live demo</button>`);
   actions.push(`<a class="btn" href="${esc(it.path)}" target="_blank" rel="noreferrer">item json</a>`);
   $("#d-actions").innerHTML = actions.join("");
 

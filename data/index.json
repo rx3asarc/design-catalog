@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-25T15:38:59Z",
+ "generated": "2026-10-25T15:44:43Z",
  "sources": {
   "beautifului": {
    "name": "beautifului.dev",
@@ -59,7 +59,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "parked",
     "reason": "Operator decision 2026-10-25: no batch action exists to protect yet. Unparks when bulk mark-as-known, multi-source filing or flashcard-set creation ships.",
@@ -80,7 +80,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in a maths-learning app: we are not a code editor surface.",
@@ -101,7 +101,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "Retrieved chunks with sources \u2014 maps to our sources panel with real citation rows.",
@@ -122,7 +122,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Model fine-tuning UI; we do not expose training.",
@@ -143,7 +143,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Diagram rendering is not part of the learning loop we have.",
@@ -164,7 +164,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Marketing-style insight cards with no data shape behind them here.",
@@ -185,7 +185,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Skeleton set for a demo gallery; our loading states are per-surface.",
@@ -206,7 +206,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "ported",
     "reason": "Composer ported as the chat Prompt Bar (engrane f5898f1): autosize, @ menu, dictation, syncSend. Pattern taken, React/Tailwind machinery replaced with Jinja2 + vanilla.",
@@ -227,7 +227,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Confidence-meter suggestion card; no recommendation engine to feed it.",
@@ -248,7 +248,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Duplicates our nav search; declined with the rest of their chrome.",
@@ -269,7 +269,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "Highlight text then act on it (explain / make a flashcard). The only item here that changes what the product does.",
@@ -290,7 +290,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "ported",
     "reason": "Streamed answer with a stop control (engrane f9436a6/177bbf7) over SSE; first token ~7s.",
@@ -311,7 +311,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "Live job status rows; the generation page has its own trail being fixed now \u2014 revisit after that lands.",
@@ -332,7 +332,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "Highest-value remaining: a real step list rather than three dots. Their smallest target is 28px, below our 44px floor, so the port must not copy the density.",
@@ -353,7 +353,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "A tool call as a compact chip. Needs real job/tool rows behind it, so it belongs with the thinking/steps work.",
@@ -1874,7 +1874,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "A generic \"AI is working\" status widget; our step trail carries that job with real stages.",
@@ -1895,7 +1895,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Counter that animates to a value; numbers are the subject, not the chrome.",
@@ -1916,7 +1916,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Superseded: our conversation rail shipped from beautifului sidebar-nav anatomy.",
@@ -1937,7 +1937,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "We are not a code editor surface.",
@@ -1958,7 +1958,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "A delete affordance with a real commit/undo beat. Relevant to the parked Approval Card question: this is what a single destructive action should feel like.",
@@ -1979,7 +1979,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Pick a duration/value from a rail \u2014 a plausible input for timed practice sets.",
@@ -2000,7 +2000,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
@@ -2021,7 +2021,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
@@ -2042,7 +2042,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Plain accordion for the marketing pages, which currently have no such block.",
@@ -2063,7 +2063,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Declined before this catalog existed: an AI-generated orb is exactly the generic flourish the taste canon rejects.",
@@ -2084,7 +2084,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
@@ -2105,7 +2105,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
@@ -2126,7 +2126,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Playful morphing nav; our nav is 88/72px with a fixed token set.",
@@ -2147,7 +2147,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Declined earlier for the same reason \u2014 decorative letter physics with no informational job.",
@@ -2168,7 +2168,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Staggered grid reveal for the library index; cheap and uses real content, not placeholders.",
@@ -2189,7 +2189,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Superseded by our rail.",
@@ -2210,7 +2210,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
@@ -2231,7 +2231,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "A bell with a count implies an inbox we do not have.",
@@ -2252,7 +2252,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No OTP flow in the product.",
@@ -2273,7 +2273,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "No password surface of our own to restyle.",
@@ -2294,7 +2294,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Superseded by our rail; a second sidebar pattern would be churn.",
@@ -2315,7 +2315,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "A table of contents as a rail \u2014 same shape as the settings rail that just shipped, applied to long articles.",
@@ -2336,7 +2336,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Reading progress for long articles, which the library already has.",
@@ -2357,7 +2357,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "A player for a sequence of steps \u2014 the closest thing here to a worked solution advancing one line at a time.",
@@ -2378,7 +2378,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "candidate",
     "reason": "Checkable task list with real state; maps to generation steps or a study checklist.",
@@ -2399,7 +2399,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "We ship one token set by design; a theme picker would fight RULES-v2.",
@@ -2420,7 +2420,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Their cn() helper: irrelevant in a Jinja2 + vanilla codebase.",
@@ -2441,7 +2441,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Dictation already exists as a composer control; a second audio surface is not needed.",
@@ -2462,7 +2462,7 @@
    "licence": "free to use, repo reports NOASSERTION",
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
-   "withheld_reason": "repo reports NOASSERTION \u2014 source withheld",
+   "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
    "verdict": {
     "verdict": "rejected",
     "reason": "Their demo web-search chrome; our sourcing lives behind the generation job, not a results page.",
@@ -3428,7 +3428,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "A full agent workspace screen \u2014 product we are not building.",
@@ -3449,7 +3449,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "candidate",
     "reason": "Tabbed chat panel; our chat page already carries this job, so only the reasoning-reply pattern is worth taking.",
@@ -3470,7 +3470,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "No job: we do not propose tabular edits to the user.",
@@ -3491,7 +3491,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "Status-chip table for CRM data; no equivalent surface.",
@@ -3512,7 +3512,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "rejected",
     "reason": "CRM grid with 120 controls below 44px; nothing in Engrane is a records app.",
@@ -3533,7 +3533,7 @@
    "licence": "unclear",
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
-   "withheld_reason": "terms unclear \u2014 source withheld",
+   "withheld_reason": "their terms are unclear, so we do not republish it",
    "verdict": {
     "verdict": "ported",
     "reason": "Ported as the conversation rail: partial + CSS on main, wired into /chat by feat/chat-rail-wire. Anatomy copied \u2014 workspace control, primary action row, grouped truncating rows, 180ms label-slide collapse.",
@@ -9959,7 +9959,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pointer-tracking tilt on cards; nothing in a maths app benefits from a card that leans.",
@@ -9980,7 +9980,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Our settings rail and FAQ disclosure already solve this; one more accordion pattern is churn.",
@@ -10001,7 +10001,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No avatars in a single-user study app.",
@@ -10022,7 +10022,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No banners.",
@@ -10043,7 +10043,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Auto-height animation; the pane owns height and animating it would fight the layout.",
@@ -10064,7 +10064,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro transition (paywalled) and no card-stack surface.",
@@ -10085,7 +10085,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "We have no checkboxes yet; revisit if mark-as-known lands.",
@@ -10106,7 +10106,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro and paywalled; confetti in a study tool reads as a toy.",
@@ -10127,7 +10127,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; a dissolve would hide what was deleted, which is the opposite of what a delete confirmation needs.",
@@ -10148,7 +10148,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; no drag surface.",
@@ -10169,7 +10169,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No dropdown menus in our nav.",
@@ -10190,7 +10190,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "A single shake on invalid input, paired with the sentence we already write. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10211,7 +10211,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Their own marketing button.",
@@ -10232,7 +10232,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; no floating action button.",
@@ -10253,7 +10253,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Small win, not worth a unit on its own.",
@@ -10274,7 +10274,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; no image generation.",
@@ -10295,7 +10295,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; no image viewer.",
@@ -10316,7 +10316,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Our composer already clears with keyboard behaviour that matters more than the fade.",
@@ -10337,7 +10337,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Marketing hover flourish.",
@@ -10358,7 +10358,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No like affordance; feedback is a written signal, not a heart.",
@@ -10379,7 +10379,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Decorative dot loader; a maths app can do better than dots.",
@@ -10400,7 +10400,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Same \u2014 our nav is a fixed rail.",
@@ -10421,7 +10421,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No modal in the product; the pane layout deliberately avoids them.",
@@ -10442,7 +10442,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "A count badge that animates in; relevant if the rail ever shows unread turns. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10463,7 +10463,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "A number that pops into place. Numbers are the subject here, not decoration. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10484,7 +10484,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; decorative.",
@@ -10505,7 +10505,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "We do not page horizontally between documents.",
@@ -10526,7 +10526,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Superseded by the settings rail collapse (measured 256 -> 64px).",
@@ -10547,7 +10547,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro; gradient text is exactly the kind of flourish the taste canon rejects.",
@@ -10568,7 +10568,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Streams emerging reasoning text with a stable container \u2014 same problem as our step trail and the live transcript. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10589,7 +10589,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "A gradient that runs through text to signal work in progress without a spinner. Pairs with thinking-states. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10610,7 +10610,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Skeleton that reveals real content in place; matches the generation-preview waiting state better than a spinner. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10631,7 +10631,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Pro, and our stop/completion path is textual rather than a spinner morph.",
@@ -10652,7 +10652,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Counts up to a value rather than snapping to it; useful for stats on the landing page. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10673,7 +10673,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "Already ours: streaming with a Stop control shipped (engrane f9436a6), and ours is on SSE, not their CSS shimmer.",
@@ -10694,7 +10694,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "A checkmark that draws itself on success; would suit \"source filed\" or \"card kept\". Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10715,7 +10715,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "An indicator that slides between tabs instead of jumping \u2014 applies to any segmented control we add. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10736,7 +10736,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Swaps a label in place without moving anything around it; useful for \"Thinking / Searching / Writing\" and for Save states. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10757,7 +10757,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Reveals text line by line on arrival, which is what a streamed answer already does \u2014 worth comparing timing against ours. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10778,7 +10778,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "The best thing on the site for us: a status line that swaps state text with no layout shift, because a hidden sizer holds the longest string and every state centres inside it. Our generation trail currently reflows as stages change, and this is the measured fix. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10799,7 +10799,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Toasts that stack and close without jitter. We have no toast system at all. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
@@ -10820,7 +10820,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "rejected",
     "reason": "No toggles in the shipped surfaces.",
@@ -10841,7 +10841,7 @@
    "licence": "MIT, collection may not be republished",
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
-   "withheld_reason": "terms forbid republishing the collection \u2014 source withheld",
+   "withheld_reason": "their terms allow use but forbid republishing the collection",
    "verdict": {
     "verdict": "candidate",
     "reason": "Tooltip timing done properly; our rail labels are hidden on phones and could use it. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",

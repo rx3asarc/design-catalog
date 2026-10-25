@@ -1,12 +1,24 @@
 {
   "name": "design-catalog",
-  "version": "1.0.0",
-  "description": "769 UI components, blocks and effects from five reference libraries — with source, licence and port verdicts. CLI and MCP server in one binary.",
+  "version": "1.0.1",
+  "description": "769 UI components, blocks and effects from five reference libraries \u2014 with source, licence and port verdicts. CLI and MCP server in one binary.",
   "type": "module",
-  "bin": { "design-catalog": "bin/cli.mjs" },
-  "files": ["bin", "data/catalog.json", "README.md", "LICENCES.md"],
-  "engines": { "node": ">=18" },
+  "bin": {
+    "design-catalog": "bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "data/catalog.json",
+    "README.md",
+    "LICENCES.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/rx3asarc/design-catalog.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rx3asarc/design-catalog.git"
+  },
   "homepage": "https://rx3asarc.github.io/design-catalog/"
 }
