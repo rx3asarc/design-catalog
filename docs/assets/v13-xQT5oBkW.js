@@ -1,0 +1,18 @@
+var e=`import { buttonVariants } from "@/registry/new-york-v4/ui/button"
+
+export function ButtonRender() {
+  return (
+    <a
+      href="#"
+      className={buttonVariants({ variant: "secondary", size: "sm" })}
+    >
+      Login
+    </a>
+  )
+}
+
+
+export default function Demo() {
+  return <ButtonRender />
+}
+`;export{e as default};

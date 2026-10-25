@@ -1,0 +1,1 @@
+import{n as e}from"./index-DpjrnHJa.js";import{t}from"./calendar-Ox5cp6AE.js";var n=e();function r(){return(0,n.jsx)(t,{mode:`single`,captionLayout:`dropdown`,className:`rounded-lg border`})}function i(){return(0,n.jsx)(r,{})}export{r as CalendarCaption,i as default};

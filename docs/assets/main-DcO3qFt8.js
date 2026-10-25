@@ -1,0 +1,1 @@
+import{n as e}from"./index-DpjrnHJa.js";import{t}from"./spinner-hUtqUVMr.js";var n=e();function r(){return(0,n.jsxs)(`div`,{className:`flex items-center gap-6`,children:[(0,n.jsx)(t,{className:`size-3`}),(0,n.jsx)(t,{className:`size-4`}),(0,n.jsx)(t,{className:`size-6`}),(0,n.jsx)(t,{className:`size-8`})]})}function i(){return(0,n.jsx)(r,{})}export{i as default};

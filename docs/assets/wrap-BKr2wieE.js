@@ -1,0 +1,1 @@
+var e=(e,t,n)=>{let r=t-e;return((n-e)%r+r)%r+e};export{e as t};

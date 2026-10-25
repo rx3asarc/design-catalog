@@ -1,0 +1,4 @@
+import Component from "@/registry/new-york-v4/examples/spinner-basic"
+export default function Demo() {
+  return <Component />
+}

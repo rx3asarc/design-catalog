@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t,n}from"./index-DpjrnHJa.js";var r=e(t(),1),i=n();function a(){let[e,t]=r.useState(!1);return(0,i.jsx)(Checkbox,{checked:e,onCheckedChange:t})}function o(){return(0,i.jsx)(a,{})}export{a as Example,o as default};

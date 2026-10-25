@@ -1,0 +1,23 @@
+var e=`import { Toggle } from "@/registry/new-york-v4/ui/toggle"
+
+export function ToggleSizes() {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Toggle variant="outline" aria-label="Toggle small" size="sm">
+        Small
+      </Toggle>
+      <Toggle variant="outline" aria-label="Toggle default" size="default">
+        Default
+      </Toggle>
+      <Toggle variant="outline" aria-label="Toggle large" size="lg">
+        Large
+      </Toggle>
+    </div>
+  )
+}
+
+
+export default function Demo() {
+  return <ToggleSizes />
+}
+`;export{e as default};

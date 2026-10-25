@@ -1,0 +1,1 @@
+import{n as e}from"./index-DpjrnHJa.js";import{t}from"./button-BeNAKaX2.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`ghost`,children:`Ghost`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonGhost,i as default};

@@ -1,0 +1,1 @@
+function e(){return{className:``,variable:`--font-vazirmatn`}}export{e as t};

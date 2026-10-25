@@ -8,7 +8,7 @@
   },
   "files": [
     "bin",
-    "data/catalog.json",
+    "docs/data/catalog.json",
     "README.md",
     "LICENCES.md"
   ],

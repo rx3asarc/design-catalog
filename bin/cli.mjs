@@ -13,7 +13,7 @@
  */
 import { createInterface } from "node:readline";
 
-const DATA = new URL("../data/catalog.json", import.meta.url);
+const DATA = new URL("../docs/data/catalog.json", import.meta.url);
 const pkg = await import("../package.json", { with: { type: "json" } }).catch(() => ({ default: { version: "?" } }));
 const VERSION = pkg.default.version;
 

@@ -1,0 +1,1 @@
+import{n as e}from"./index-DpjrnHJa.js";import{a as t,i as n,n as r,t as i}from"./input-otp-KLnBA2Fr.js";var a=e();function o(){return(0,a.jsx)(i,{maxLength:4,pattern:t,children:(0,a.jsxs)(r,{children:[(0,a.jsx)(n,{index:0}),(0,a.jsx)(n,{index:1}),(0,a.jsx)(n,{index:2}),(0,a.jsx)(n,{index:3})]})})}function s(){return(0,a.jsx)(o,{})}export{o as InputOTPFourDigits,s as default};

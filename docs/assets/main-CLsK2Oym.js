@@ -1,0 +1,5 @@
+var e=`import { TooltipPreview } from "@/components/previews/motion/tooltip.preview"
+export default function Demo() {
+  return <TooltipPreview />
+}
+`;export{e as default};

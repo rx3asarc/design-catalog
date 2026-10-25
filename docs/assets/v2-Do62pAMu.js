@@ -1,0 +1,18 @@
+var e=`import { Slider } from "@/registry/new-york-v4/ui/slider"
+
+export function SliderMultiple() {
+  return (
+    <Slider
+      defaultValue={[10, 20, 70]}
+      max={100}
+      step={10}
+      className="mx-auto w-full max-w-xs"
+    />
+  )
+}
+
+
+export default function Demo() {
+  return <SliderMultiple />
+}
+`;export{e as default};
