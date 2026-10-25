@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t,n}from"./index-BhmEcGrH.js";import{t as r}from"./calendar-Dfww8fcK.js";var i=e(t(),1),a=n();function o(){let[e,t]=i.useState(new Date);return(0,a.jsx)(r,{mode:`single`,selected:e,onSelect:t,className:`rounded-md border shadow-sm`,captionLayout:`dropdown`})}function s(){return(0,a.jsx)(o,{})}export{s as default};

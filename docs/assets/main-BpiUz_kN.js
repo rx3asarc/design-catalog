@@ -1,0 +1,1 @@
+import{n as e}from"./index-CH5bY0Zb.js";import{t}from"./button-CUbnBrEd.js";import{t as n}from"./link-DkbFfpyI.js";var r=e();function i(){return(0,r.jsx)(t,{asChild:!0,children:(0,r.jsx)(n,{href:`/login`,children:`Login`})})}function a(){return(0,r.jsx)(i,{})}export{a as default};

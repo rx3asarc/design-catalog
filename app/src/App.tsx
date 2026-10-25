@@ -71,7 +71,8 @@ function Demo({ variant }: { variant: Variant }) {
   const [open, setOpen] = useState(false);
   const box = React.useRef<HTMLDivElement>(null);
   const canvas = React.useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState<{ needed: number; zoom: number; on: boolean } | null>(null);
+  const [fit, setFit] = useState<{ needed: number; zoom: number } | null>(null);
+  const [choice, setChoice] = useState<boolean | null>(null); // the user's Fit toggle wins over the default
 
   React.useEffect(() => {
     const outer = box.current, inner = canvas.current;
@@ -84,9 +85,7 @@ function Demo({ variant }: { variant: Variant }) {
       });
       const avail = outer.clientWidth;
       if (needed > avail + 2) {
-        // on a desktop the card is wide enough that a slight zoom would be a surprise; auto-fit is a phone behaviour
-        const auto = window.matchMedia("(max-width: 860px)").matches;
-        setFit({ needed, zoom: Math.max(0.3, Math.min(1, avail / needed)), on: auto });
+        setFit({ needed, zoom: Math.max(0.3, Math.min(1, avail / needed)) });
       } else {
         setFit(null);
       }
@@ -97,7 +96,9 @@ function Demo({ variant }: { variant: Variant }) {
     return () => ro.disconnect();
   }, [variant.module]);
 
-  const zoom = fit?.on ? fit.zoom : 1;
+  const autoFit = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
+  const fitted = fit ? (choice ?? autoFit) : false;
+  const zoom = fitted && fit ? fit.zoom : 1;
   const Lazy = useMemo(() => React.lazy(DEMOS[key(variant.module)] as any), [variant.module]);
   const code = useCode(variant.module);
   return (
@@ -108,8 +109,8 @@ function Demo({ variant }: { variant: Variant }) {
         <button onClick={() => setOpen((v) => !v)} aria-expanded={open}>{open ? "Hide code" : "View code"}</button>
         {code && <Copy text={code} />}
         {fit && (
-          <button onClick={() => setFit({ ...fit, on: !fit.on })} aria-pressed={fit.on}>
-            {fit.on ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
+          <button onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
+            {fitted ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
           </button>
         )}
       </header>

@@ -1,0 +1,1 @@
+import{n as e}from"./index-CH5bY0Zb.js";import{S as t}from"./sidebar-Dtmat43B.js";var n=e();function r(){let{toggleSidebar:e}=t();return(0,n.jsx)(`button`,{onClick:e,children:`Toggle Sidebar`})}function i(){return(0,n.jsx)(r,{})}export{r as CustomTrigger,i as default};

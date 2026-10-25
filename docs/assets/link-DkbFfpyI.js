@@ -1,0 +1,1 @@
+import"./rolldown-runtime-XKyaHtl9.js";import{i as e,n as t}from"./index-CH5bY0Zb.js";e();var n=t();function r({href:e,children:t,...r}){return(0,n.jsx)(`a`,{href:typeof e==`string`?e:`#`,...r,children:t})}export{r as t};

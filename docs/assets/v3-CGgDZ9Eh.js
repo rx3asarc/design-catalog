@@ -1,0 +1,1 @@
+import{n as e}from"./index-CH5bY0Zb.js";import{t}from"./skeleton-oIFkEmrY.js";var n=e();function r(){return(0,n.jsxs)(`div`,{className:`flex w-full max-w-xs flex-col gap-2`,children:[(0,n.jsx)(t,{className:`h-4 w-full`}),(0,n.jsx)(t,{className:`h-4 w-full`}),(0,n.jsx)(t,{className:`h-4 w-3/4`})]})}function i(){return(0,n.jsx)(r,{})}export{r as SkeletonText,i as default};

@@ -1,0 +1,1 @@
+import{n as e}from"./index-CH5bY0Zb.js";var t=e();function n(){return(0,t.jsx)(`blockquote`,{className:`mt-6 border-l-2 pl-6 italic`,children:`"After all," he said, "everyone enjoys a good joke, so it's only fair that they should pay for the privilege."`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

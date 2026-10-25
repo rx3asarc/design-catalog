@@ -1,0 +1,1 @@
+import{n as e}from"./index-CH5bY0Zb.js";import{t}from"./button-CUbnBrEd.js";import{n,t as r}from"./button-group-q5jQyNJy.js";var i=e();function a(){return(0,i.jsxs)(r,{children:[(0,i.jsx)(t,{variant:`secondary`,size:`sm`,children:`Copy`}),(0,i.jsx)(n,{}),(0,i.jsx)(t,{variant:`secondary`,size:`sm`,children:`Paste`})]})}function o(){return(0,i.jsx)(a,{})}export{o as default};

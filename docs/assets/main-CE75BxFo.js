@@ -1,1 +1,0 @@
-import{n as e}from"./index-BhmEcGrH.js";import{t}from"./textarea-B1moJGzt.js";var n=e();function r(){return(0,n.jsx)(t,{placeholder:`Type your message here.`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

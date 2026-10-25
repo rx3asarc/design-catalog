@@ -1,1 +1,0 @@
-import{n as e}from"./index-BhmEcGrH.js";var t=e();function n(){let[e,n]=React.useState(!1);return(0,t.jsx)(SidebarProvider,{open:e,onOpenChange:n,children:(0,t.jsx)(Sidebar,{})})}function r(){return(0,t.jsx)(n,{})}export{n as AppSidebar,r as default};

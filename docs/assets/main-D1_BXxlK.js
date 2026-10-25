@@ -1,1 +1,0 @@
-import{n as e}from"./index-BhmEcGrH.js";var t=e();function n(){return(0,t.jsx)(`small`,{className:`text-sm leading-none font-medium`,children:`Email address`})}function r(){return(0,t.jsx)(n,{})}export{r as default};
