@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./italic-D_6EQBBc.js";import{t as n}from"./toggle-gVR5atzK.js";var r=e();function i(){return(0,r.jsx)(n,{variant:`outline`,"aria-label":`Toggle italic`,children:(0,r.jsx)(t,{})})}function a(){return(0,r.jsx)(i,{})}export{a as default};

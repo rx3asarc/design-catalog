@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./button-BeNAKaX2.js";import{t as n}from"./kbd-BPNJT2kf.js";var r=e();function i(){return(0,r.jsxs)(t,{variant:`outline`,children:[`Accept`,` `,(0,r.jsx)(n,{"data-icon":`inline-end`,className:`translate-x-0.5`,children:`⏎`})]})}function a(){return(0,r.jsx)(i,{})}export{i as KbdButton,a as default};

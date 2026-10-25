@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t,n}from"./index-DpjrnHJa.js";import{t as r}from"./progress-OD738PyU.js";var i=e(t(),1),a=n();function o(){let[e,t]=i.useState(13);return i.useEffect(()=>{let e=setTimeout(()=>t(66),500);return()=>clearTimeout(e)},[]),(0,a.jsx)(r,{value:e,className:`w-[60%]`})}function s(){return(0,a.jsx)(o,{})}export{s as default};

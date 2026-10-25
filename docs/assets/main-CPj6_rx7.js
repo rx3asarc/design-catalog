@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";var t=e();function n(){return(0,t.jsx)(`p`,{className:`text-sm text-muted-foreground`,children:`Enter your email address.`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./textarea-csdF4CLo.js";var n=e();function r(){return(0,n.jsx)(t,{placeholder:`Type your message here.`})}function i(){return(0,n.jsx)(r,{})}export{r as TextareaDemo,i as default};

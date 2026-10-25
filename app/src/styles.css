@@ -182,3 +182,47 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .page-in { padding: 24px 18px 80px; }
   .page h2.title { font-size: 24px; }
 }
+
+/* ---- complete instructions, never truncated ---- */
+.hint { font-size: 13px; color: var(--muted-foreground); margin: 0 0 10px; max-width: 70ch; }
+.hint a { color: var(--foreground); }
+.cmd-wrap { margin: 0 0 12px; }
+.cmd-label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted-foreground); margin: 0 0 5px; }
+.cmd code { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55; }
+.cmd { align-items: flex-start; }
+.cmd button { flex: none; margin-top: -2px; }
+
+/* ---- phone: one column, the rail is a disclosure above the page ---- */
+.topbar { display: none; }
+@media (max-width: 860px) {
+  .cat { display: block; height: auto; min-height: 100dvh; }
+  .topbar { display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 20;
+    padding: 10px 14px; background: var(--card); border-bottom: 1px solid var(--border); }
+  .topbar .brand { font-size: 14px; font-weight: 600; color: var(--foreground); text-decoration: none; flex: 1; }
+  .menu-btn { min-height: 44px; padding: 0 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--background); color: var(--foreground); cursor: pointer; }
+  .rail { display: none; }
+  .menu-open .rail { display: flex; max-height: none; border-bottom: 1px solid var(--border); }
+  .menu-open .rail-list { max-height: 70dvh; }
+  .rail-item { min-height: 44px; font-size: 14px; }
+  .rail input { height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming on focus */
+  .page { overflow: visible; }
+  .page-in { padding: 20px 16px 90px; }
+  .page h2.title { font-size: 23px; }
+  .page p.lede { font-size: 14px; }
+  .demo-body { padding: 16px 12px; overflow-x: auto; }
+  .demo-head { flex-wrap: wrap; }
+  .demo-head button { min-height: 36px; }
+  pre { font-size: 11.5px; white-space: pre-wrap; word-break: break-word; }
+  .tabs { overflow-x: auto; }
+  .tabs button { min-height: 36px; white-space: nowrap; }
+  .cmd { flex-direction: column; gap: 8px; }
+  .cmd button { align-self: flex-start; min-height: 36px; }
+  .nav2 { flex-wrap: wrap; }
+}
+.path { flex: 1; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd { min-width: 0; max-width: 100%; }
+.cmd > * { min-width: 0; }
+.withheld a, .page-in a, .verdict code, .badges .badge { overflow-wrap: anywhere; word-break: break-word; }
+.page-in { max-width: 100%; }

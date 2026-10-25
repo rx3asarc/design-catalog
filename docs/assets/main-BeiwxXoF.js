@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./button-BeNAKaX2.js";import{t as n}from"./link-pk39NwsM.js";var r=e();function i(){return(0,r.jsx)(t,{asChild:!0,children:(0,r.jsx)(n,{href:`/login`,children:`Login`})})}function a(){return(0,r.jsx)(i,{})}export{a as default};

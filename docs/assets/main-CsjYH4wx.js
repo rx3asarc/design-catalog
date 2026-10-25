@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./label-BkTn5K__.js";import{t as n}from"./input-CdlV73Mn.js";var r=e();function i(){return(0,r.jsxs)(`div`,{className:`grid w-full max-w-sm items-center gap-3`,children:[(0,r.jsx)(t,{htmlFor:`picture`,children:`Picture`}),(0,r.jsx)(n,{id:`picture`,type:`file`})]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

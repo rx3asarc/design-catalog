@@ -1,0 +1,1 @@
+import{n as e}from"./index-B3p_eWJH.js";import{t}from"./arrow-up-PGht-Tsk.js";import{t as n}from"./button-BBgUzZjH.js";var r=e();function i(){return(0,r.jsx)(`div`,{className:`flex flex-col gap-8`,children:(0,r.jsx)(n,{variant:`outline`,size:`icon`,className:`rounded-full`,children:(0,r.jsx)(t,{})})})}function a(){return(0,r.jsx)(i,{})}export{a as default};

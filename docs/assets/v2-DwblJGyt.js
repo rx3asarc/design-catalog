@@ -1,0 +1,1 @@
+import{n as e}from"./index-B3p_eWJH.js";import{t}from"./spinner-CL7HTcTi.js";var n=e();function r(){return(0,n.jsxs)(`div`,{className:`flex items-center gap-6`,children:[(0,n.jsx)(t,{className:`size-3`}),(0,n.jsx)(t,{className:`size-4`}),(0,n.jsx)(t,{className:`size-6`}),(0,n.jsx)(t,{className:`size-8`})]})}function i(){return(0,n.jsx)(r,{})}export{r as SpinnerSize,i as default};

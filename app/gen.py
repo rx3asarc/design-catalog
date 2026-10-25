@@ -176,6 +176,8 @@ def prune_missing_exports(manifest: list) -> int:
 
 
 def main() -> int:
+    ver = json.loads((APP.parent / "package.json").read_text())["version"]
+    (SRC / "version.ts").write_text(f'export const VERSION = "{ver}";\n')
     for d in DENY_DIRS:
         shutil.rmtree(SRC / d, ignore_errors=True)
     (SRC / "demos").mkdir(parents=True, exist_ok=True)

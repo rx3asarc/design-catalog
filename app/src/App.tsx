@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import manifest from "../manifest.json";
+import { VERSION } from "./version";
 
 type Variant = { label: string; module: string };
 type Item = {
@@ -111,7 +112,7 @@ function Install({ install }: { install: string }) {
         ))}
       </div>
       <div className="cmd">
-        <span style={{ flex: 1, overflowX: "auto", whiteSpace: "nowrap" }}>{text}</span>
+        <code>{text}</code>
         <Copy text={text} />
       </div>
     </>
@@ -135,7 +136,7 @@ function Files({ files }: { files: string[] }) {
         </div>
       )}
       <div className="cmd" style={{ borderRadius: "0 8px 0 0" }}>
-        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sel}</span>
+        <span className="path">{sel}</span>
         {code && <Copy text={code} />}
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
@@ -194,6 +195,28 @@ function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }
   );
 }
 
+const TARBALL = "https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz";
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "design-catalog": {
+      "command": "npx",
+      "args": ["-y", "${TARBALL}", "mcp"]
+    }
+  }
+}`;
+
+function Cmd({ text, label }: { text: string; label?: string }) {
+  return (
+    <div className="cmd-wrap">
+      {label && <div className="cmd-label">{label}</div>}
+      <div className="cmd">
+        <code>{text}</code>
+        <Copy text={text} />
+      </div>
+    </div>
+  );
+}
+
 function Home() {
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -209,13 +232,22 @@ function Home() {
         here from their real source, the rest listed with their licence and our verdict.
       </p>
       <div className="section-h">Use it from an agent</div>
-      <div className="cmd"><Copy text="npx -y https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz mcp" />
-        <span style={{ flex: 1, overflowX: "auto", whiteSpace: "nowrap" }}>
-          npx -y …/design-catalog-latest.tgz mcp</span></div>
+      <p className="hint">Run the catalogue as an MCP server. It exposes catalog_search, catalog_get and catalog_stats.</p>
+      <Cmd text={`npx -y ${TARBALL} mcp`} label="any shell" />
+      <Cmd text={MCP_CONFIG} label="MCP client config (Claude Code, Cursor, any stdio client)" />
+
       <div className="section-h">Or from a shell</div>
-      <div className="cmd"><Copy text={`npx -y https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz search "sidebar"`} />
-        <span style={{ flex: 1, overflowX: "auto", whiteSpace: "nowrap" }}>
-          npx -y …/design-catalog-latest.tgz search "sidebar"</span></div>
+      <p className="hint">The same data, no install step, no native build.</p>
+      <Cmd text={`npx -y ${TARBALL} search "sidebar"`} label="search" />
+      <Cmd text={`npx -y ${TARBALL} get thinking-states`} label="one item, with its source" />
+      <Cmd text={`npx -y ${TARBALL} stats`} label="counts per source" />
+
+      <div className="section-h">Pinning</div>
+      <p className="hint">
+        <code>latest</code> moves. To pin, use the versioned file and check it against
+        <a href="https://rx3asarc.github.io/design-catalog/data/CHECKSUMS.txt"> CHECKSUMS.txt</a> —
+        <code>data/design-catalog-{VERSION}.tgz</code>. Every published file has its sha256 listed there.
+      </p>
       <div className="section-h">Sources</div>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <tbody>
@@ -237,8 +269,9 @@ function Home() {
 export default function App() {
   const [hash, setHash] = useState(() => location.hash);
   const [q, setQ] = useState("");
+  const [menu, setMenu] = useState(false);
   useEffect(() => {
-    const on = () => setHash(location.hash);
+    const on = () => { setHash(location.hash); setMenu(false); };
     addEventListener("hashchange", on);
     return () => removeEventListener("hashchange", on);
   }, []);
@@ -261,8 +294,14 @@ export default function App() {
   const idx = active ? flat.findIndex((i) => i.id === active.id) : -1;
 
   return (
-    <div className="cat">
-      <aside className="rail">
+    <div className={`cat${menu ? " menu-open" : ""}`}>
+      <div className="topbar">
+        <a className="brand" href="#/">design catalog</a>
+        <button className="menu-btn" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
+          {menu ? "Close" : `Browse ${items.length}`}
+        </button>
+      </div>
+      <aside className="rail" id="rail">
         <div className="rail-top">
           <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
           <div className="meta">{items.length} items · {items.filter((i) => i.variants.length).length} rendered</div>

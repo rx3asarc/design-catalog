@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./button-BeNAKaX2.js";import{t as n}from"./IconGitBranch-Da2G9vOH.js";var r=e();function i(){return(0,r.jsxs)(t,{variant:`outline`,size:`sm`,children:[(0,r.jsx)(n,{}),` New Branch`]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

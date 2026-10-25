@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./input-CdlV73Mn.js";var n=e();function r(){return(0,n.jsx)(t,{disabled:!0,type:`email`,placeholder:`Email`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

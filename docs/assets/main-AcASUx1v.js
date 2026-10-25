@@ -1,0 +1,1 @@
+import{n as e}from"./index-B3p_eWJH.js";import{t}from"./input-CXDOtDht.js";var n=e();function r(){return(0,n.jsx)(t,{type:`email`,placeholder:`Email`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

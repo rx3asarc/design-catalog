@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./checkbox-IqQr6JCP.js";import{t as n}from"./label-BkTn5K__.js";var r=e();function i(){return(0,r.jsxs)(`div`,{className:`flex gap-2`,children:[(0,r.jsx)(t,{id:`terms`}),(0,r.jsx)(n,{htmlFor:`terms`,children:`Accept terms and conditions`})]})}function a(){return(0,r.jsx)(i,{})}export{i as LabelDemo,a as default};

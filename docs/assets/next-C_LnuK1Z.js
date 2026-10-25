@@ -1,1 +1,0 @@
-import"./rolldown-runtime-XKyaHtl9.js";import{i as e,n as t}from"./index-DpjrnHJa.js";e();var n=t();function r({src:e,alt:t,width:r,height:i,fill:a,priority:o,className:s,style:c,...l}){let u=a?{position:`absolute`,inset:0,width:`100%`,height:`100%`,...c}:c;return(0,n.jsx)(`img`,{src:typeof e==`string`?e:e?.src,alt:t??``,width:r,height:i,className:s,style:u,...l})}export{r as t};

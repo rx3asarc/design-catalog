@@ -1,0 +1,1 @@
+import{n as e}from"./index-B3p_eWJH.js";import{t}from"./circle-alert-BieERuHW.js";import{n,r,t as i}from"./alert-h7iHgUKQ.js";var a=e();function o(){return(0,a.jsxs)(i,{variant:`destructive`,children:[(0,a.jsx)(t,{}),(0,a.jsx)(r,{children:`Error`}),(0,a.jsx)(n,{children:`Your session has expired. Please log in again.`})]})}function s(){return(0,a.jsx)(o,{})}export{s as default};

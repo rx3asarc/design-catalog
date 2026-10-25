@@ -1,0 +1,1 @@
+import{n as e}from"./index-B3p_eWJH.js";import{t}from"./slider-Coq6zu7R.js";var n=e();function r(){return(0,n.jsx)(t,{defaultValue:[25,50],max:100,step:5,className:`mx-auto w-full max-w-xs`})}function i(){return(0,n.jsx)(r,{})}export{r as SliderRange,i as default};

@@ -1,1 +1,0 @@
-import{n as e}from"./index-DpjrnHJa.js";import{t}from"./badge-LZAQZdD9.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`secondary`,children:`Secondary`})}function i(){return(0,n.jsx)(r,{})}export{i as default};
