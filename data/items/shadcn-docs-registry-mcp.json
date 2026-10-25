@@ -1,0 +1,1 @@
+{"source":"shadcn","slug":"docs-registry-mcp","kind":"text","name":"MCP Server","one_line":"MCP support for registry developers","page":null,"install":"npx shadcn@latest add docs-registry-mcp","licence":"MIT","licence_url":"https://github.com/shadcn-ui/ui/blob/main/LICENSE.md","withheld":false,"files":[],"facts":[{"key":"words","value":"584","unit":"words","selector":"doc.md"}]}
