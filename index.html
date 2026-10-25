@@ -247,7 +247,7 @@ async function open(it) {
   const code = full?.files ?? [];
   const body = [];
   if (it.withheld) {
-    body.push(`<div class="note"><b>Source withheld.</b> ${esc(it.withheld_reason)}. The entry, its facts and our verdict are published; the code is not ours to republish.</div>`);
+    body.push(`<div class="note"><b>Source withheld</b> — ${esc(it.withheld_reason)}. The entry, its facts and our verdict are published; the code is not ours to republish.</div>`);
   }
   if (it.verdict) {
     body.push(`<div class="note"><b>${esc(it.verdict.verdict)}</b> — ${esc(it.verdict.reason || "")}${it.verdict.ours_path ? ` <span style="color:var(--text-mute)">ours: ${esc(it.verdict.ours_path)}</span>` : ""}</div>`);
