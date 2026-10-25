@@ -242,3 +242,16 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 }
 
 @media (max-width: 860px) { pre { font-size: 12px; } .tabs button { font-size: 12.5px; } }
+
+/* demos that need more width than the card: a visible, touch-friendly scroller plus a swipe hint */
+.demo-body { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.demo-body::-webkit-scrollbar { height: 8px; }
+.demo-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+.demo-body { padding-bottom: 14px; }
+@media (max-width: 860px) {
+  .demo { border-radius: 0; border-left: 0; border-right: 0; }
+  .demo-head, .demo-body { padding-left: 14px; padding-right: 14px; }
+  .demo-body { padding-left: 0; padding-right: 0; }
+  .demo-body > div { padding: 0 14px; }
+}

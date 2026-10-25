@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{t}from"./loader-circle-l8bzUnYA.js";import{t as n}from"./utils-D0T3A-kS.js";var r=e();function i({className:e,...i}){return(0,r.jsx)(t,{role:`status`,"aria-label":`Loading`,className:n(`size-4 animate-spin`,e),...i})}export{i as t};

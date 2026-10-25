@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{t}from"./button-BsSDAol1.js";import{t as n}from"./spinner-D7IYb0ay.js";var r=e();function i(){return(0,r.jsxs)(t,{size:`sm`,variant:`outline`,disabled:!0,children:[(0,r.jsx)(n,{}),`Submit`]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

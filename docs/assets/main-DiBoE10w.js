@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{t}from"./badge-BaTEBjUj.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`outline`,children:`Outline`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{n as t}from"./button-BsSDAol1.js";var n=e();function r(){return(0,n.jsx)(`a`,{href:`#`,className:t({variant:`secondary`,size:`sm`}),children:`Login`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonRender,i as default};

@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{t}from"./slider-EZb8czf_.js";var n=e();function r(){return(0,n.jsx)(t,{defaultValue:[75],max:100,step:1,className:`mx-auto w-full max-w-xs`})}function i(){return(0,n.jsx)(r,{})}export{r as SliderDemo,i as default};

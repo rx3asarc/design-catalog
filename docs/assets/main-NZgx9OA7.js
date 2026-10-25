@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";var t=e();function n(){return(0,t.jsx)(`code`,{className:`relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold`,children:`@radix-ui/react-alert-dialog`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

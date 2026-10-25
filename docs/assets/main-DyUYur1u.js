@@ -1,1 +1,0 @@
-import{n as e}from"./index-DhoTojkF.js";var t=e();function n(){return(0,t.jsx)(`p`,{className:`leading-7 [&:not(:first-child)]:mt-6`,children:`The king, seeing how much happier his subjects were, realized the error of his ways and repealed the joke tax.`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{S as t}from"./sidebar--vxeiexx.js";var n=e();function r(){let{state:e,open:n,setOpen:r,openMobile:i,setOpenMobile:a,isMobile:o,toggleSidebar:s}=t()}function i(){return(0,n.jsx)(r,{})}export{r as AppSidebar,i as default};

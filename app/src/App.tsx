@@ -69,6 +69,35 @@ class Boundary extends React.Component<{ children: React.ReactNode }, { err: str
 
 function Demo({ variant }: { variant: Variant }) {
   const [open, setOpen] = useState(false);
+  const box = React.useRef<HTMLDivElement>(null);
+  const canvas = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<{ needed: number; zoom: number; on: boolean } | null>(null);
+
+  React.useEffect(() => {
+    const outer = box.current, inner = canvas.current;
+    if (!outer || !inner) return;
+    const measure = () => {
+      // how wide does this demo really want to be? the widest scroller inside it is the honest answer
+      let needed = inner.scrollWidth;
+      inner.querySelectorAll<HTMLElement>("*").forEach((el) => {
+        if (el.scrollWidth > needed) needed = el.scrollWidth;
+      });
+      const avail = outer.clientWidth;
+      if (needed > avail + 2) {
+        // on a desktop the card is wide enough that a slight zoom would be a surprise; auto-fit is a phone behaviour
+        const auto = window.matchMedia("(max-width: 860px)").matches;
+        setFit({ needed, zoom: Math.max(0.3, Math.min(1, avail / needed)), on: auto });
+      } else {
+        setFit(null);
+      }
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(outer);
+    return () => ro.disconnect();
+  }, [variant.module]);
+
+  const zoom = fit?.on ? fit.zoom : 1;
   const Lazy = useMemo(() => React.lazy(DEMOS[key(variant.module)] as any), [variant.module]);
   const code = useCode(variant.module);
   return (
@@ -78,13 +107,20 @@ function Demo({ variant }: { variant: Variant }) {
         <span className="sp" />
         <button onClick={() => setOpen((v) => !v)} aria-expanded={open}>{open ? "Hide code" : "View code"}</button>
         {code && <Copy text={code} />}
+        {fit && (
+          <button onClick={() => setFit({ ...fit, on: !fit.on })} aria-pressed={fit.on}>
+            {fit.on ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
+          </button>
+        )}
       </header>
-      <div className="demo-body">
-        <Boundary>
-          <Suspense fallback={<span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>mounting…</span>}>
-            <Lazy />
-          </Suspense>
-        </Boundary>
+      <div className="demo-body" ref={box}>
+        <div ref={canvas} style={{ zoom, width: "100%" }}>
+          <Boundary>
+            <Suspense fallback={<span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>mounting…</span>}>
+              <Lazy />
+            </Suspense>
+          </Boundary>
+        </div>
       </div>
       {open && code && <div className="demo-code"><pre>{code}</pre></div>}
     </section>

@@ -1,1 +1,0 @@
-import{n as e}from"./index-DhoTojkF.js";var t=e();function n(){return(0,t.jsx)(`h2`,{className:`scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0`,children:`The People of the Kingdom`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

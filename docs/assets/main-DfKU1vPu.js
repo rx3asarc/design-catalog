@@ -1,0 +1,1 @@
+import{n as e}from"./index-BhmEcGrH.js";import{t}from"./button-BsSDAol1.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`ghost`,children:`Ghost`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

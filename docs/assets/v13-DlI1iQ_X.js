@@ -1,1 +1,0 @@
-import{n as e}from"./index-DhoTojkF.js";import{n as t}from"./button-Z_BqwZsA.js";var n=e();function r(){return(0,n.jsx)(`a`,{href:`#`,className:t({variant:`secondary`,size:`sm`}),children:`Login`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonRender,i as default};
