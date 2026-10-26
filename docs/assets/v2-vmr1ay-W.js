@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./slider-ZvT9OX4D.js";var n=e();function r(){return(0,n.jsx)(t,{defaultValue:[10,20,70],max:100,step:10,className:`mx-auto w-full max-w-xs`})}function i(){return(0,n.jsx)(r,{})}export{r as SliderMultiple,i as default};

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./underline-CHxXEhdR.js";import{t as n}from"./toggle-HhIUiFr5.js";var r=e();function i(){return(0,r.jsx)(n,{"aria-label":`Toggle italic`,disabled:!0,children:(0,r.jsx)(t,{className:`h-4 w-4`})})}function a(){return(0,r.jsx)(i,{})}export{a as default};
