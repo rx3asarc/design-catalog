@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./calendar-DLGFwCN3.js";var n=e();function r(){return(0,n.jsx)(t,{mode:`single`,captionLayout:`dropdown`,className:`rounded-lg border`})}function i(){return(0,n.jsx)(r,{})}export{r as CalendarCaption,i as default};

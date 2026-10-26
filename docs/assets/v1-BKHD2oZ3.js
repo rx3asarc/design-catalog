@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./input-tqgSFUZc.js";var n=e();function r(){return(0,n.jsx)(t,{placeholder:`Enter text`})}function i(){return(0,n.jsx)(r,{})}export{r as InputBasic,i as default};

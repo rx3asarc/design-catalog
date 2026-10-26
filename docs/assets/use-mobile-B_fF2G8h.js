@@ -1,0 +1,1 @@
+import{i as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";var n=e(t(),1),r=768;function i(){let[e,t]=n.useState(void 0);return n.useEffect(()=>{let e=window.matchMedia(`(max-width: 767px)`),n=()=>{t(window.innerWidth<r)};return e.addEventListener(`change`,n),t(window.innerWidth<r),()=>e.removeEventListener(`change`,n)},[]),!!e}export{i as t};

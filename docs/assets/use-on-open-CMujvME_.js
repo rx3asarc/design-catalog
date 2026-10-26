@@ -1,0 +1,1 @@
+import{i as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";var n=e(t(),1);function r(e,t){let[r,i]=(0,n.useState)(e);e!==r&&(i(e),e&&t())}export{r as t};

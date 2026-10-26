@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";t();var n=e();function r({href:e,children:t,...r}){return(0,n.jsx)(`a`,{href:typeof e==`string`?e:`#`,...r,children:t})}export{r as t};

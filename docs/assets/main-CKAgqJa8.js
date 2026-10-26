@@ -1,1 +1,0 @@
-import{n as e}from"./index-CH5bY0Zb.js";import{t}from"./badge-COK-Rxs1.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`outline`,children:`Outline`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

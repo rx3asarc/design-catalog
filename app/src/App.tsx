@@ -67,7 +67,49 @@ class Boundary extends React.Component<{ children: React.ReactNode }, { err: str
   }
 }
 
-function Demo({ variant }: { variant: Variant }) {
+/** The demo lives in its own document, so its portals and fixed panels cannot land on our rail. */
+function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom: number; floor: number }) {
+  const wrap = React.useRef<HTMLDivElement>(null);
+  const frame = React.useRef<HTMLIFrameElement>(null);
+  const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
+  const [h, setH] = React.useState(phone ? 420 : 560);
+  React.useEffect(() => {
+    const on = (e: MessageEvent) => {
+      const d = e.data;
+      if (!d || d.designCatalogDemo !== true || d.id !== id || d.index !== index) return;
+      if (typeof d.height === "number" && d.height > 0) setH(Math.ceil(d.height));
+    };
+    addEventListener("message", on);
+    return () => removeEventListener("message", on);
+  }, [id, index]);
+  const maxH = phone ? 560 : 820;
+  const shown = Math.max(h, floor);
+  const cap = Math.min(shown * zoom, maxH);
+  React.useEffect(() => {
+    frame.current?.setAttribute("title", `${id} demo`);
+  }, [id]);
+  return (
+    <div ref={wrap} style={{ height: cap, overflow: cap < shown * zoom ? "auto" : "hidden", width: "100%" }}>
+      <iframe
+        ref={frame}
+        src={`/design-catalog/demo.html#${encodeURIComponent(id)}|${index}`}
+        loading="lazy"
+        style={{
+          width: `${100 / zoom}%`,
+          height: shown,
+          border: 0,
+          display: "block",
+          transform: `scale(${zoom})`,
+          transformOrigin: "top left",
+          background: "transparent",
+          colorScheme: "light dark",
+        }}
+      />
+    </div>
+  );
+}
+
+function Demo({ id, index, variant, isBlock }: { id: string; index: number; variant: Variant; isBlock: boolean }) {
   const [open, setOpen] = useState(false);
   const box = React.useRef<HTMLDivElement>(null);
   const canvas = React.useRef<HTMLDivElement>(null);
@@ -115,13 +157,7 @@ function Demo({ variant }: { variant: Variant }) {
         )}
       </header>
       <div className="demo-body" ref={box}>
-        <div ref={canvas} style={{ zoom, width: "100%" }}>
-          <Boundary>
-            <Suspense fallback={<span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>mounting…</span>}>
-              <Lazy />
-            </Suspense>
-          </Boundary>
-        </div>
+        <DemoFrame id={id} index={index} zoom={zoom} floor={isBlock ? (typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches ? 420 : 560) : 90} />
       </div>
       {open && code && <div className="demo-code"><pre>{code}</pre></div>}
     </section>
@@ -188,6 +224,11 @@ function Files({ files }: { files: string[] }) {
 function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }) {
   return (
     <div className="page-in">
+      <div className="pager">
+        {prev ? <a href={`#/i/${prev.id}`}><span className="dir">←</span> {prev.name}</a> : <span className="off" />}
+        {next ? <a href={`#/i/${next.id}`}>{next.name} <span className="dir">→</span></a> : <span className="off" />}
+      </div>
+
       <div className="crumb">{item.source} · {item.kind}</div>
       <h2 className="title">{item.name}</h2>
       {item.one_line && <p className="lede">{item.one_line}</p>}
@@ -216,7 +257,7 @@ function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }
           {item.page && <p style={{ margin: 0 }}><a href={item.page} target="_blank" rel="noreferrer">Their page ↗</a></p>}
         </div>
       ) : item.variants.length ? (
-        item.variants.map((v) => <Demo key={v.module} variant={v} />)
+        item.variants.map((v, i) => <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} />)
       ) : (
         <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
       )}

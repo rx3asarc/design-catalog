@@ -1,1 +1,0 @@
-import{n as e}from"./index-CH5bY0Zb.js";import{t}from"./button-CUbnBrEd.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`ghost`,children:`Ghost`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

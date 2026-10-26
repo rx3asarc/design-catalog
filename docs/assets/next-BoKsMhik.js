@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";t();var n=e();function r({src:e,alt:t,width:r,height:i,fill:a,priority:o,className:s,style:c,...l}){let u=a?{position:`absolute`,inset:0,width:`100%`,height:`100%`,...c}:c;return(0,n.jsx)(`img`,{src:typeof e==`string`?e:e?.src,alt:t??``,width:r,height:i,className:s,style:u,...l})}export{r as t};

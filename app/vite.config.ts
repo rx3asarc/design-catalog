@@ -6,6 +6,14 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
   base: "/design-catalog/",
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        demo: fileURLToPath(new URL("./demo.html", import.meta.url)),
+      },
+    },
+  },
   resolve: {
     alias: [
       { find: /^@\//, replacement: fileURLToPath(new URL("./src/", import.meta.url)) },

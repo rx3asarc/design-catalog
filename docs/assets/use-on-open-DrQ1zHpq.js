@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t}from"./index-CH5bY0Zb.js";var n=e(t(),1);function r(e,t){let[r,i]=(0,n.useState)(e);e!==r&&(i(e),e&&t())}export{r as t};

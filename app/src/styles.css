@@ -255,3 +255,21 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .demo-body { padding-left: 0; padding-right: 0; }
   .demo-body > div { padding: 0 14px; }
 }
+
+/* ---- a rendered sidebar must not escape its card: paint containment makes the card the
+       containing block for the demo's fixed-position panels, and caps its height ---- */
+.demo { contain: layout paint; overflow: hidden; }
+.demo-body { max-height: min(72vh, 760px); overflow: auto; }
+.demo-body > div { min-height: 0; }
+
+/* ---- pager at the top, so the current item and the next one are both above the fold ---- */
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 14px;
+  padding: 0 0 10px; border-bottom: 1px solid var(--border); }
+.pager a { display: inline-flex; align-items: center; gap: 6px; max-width: 46%; min-height: 36px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--foreground); text-decoration: none;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pager a:hover { background: var(--muted); }
+.pager .dir { color: var(--muted-foreground); }
+.pager .off { flex: 1; }
+@media (min-width: 861px) { .pager { position: sticky; top: 0; z-index: 5; background: var(--background); } }
+@media (max-width: 860px) { .pager a { min-height: 44px; font-size: 13.5px; } }

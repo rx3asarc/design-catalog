@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";var t=e();function n(){return(0,t.jsx)(`h4`,{className:`scroll-m-20 text-xl font-semibold tracking-tight`,children:`People stopped telling jokes`})}function r(){return(0,t.jsx)(n,{})}export{r as default};

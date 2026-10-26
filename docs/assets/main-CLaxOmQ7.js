@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-eOHSbu31.js";var n=e();function r(){return(0,n.jsx)(t,{children:`Button`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

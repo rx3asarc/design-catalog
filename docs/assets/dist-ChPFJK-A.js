@@ -1,0 +1,1 @@
+import{i as e,t}from"./jsx-runtime-EIAPxkjE.js";import{t as n}from"./react-BPk_wmJm.js";var r=e(n(),1);t();var i=Object.defineProperty,a=(e,t)=>i(e,`name`,{value:t,configurable:!0}),o={LTR:`ltr`,RTL:`rtl`},s=r.createContext(void 0);function c(e){let t=r.useContext(s);return e||t||o.LTR}a(c,`useDirection`);export{c as t};

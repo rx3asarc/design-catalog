@@ -1,0 +1,1 @@
+import{i as e,t}from"./jsx-runtime-EIAPxkjE.js";import{t as n}from"./react-BPk_wmJm.js";var r=e(n(),1),i=t();function a(){let[e,t]=r.useState(!1);return(0,i.jsx)(Checkbox,{checked:e,onCheckedChange:t})}function o(){return(0,i.jsx)(a,{})}export{a as Example,o as default};
