@@ -506,6 +506,10 @@ pre { font-family: var(--font-mono); }
 
 /* phone: the scale steps down but keeps its ratios, and nothing we own drops under 12px */
 @media (max-width: 860px) {
+  /* the rail is a thumb target on a phone, so it keeps its own step rather than the desktop 13px,
+     and nothing we own drops below 12px here */
+  .rail-item { font-size: 14px; }
+  .way-n { font-size: 12px; }
   .page-in { padding: var(--s2) var(--s2) var(--s6); }
   .page h2.title, .page-in h2.title { font-size: 26px; line-height: 32px; }
   .page p.lede, .page-in .lede { font-size: var(--t-lede); line-height: var(--lh-lede); }
