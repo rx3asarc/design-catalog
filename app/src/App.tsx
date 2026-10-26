@@ -6,6 +6,10 @@ import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { ScrollArea } from "@/registry/new-york-v4/ui/scroll-area";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/registry/new-york-v4/ui/table";
 
 type Variant = { label: string; module: string };
 type Item = {
@@ -16,6 +20,22 @@ type Item = {
 };
 
 const items = manifest as unknown as Item[];
+
+/** Every level of the rail is the catalogue's own Collapsible, not a <details>. */
+function Disc({ cls, label, count, defaultOpen, children }: {
+  cls: string; label: React.ReactNode; count?: number; defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className={`${cls}${open ? " is-open" : ""}`}>
+      <CollapsibleTrigger className="disc-trigger">
+        <span className="sub-n">{label}</span>
+        {count !== undefined && <span className="sub-c">{count}</span>}
+      </CollapsibleTrigger>
+      <CollapsibleContent>{children}</CollapsibleContent>
+    </Collapsible>
+  );
+}
 const byId = new Map(items.map((i) => [i.id, i]));
 
 /** Demo modules are generated files that import the real component, so what renders is what the code pane shows. */
@@ -170,12 +190,14 @@ function Demo({ id, index, variant, isBlock }: { id: string; index: number; vari
       <header className="demo-head">
         <span>{variant.label}</span>
         <span className="sp" />
-        <button onClick={() => setOpen((v) => !v)} aria-expanded={open}>{open ? "Hide code" : "View code"}</button>
+        <Button variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        {open ? "Hide code" : "View code"}
+      </Button>
         {code && <Copy text={code} />}
         {fit && (
-          <button onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
+          <Button variant="outline" size="sm" className="demo-fit" onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
             {fitted ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
-          </button>
+          </Button>
         )}
       </header>
       <div className="demo-body" ref={box}>
@@ -203,7 +225,8 @@ function Install({ install }: { install: string }) {
       <div className="section-h">Installation</div>
       <div className="tabs" role="tablist">
         {MANAGERS.map((m) => (
-          <button key={m} role="tab" aria-selected={pm === m} onClick={() => setPm(m)}>{m}</button>
+          <Button key={m} role="tab" variant={pm === m ? "default" : "outline"} size="sm"
+            aria-selected={pm === m} className="h-8" onClick={() => setPm(m)}>{m}</Button>
         ))}
       </div>
       <div className="cmd">
@@ -358,19 +381,26 @@ function Home() {
         <code>data/design-catalog-{VERSION}.tgz</code>. Every published file has its sha256 listed there.
       </p>
       <div className="section-h">Sources</div>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>source</TableHead>
+            <TableHead>rendered</TableHead>
+            <TableHead className="text-right">items</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {Object.entries(counts).map(([s, n]) => (
-            <tr key={s} style={{ borderTop: "1px solid var(--border)" }}>
-              <td style={{ padding: "8px 0" }}>{s}</td>
-              <td style={{ padding: "8px 0", color: "var(--muted-foreground)" }}>
-                {items.filter((i) => i.source === s && i.variants.length).length} rendered
-              </td>
-              <td style={{ padding: "8px 0", textAlign: "right", color: "var(--muted-foreground)" }}>{n} items</td>
-            </tr>
+            <TableRow key={s}>
+              <TableCell>{s}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {items.filter((i) => i.source === s && i.variants.length).length}
+              </TableCell>
+              <TableCell className="text-right text-muted-foreground">{n}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -432,9 +462,9 @@ export default function App() {
     <div className={`cat${menu ? " menu-open" : ""}`}>
       <div className="topbar">
         <a className="brand" href="#/">design catalog</a>
-        <button className="menu-btn" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
+        <Button variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
           {menu ? "Close" : `Browse ${items.length}`}
-        </button>
+        </Button>
       </div>
       <aside className="rail" id="rail">
         <div className="rail-top">
@@ -454,17 +484,11 @@ export default function App() {
       </div>
       <div className="rail-list">
           {tree.map((sec) => (
-            <details key={sec.label} className="rail-sec" open>
-              <summary>
-                <span className="sec-n">{sec.label}</span>
-                <span className="sub-c">{sec.count}</span>
-              </summary>
+            <Disc key={sec.label} cls="rail-sec" label={<span className="sec-n">{sec.label}</span>}
+              count={sec.count} defaultOpen>
               {sec.cats.map((cat) => (
-                <details key={cat.key} className="rail-cat" open={sec.cats.length <= 2}>
-                  <summary>
-                    <span className="sub-n">{cat.label}</span>
-                    <span className="sub-c">{cat.rows.length}</span>
-                  </summary>
+                <Disc key={cat.key} cls="rail-cat" label={cat.label} count={cat.rows.length}
+                  defaultOpen={sec.cats.length <= 2}>
                   {cat.families.map((f) => {
                     const item = (i: Item) => (
                       <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
@@ -475,28 +499,22 @@ export default function App() {
                     );
                     if (f.rows.length === 1) return item(f.rows[0]);
                     return (
-                      <details key={f.key} className="rail-sub" open={f.rows.length <= 4}>
-                        <summary>
-                          <span className="sub-n">{f.key.replace(/-/g, " ")}{f.key.endsWith("s") ? "" : "s"}</span>
-                          <span className="sub-c">{f.rows.length}</span>
-                        </summary>
+                      <Disc key={f.key} cls="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
+                        label={`${f.key.replace(/-/g, " ")}${f.key.endsWith("s") ? "" : "s"}`}>
                         {f.subs.length > 1
                           ? f.subs.map((g2) => (
-                              <details key={g2.key} className="rail-sub2" open={false}>
-                                <summary>
-                                  <span className="sub-n">{g2.key.replace(/-/g, " ")}</span>
-                                  <span className="sub-c">{g2.rows.length}</span>
-                                </summary>
+                              <Disc key={g2.key} cls="rail-sub2" count={g2.rows.length}
+                                label={g2.key.replace(/-/g, " ")}>
                                 {g2.rows.map(item)}
-                              </details>
+                              </Disc>
                             ))
                           : f.rows.map(item)}
-                      </details>
+                      </Disc>
                     );
                   })}
-                </details>
+                </Disc>
               ))}
-            </details>
+            </Disc>
           ))}
         </div>
       </aside>

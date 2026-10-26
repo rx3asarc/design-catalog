@@ -391,3 +391,18 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .rail-sub > .rail-item { padding-left: 40px; }
 .rail-sub2 > summary { padding-left: 40px; }
 .rail-sub2 > .rail-item { padding-left: 52px; }
+
+/* ---- rail disclosures are the registry's Collapsible: one trigger style per level ---- */
+.disc-trigger { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 30px; cursor: pointer;
+  border: 0; background: none; text-align: left; border-radius: 6px; color: inherit; font: inherit; }
+.disc-trigger .sub-n { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disc-trigger .sub-c { font-variant-numeric: tabular-nums; font-size: 11px; opacity: .45; }
+.disc-trigger::before { content: "›"; width: 10px; text-align: center; font-size: 11px; opacity: .5;
+  transition: transform .15s ease-out; }
+.is-open > .disc-trigger::before { transform: rotate(90deg); }
+.rail-sec > .disc-trigger { padding: 9px 10px 5px; font-size: 12.5px; font-weight: 600; }
+.rail-cat > .disc-trigger { padding: 6px 10px 6px 16px; font-size: 12px; font-weight: 500; }
+.rail-sub > .disc-trigger { padding: 4px 10px 4px 26px; font-size: 12px; color: var(--foreground); font-weight: 500; }
+.rail-sub2 > .disc-trigger { padding: 3px 10px 3px 40px; font-size: 11.5px; color: var(--muted-foreground); }
+.rail-sub2 .rail-item { padding-left: 52px; }
+@media (max-width: 860px) { .disc-trigger { min-height: 44px; } }

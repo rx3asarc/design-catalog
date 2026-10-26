@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 echo "== generating app source from the catalogue"
 python3 app/gen.py
+python3 app/check_chrome.py || exit 1   # the shop must be furnished with its own goods
 echo "== building"
 (cd app && npx vite build >/dev/null && echo "   built")
 echo "== copying the build into docs/"
