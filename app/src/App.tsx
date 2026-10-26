@@ -73,15 +73,26 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
   const frame = React.useRef<HTMLIFrameElement>(null);
   const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
   const [h, setH] = React.useState(phone ? 420 : 560);
+  const grows = React.useRef(0);
+  const locked = React.useRef(false);
   React.useEffect(() => {
     const on = (e: MessageEvent) => {
       const d = e.data;
       if (!d || d.designCatalogDemo !== true || d.id !== id || d.index !== index) return;
-      if (typeof d.height === "number" && d.height > 0) setH(Math.ceil(d.height));
+      // a viewport-filling demo can report its own frame back and grow without bound; clamp it
+      if (typeof d.height !== "number" || d.height <= 0 || locked.current) return;
+      // a demo that sizes itself to the frame will report one growth after another; three is a loop, not a layout
+      if (d.height > hRef.current + 4) {
+        if (++grows.current > 2) { locked.current = true; setH(phone ? 420 : 560); return; }
+      }
+      setH(Math.min(Math.ceil(d.height), 2400));
+      // height 0 means "this one sizes itself to the frame": keep the floor we already set
     };
     addEventListener("message", on);
     return () => removeEventListener("message", on);
-  }, [id, index]);
+  }, [id, index, phone]);
+  const hRef = React.useRef(h);
+  hRef.current = h;
   const maxH = phone ? 560 : 820;
   const shown = Math.max(h, floor);
   const cap = Math.min(shown * zoom, maxH);

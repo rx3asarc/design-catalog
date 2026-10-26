@@ -35,8 +35,14 @@ function report() {
   const content = kids.length
     ? Math.ceil(Math.max(...kids.map((k) => k.getBoundingClientRect().bottom)) - top)
     : 64;
-  const h = Math.ceil(doc.scrollHeight > doc.clientHeight + 2 ? doc.scrollHeight : Math.max(content, 64));
-  parent.postMessage({ designCatalogDemo: true, id, index: Number(index) || 0, height: h }, "*");
+  const h = Math.min(Math.ceil(doc.scrollHeight > doc.clientHeight + 2 ? doc.scrollHeight : Math.max(content, 64)), 3000);
+  // a demo that sizes itself to the viewport (h-svh page layouts) cannot be measured from inside:
+  // growing the frame grows the demo. Report 0 and let the catalogue keep its block-sized floor.
+  const viewportSized = [...root.querySelectorAll<HTMLElement>("*")].some((el) => {
+    const cs = getComputedStyle(el);
+    return /vh|svh|dvh|lvh/.test(cs.minHeight) || /vh|svh|dvh|lvh/.test(cs.height);
+  });
+  parent.postMessage({ designCatalogDemo: true, id, index: Number(index) || 0, height: viewportSized ? 0 : h }, "*");
 }
 
 function App() {
