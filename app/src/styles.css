@@ -321,3 +321,17 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
    pane instead of scrolling inside it. Force the wrapper back to block so the pre keeps its own x-scroll. */
 .demo-code [data-radix-scroll-area-viewport] > div { display: block !important; width: 100% !important; }
 .demo-code pre { width: 100%; max-width: 100%; min-width: 0; }
+
+/* ---- rail submenus: a family with siblings is a disclosure, a family of one is just a row ---- */
+.rail-sub { margin: 1px 0 2px; }
+.rail-sub > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px;
+  min-height: 30px; padding: 4px 10px 4px 20px; font-size: 12px; color: var(--muted-foreground);
+  border-radius: 6px; }
+.rail-sub > summary::-webkit-details-marker { display: none; }
+.rail-sub > summary::before { content: "▸"; font-size: 9px; opacity: .7; transition: transform .15s ease-out; }
+.rail-sub[open] > summary::before { transform: rotate(90deg); }
+.rail-sub > summary:hover { background: var(--accent); color: var(--foreground); }
+.rail-sub .sub-n { flex: 1; text-transform: capitalize; letter-spacing: .01em; }
+.rail-sub .sub-c { font-variant-numeric: tabular-nums; opacity: .65; }
+.rail-sub .rail-item { padding-left: 30px; }
+@media (max-width: 860px) { .rail-sub > summary { min-height: 44px; } }

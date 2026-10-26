@@ -336,7 +336,7 @@ function Home() {
   }, []);
   const rendered = items.filter((i) => i.variants.length > 0).length;
   return (
-    <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
+    <div className="page-in">
       <h2 className="title">design catalog</h2>
       <p className="lede">
         {items.length} components, blocks, effects and doc pages from five libraries — {rendered} of them rendered
@@ -397,10 +397,24 @@ export default function App() {
       (!needle || `${i.name} ${i.slug} ${i.source} ${i.kind} ${(i as any).category ?? ""}`.toLowerCase().includes(needle)));
     const order = ["Pages and blocks", "Conversation and agent UI", "Actions and controls", "Navigation", "Forms and input", "Overlays and dialogs", "Charts and data",
       "Feedback and status", "Layout and structure", "Content and text", "Motion and effects", "Docs and guides"];
-    const out: { source: string; rows: Item[] }[] = [];
+    const subOf = (i: Item) => {
+      const t = i.slug.split("-")[0];
+      return t.length < 3 ? i.slug : t;
+    };
+    const out: { source: string; rows: Item[]; subs: { key: string; rows: Item[] }[] }[] = [];
     for (const c of order) {
       const rows = hit.filter((i) => ((i as any).category ?? "Actions and controls") === c);
-      if (rows.length) out.push({ source: c, rows });
+      if (!rows.length) continue;
+      const bySub = new Map<string, Item[]>();
+      for (const r of rows) {
+        const k = subOf(r);
+        if (!bySub.has(k)) bySub.set(k, []);
+        bySub.get(k)!.push(r);
+      }
+      const subs = [...bySub.entries()]
+        .map(([key, rs]) => ({ key, rows: rs.sort((a, b) => a.slug.localeCompare(b.slug)) }))
+        .sort((a, b) => b.rows.length - a.rows.length || a.key.localeCompare(b.key));
+      out.push({ source: c, rows, subs });
     }
     return out;
   }, [q, from]);
@@ -432,23 +446,33 @@ export default function App() {
         ))}
       </div>
       <div className="rail-list">
-          {grouped.map((g) => (
-            <div key={g.source}>
-              <div className="rail-group">{g.source} · {g.rows.length}</div>
-              {g.rows.map((i) => (
-                <a
-                  key={i.id}
-                  className="rail-item"
-                  href={`#/i/${i.id}`}
-                  aria-current={active?.id === i.id ? "page" : undefined}
-                  style={{ textDecoration: "none" }}
-                >
-                  <span className={`dot ${i.variants.length ? "demo" : "none"}`} />
-                  <span className="t">{i.name}</span>
-                </a>
-              ))}
-            </div>
-          ))}
+          {grouped.map((g) => {
+            // a family of one is just an item: only families with siblings earn a submenu
+            const families = g.subs.filter((s) => s.rows.length > 1);
+            const singles = g.subs.filter((s) => s.rows.length === 1).flatMap((s) => s.rows);
+            const row = (i: Item) => (
+              <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
+                aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
+                <span className={`dot ${i.variants.length ? "demo" : "none"}`} />
+                <span className="t">{i.name}</span>
+              </a>
+            );
+            return (
+              <div key={g.source} className="rail-cat">
+                <div className="rail-group">{g.source} · {g.rows.length}</div>
+                {families.map((sub) => (
+                  <details key={sub.key} className="rail-sub" open={sub.rows.length <= 4}>
+                    <summary>
+                      <span className="sub-n">{sub.key.replace(/-/g, " ")}{sub.key.endsWith("s") ? "" : "s"}</span>
+                      <span className="sub-c">{sub.rows.length}</span>
+                    </summary>
+                    {sub.rows.map(row)}
+                  </details>
+                ))}
+                {singles.map(row)}
+              </div>
+            );
+          })}
         </div>
       </aside>
       <main className="page">
