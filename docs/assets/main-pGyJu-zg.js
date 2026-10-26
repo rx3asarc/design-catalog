@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./label-JTVHc5kc.js";import{t as n}from"./input-tqgSFUZc.js";var r=e();function i(){return(0,r.jsxs)(`div`,{className:`grid w-full max-w-sm items-center gap-3`,children:[(0,r.jsx)(t,{htmlFor:`picture`,children:`Picture`}),(0,r.jsx)(n,{id:`picture`,type:`file`})]})}function a(){return(0,r.jsx)(i,{})}export{a as default};
