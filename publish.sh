@@ -8,8 +8,12 @@ echo "== building"
 (cd app && npx vite build >/dev/null && echo "   built")
 echo "== copying the build into docs/"
 mkdir -p docs
-rm -rf docs/assets docs/index.html
+# do NOT wipe the old assets: GitHub Pages caches html for ten minutes, so somebody mid-visit
+# after a deploy will still be asking for the previous build's chunks. Keeping them makes that
+# harmless; pruning by age keeps the repo bounded.
+mkdir -p docs/assets
 cp -r app/dist/* docs/
+find docs/assets -type f -mtime +7 -delete 2>/dev/null || true
 echo "== exporting data, package and checksums"
 python3 /root/design-catalog/publish_export.py
 echo "== done"
