@@ -8,6 +8,11 @@ import { Input } from "@/registry/new-york-v4/ui/input";
 import { ScrollArea } from "@/registry/new-york-v4/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
 import {
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset,
+  SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem,
+  SidebarProvider, SidebarRail, SidebarTrigger, useSidebar,
+} from "@/registry/new-york-v4/ui/sidebar";
+import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/registry/new-york-v4/ui/table";
 
@@ -21,21 +26,140 @@ type Item = {
 
 const items = manifest as unknown as Item[];
 
-/** Every level of the rail is the catalogue's own Collapsible, not a <details>. */
-function Disc({ cls, label, count, defaultOpen, children }: {
-  cls: string; label: React.ReactNode; count?: number; defaultOpen?: boolean; children: React.ReactNode;
+type TreeFamily = { key: string; rows: Item[]; subs: { key: string; rows: Item[] }[] };
+type TreeCat = { key: string; label: string; rows: Item[]; families: TreeFamily[] };
+type TreeSection = { label: string; count: number; cats: TreeCat[] };
+
+/**
+ * Every level of the rail is the catalogue's own Collapsible, mounted on the catalogue's own SidebarMenuItem —
+ * the trigger is a SidebarMenuButton, the row below it is a SidebarMenuSub. Nothing here is a <details>.
+ */
+function Level({ lvl, label, count, defaultOpen, children }: {
+  lvl: "rail-sec" | "rail-cat" | "rail-sub" | "rail-sub2";
+  label: React.ReactNode; count?: number; defaultOpen?: boolean; children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <Collapsible data-catalog-item="shadcn/collapsible" open={open} onOpenChange={setOpen} className={`${cls}${open ? " is-open" : ""}`}>
-      <CollapsibleTrigger className="disc-trigger">
-        <span className="sub-n">{label}</span>
-        {count !== undefined && <span className="sub-c">{count}</span>}
-      </CollapsibleTrigger>
-      <CollapsibleContent>{children}</CollapsibleContent>
+    <Collapsible asChild open={open} onOpenChange={setOpen} data-catalog-item="shadcn/collapsible">
+      <SidebarMenuItem className={`${lvl}${open ? " is-open" : ""}`}>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton className="disc-trigger">
+            <span className="sub-n">{label}</span>
+            {count !== undefined && <span className="sub-c">{count}</span>}
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub className="rail-kids">{children}</SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
     </Collapsible>
   );
 }
+
+/** A leaf is a SidebarMenuButton wrapping a real link, so the rail's rows are links and the sidebar's rows are theirs. */
+function Row({ item, active }: { item: Item; active: boolean }) {
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuButton asChild isActive={active} className="rail-item">
+        <a href={`#/i/${item.id}`} aria-current={active ? "page" : undefined}>
+          <span className="t">{item.name}</span>
+          {!item.variants.length && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
+        </a>
+      </SidebarMenuButton>
+    </SidebarMenuSubItem>
+  );
+}
+
+/** Four sections, their categories, families inside those, and one more level where a family is big. */
+function RailTree({ tree, activeId }: { tree: TreeSection[]; activeId?: string }) {
+  return (
+    <SidebarMenu className="rail-menu">
+      {tree.map((sec) => (
+        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen
+          label={<span className="sec-n">{sec.label}</span>}>
+          {sec.cats.map((cat) => (
+            <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length}
+              defaultOpen={sec.cats.length <= 2}>
+              {cat.families.map((f) => {
+                const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
+                if (f.rows.length === 1) return leaf(f.rows[0]);
+                return (
+                  <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
+                    label={`${f.key.replace(/-/g, " ")}${f.key.endsWith("s") ? "" : "s"}`}>
+                    {f.subs.length > 1
+                      ? f.subs.map((g2) => (
+                          <Level key={g2.key} lvl="rail-sub2" count={g2.rows.length}
+                            label={g2.key.replace(/-/g, " ")}>
+                            {g2.rows.map(leaf)}
+                          </Level>
+                        ))
+                      : f.rows.map(leaf)}
+                  </Level>
+                );
+              })}
+            </Level>
+          ))}
+        </Level>
+      ))}
+    </SidebarMenu>
+  );
+}
+
+const SOURCES = ["", "shadcn", "beui", "rareui", "beautifului", "transitions"];
+
+/** The head of the rail: name, counts, the filter, the source pills. The same head in either frame. */
+function RailHead({ q, setQ, from, setFrom, total, rendered }: {
+  q: string; setQ: (v: string) => void; from: string; setFrom: (v: string) => void;
+  total: number; rendered: number;
+}) {
+  return (
+    <SidebarHeader className="rail-top">
+      <div className="rail-brand">
+        <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
+        <SidebarTrigger data-catalog-item="shadcn/button" className="rail-trigger" />
+      </div>
+      <div className="meta">{total} items · {rendered} rendered</div>
+      <Input data-catalog-item="shadcn/input" value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
+        placeholder="Filter components…" aria-label="Filter components" className="h-9" />
+      <div className="rail-legend">
+        Counts are how many are inside. <a href="#/chrome">What this site is made of</a>
+      </div>
+      <div className="rail-filter">
+        {SOURCES.map((s) => (
+          <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
+            className="h-8 rounded-full px-3 text-xs" onClick={() => setFrom(s)}>
+            {s || "all sources"}
+          </Button>
+        ))}
+      </div>
+    </SidebarHeader>
+  );
+}
+
+/** Offcanvas takes the rail off screen; the way back has to live where the rail was. */
+function RailReopen() {
+  const { state } = useSidebar();
+  if (state !== "collapsed") return null;
+  return (
+    <div className="rail-reopen">
+      <SidebarTrigger data-catalog-item="shadcn/button" className="rail-reopen-btn" />
+    </div>
+  );
+}
+
+/** The catalogue's own sidebar is a desktop sidebar; a phone gets the same tree as a disclosure above the page. */
+const PHONE = "(max-width: 860px)";
+function usePhone() {
+  const [phone, setPhone] = useState(() => typeof window !== "undefined" && window.matchMedia(PHONE).matches);
+  useEffect(() => {
+    const m = window.matchMedia(PHONE);
+    const on = () => setPhone(m.matches);
+    m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return phone;
+}
+
 const byId = new Map(items.map((i) => [i.id, i]));
 
 /** Demo modules are generated files that import the real component, so what renders is what the code pane shows. */
@@ -352,6 +476,7 @@ function Cmd({ text, label }: { text: string; label?: string }) {
 }
 
 const CHROME: { id: string; where: string }[] = [
+  { id: "shadcn/sidebar", where: "the rail frame and the trigger that reopens it" },
   { id: "shadcn/collapsible", where: "every level of the rail, and each family inside it" },
   { id: "shadcn/button", where: "View code, Fit, the phone browse control, the manager tabs" },
   { id: "shadcn/badge", where: "licence and status badges, on every item page" },
@@ -500,6 +625,7 @@ export default function App() {
   const [hash, setHash] = useState(() => location.hash);
   const [q, setQ] = useState("");
   const [menu, setMenu] = useState(false);
+  const phone = usePhone();
   useEffect(() => {
     const on = () => { setHash(location.hash); setMenu(false); };
     addEventListener("hashchange", on);
@@ -510,7 +636,7 @@ export default function App() {
 
   const [from, setFrom] = useState<string>("");
 
-  const tree = useMemo(() => {
+  const tree = useMemo<TreeSection[]>(() => {
     const needle = q.trim().toLowerCase();
     const hit = items.filter((i) => (!from || i.source === from) &&
       (!needle || `${i.name} ${i.slug} ${i.source} ${i.kind} ${(i as any).category ?? ""}`.toLowerCase().includes(needle)));
@@ -549,74 +675,42 @@ export default function App() {
   const flat = useMemo(() => items.filter((i) => i.source === active?.source), [active?.source]);
   const idx = active ? flat.findIndex((i) => i.id === active.id) : -1;
 
+  const rendered = items.filter((i) => i.variants.length).length;
+  const rail = <RailTree tree={tree} activeId={active?.id} />;
+  const head = <RailHead q={q} setQ={setQ} from={from} setFrom={setFrom} total={items.length} rendered={rendered} />;
+
   return (
-    <div className={`cat${menu ? " menu-open" : ""}`}>
+    <SidebarProvider className={`cat${menu ? " menu-open" : ""}`}
+      style={{ "--sidebar-width": "288px" } as React.CSSProperties}>
       <div className="topbar">
         <a className="brand" href="#/">design catalog</a>
         <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
           {menu ? "Close" : `Browse ${items.length}`}
         </Button>
       </div>
-      <aside className="rail" id="rail">
-        <div className="rail-top">
-          <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
-          <div className="meta">{items.length} items · {items.filter((i) => i.variants.length).length} rendered</div>
-          <Input data-catalog-item="shadcn/input" value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
-            placeholder="Filter components…" aria-label="Filter components" className="h-9" />
+      {phone ? (
+        <div className="rail rail-phone" id="rail">
+          {head}
+          <div className="rail-list">{rail}</div>
         </div>
-        <div className="rail-legend">
-          Counts are how many are inside. <a href="#/chrome">What this site is made of</a>
-        </div>
-        <div className="rail-filter">
-        {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
-          <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
-            className="h-8 rounded-full px-3 text-xs" onClick={() => setFrom(s)}>
-            {s || "all sources"}
-          </Button>
-        ))}
-      </div>
-      <div className="rail-list">
-          {tree.map((sec) => (
-            <Disc key={sec.label} cls="rail-sec" label={<span className="sec-n">{sec.label}</span>}
-              count={sec.count} defaultOpen>
-              {sec.cats.map((cat) => (
-                <Disc key={cat.key} cls="rail-cat" label={cat.label} count={cat.rows.length}
-                  defaultOpen={sec.cats.length <= 2}>
-                  {cat.families.map((f) => {
-                    const item = (i: Item) => (
-                      <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
-                        aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
-                        <span className="t">{i.name}</span>
-                        {!i.variants.length && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
-                      </a>
-                    );
-                    if (f.rows.length === 1) return item(f.rows[0]);
-                    return (
-                      <Disc key={f.key} cls="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
-                        label={`${f.key.replace(/-/g, " ")}${f.key.endsWith("s") ? "" : "s"}`}>
-                        {f.subs.length > 1
-                          ? f.subs.map((g2) => (
-                              <Disc key={g2.key} cls="rail-sub2" count={g2.rows.length}
-                                label={g2.key.replace(/-/g, " ")}>
-                                {g2.rows.map(item)}
-                              </Disc>
-                            ))
-                          : f.rows.map(item)}
-                      </Disc>
-                    );
-                  })}
-                </Disc>
-              ))}
-            </Disc>
-          ))}
-        </div>
-      </aside>
-      <main className="page">
+      ) : (
+        <Sidebar collapsible="offcanvas" variant="sidebar" data-catalog-item="shadcn/sidebar">
+          {head}
+          <SidebarContent className="rail-list">
+            <SidebarGroup className="rail-groupwrap">
+              <SidebarGroupContent>{rail}</SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarRail />
+        </Sidebar>
+      )}
+      {phone ? null : <RailReopen />}
+      <SidebarInset className="page">
         {hash === "#/chrome" ? <ChromePage /> : null}
         {hash === "#/chrome" ? null : active
           ? <ItemPage item={active} prev={idx > 0 ? flat[idx - 1] : undefined} next={idx >= 0 ? flat[idx + 1] : undefined} />
           : <Home />}
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
