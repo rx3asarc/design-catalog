@@ -27,7 +27,7 @@ function Disc({ cls, label, count, defaultOpen, children }: {
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className={`${cls}${open ? " is-open" : ""}`}>
+    <Collapsible data-catalog-item="shadcn/collapsible" open={open} onOpenChange={setOpen} className={`${cls}${open ? " is-open" : ""}`}>
       <CollapsibleTrigger className="disc-trigger">
         <span className="sub-n">{label}</span>
         {count !== undefined && <span className="sub-c">{count}</span>}
@@ -190,12 +190,12 @@ function Demo({ id, index, variant, isBlock }: { id: string; index: number; vari
       <header className="demo-head">
         <span>{variant.label}</span>
         <span className="sp" />
-        <Button variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
         {open ? "Hide code" : "View code"}
       </Button>
         {code && <Copy text={code} />}
         {fit && (
-          <Button variant="outline" size="sm" className="demo-fit" onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
+          <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-fit" onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
             {fitted ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
           </Button>
         )}
@@ -245,7 +245,7 @@ function Files({ files }: { files: string[] }) {
     <>
       <div className="section-h">Source files ({files.length})</div>
       {files.length > 1 && (
-        <Tabs value={sel ?? ""} onValueChange={setSel} className="file-tabs">
+        <Tabs data-catalog-item="shadcn/tabs" value={sel ?? ""} onValueChange={setSel} className="file-tabs">
           <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0">
             {files.map((f) => (
               <TabsTrigger key={f} value={f} title={f}
@@ -262,7 +262,7 @@ function Files({ files }: { files: string[] }) {
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
         <div className="demo-code" style={{ borderTop: 0 }}>
-          <ScrollArea className="h-[560px] w-full">
+          <ScrollArea data-catalog-item="shadcn/scroll-area" className="h-[560px] w-full">
             <pre>{code ?? "loading…"}</pre>
           </ScrollArea>
         </div>
@@ -283,16 +283,16 @@ function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }
       <h2 className="title">{item.name}</h2>
       {item.one_line && <p className="lede">{item.one_line}</p>}
       <div className="badges">
-        <Badge variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
+        <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
           {item.withheld ? "source withheld" : "source included"}
         </Badge>
-        <Badge variant="outline" className="badge">{item.licence}</Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
         {item.verdict && (
           <Badge variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
             {item.verdict.verdict}
           </Badge>
         )}
-        <Badge variant="outline" className="badge">{item.files.length} files</Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
         {item.variants.length > 0 && (
           <Badge variant="outline" className="badge">
             {item.variants.length} demo{item.variants.length > 1 ? "s" : ""}
@@ -351,6 +351,59 @@ function Cmd({ text, label }: { text: string; label?: string }) {
   );
 }
 
+const CHROME: { id: string; where: string }[] = [
+  { id: "shadcn/collapsible", where: "every level of the rail, and each family inside it" },
+  { id: "shadcn/button", where: "View code, Fit, the phone browse control, the manager tabs" },
+  { id: "shadcn/badge", where: "licence and status badges, on every item page" },
+  { id: "shadcn/input", where: "the filter box above the rail" },
+  { id: "shadcn/tabs", where: "the source-file tab strip, on item pages" },
+  { id: "shadcn/scroll-area", where: "the pane a long source file scrolls in, on item pages" },
+  { id: "shadcn/table", where: "the per-source counts on this page" },
+];
+
+function ChromePage() {
+  // counted, not narrated: ask the DOM how many of each are on the page right now
+  const [seen, setSeen] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const out: Record<string, number> = {};
+    for (const c of CHROME) out[c.id] = document.querySelectorAll(`[data-catalog-item="${c.id}"]`).length;
+    setSeen(out);
+  }, []);
+  return (
+    <div className="page-in">
+      <div className="crumb">this site · built from the catalogue</div>
+      <h2 className="title">Chrome</h2>
+      <p className="lede">
+        Everything you are looking at, the shop and the shelves, is one of these. Each row is a catalogue item
+        and the count is how many of it this page is running on right now, counted from the page itself.
+      </p>
+      <Table data-catalog-item="shadcn/table">
+        <TableHeader>
+          <TableRow>
+            <TableHead>component</TableHead>
+            <TableHead>where</TableHead>
+            <TableHead className="text-right">on this page</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {CHROME.map((c) => (
+            <TableRow key={c.id} data-catalog-item="shadcn/table-row">
+              <TableCell><a href={`#/i/${c.id}`}>{c.id}</a></TableCell>
+              <TableCell className="text-muted-foreground">{c.where}</TableCell>
+              <TableCell className="text-right tabular-nums">{seen[c.id] ?? "—"}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="hint">
+        A build check refuses to publish if any hand-written button, input, table or disclosure reappears in
+        the shell, so this list cannot quietly go stale. A zero means it is not on the page you are looking at
+        but on the pages named beside it.
+      </p>
+    </div>
+  );
+}
+
 function Home() {
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -381,7 +434,7 @@ function Home() {
         <code>data/design-catalog-{VERSION}.tgz</code>. Every published file has its sha256 listed there.
       </p>
       <div className="section-h">Sources</div>
-      <Table>
+      <Table data-catalog-item="shadcn/table">
         <TableHeader>
           <TableRow>
             <TableHead>source</TableHead>
@@ -462,7 +515,7 @@ export default function App() {
     <div className={`cat${menu ? " menu-open" : ""}`}>
       <div className="topbar">
         <a className="brand" href="#/">design catalog</a>
-        <Button variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
+        <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
           {menu ? "Close" : `Browse ${items.length}`}
         </Button>
       </div>
@@ -470,10 +523,12 @@ export default function App() {
         <div className="rail-top">
           <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
           <div className="meta">{items.length} items · {items.filter((i) => i.variants.length).length} rendered</div>
-          <Input value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
+          <Input data-catalog-item="shadcn/input" value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
             placeholder="Filter components…" aria-label="Filter components" className="h-9" />
         </div>
-        <div className="rail-legend">Counts are how many are inside. Rows without a live demo say so.</div>
+        <div className="rail-legend">
+          Counts are how many are inside. <a href="#/chrome">What this site is made of</a>
+        </div>
         <div className="rail-filter">
         {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
           <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
@@ -519,7 +574,8 @@ export default function App() {
         </div>
       </aside>
       <main className="page">
-        {active
+        {hash === "#/chrome" ? <ChromePage /> : null}
+        {hash === "#/chrome" ? null : active
           ? <ItemPage item={active} prev={idx > 0 ? flat[idx - 1] : undefined} next={idx >= 0 ? flat[idx + 1] : undefined} />
           : <Home />}
       </main>
