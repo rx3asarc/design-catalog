@@ -391,32 +391,40 @@ export default function App() {
 
   const [from, setFrom] = useState<string>("");
 
-  const grouped = useMemo(() => {
+  const tree = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const hit = items.filter((i) => (!from || i.source === from) &&
       (!needle || `${i.name} ${i.slug} ${i.source} ${i.kind} ${(i as any).category ?? ""}`.toLowerCase().includes(needle)));
-    const order = ["Pages and blocks", "Conversation and agent UI", "Actions and controls", "Navigation", "Forms and input", "Overlays and dialogs", "Charts and data",
-      "Feedback and status", "Layout and structure", "Content and text", "Motion and effects", "Docs and guides"];
-    const subOf = (i: Item) => {
-      const t = i.slug.split("-")[0];
-      return t.length < 3 ? i.slug : t;
-    };
-    const out: { source: string; rows: Item[]; subs: { key: string; rows: Item[] }[] }[] = [];
-    for (const c of order) {
-      const rows = hit.filter((i) => ((i as any).category ?? "Actions and controls") === c);
-      if (!rows.length) continue;
-      const bySub = new Map<string, Item[]>();
+    // four sections, submenus under them, and a further level where a family is big
+    const SECTIONS: [string, string[]][] = [
+      ["Blocks and pages", ["Pages and blocks"]],
+      ["Components", ["Navigation", "Forms and input", "Overlays and dialogs", "Actions and controls",
+        "Feedback and status", "Layout and structure", "Content and text", "Charts and data", "Conversation and agent UI"]],
+      ["Motion and effects", ["Motion and effects"]],
+      ["Docs", ["Docs and guides"]],
+    ];
+    const fam = (rows: Item[], pick: (i: Item) => string) => {
+      const m = new Map<string, Item[]>();
       for (const r of rows) {
-        const k = subOf(r);
-        if (!bySub.has(k)) bySub.set(k, []);
-        bySub.get(k)!.push(r);
+        const k = pick(r);
+        if (!m.has(k)) m.set(k, []);
+        m.get(k)!.push(r);
       }
-      const subs = [...bySub.entries()]
+      return [...m.entries()]
         .map(([key, rs]) => ({ key, rows: rs.sort((a, b) => a.slug.localeCompare(b.slug)) }))
         .sort((a, b) => b.rows.length - a.rows.length || a.key.localeCompare(b.key));
-      out.push({ source: c, rows, subs });
-    }
-    return out;
+    };
+    const subOf = (i: Item) => { const t = i.slug.split("-")[0]; return t.length < 3 ? i.slug : t; };
+    const secondOf = (i: Item) => { const t = i.slug.split("-")[1]; return t && t.length > 1 ? t : i.slug; };
+    const tree = SECTIONS.map(([label, cats]) => {
+      const catNodes = cats.filter((c) => hit.some((i) => ((i as any).category ?? "Actions and controls") === c)).map((c) => {
+        const rows = hit.filter((i) => ((i as any).category ?? "Actions and controls") === c);
+        const families = fam(rows, subOf).map((f) => ({ ...f, subs: f.rows.length > 12 ? fam(f.rows, secondOf) : [] }));
+        return { key: c, label: c, rows, families };
+      });
+      return { label, count: catNodes.reduce((n, c) => n + c.rows.length, 0), cats: catNodes };
+    }).filter((s) => s.count > 0);
+    return tree;
   }, [q, from]);
 
   const flat = useMemo(() => items.filter((i) => i.source === active?.source), [active?.source]);
@@ -446,33 +454,51 @@ export default function App() {
         ))}
       </div>
       <div className="rail-list">
-          {grouped.map((g) => {
-            // a family of one is just an item: only families with siblings earn a submenu
-            const families = g.subs.filter((s) => s.rows.length > 1);
-            const singles = g.subs.filter((s) => s.rows.length === 1).flatMap((s) => s.rows);
-            const row = (i: Item) => (
-              <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
-                aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
-                <span className={`dot ${i.variants.length ? "demo" : "none"}`} />
-                <span className="t">{i.name}</span>
-              </a>
-            );
-            return (
-              <div key={g.source} className="rail-cat">
-                <div className="rail-group">{g.source} · {g.rows.length}</div>
-                {families.map((sub) => (
-                  <details key={sub.key} className="rail-sub" open={sub.rows.length <= 4}>
-                    <summary>
-                      <span className="sub-n">{sub.key.replace(/-/g, " ")}{sub.key.endsWith("s") ? "" : "s"}</span>
-                      <span className="sub-c">{sub.rows.length}</span>
-                    </summary>
-                    {sub.rows.map(row)}
-                  </details>
-                ))}
-                {singles.map(row)}
-              </div>
-            );
-          })}
+          {tree.map((sec) => (
+            <details key={sec.label} className="rail-sec" open>
+              <summary>
+                <span className="sec-n">{sec.label}</span>
+                <span className="sub-c">{sec.count}</span>
+              </summary>
+              {sec.cats.map((cat) => (
+                <details key={cat.key} className="rail-cat" open={sec.cats.length <= 2}>
+                  <summary>
+                    <span className="sub-n">{cat.label}</span>
+                    <span className="sub-c">{cat.rows.length}</span>
+                  </summary>
+                  {cat.families.map((f) => {
+                    const item = (i: Item) => (
+                      <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
+                        aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
+                        <span className={`dot ${i.variants.length ? "demo" : "none"}`} />
+                        <span className="t">{i.name}</span>
+                      </a>
+                    );
+                    if (f.rows.length === 1) return item(f.rows[0]);
+                    return (
+                      <details key={f.key} className="rail-sub" open={f.rows.length <= 4}>
+                        <summary>
+                          <span className="sub-n">{f.key.replace(/-/g, " ")}{f.key.endsWith("s") ? "" : "s"}</span>
+                          <span className="sub-c">{f.rows.length}</span>
+                        </summary>
+                        {f.subs.length > 1
+                          ? f.subs.map((g2) => (
+                              <details key={g2.key} className="rail-sub2" open={false}>
+                                <summary>
+                                  <span className="sub-n">{g2.key.replace(/-/g, " ")}</span>
+                                  <span className="sub-c">{g2.rows.length}</span>
+                                </summary>
+                                {g2.rows.map(item)}
+                              </details>
+                            ))
+                          : f.rows.map(item)}
+                      </details>
+                    );
+                  })}
+                </details>
+              ))}
+            </details>
+          ))}
         </div>
       </aside>
       <main className="page">

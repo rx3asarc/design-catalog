@@ -342,3 +342,23 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .rail-sub .sub-c { font-size: 11px; opacity: .5; }
 .rail-sub .rail-item .t { color: var(--muted-foreground); }
 .rail-item[aria-current="page"] .t { color: var(--foreground); }
+
+/* ---- the rail is a tree: four sections, submenus under them, deeper where a family is big ---- */
+.rail-sec, .rail-cat, .rail-sub, .rail-sub2 { margin: 0; }
+.rail-sec > summary, .rail-cat > summary, .rail-sub2 > summary { list-style: none; cursor: pointer; display: flex;
+  align-items: center; gap: 6px; min-height: 30px; border-radius: 6px; }
+.rail-sec > summary::-webkit-details-marker, .rail-cat > summary::-webkit-details-marker,
+.rail-sub2 > summary::-webkit-details-marker { display: none; }
+.rail-sec > summary { padding: 9px 10px 5px; font-size: 12.5px; font-weight: 600; color: var(--foreground);
+  letter-spacing: .01em; border-bottom: 1px solid var(--border); margin-bottom: 3px; }
+.rail-sec > summary::before { content: "›"; font-size: 12px; opacity: .5; transition: transform .15s ease-out; }
+.rail-sec[open] > summary::before { transform: rotate(90deg); }
+.rail-cat > summary { padding: 6px 10px 6px 18px; font-size: 12px; font-weight: 500; color: var(--foreground); }
+.rail-cat > summary::before { content: "›"; font-size: 11px; opacity: .5; transition: transform .15s ease-out; }
+.rail-cat[open] > summary::before { transform: rotate(90deg); }
+.rail-sub2 > summary { padding: 4px 10px 4px 38px; font-size: 11.5px; color: var(--muted-foreground); }
+.rail-sub2 > summary .sub-n { text-transform: capitalize; }
+.rail-cat > .rail-sub > summary { padding-left: 28px; }
+.rail-cat > .rail-item { padding-left: 28px; }
+.rail-sub > .rail-item, .rail-sub2 > .rail-item { padding-left: 46px; }
+.rail-sub2 > .rail-item { padding-left: 54px; }
