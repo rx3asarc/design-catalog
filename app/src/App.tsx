@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import manifest from "../manifest.json";
 import { VERSION } from "./version";
+import { Tabs, TabsList, TabsTrigger } from "@/registry/new-york-v4/ui/tabs";
 
 type Variant = { label: string; module: string };
 type Item = {
@@ -214,13 +215,16 @@ function Files({ files }: { files: string[] }) {
     <>
       <div className="section-h">Source files ({files.length})</div>
       {files.length > 1 && (
-        <div className="tabs">
-          {files.map((f) => (
-            <button key={f} aria-selected={sel === f} onClick={() => setSel(f)} title={f}>
-              {f.split("/").pop()}
-            </button>
-          ))}
-        </div>
+        <Tabs value={sel ?? ""} onValueChange={setSel} className="file-tabs">
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0">
+            {files.map((f) => (
+              <TabsTrigger key={f} value={f} title={f}
+                className="h-9 rounded-none border-b-2 border-transparent px-2.5 text-xs data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                {f.split("/").pop()}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       )}
       <div className="cmd" style={{ borderRadius: "0 8px 0 0" }}>
         <span className="path">{sel}</span>
@@ -237,7 +241,7 @@ function Files({ files }: { files: string[] }) {
 
 function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }) {
   return (
-    <div className="page-in">
+    <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       <div className="pager">
         {prev ? <a href={`#/i/${prev.id}`}><span className="dir">←</span> {prev.name}</a> : <span className="off" />}
         {next ? <a href={`#/i/${next.id}`}>{next.name} <span className="dir">→</span></a> : <span className="off" />}
@@ -317,7 +321,7 @@ function Home() {
   }, []);
   const rendered = items.filter((i) => i.variants.length > 0).length;
   return (
-    <div className="page-in">
+    <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       <h2 className="title">design catalog</h2>
       <p className="lede">
         {items.length} components, blocks, effects and doc pages from five libraries — {rendered} of them rendered

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./spinner-D4unz_X0.js";var n=e();function r(){return(0,n.jsx)(`div`,{className:`flex flex-col items-center justify-center gap-8`,children:(0,n.jsx)(t,{})})}function i(){return(0,n.jsx)(r,{})}export{i as default};

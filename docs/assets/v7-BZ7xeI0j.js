@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-Ce2Do0lH.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`link`,children:`Link`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonLink,i as default};

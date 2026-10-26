@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-Ce2Do0lH.js";var n=e();function r(){return(0,n.jsx)(t,{variant:`destructive`,children:`Destructive`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonDestructive,i as default};

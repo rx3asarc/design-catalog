@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-Ce2Do0lH.js";import{t as n}from"./IconGitBranch-0c5X3y55.js";var r=e();function i(){return(0,r.jsxs)(t,{variant:`outline`,size:`sm`,children:[(0,r.jsx)(n,{}),` New Branch`]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

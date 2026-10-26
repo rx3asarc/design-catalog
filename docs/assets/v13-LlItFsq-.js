@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{n as t}from"./button-Ce2Do0lH.js";var n=e();function r(){return(0,n.jsx)(`a`,{href:`#`,className:t({variant:`secondary`,size:`sm`}),children:`Login`})}function i(){return(0,n.jsx)(r,{})}export{r as ButtonRender,i as default};
