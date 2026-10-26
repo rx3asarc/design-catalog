@@ -72,7 +72,7 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
   const wrap = React.useRef<HTMLDivElement>(null);
   const frame = React.useRef<HTMLIFrameElement>(null);
   const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
-  const [h, setH] = React.useState(phone ? 420 : 560);
+  const [h, setH] = React.useState(0); // 0 = not measured yet
   const grows = React.useRef(0);
   const locked = React.useRef(false);
   React.useEffect(() => {
@@ -81,9 +81,11 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
       if (!d || d.designCatalogDemo !== true || d.id !== id || d.index !== index) return;
       // a viewport-filling demo can report its own frame back and grow without bound; clamp it
       if (typeof d.height !== "number" || d.height <= 0 || locked.current) return;
+      // first measurement is just the measurement; the growth watch is for later ones
+      if (hRef.current === 0) { setH(Math.min(Math.ceil(d.height), 4000)); return; }
       // a demo that sizes itself to the frame will report one growth after another; three is a loop, not a layout
       if (d.height > hRef.current + 4) {
-        if (++grows.current > 2) { locked.current = true; setH(phone ? 720 : 900); return; }
+        if (++grows.current > 2) { locked.current = true; setH(0); return; } // falls back to the block-size frame
       }
       setH(Math.min(Math.ceil(d.height), 2400));
       // height 0 means "this one sizes itself to the frame": keep the floor we already set
@@ -93,7 +95,8 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
   }, [id, index, phone]);
   const hRef = React.useRef(h);
   hRef.current = h;
-  const shown = Math.max(h, floor);
+  // a measurement wins over the fallback: the fallback is only for demos that cannot report
+  const shown = h > 0 ? h : floor;
   // no inner scroller: the frame is exactly as tall as the demo, and the page does the scrolling
   const cap = shown * zoom;
   React.useEffect(() => {
