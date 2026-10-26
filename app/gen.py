@@ -63,12 +63,14 @@ CATEGORIES = [
 def category_for(slug: str, kind: str, source: str) -> str:
     """Group by what a thing is, not by whose site it came from."""
     s = slug.lower()
-    if kind == "block":
-        return "Pages and blocks"
+    # what it IS beats how it was filed: a chart that ships as a "block" is still a chart
     if kind == "text":
         return "Docs and guides"
     if kind == "effect" or source == "transitions":
         return "Motion and effects"
+    if any(w in s for w in ("dashboard", "login", "signup", "mail", "music", "tasks", "authentication",
+                            "playground", "landing", "pricing", "checkout", "onboarding", "app-shell", "chat-app")):
+        return "Pages and blocks"
     def has(*words):
         return any(w in s for w in words)
     if has("button", "toggle", "action", "control", "swap"):
@@ -78,10 +80,10 @@ def category_for(slug: str, kind: str, source: str) -> str:
         return "Conversation and agent UI"
     if has("heatmap", "order-book", "price", "liquidity", "faq", "folder", "preview", "number", "marker", "direction", "utils"):
         return "Charts and data"
-    if has("shader", "background", "image", "viewer", "emoji", "pull-to-refresh", "expand"):
-        return "Motion and effects"
     if has("chart", "table", "data", "sparkline", "gauge", "sankey", "graph", "meter", "stats"):
         return "Charts and data"
+    if has("shader", "background", "image", "viewer", "emoji", "pull-to-refresh"):
+        return "Motion and effects"
     if has("sidebar", "nav", "menu", "breadcrumb", "pagination", "tab", "command", "dock", "stepper", "tree", "toc", "link"):
         return "Navigation"
     if has("dialog", "sheet", "drawer", "popover", "tooltip", "hovers", "hover-card", "alert-dialog", "context", "dropdown",
@@ -99,6 +101,10 @@ def category_for(slug: str, kind: str, source: str) -> str:
         return "Layout and structure"
     if has("typograph", "text", "heading", "prose", "quote", "markdown", "code", "article", "list", "copy", "word"):
         return "Content and text"
+    if kind == "block":
+        return "Pages and blocks"
+    if kind == "block":
+        return "Pages and blocks"
     return "Actions and controls"
 
 
