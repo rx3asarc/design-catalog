@@ -335,3 +335,10 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .rail-sub .sub-c { font-variant-numeric: tabular-nums; opacity: .65; }
 .rail-sub .rail-item { padding-left: 30px; }
 @media (max-width: 860px) { .rail-sub > summary { min-height: 44px; } }
+/* family rows read as a level above the items: weightier text, a real chevron, items indented under it */
+.rail-sub > summary { color: var(--foreground); font-weight: 500; }
+.rail-sub > summary::before { content: "›"; font-size: 12px; opacity: .55; transition: transform .15s ease-out; }
+.rail-sub[open] > summary::before { transform: rotate(90deg); }
+.rail-sub .sub-c { font-size: 11px; opacity: .5; }
+.rail-sub .rail-item .t { color: var(--muted-foreground); }
+.rail-item[aria-current="page"] .t { color: var(--foreground); }
