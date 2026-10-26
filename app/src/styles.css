@@ -578,16 +578,18 @@ pre { font-family: var(--font-mono); }
 /* ---- the tree: four levels, one indent token each, inherited by the rows underneath ---- */
 .rail-list { padding: 6px 8px 40px; gap: 0; }
 .rail-groupwrap { padding: 0; }
-.rail-menu { gap: 0; }
-.rail-kids { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; border: 0;
-  transform: none; }
-.rail-menu { --indent: 6px; }
+.rail-menu { --indent: 6px; gap: 0; }
+/* the registry's SidebarMenuSub brings a 14px gutter and a guide rule per level; four levels of that would
+   eat the rail, so the indent is one token per level instead and the rows inherit the nearest one */
+.rail-kids { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; border: 0; transform: none; }
 .rail-sec { --indent: 8px; }
 .rail-cat { --indent: 18px; }
 .rail-sub { --indent: 28px; }
 .rail-sub2 { --indent: 40px; }
 
-/* the registry's rows are h-8 with p-2; ours are a dense tree, so the metrics are restated here */
+/* The registry's rows are h-8 with p-2; ours are a dense tree, so the metrics are restated here — and only
+   the metrics. The size is the look's two-step rail scale (--t-rail-label for a label, --t-rail-item for a
+   row), so this swap cannot re-introduce the five sizes the rail had. */
 .disc-trigger, .rail-item { height: auto; border-radius: 6px; }
 .rail-sec > .disc-trigger { min-height: 30px; padding: 9px 10px 5px var(--indent); font-weight: 600; }
 .rail-cat > .disc-trigger { min-height: 30px; padding: 6px 10px 6px var(--indent); font-weight: 500; }
@@ -597,8 +599,6 @@ pre { font-family: var(--font-mono); }
 .rail-item .t { flex: 1 1 auto; min-width: 0; }
 .rail-item .nodemo { margin-left: 0; }
 .disc-trigger .sub-c { opacity: .45; }
-/* the levels state padding and weight only: the size is the look's two-step rail scale
-   (--t-rail-label for a label, --t-rail-item for a row), so the swap cannot re-introduce five sizes */
 
 /* a rail row is a thumb target on a phone, whatever its level */
 @media (max-width: 860px) {
