@@ -443,7 +443,7 @@ export default function App() {
           <Input value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
             placeholder="Filter components…" aria-label="Filter components" className="h-9" />
         </div>
-        <div className="rail-legend">demo = renders here · otherwise source or verdict only</div>
+        <div className="rail-legend">Counts are how many are inside. Rows without a live demo say so.</div>
         <div className="rail-filter">
         {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
           <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
@@ -470,7 +470,7 @@ export default function App() {
                       <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
                         aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
                         <span className="t">{i.name}</span>
-                        {!i.variants.length && <span className="nodemo">no demo</span>}
+                        {!i.variants.length && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
                       </a>
                     );
                     if (f.rows.length === 1) return item(f.rows[0]);

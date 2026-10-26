@@ -370,3 +370,24 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .rail-item .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rail-cat > summary .sub-c { opacity: .4; }
 .rail-sec > summary { text-transform: none; }
+
+/* ---- rail polish: one metric per level, counts aligned, chevrons legible, no dead strips ---- */
+.rail-top { padding-bottom: 6px; }
+.rail-top input { margin-top: 8px; }
+.rail-legend { padding: 4px 12px 8px; font-size: 11px; line-height: 1.45; color: var(--muted-foreground); }
+.rail-filter { padding: 0 12px 10px; gap: 5px; }
+.rail-item { display: flex; align-items: center; gap: 8px; min-height: 30px; padding: 3px 12px; }
+.rail-sec > summary, .rail-cat > summary, .rail-sub > summary, .rail-sub2 > summary {
+  justify-content: flex-start; }
+.rail-sec > summary .sub-c, .rail-cat > summary .sub-c, .rail-sub > summary .sub-c, .rail-sub2 > summary .sub-c {
+  margin-left: auto; font-variant-numeric: tabular-nums; font-size: 11px; }
+.rail-sec > summary .sec-n { flex: 1; }
+.rail-cat > summary .sub-n, .rail-sub > summary .sub-n, .rail-sub2 > summary .sub-n { flex: 1; }
+.rail-sec > summary::before, .rail-cat > summary::before, .rail-sub > summary::before {
+  width: 10px; text-align: center; font-size: 11px; }
+.rail-cat > summary { padding-left: 16px; }
+.rail-cat > .rail-sub > summary { padding-left: 26px; }
+.rail-cat > .rail-item { padding-left: 26px; }
+.rail-sub > .rail-item { padding-left: 40px; }
+.rail-sub2 > summary { padding-left: 40px; }
+.rail-sub2 > .rail-item { padding-left: 52px; }
