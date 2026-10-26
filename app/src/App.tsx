@@ -342,13 +342,11 @@ function Home() {
         {items.length} components, blocks, effects and doc pages from five libraries — {rendered} of them rendered
         here from their real source, the rest listed with their licence and our verdict.
       </p>
-      <div className="section-h">Use it from an agent</div>
-      <p className="hint">Run the catalogue as an MCP server. It exposes catalog_search, catalog_get and catalog_stats.</p>
-      <Cmd text={`npx -y ${TARBALL} mcp`} label="any shell" />
+      <div className="section-h">Run it as an agent tool</div>
+      <Cmd text={`npx -y ${TARBALL} mcp`} label="MCP server, one command" />
       <Cmd text={MCP_CONFIG} label="MCP client config (Claude Code, Cursor, any stdio client)" />
 
       <div className="section-h">Or from a shell</div>
-      <p className="hint">The same data, no install step, no native build.</p>
       <Cmd text={`npx -y ${TARBALL} search "sidebar"`} label="search" />
       <Cmd text={`npx -y ${TARBALL} get thinking-states`} label="one item, with its source" />
       <Cmd text={`npx -y ${TARBALL} stats`} label="counts per source" />
@@ -445,6 +443,7 @@ export default function App() {
           <Input value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
             placeholder="Filter components…" aria-label="Filter components" className="h-9" />
         </div>
+        <div className="rail-legend">demo = renders here · otherwise source or verdict only</div>
         <div className="rail-filter">
         {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
           <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
@@ -470,8 +469,8 @@ export default function App() {
                     const item = (i: Item) => (
                       <a key={i.id} className="rail-item" href={`#/i/${i.id}`}
                         aria-current={active?.id === i.id ? "page" : undefined} style={{ textDecoration: "none" }}>
-                        <span className={`dot ${i.variants.length ? "demo" : "none"}`} />
                         <span className="t">{i.name}</span>
+                        {!i.variants.length && <span className="nodemo">no demo</span>}
                       </a>
                     );
                     if (f.rows.length === 1) return item(f.rows[0]);

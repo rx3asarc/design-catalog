@@ -362,3 +362,11 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .rail-cat > .rail-item { padding-left: 28px; }
 .rail-sub > .rail-item, .rail-sub2 > .rail-item { padding-left: 46px; }
 .rail-sub2 > .rail-item { padding-left: 54px; }
+
+/* ---- the rail says what it means: counts on groups, a plain label on items without a demo ---- */
+.rail-legend { padding: 6px 12px 2px; font-size: 11px; line-height: 1.4; color: var(--muted-foreground); }
+.rail-item .nodemo { margin-left: auto; font-size: 10px; letter-spacing: .02em; text-transform: uppercase;
+  opacity: .45; white-space: nowrap; }
+.rail-item .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail-cat > summary .sub-c { opacity: .4; }
+.rail-sec > summary { text-transform: none; }
