@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 
 import { BarChart3, Bell, Home } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/motion/tabs";

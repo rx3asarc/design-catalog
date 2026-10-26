@@ -1,3 +1,4 @@
+import * as React from "react";
 // beui.dev/components/motion/marquee
 import { Children, type ReactNode } from "react";
 import { cn } from "@/lib/utils";

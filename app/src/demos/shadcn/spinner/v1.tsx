@@ -1,3 +1,4 @@
+import * as React from "react";
 import { cn } from "@/registry/new-york-v4/lib/utils"
 import { LoaderIcon } from "lucide-react"
 

@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 // beui.dev/components/blocks/not-found
 
 import { motion, useReducedMotion } from "motion/react";

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";import{t as n}from"./loader-circle-qFUrTCk5.js";import{t as r}from"./utils-D0T3A-kS.js";t();var i=e();function a({className:e,...t}){return(0,i.jsx)(n,{role:`status`,"aria-label":`Loading`,className:r(`size-4 animate-spin`,e),...t})}export{a as t};

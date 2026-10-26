@@ -7,7 +7,7 @@ import {
 
 export function ToggleGroupVertical() {
   return (
-    <ToggleGroup
+    <ToggleGroup type="single"
       multiple
       orientation="vertical"
       spacing={1}

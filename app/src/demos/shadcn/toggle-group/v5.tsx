@@ -7,7 +7,7 @@ import {
 
 export function ToggleGroupDisabled() {
   return (
-    <ToggleGroup disabled>
+    <ToggleGroup type="single" disabled>
       <ToggleGroupItem value="bold" aria-label="Toggle bold">
         <Bold />
       </ToggleGroupItem>

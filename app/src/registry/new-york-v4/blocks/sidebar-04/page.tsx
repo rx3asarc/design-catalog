@@ -1,3 +1,4 @@
+import * as React from "react";
 import { AppSidebar } from "@/registry/new-york-v4/blocks/sidebar-04/components/app-sidebar"
 import {
   Breadcrumb,

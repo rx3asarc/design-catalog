@@ -367,17 +367,21 @@ export default function App() {
 
   const active = hash.startsWith("#/i/") ? byId.get(hash.slice(4)) : undefined;
 
+  const [from, setFrom] = useState<string>("");
+
   const grouped = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    const hit = items.filter((i) => !needle || `${i.name} ${i.slug} ${i.source} ${i.kind}`.toLowerCase().includes(needle));
-    const order = ["shadcn", "beui", "rareui", "beautifului", "transitions"];
+    const hit = items.filter((i) => (!from || i.source === from) &&
+      (!needle || `${i.name} ${i.slug} ${i.source} ${i.kind} ${(i as any).category ?? ""}`.toLowerCase().includes(needle)));
+    const order = ["Pages and blocks", "Conversation and agent UI", "Actions and controls", "Navigation", "Forms and input", "Overlays and dialogs", "Charts and data",
+      "Feedback and status", "Layout and structure", "Content and text", "Motion and effects", "Docs and guides"];
     const out: { source: string; rows: Item[] }[] = [];
-    for (const s of order) {
-      const rows = hit.filter((i) => i.source === s);
-      if (rows.length) out.push({ source: s, rows });
+    for (const c of order) {
+      const rows = hit.filter((i) => ((i as any).category ?? "Actions and controls") === c);
+      if (rows.length) out.push({ source: c, rows });
     }
     return out;
-  }, [q]);
+  }, [q, from]);
 
   const flat = useMemo(() => items.filter((i) => i.source === active?.source), [active?.source]);
   const idx = active ? flat.findIndex((i) => i.id === active.id) : -1;
@@ -396,7 +400,14 @@ export default function App() {
           <div className="meta">{items.length} items · {items.filter((i) => i.variants.length).length} rendered</div>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter components…" aria-label="Filter components" />
         </div>
-        <div className="rail-list">
+        <div className="rail-filter">
+        {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
+          <button key={s || "all"} className={from === s ? "on" : ""} onClick={() => setFrom(s)}>
+            {s || "all sources"}
+          </button>
+        ))}
+      </div>
+      <div className="rail-list">
           {grouped.map((g) => (
             <div key={g.source}>
               <div className="rail-group">{g.source} · {g.rows.length}</div>

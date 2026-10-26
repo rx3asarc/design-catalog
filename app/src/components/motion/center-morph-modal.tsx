@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 // beui.dev/components/motion/center-morph-modal
 
 import { X } from "lucide-react";

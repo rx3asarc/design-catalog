@@ -50,7 +50,7 @@ export function CardSpacing() {
 
   return (
     <div className="mx-auto grid w-full max-w-sm gap-4">
-      <ToggleGroup
+      <ToggleGroup type="single"
         value={[spacing]}
         onValueChange={(value) => {
           if (value[0]) {

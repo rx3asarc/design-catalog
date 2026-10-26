@@ -273,3 +273,8 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .pager .off { flex: 1; }
 @media (min-width: 861px) { .pager { position: sticky; top: 0; z-index: 5; background: var(--background); } }
 @media (max-width: 860px) { .pager a { min-height: 44px; font-size: 13.5px; } }
+.rail-filter { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 10px; border-bottom: 1px solid var(--border); }
+.rail-filter button { font-size: 12px; padding: 5px 9px; min-height: 30px; border: 1px solid var(--border);
+  border-radius: 99px; background: transparent; color: var(--muted-foreground); }
+.rail-filter button.on { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
+@media (max-width: 860px) { .rail-filter button { min-height: 44px; } }

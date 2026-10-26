@@ -33,10 +33,73 @@ def latest(where: str, args) -> list[sqlite3.Row]:
           AND {where} ORDER BY a.path""", args)
 
 
+def ensure_react(code: str) -> str:
+    """Files copied from a Next app may use the React namespace without importing it (their
+    bundler supplied it). Under Vite that is a ReferenceError, so make the import explicit."""
+    if not re.search(r"\bReact\.", code):
+        return code
+    if re.search(r"^\s*import\s+(React|\*\s+as\s+React)\b", code, re.M):
+        return code
+    if re.search(r"import\s*\{[^}]*\bReact\b[^}]*\}\s*from\s*[\"']react[\"']", code):
+        return code
+    # insert after the "use client" directive if there is one, otherwise at the top: guessing at
+    # "the last import line" lands inside a multi-line import and produces a syntax error
+    lines = code.splitlines()
+    at = 1 if lines and lines[0].lstrip().startswith(("'use client'", '"use client"')) else 0
+    lines.insert(at, 'import * as React from "react";')
+    return "\n".join(lines)
+
+
 def write(rel: str, text: str) -> None:
     p = SRC / rel
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(text)
+    p.write_text(ensure_react(text) if rel.endswith((".tsx", ".ts")) else text)
+
+
+CATEGORIES = [
+    ("Blocks and pages", ("block",)),
+]
+
+def category_for(slug: str, kind: str, source: str) -> str:
+    """Group by what a thing is, not by whose site it came from."""
+    s = slug.lower()
+    if kind == "block":
+        return "Pages and blocks"
+    if kind == "text":
+        return "Docs and guides"
+    if kind == "effect" or source == "transitions":
+        return "Motion and effects"
+    def has(*words):
+        return any(w in s for w in words)
+    if has("button", "toggle", "action", "control", "swap"):
+        return "Actions and controls"
+    if has("chat", "message", "bubble", "prompt", "streaming", "tool-", "thinking", "agent", "citation", "voice", "reaction",
+           "attachment", "timeline", "step-player", "activity"):
+        return "Conversation and agent UI"
+    if has("heatmap", "order-book", "price", "liquidity", "faq", "folder", "preview", "number", "marker", "direction", "utils"):
+        return "Charts and data"
+    if has("shader", "background", "image", "viewer", "emoji", "pull-to-refresh", "expand"):
+        return "Motion and effects"
+    if has("chart", "table", "data", "sparkline", "gauge", "sankey", "graph", "meter", "stats"):
+        return "Charts and data"
+    if has("sidebar", "nav", "menu", "breadcrumb", "pagination", "tab", "command", "dock", "stepper", "tree", "toc", "link"):
+        return "Navigation"
+    if has("dialog", "sheet", "drawer", "popover", "tooltip", "hovers", "hover-card", "alert-dialog", "context", "dropdown",
+           "toast", "sonner", "notification", "sheet", "modal", "bottom-sheet", "lightbox", "spotlight"):
+        return "Overlays and dialogs"
+    if has("input", "textarea", "select", "checkbox", "radio", "switch", "slider", "form", "combobox", "calendar", "date",
+           "field", "otp", "file", "upload", "label", "toggle", "picker", "search", "rating", "password", "phone", "signup", "login"):
+        return "Forms and input"
+    if has("alert", "badge", "progress", "skeleton", "spinner", "empty", "status", "loader", "error", "banner", "callout"):
+        return "Feedback and status"
+    if has("motion", "animate", "transition", "hover", "glow", "gradient", "orb", "gravity", "shimmer", "marquee", "reveal", "parallax", "text-anim"):
+        return "Motion and effects"
+    if has("card", "separator", "accordion", "collapsible", "scroll", "resizable", "aspect", "carousel", "avatar", "item",
+           "kbd", "sheet", "panel", "grid", "layout", "hero", "footer", "header", "section"):
+        return "Layout and structure"
+    if has("typograph", "text", "heading", "prose", "quote", "markdown", "code", "article", "list", "copy", "word"):
+        return "Content and text"
+    return "Actions and controls"
 
 
 def sluggy(s: str) -> str:
@@ -238,7 +301,27 @@ def main() -> int:
     def rewrite(code: str) -> str:
         for pat, rep in REWRITE:
             code = re.sub(pat, rep, code)
+        # a doc fence that omits a required prop is a broken demo, not a broken component:
+        # shadcn's own site passes type="single" here
+        code = re.sub(r"<ToggleGroup(?![\w-])(?![^>]*\btype=)([^>]*)>", r'<ToggleGroup type="single"\1>', code)
         return code
+
+    def ensure_react(code: str) -> str:
+        """Files copied from a Next app may lean on the React namespace without importing it
+        (their bundler supplied it). Under Vite that is a ReferenceError, so make it explicit."""
+        if not re.search(r"\bReact\.", code):
+            return code
+        if re.search(r"^\s*import\s+(React|\*\s+as\s+React)\b", code, re.M):
+            return code
+        if re.search(r"import\s*\{[^}]*\bReact\b[^}]*\}\s*from\s*\"react\"", code):
+            return code
+        lines = code.splitlines()
+        last = -1
+        for i, ln in enumerate(lines[:40]):
+            if ln.lstrip().startswith("import ") or ln.lstrip().startswith('"use client"'):
+                last = i
+        lines.insert(last + 1, 'import * as React from "react";')
+        return "\n".join(lines)
 
     def export_name(code: str) -> str | None:
         m = re.search(r"export\s+(?:default\s+)?function\s+([A-Z]\w+)", code)
@@ -271,6 +354,7 @@ def main() -> int:
             entry["page"] = None if slug.startswith("docs-") else f"https://ui.shadcn.com/docs/components/{slug}"
         else:
             entry["page"] = it["url"]
+        entry["category"] = category_for(slug, kind, src)
         entry["install"] = {
             "shadcn": f"npx shadcn@latest add {slug}",
             "beui": f"npx shadcn@latest add https://beui.dev/r/{slug}",

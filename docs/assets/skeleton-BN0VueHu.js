@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";import{t as n}from"./utils-D0T3A-kS.js";t();var r=e();function i({className:e,...t}){return(0,r.jsx)(`div`,{"data-slot":`skeleton`,className:n(`animate-pulse rounded-md bg-accent`,e),...t})}export{i as t};

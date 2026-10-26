@@ -7,7 +7,7 @@ import {
 
 export function ToggleGroupDemo() {
   return (
-    <ToggleGroup variant="outline" multiple>
+    <ToggleGroup type="single" variant="outline" multiple>
       <ToggleGroupItem value="bold" aria-label="Toggle bold">
         <Bold />
       </ToggleGroupItem>

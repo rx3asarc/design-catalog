@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Button } from "@/registry/new-york-v4/ui/button"
 import {
   Card,

@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 // beui.dev/components/motion/adaptive-stepper
 
 import { Minus, Plus } from "lucide-react";

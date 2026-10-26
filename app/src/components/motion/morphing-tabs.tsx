@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 // beui.dev/components/blocks/morphing-tabs
 
 import { X } from "lucide-react";

@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Search } from "lucide-react"
 
 import { Label } from "@/registry/new-york-v4/ui/label"

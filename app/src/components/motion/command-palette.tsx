@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 // beui.dev/components/blocks/command-palette
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";

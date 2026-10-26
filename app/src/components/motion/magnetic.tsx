@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 
 import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
 import { useRef, type ReactNode } from "react";

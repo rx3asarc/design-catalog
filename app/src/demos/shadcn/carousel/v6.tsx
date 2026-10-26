@@ -1,3 +1,4 @@
+import * as React from "react";
 import { type CarouselApi } from "@/registry/new-york-v4/ui/carousel"
 
 export function Example() {

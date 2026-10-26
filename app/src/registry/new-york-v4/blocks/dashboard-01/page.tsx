@@ -1,3 +1,4 @@
+import * as React from "react";
 import { AppSidebar } from "@/registry/new-york-v4/blocks/dashboard-01/components/app-sidebar"
 import { ChartAreaInteractive } from "@/registry/new-york-v4/blocks/dashboard-01/components/chart-area-interactive"
 import { DataTable } from "@/registry/new-york-v4/blocks/dashboard-01/components/data-table"
