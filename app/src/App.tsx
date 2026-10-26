@@ -358,7 +358,7 @@ const CHROME: { id: string; where: string }[] = [
   { id: "shadcn/input", where: "the filter box above the rail" },
   { id: "shadcn/tabs", where: "the source-file tab strip, on item pages" },
   { id: "shadcn/scroll-area", where: "the pane a long source file scrolls in, on item pages" },
-  { id: "shadcn/table", where: "the per-source counts on this page" },
+  { id: "shadcn/table", where: "this listing — the table of everything above it" },
 ];
 
 function ChromePage() {
@@ -404,25 +404,80 @@ function ChromePage() {
   );
 }
 
+/** The front page is a first-run screen: what this is, three ways in, what is inside, then the commands. */
 function Home() {
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
     for (const i of items) m[i.source] = (m[i.source] ?? 0) + 1;
     return m;
   }, []);
+  const sources = useMemo(() => Object.keys(counts).sort((a, b) => counts[b] - counts[a]), [counts]);
+  const shipped = items.filter((i) => !i.withheld).length;
+  const withheld = items.length - shipped;
   const rendered = items.filter((i) => i.variants.length > 0).length;
   return (
     <div className="page-in">
       <h2 className="title">design catalog</h2>
       <p className="lede">
-        {items.length} components, blocks, effects and doc pages from five libraries — {rendered} of them rendered
-        here from their real source, the rest listed with their licence and our verdict.
+        {items.length} components, blocks, effects and doc pages collected from {sources.length} reference
+        libraries. Where the source is ours to republish it ships with the item; where it builds against the
+        catalogue's own components it runs here, live — licence named and our verdict attached.
       </p>
-      <div className="section-h">Run it as an agent tool</div>
+
+      <ol className="ways">
+        <li className="way">
+          <span className="way-n">01</span>
+          <div>
+            <div className="way-h">Browse the rail</div>
+            <p className="way-p">
+              Four sections, down to families. The count on any level is how many items are inside it, and the
+              filter box narrows all of them at once.
+            </p>
+          </div>
+        </li>
+        <li className="way">
+          <span className="way-n">02</span>
+          <div>
+            <div className="way-h">Open an item</div>
+            <p className="way-p">
+              Every page names the source and the licence, lists the files, and runs each variant as the component
+              itself rather than a picture of it. <a href="#/i/shadcn/button">Start with button</a>, or open a{" "}
+              <a href="#/i/shadcn/dashboard-01">whole dashboard</a>.
+            </p>
+          </div>
+        </li>
+        <li className="way">
+          <span className="way-n">03</span>
+          <div>
+            <div className="way-h">Use it from an agent</div>
+            <p className="way-p">
+              The same catalogue is a CLI and an MCP server, so a coding agent can search it and read an item's
+              source without a browser. Two commands for that, three for a shell, below.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div className="section-h">What is in it</div>
+      <div className="tally">
+        {sources.map((s) => (
+          <span className="tally-item" key={s}>
+            <span className="tally-n">{counts[s]}</span>
+            <span className="tally-l">{s}</span>
+          </span>
+        ))}
+      </div>
+      <p className="tally-note">
+        {shipped} of the {items.length} ship their source, and {rendered} of them run here as a live demo. The
+        remaining {withheld} are entries with facts, a licence and our verdict and no source, because republishing
+        it is not ours to do.
+      </p>
+
+      <div className="section-h">From an agent</div>
       <Cmd text={`npx -y ${TARBALL} mcp`} label="MCP server, one command" />
       <Cmd text={MCP_CONFIG} label="MCP client config (Claude Code, Cursor, any stdio client)" />
 
-      <div className="section-h">Or from a shell</div>
+      <div className="section-h">From a shell</div>
       <Cmd text={`npx -y ${TARBALL} search "sidebar"`} label="search" />
       <Cmd text={`npx -y ${TARBALL} get thinking-states`} label="one item, with its source" />
       <Cmd text={`npx -y ${TARBALL} stats`} label="counts per source" />
@@ -430,30 +485,13 @@ function Home() {
       <div className="section-h">Pinning</div>
       <p className="hint">
         <code>latest</code> moves. To pin, use the versioned file and check it against
-        <a href="https://rx3asarc.github.io/design-catalog/data/CHECKSUMS.txt"> CHECKSUMS.txt</a> —
+        <a href="https://rx3asarc.github.io/design-catalog/data/CHECKSUMS.txt"> CHECKSUMS.txt</a> —{" "}
         <code>data/design-catalog-{VERSION}.tgz</code>. Every published file has its sha256 listed there.
       </p>
-      <div className="section-h">Sources</div>
-      <Table data-catalog-item="shadcn/table">
-        <TableHeader>
-          <TableRow>
-            <TableHead>source</TableHead>
-            <TableHead>rendered</TableHead>
-            <TableHead className="text-right">items</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.entries(counts).map(([s, n]) => (
-            <TableRow key={s}>
-              <TableCell>{s}</TableCell>
-              <TableCell className="text-muted-foreground">
-                {items.filter((i) => i.source === s && i.variants.length).length}
-              </TableCell>
-              <TableCell className="text-right text-muted-foreground">{n}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <p className="hint">
+        This site is built out of the catalogue it describes:{" "}
+        <a href="#/chrome">what it is made of, counted from the page</a>.
+      </p>
     </div>
   );
 }
