@@ -593,3 +593,24 @@ pre { font-family: var(--font-mono); }
   background: var(--card); color: var(--foreground); }
 .rail-reopen-btn:hover { background: var(--muted); }
 @media (max-width: 860px) { .rail-reopen { display: none; } }
+
+/* ═══ provenance: the tag that names whatever you are pointing at ════════════════════════════════
+   It is a label, not a panel: the mono label step from the scale above, the popover surface, one hair
+   of shadow. It carries the pointer through — only its link takes clicks — so it can hang over the row
+   beneath without stealing it. */
+.prov-tag {
+  width: auto; max-width: min(22rem, calc(100vw - 1rem));
+  padding: 5px 10px; border: 1px solid var(--border); border-radius: calc(var(--radius) - 4px);
+  background: var(--popover); color: var(--popover-foreground);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.05);
+  font-family: var(--font-mono); font-size: var(--t-label); line-height: 1.5;
+  pointer-events: none;
+}
+.prov-tag a.prov-open { pointer-events: auto; color: var(--foreground); text-decoration: none; }
+.prov-tag a.prov-open:hover, .prov-tag a.prov-open:focus-visible {
+  text-decoration: underline; text-decoration-color: var(--ink-accent); text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.prov-tag .prov-uses, .prov-tag .prov-quiet { color: var(--muted-foreground); }
+.prov-tag .prov-n { font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) { .prov-tag { font-size: 12px; } }

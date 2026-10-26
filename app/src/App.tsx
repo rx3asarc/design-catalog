@@ -7,6 +7,7 @@ import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { ScrollArea } from "@/registry/new-york-v4/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
+import { Provenance, useUsage } from "./provenance";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset,
   SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem,
@@ -126,7 +127,7 @@ function RailHead({ q, setQ, from, setFrom, total, rendered }: {
       </div>
       <div className="rail-filter">
         {SOURCES.map((s) => (
-          <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
+          <Button key={s || "all"} data-catalog-item="shadcn/button" size="sm" variant={from === s ? "default" : "outline"}
             className="h-8 rounded-full px-3 text-xs" onClick={() => setFrom(s)}>
             {s || "all sources"}
           </Button>
@@ -190,6 +191,7 @@ function Copy({ text, label = "Copy" }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
     <Button
+      data-catalog-item="shadcn/button"
       variant="outline"
       size="sm"
       className="h-8"
@@ -349,7 +351,7 @@ function Install({ install }: { install: string }) {
       <div className="section-h">Installation</div>
       <div className="tabs" role="tablist">
         {MANAGERS.map((m) => (
-          <Button key={m} role="tab" variant={pm === m ? "default" : "outline"} size="sm"
+          <Button key={m} role="tab" data-catalog-item="shadcn/button" variant={pm === m ? "default" : "outline"} size="sm"
             aria-selected={pm === m} className="h-8" onClick={() => setPm(m)}>{m}</Button>
         ))}
       </div>
@@ -412,13 +414,13 @@ function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }
         </Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
         {item.verdict && (
-          <Badge variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
+          <Badge data-catalog-item="shadcn/badge" variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
             {item.verdict.verdict}
           </Badge>
         )}
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
         {item.variants.length > 0 && (
-          <Badge variant="outline" className="badge">
+          <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
             {item.variants.length} demo{item.variants.length > 1 ? "s" : ""}
           </Badge>
         )}
@@ -484,23 +486,20 @@ const CHROME: { id: string; where: string }[] = [
   { id: "shadcn/tabs", where: "the source-file tab strip, on item pages" },
   { id: "shadcn/scroll-area", where: "the pane a long source file scrolls in, on item pages" },
   { id: "shadcn/table", where: "this listing — the table of everything above it" },
+  { id: "shadcn/popover", where: "the provenance tag, while one is showing" },
 ];
 
 function ChromePage() {
-  // counted, not narrated: ask the DOM how many of each are on the page right now
-  const [seen, setSeen] = useState<Record<string, number>>({});
-  useEffect(() => {
-    const out: Record<string, number> = {};
-    for (const c of CHROME) out[c.id] = document.querySelectorAll(`[data-catalog-item="${c.id}"]`).length;
-    setSeen(out);
-  }, []);
+  // counted, not narrated: the same live count the provenance tag reads, so the two always agree
+  const seen = useUsage();
   return (
     <div className="page-in">
       <div className="crumb">this site · built from the catalogue</div>
       <h2 className="title">Chrome</h2>
       <p className="lede">
         Everything you are looking at, the shop and the shelves, is one of these. Each row is a catalogue item
-        and the count is how many of it this page is running on right now, counted from the page itself.
+        and the count is how many of it this page is running on right now, counted from the page itself. Point at
+        any of them — a badge, the filter box, a level of the rail — and the page names it.
       </p>
       <Table data-catalog-item="shadcn/table">
         <TableHeader>
@@ -515,7 +514,7 @@ function ChromePage() {
             <TableRow key={c.id} data-catalog-item="shadcn/table-row">
               <TableCell><a href={`#/i/${c.id}`}>{c.id}</a></TableCell>
               <TableCell className="text-muted-foreground">{c.where}</TableCell>
-              <TableCell className="text-right tabular-nums">{seen[c.id] ?? "—"}</TableCell>
+              <TableCell className="text-right tabular-nums">{seen[c.id] ?? 0}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -523,7 +522,8 @@ function ChromePage() {
       <p className="hint">
         A build check refuses to publish if any hand-written button, input, table or disclosure reappears in
         the shell, so this list cannot quietly go stale. A zero means it is not on the page you are looking at
-        but on the pages named beside it.
+        but on the pages named beside it — the tag is the one honest zero, since it is only mounted while it is
+        showing, and pointing at this row will turn it to a one.
       </p>
     </div>
   );
@@ -711,6 +711,7 @@ export default function App() {
           ? <ItemPage item={active} prev={idx > 0 ? flat[idx - 1] : undefined} next={idx >= 0 ? flat[idx + 1] : undefined} />
           : <Home />}
       </SidebarInset>
+      <Provenance />
     </SidebarProvider>
   );
 }
