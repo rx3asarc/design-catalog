@@ -278,3 +278,24 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   border-radius: 99px; background: transparent; color: var(--muted-foreground); }
 .rail-filter button.on { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
 @media (max-width: 860px) { .rail-filter button { min-height: 44px; } }
+
+/* ---- page rhythm, measured off ui.shadcn.com/docs/components/base/accordion:
+       640px content column, demo card with 40px inner padding and 16/48 margins, h1 30/36, h2 18.75 ---- */
+.page-in { max-width: 640px; padding: 40px 24px 72px; }
+.page-in h1 { font-size: 30px; line-height: 36px; letter-spacing: -0.015em; margin: 0 0 6px; }
+.page-in .lede { font-size: 15px; line-height: 24px; margin-bottom: 18px; }
+.demo { margin: 16px 0 32px; border-radius: 12px; }
+.demo-head { padding: 8px 12px; }
+.demo-body { padding: 40px; }
+.demo-code { padding: 0; }
+.demo-code pre { margin: 0; padding: 16px 20px; }
+.section-h { font-size: 18.75px; line-height: 1.35; letter-spacing: -0.01em; margin: 34px 0 10px; }
+.page-in p, .page-in li { font-size: 14px; line-height: 1.75; }
+.pager { margin-bottom: 22px; }
+.withheld { margin: 14px 0 26px; padding: 14px 16px; }
+@media (max-width: 860px) {
+  .page-in { padding: 18px 16px 56px; }
+  .demo { margin: 12px -16px 24px; }
+  .demo-body { padding: 20px; }
+  .page-in h1 { font-size: 26px; line-height: 32px; }
+}
