@@ -12,7 +12,7 @@ Every finding names file, line and what to import instead.
 """
 import re, sys, pathlib
 
-SHELL = ["src/App.tsx", "src/demo-main.tsx", "src/main.tsx"]
+SHELL = ["src/App.tsx", "src/demo-main.tsx", "src/main.tsx", "src/provenance.tsx"]
 
 # tag -> the registry component that should replace it
 BANNED = {
