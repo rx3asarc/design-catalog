@@ -244,7 +244,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 @media (max-width: 860px) { pre { font-size: 12px; } .tabs button { font-size: 12.5px; } }
 
 /* demos that need more width than the card: a visible, touch-friendly scroller plus a swipe hint */
-.demo-body { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+.demo-body { overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
   scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .demo-body::-webkit-scrollbar { height: 8px; }
 .demo-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -259,7 +259,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 /* ---- a rendered sidebar must not escape its card: paint containment makes the card the
        containing block for the demo's fixed-position panels, and caps its height ---- */
 .demo { contain: layout paint; overflow: hidden; }
-.demo-body { max-height: min(72vh, 760px); overflow: auto; }
+.demo-body { overflow: visible; }
 .demo-body > div { min-height: 0; }
 
 /* ---- pager at the top, so the current item and the next one are both above the fold ---- */
@@ -299,3 +299,6 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .demo-body { padding: 20px; }
   .page-in h1 { font-size: 26px; line-height: 32px; }
 }
+
+/* the demo owns its full height; a scroller here would fight the page */
+.demo-body { overflow: visible; }

@@ -83,7 +83,7 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
       if (typeof d.height !== "number" || d.height <= 0 || locked.current) return;
       // a demo that sizes itself to the frame will report one growth after another; three is a loop, not a layout
       if (d.height > hRef.current + 4) {
-        if (++grows.current > 2) { locked.current = true; setH(phone ? 420 : 560); return; }
+        if (++grows.current > 2) { locked.current = true; setH(phone ? 720 : 900); return; }
       }
       setH(Math.min(Math.ceil(d.height), 2400));
       // height 0 means "this one sizes itself to the frame": keep the floor we already set
@@ -93,14 +93,14 @@ function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom
   }, [id, index, phone]);
   const hRef = React.useRef(h);
   hRef.current = h;
-  const maxH = phone ? 560 : 820;
   const shown = Math.max(h, floor);
-  const cap = Math.min(shown * zoom, maxH);
+  // no inner scroller: the frame is exactly as tall as the demo, and the page does the scrolling
+  const cap = shown * zoom;
   React.useEffect(() => {
     frame.current?.setAttribute("title", `${id} demo`);
   }, [id]);
   return (
-    <div ref={wrap} style={{ height: cap, overflow: cap < shown * zoom ? "auto" : "hidden", width: "100%" }}>
+    <div ref={wrap} style={{ height: cap, overflow: "hidden", width: "100%" }}>
       <iframe
         ref={frame}
         src={`/design-catalog/demo.html#${encodeURIComponent(id)}|${index}`}
@@ -168,7 +168,7 @@ function Demo({ id, index, variant, isBlock }: { id: string; index: number; vari
         )}
       </header>
       <div className="demo-body" ref={box}>
-        <DemoFrame id={id} index={index} zoom={zoom} floor={isBlock ? (typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches ? 420 : 560) : 90} />
+        <DemoFrame id={id} index={index} zoom={zoom} floor={isBlock ? (typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches ? 720 : 900) : 90} />
       </div>
       {open && code && <div className="demo-code"><pre>{code}</pre></div>}
     </section>
