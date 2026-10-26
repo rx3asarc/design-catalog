@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-Ce2Do0lH.js";import{t as n}from"./circle-fading-arrow-up-DQRCseQc.js";var r=e();function i(){return(0,r.jsx)(t,{variant:`outline`,size:`icon`,children:(0,r.jsx)(n,{})})}function a(){return(0,r.jsx)(i,{})}export{i as ButtonIcon,a as default};

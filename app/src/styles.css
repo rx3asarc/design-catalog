@@ -316,3 +316,8 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 /* a block is a page layout, so its column is wider than a component's */
 .page-in.wide { max-width: 900px; }
 .file-tabs { margin-bottom: 0; }
+
+/* Radix's ScrollArea viewport makes an inner display:table wrapper, which lets a long line widen the whole
+   pane instead of scrolling inside it. Force the wrapper back to block so the pre keeps its own x-scroll. */
+.demo-code [data-radix-scroll-area-viewport] > div { display: block !important; width: 100% !important; }
+.demo-code pre { width: 100%; max-width: 100%; min-width: 0; }

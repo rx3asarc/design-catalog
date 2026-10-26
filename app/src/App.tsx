@@ -2,6 +2,10 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 import manifest from "../manifest.json";
 import { VERSION } from "./version";
 import { Tabs, TabsList, TabsTrigger } from "@/registry/new-york-v4/ui/tabs";
+import { Badge } from "@/registry/new-york-v4/ui/badge";
+import { Button } from "@/registry/new-york-v4/ui/button";
+import { Input } from "@/registry/new-york-v4/ui/input";
+import { ScrollArea } from "@/registry/new-york-v4/ui/scroll-area";
 
 type Variant = { label: string; module: string };
 type Item = {
@@ -41,14 +45,17 @@ function useCode(rel: string | null) {
 function Copy({ text, label = "Copy" }: { text: string; label?: string }) {
   const [done, setDone] = useState(false);
   return (
-    <button
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-8"
       onClick={async () => {
         try { await navigator.clipboard.writeText(text); } catch { /* clipboard denied */ }
         setDone(true); setTimeout(() => setDone(false), 1600);
       }}
     >
       {done ? "Copied" : label}
-    </button>
+    </Button>
   );
 }
 
@@ -232,7 +239,9 @@ function Files({ files }: { files: string[] }) {
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
         <div className="demo-code" style={{ borderTop: 0 }}>
-          <pre>{code ?? "loading…"}</pre>
+          <ScrollArea className="h-[560px] w-full">
+            <pre>{code ?? "loading…"}</pre>
+          </ScrollArea>
         </div>
       </div>
     </>
@@ -251,15 +260,21 @@ function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }
       <h2 className="title">{item.name}</h2>
       {item.one_line && <p className="lede">{item.one_line}</p>}
       <div className="badges">
-        <span className={`badge ${item.withheld ? "warn" : "ok"}`}>
+        <Badge variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
           {item.withheld ? "source withheld" : "source included"}
-        </span>
-        <span className="badge">{item.licence}</span>
-        {item.verdict && <span className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
-          {item.verdict.verdict}
-        </span>}
-        <span className="badge">{item.files.length} files</span>
-        {item.variants.length > 0 && <span className="badge">{item.variants.length} demo{item.variants.length > 1 ? "s" : ""}</span>}
+        </Badge>
+        <Badge variant="outline" className="badge">{item.licence}</Badge>
+        {item.verdict && (
+          <Badge variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
+            {item.verdict.verdict}
+          </Badge>
+        )}
+        <Badge variant="outline" className="badge">{item.files.length} files</Badge>
+        {item.variants.length > 0 && (
+          <Badge variant="outline" className="badge">
+            {item.variants.length} demo{item.variants.length > 1 ? "s" : ""}
+          </Badge>
+        )}
       </div>
 
       {item.verdict?.reason && (
@@ -405,13 +420,15 @@ export default function App() {
         <div className="rail-top">
           <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
           <div className="meta">{items.length} items · {items.filter((i) => i.variants.length).length} rendered</div>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter components…" aria-label="Filter components" />
+          <Input value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
+            placeholder="Filter components…" aria-label="Filter components" className="h-9" />
         </div>
         <div className="rail-filter">
         {["", "shadcn", "beui", "rareui", "beautifului", "transitions"].map((s) => (
-          <button key={s || "all"} className={from === s ? "on" : ""} onClick={() => setFrom(s)}>
+          <Button key={s || "all"} size="sm" variant={from === s ? "default" : "outline"}
+            className="h-8 rounded-full px-3 text-xs" onClick={() => setFrom(s)}>
             {s || "all sources"}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="rail-list">
