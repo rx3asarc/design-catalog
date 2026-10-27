@@ -18,7 +18,8 @@ import pathlib
 import re
 import sys
 
-ROOT = pathlib.Path(".")
+# resolved from this file, not the caller's cwd: run from the repo root or from app/, it reads the same files
+ROOT = pathlib.Path(__file__).resolve().parent
 # the shell, at the root of src/ …
 ROOT_SHELL = ["src/App.tsx", "src/demo-main.tsx", "src/main.tsx", "src/provenance.tsx"]
 # … and every surface module, globbed so nothing new can slip past the guard
@@ -60,17 +61,21 @@ def scan(path: pathlib.Path):
 def main():
     warn = "--warn" in sys.argv
     files = shell_files()
+    if len(files) <= len(ROOT_SHELL):
+        # the site glob found nothing: the shell is empty or the tree is not what this guard assumes
+        print(f"chrome: no surface modules found under {SITE_GLOB} — the guard would cover nothing")
+        return 2
     findings = []
     for p in files:
         findings.extend(scan(p))
-    covered = ", ".join(p.as_posix().replace("src/", "") for p in files)
+    covered = ", ".join(p.relative_to(ROOT).as_posix().replace("src/", "") for p in files)
     if not findings:
         print("chrome: every interactive element is a catalogue component")
         print(f"chrome: {len(files)} shell file(s) scanned — {covered}")
         return 0
     print(f"chrome: {len(findings)} hand-written control(s) — the interface is not yet the product\n")
     for f, n, tag, repl, text in findings:
-        print(f"  {f}:{n}  <{tag}>  ->  import {{ {repl} }} from \"@/registry/new-york-v4/ui/{repl.lower()}\"")
+        print(f"  {pathlib.Path(f).relative_to(ROOT).as_posix()}:{n}  <{tag}>  ->  import {{ {repl} }} from \"@/registry/new-york-v4/ui/{repl.lower()}\"")
         print(f"      {text}")
     print(f"\nchrome: {len(files)} shell file(s) scanned — {covered}")
     print("\nwarn mode: publishing anyway" if warn else "\nrefusing: swap the plain tag for the component above")
