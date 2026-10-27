@@ -103,8 +103,6 @@ def category_for(slug: str, kind: str, source: str) -> str:
         return "Content and text"
     if kind == "block":
         return "Pages and blocks"
-    if kind == "block":
-        return "Pages and blocks"
     return "Actions and controls"
 
 
@@ -244,6 +242,58 @@ def prune_missing_exports(manifest: list) -> int:
     return dropped
 
 
+def curation(items: list) -> dict[int, dict]:
+    """The public-curation fields, in bulk: six SELECTs over the whole store, not 769 round trips.
+
+    Every field here is either a query or absent. Absence is `null`, never `0` — `publish_export.py:121`
+    summed an empty file list and shipped a real-looking `0` bytes for 178 items, which reads as "this
+    item's source weighs nothing" instead of "there is no source".
+    """
+    out: dict[str, dict] = {}
+    code = {r["item_id"]: (r["n"], r["bytes"]) for r in rows("""
+        SELECT sn.item_id, count(*) n, sum(coalesce(a.bytes,0)) bytes
+        FROM artifact a JOIN snapshot sn ON sn.id = a.snapshot_id
+        WHERE a.kind='code' AND sn.id = (SELECT max(id) FROM snapshot s2 WHERE s2.item_id = sn.item_id)
+        GROUP BY sn.item_id""")}
+    deps = {r["from_item_id"]: r["n"] for r in rows(
+        "SELECT from_item_id, count(*) n FROM edge WHERE external=1 GROUP BY 1")}
+    # every item carries the three numeric fields, so a UI toggle never has to know which rows the
+    # aggregate queries happened to return; the value is what says whether there is anything there
+    for it in items:
+        n, b = code.get(it["id"], (0, 0))
+        d: dict = {"file_count": n or None, "bytes": b or None, "dep_count": deps.get(it["id"]) or None}
+        out[it["id"]] = d
+    return out
+
+
+def assert_manifest_honest(manifest: list, items: list, withheld: int) -> None:
+    """I5/I6 as a build gate: the manifest cannot disagree with itself or with the store.
+
+    `verify.py` runs the same two checks when it is handed a manifest, but only here can the demo split be
+    checked, because only here is a demo known to have resolved. Exit 1 on any mismatch — a number the page
+    prints and the store does not support is worse than a failing build.
+    """
+    bad = [e["id"] for e in manifest
+           if e["has_demo"] != bool(e["variants"]) or e["reference_only"] != (not e["has_demo"])]
+    bad += [e["id"] for e in manifest if e["bytes"] is None and e["file_count"] is not None]
+    bad += [e["id"] for e in manifest if e["bytes"] == 0 or e["file_count"] == 0]
+    bad += [e["id"] for e in manifest if e["file_count"] is None and e["files"]]
+    bad += [e["id"] for e in manifest if e["file_count"] is not None and e["file_count"] != len(e["files"])]
+    demo = sum(1 for e in manifest if e["has_demo"])
+    ref = sum(1 for e in manifest if e["reference_only"])
+    if demo + ref != len(manifest):
+        bad.append(f"demo {demo} + reference_only {ref} != {len(manifest)}")
+    if len(manifest) != len(items):
+        bad.append(f"manifest has {len(manifest)} items, the store has {len(items)}")
+    if sum(1 for e in manifest if e.get("withheld")) != withheld:
+        bad.append("withheld count disagrees with the licence policy")
+    if bad:
+        print("MANIFEST DISAGREES WITH THE STORE:")
+        for b in bad[:10]:
+            print("  -", b)
+        raise SystemExit(1)
+
+
 def main() -> int:
     ver = json.loads((APP.parent / "package.json").read_text())["version"]
     (SRC / "version.ts").write_text(f'export const VERSION = "{ver}";\n')
@@ -338,6 +388,8 @@ def main() -> int:
 
     manifest = []
     demos = 0
+    cur = curation(items)
+    withheld = sum(1 for it in items if it["source"] in ("rareui", "beautifului", "transitions"))
 
     for it in items:
         src, slug, kind = it["source"], it["slug"], it["kind"]
@@ -346,12 +398,9 @@ def main() -> int:
             "name": it["name"], "one_line": it["one_line"], "url": it["url"],
             "licence": licence[src][0], "variants": [],
         }
-        note = conn.execute("SELECT verdict, reason, ours_path FROM port_note WHERE item_id=?",
-                            (it["id"],)).fetchone()
-        if note:
-            entry["verdict"] = dict(note)
         files = [f["path"] for f in latest("a.kind='code'", (it["id"], it["id"]))]
         entry["files"] = files
+        entry.update(cur[it["id"]])
 
         # rebuild the page url the way each site spells it
         if src == "rareui":
@@ -423,11 +472,21 @@ def main() -> int:
         manifest.append(entry)
 
     dropped = resolve_and_prune(manifest) + prune_missing_exports(manifest)
+
+    # has_demo is a build fact, not a store fact: a demo exists only if its module resolved above, so it
+    # is decided here, after pruning, and published explicitly so the UI filters on a field instead of
+    # inferring it from variants.length. reference_only is the same fact named for the gallery toggle.
+    for e in manifest:
+        e["has_demo"] = bool(e["variants"])
+        e["reference_only"] = not e["has_demo"]
+
+    assert_manifest_honest(manifest, items, withheld)
     (APP / "manifest.json").write_text(json.dumps(manifest, separators=(",", ":")))
     print(f"dropped {dropped} demo(s) whose imports do not resolve")
     withdrawn = sum(1 for m in manifest if m.get("withheld"))
     with_demo = sum(1 for m in manifest if m["variants"])
     print(f"items {len(manifest)} | with a demo {with_demo} | demo modules {demos} | withheld {withdrawn}")
+    print(f"reference-only {len(manifest) - with_demo} | bytes null {sum(1 for m in manifest if m['bytes'] is None)}")
     return 0
 
 
