@@ -84,15 +84,49 @@ export function useTree(q: string, from: string): TreeSection[] {
   return useMemo(() => buildTree(q, from), [q, from]);
 }
 
+export type Relation = "same category" | "same kind" | "same source";
+export type Neighbour = { item: Item; relation: Relation };
+
+const RANK: Record<Relation, number> = { "same category": 0, "same kind": 1, "same source": 2 };
+
+/** How two items are related, closest first, or null when they share nothing at all. */
+function relation(a: Item, b: Item): Relation | null {
+  if (a.category && a.category === b.category) return "same category";
+  if (a.kind === b.kind) return "same kind";
+  if (a.source === b.source) return "same source";
+  return null;
+}
+
 /**
- * The pager's neighbours, as the shell computed them before this unit: the item's own source, in ingest order.
- * `neighbours()` in a later commit replaces this with a related walk.
+ * The pager's two neighbours: related, not alphabetical.
+ *
+ * Candidates are ranked by what they share with the item — category, then kind, then source — and inside a
+ * rank they keep ingest order, so the walk is stable and the relation it found is nameable. Each side takes
+ * the nearest candidate of the best rank that has one on that side, wrapping to the other end of that rank
+ * when the item sits at its edge. Neighbours can cross sources: that is what "same category" is for.
  */
-export function usePager(active?: Item) {
-  const flat = useMemo(() => items.filter((i) => i.source === active?.source), [active?.source]);
-  const idx = active ? flat.findIndex((i) => i.id === active.id) : -1;
+export function neighbours(active?: Item): { prev?: Neighbour; next?: Neighbour } {
+  if (!active) return {};
+  const at = items.findIndex((i) => i.id === active.id);
+  const tiers: (Neighbour & { i: number })[][] = [[], [], []];
+  items.forEach((item, i) => {
+    if (item.id === active.id) return;
+    const rel = relation(active, item);
+    if (rel) tiers[RANK[rel]].push({ item, relation: rel, i });
+  });
+  let prev: (Neighbour & { i: number }) | undefined;
+  let next: (Neighbour & { i: number }) | undefined;
+  for (const tier of tiers) {
+    next ??= tier.find((c) => c.i > at);
+    prev ??= [...tier].reverse().find((c) => c.i < at);
+    if (prev && next) break;
+  }
+  const best = tiers.find((t) => t.length) ?? [];
+  next ??= best[0];
+  prev ??= best[best.length - 1];
+  if (prev && next && prev.item.id === next.item.id) prev = undefined;
   return {
-    prev: idx > 0 ? flat[idx - 1] : undefined,
-    next: idx >= 0 ? flat[idx + 1] : undefined,
+    prev: prev && { item: prev.item, relation: prev.relation },
+    next: next && { item: next.item, relation: next.relation },
   };
 }

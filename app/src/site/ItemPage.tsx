@@ -4,6 +4,7 @@ import { Button } from "@/registry/new-york-v4/ui/button";
 import { label, mainFile, type Item } from "./lib";
 import { Copy, Files } from "./Code";
 import { Demo } from "./demo";
+import type { Neighbour } from "./route";
 
 /**
  * One item's page: what it is, whether its source is ours to publish, its demos, how to install it, its files
@@ -39,25 +40,33 @@ export function Install({ install }: { install: string }) {
   );
 }
 
-/** The pager's two ends. One component so the top pager and the bottom one cannot drift apart. */
-function PagerLink({ item, dir }: { item: Item; dir: "prev" | "next" }) {
+/** One neighbour of the pager: the item, and the relation that put it there. Both pagers render it the same way. */
+function PagerLink({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
+  const text = label(n.item);
   return (
-    <a href={`#/i/${item.id}`}>
-      {dir === "prev" && <span className="dir">←</span>} {label(item)} {dir === "next" && <span className="dir">→</span>}
+    <a
+      href={`#/i/${n.item.id}`}
+      aria-label={`${dir === "prev" ? "Previous" : "Next"}: ${text} — ${n.relation}`}
+      title={`${dir === "prev" ? "Previous" : "Next"}: ${text} — ${n.relation}`}
+    >
+      {dir === "prev" && <span className="dir">←</span>} {text}{" "}
+      <span className="dir">{n.relation}</span>
+      {dir === "next" && <> <span className="dir">→</span></>}
     </a>
   );
 }
 
-export function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?: Item }) {
+export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; next?: Neighbour }) {
+  const name = label(item);
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       <div className="pager">
-        {prev ? <PagerLink item={prev} dir="prev" /> : <span className="off" />}
-        {next ? <PagerLink item={next} dir="next" /> : <span className="off" />}
+        {prev ? <PagerLink n={prev} dir="prev" /> : <span className="off" />}
+        {next ? <PagerLink n={next} dir="next" /> : <span className="off" />}
       </div>
 
       <div className="crumb">{item.source} · {item.kind}</div>
-      <h2 className="title">{label(item)}</h2>
+      <h2 className="title">{name}</h2>
       {item.one_line && <p className="lede">{item.one_line}</p>}
       <div className="badges">
         <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
@@ -99,8 +108,8 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?:
       <Files files={item.files} main={mainFile(item)} />
 
       <nav className="nav2">
-        {prev ? <PagerLink item={prev} dir="prev" /> : <span />}
-        {next ? <PagerLink item={next} dir="next" /> : <span />}
+        {prev ? <PagerLink n={prev} dir="prev" /> : <span />}
+        {next ? <PagerLink n={next} dir="next" /> : <span />}
       </nav>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Provenance } from "./provenance";
 import {
@@ -6,7 +6,7 @@ import {
   SidebarProvider, SidebarRail,
 } from "@/registry/new-york-v4/ui/sidebar";
 import { items } from "./site/lib";
-import { usePager, useRoute, useTree } from "./site/route";
+import { neighbours, useRoute, useTree } from "./site/route";
 import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ItemPage } from "./site/ItemPage";
@@ -26,7 +26,7 @@ export default function App() {
   const { route } = useRoute(() => setMenu(false));
 
   const tree = useTree(q, from);
-  const { prev, next } = usePager(route.kind === "item" ? route.item : undefined);
+  const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);
 
   const rendered = items.filter((i) => i.variants.length).length;
   const rail = <RailTree tree={tree} activeId={route.kind === "item" ? route.id : undefined} />;
