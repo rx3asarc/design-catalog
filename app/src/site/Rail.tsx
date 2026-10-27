@@ -3,10 +3,11 @@ import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
 import {
-  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem,
-  SidebarTrigger, useSidebar,
+  SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
+  SidebarMenuSubItem, SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
 import { label as displayLabel, type Item, type TreeSection } from "./lib";
+import { gridHref } from "./route";
 
 /**
  * The rail: four sections, their categories, the families inside those, and one more level where a family is
@@ -18,9 +19,10 @@ import { label as displayLabel, type Item, type TreeSection } from "./lib";
  * Every level of the rail is the catalogue's own Collapsible, mounted on the catalogue's own SidebarMenuItem —
  * the trigger is a SidebarMenuButton, the row below it is a SidebarMenuSub. Nothing here is a <details>.
  */
-export function Level({ lvl, label, count, defaultOpen, children }: {
+export function Level({ lvl, label, count, defaultOpen, href, title, children }: {
   lvl: "rail-sec" | "rail-cat" | "rail-sub" | "rail-sub2";
-  label: React.ReactNode; count?: number; defaultOpen?: boolean; children: React.ReactNode;
+  label: React.ReactNode; count?: number; defaultOpen?: boolean; href?: string; title?: string;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
@@ -32,6 +34,20 @@ export function Level({ lvl, label, count, defaultOpen, children }: {
             {count !== undefined && <span className="sub-c">{count}</span>}
           </SidebarMenuButton>
         </CollapsibleTrigger>
+        {/* the count is the door: the same tree that counted these rows spells the grid's address */}
+        {href && (
+          <SidebarMenuAction asChild>
+            <a href={href} title={`Open the grid: ${title ?? ""} (${count ?? 0})`}
+              aria-label={`Open the grid for ${title ?? "this level"} — ${count ?? 0} items`}>
+              <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="2" y="2" width="5" height="5" rx="1" />
+                <rect x="9" y="2" width="5" height="5" rx="1" />
+                <rect x="2" y="9" width="5" height="5" rx="1" />
+                <rect x="9" y="9" width="5" height="5" rx="1" />
+              </svg>
+            </a>
+          </SidebarMenuAction>
+        )}
         <CollapsibleContent>
           <SidebarMenuSub className="rail-kids">{children}</SidebarMenuSub>
         </CollapsibleContent>
@@ -60,19 +76,24 @@ export function RailTree({ tree, activeId }: { tree: TreeSection[]; activeId?: s
     <SidebarMenu className="rail-menu">
       {tree.map((sec) => (
         <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen
+          href={gridHref({ sec: sec.label })} title={sec.label}
           label={<span className="sec-n">{sec.label}</span>}>
           {sec.cats.map((cat) => (
             <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length}
+              href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
               defaultOpen={sec.cats.length <= 2}>
               {cat.families.map((f) => {
                 const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
                 if (f.rows.length === 1) return leaf(f.rows[0]);
                 return (
                   <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
+                    href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key })} title={f.key.replace(/-/g, " ")}
                     label={`${f.key.replace(/-/g, " ")}${f.key.endsWith("s") ? "" : "s"}`}>
                     {f.subs.length > 1
                       ? f.subs.map((g2) => (
                           <Level key={g2.key} lvl="rail-sub2" count={g2.rows.length}
+                            href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key, sub: g2.key })}
+                            title={g2.key.replace(/-/g, " ")}
                             label={g2.key.replace(/-/g, " ")}>
                             {g2.rows.map(leaf)}
                           </Level>
