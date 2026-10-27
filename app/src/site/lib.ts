@@ -12,6 +12,10 @@ import manifest from "../../manifest.json";
 export type Variant = { label: string; module: string };
 export type Item = {
   id: string; source: string; slug: string; kind: string; name: string;
+  /** The library's own title-cased name. shadcn's `name` is a lowercase slug; beui's is a title. Added by the data unit. */
+  displayName?: string;
+  /** The file the item is named after, named by the ingest. Added by the data unit; `mainFile()` works without it. */
+  mainFile?: string | null;
   /** The rail's category. Present on every ingested item today; the rail treats a missing one as "Actions and controls". */
   category?: string;
   one_line: string | null; url: string | null; licence: string; page: string | null;
@@ -21,6 +25,20 @@ export type Item = {
 
 export const items = manifest as unknown as Item[];
 export const byId = new Map(items.map((i) => [i.id, i]));
+
+const base = (p: string) => p.split("/").pop() ?? p;
+const stem = (p: string) => base(p).replace(/\.[^.]+$/, "");
+
+/**
+ * Which file opens first for an item: the data's own `mainFile`, else the file the item is named after
+ * (basename == slug, with or without its extension), else the first file. Consumes the data unit's
+ * `manifest[].mainFile` when it lands, and is right before it lands.
+ */
+export function mainFile(i: Item): string | undefined {
+  const files = i.files ?? [];
+  if (i.mainFile && files.includes(i.mainFile)) return i.mainFile;
+  return files.find((f) => base(f) === i.slug || stem(f) === i.slug) ?? files[0];
+}
 
 /**
  * The source pane reads the very same file from disk, at build time. The glob is `../` because this module

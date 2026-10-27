@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import type { Item } from "./lib";
+import { mainFile, type Item } from "./lib";
 import { Copy, Files } from "./Code";
 import { Demo } from "./demo";
 
@@ -96,7 +96,7 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Item; next?:
       )}
 
       {item.install && <Install install={item.install} />}
-      <Files files={item.files} />
+      <Files files={item.files} main={mainFile(item)} />
 
       <nav className="nav2">
         {prev ? <PagerLink item={prev} dir="prev" /> : <span />}
