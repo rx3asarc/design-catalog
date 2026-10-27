@@ -257,11 +257,26 @@ def curation(items: list) -> dict[int, dict]:
         GROUP BY sn.item_id""")}
     deps = {r["from_item_id"]: r["n"] for r in rows(
         "SELECT from_item_id, count(*) n FROM edge WHERE external=1 GROUP BY 1")}
+    comp: dict[int, set[str]] = {}
+    for r in rows("""SELECT e.from_item_id, t.slug FROM edge e JOIN item t ON t.id = e.to_item_id
+                     WHERE e.external=0 AND e.to_item_id IS NOT NULL"""):
+        comp.setdefault(r["from_item_id"], set()).add(r["slug"])
+    cons: dict[int, list[str]] = {}
+    for r in rows("""SELECT ci.item_id, c.key FROM concept_item ci JOIN concept c ON c.id = ci.concept_id
+                     ORDER BY c.key"""):
+        cons.setdefault(r["item_id"], []).append(r["key"])
     # every item carries the three numeric fields, so a UI toggle never has to know which rows the
     # aggregate queries happened to return; the value is what says whether there is anything there
     for it in items:
         n, b = code.get(it["id"], (0, 0))
         d: dict = {"file_count": n or None, "bytes": b or None, "dep_count": deps.get(it["id"]) or None}
+        if comp.get(it["id"]):
+            prim = sorted(comp[it["id"]])
+            # a lower bound, and the manifest has to say so: 820 of the store's 1,762 internal edges name
+            # a target that is not a catalogue row, so the graph under-reports by construction
+            d["composition"] = {"count": len(prim), "primitives": prim, "lower_bound": True}
+        if cons.get(it["id"]):
+            d["concepts"] = cons[it["id"]]
         out[it["id"]] = d
     return out
 
@@ -486,7 +501,9 @@ def main() -> int:
     withdrawn = sum(1 for m in manifest if m.get("withheld"))
     with_demo = sum(1 for m in manifest if m["variants"])
     print(f"items {len(manifest)} | with a demo {with_demo} | demo modules {demos} | withheld {withdrawn}")
-    print(f"reference-only {len(manifest) - with_demo} | bytes null {sum(1 for m in manifest if m['bytes'] is None)}")
+    print(f"reference-only {len(manifest) - with_demo} | bytes null {sum(1 for m in manifest if m['bytes'] is None)} | "
+          f"with concepts {sum(1 for m in manifest if 'concepts' in m)} | "
+          f"with composition {sum(1 for m in manifest if 'composition' in m)}")
     return 0
 
 
