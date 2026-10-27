@@ -653,3 +653,33 @@ pre { font-family: var(--font-mono); }
 .prov-tag .prov-uses, .prov-tag .prov-quiet { color: var(--muted-foreground); }
 .prov-tag .prov-n { font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .prov-tag { font-size: 12px; } }
+
+/* ═══ the theme switch: three states, out of flow ═════════════════════════════════════════════════
+   Fixed to the foot of the rail column, exactly like `.rail-reopen` is fixed to its head — so it is
+   never a row in the layout, and flipping it cannot move anything (measured: §"no layout shift" in
+   /root/docs/catalog-redesign/build/catalog-identity.md). It is the shell's own chrome, so it wears the
+   shell's two steps: the group on the label step in mono, the items on the rail step. */
+.theme-switch {
+  position: fixed; left: 14px; bottom: 14px; z-index: 30;
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px 4px 10px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
+}
+.theme-switch .theme-label {
+  font-family: var(--font-mono); font-size: 10px; line-height: 1; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--muted-foreground);
+}
+/* the three items are one fixed width, so the row cannot change shape when the picked one moves across it —
+   a segmented control whose segments resize as you use it is the cheapest way to make a toolbar feel wrong */
+.theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 26px; padding: 0 6px; border-radius: 999px; }
+.theme-switch [data-slot="toggle-group-item"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+/* the rail's last rows must be able to scroll clear of a control that floats over them */
+@media (min-width: 861px) { .rail-list { padding-bottom: 64px; } }
+@media (max-width: 860px) {
+  /* on a phone the rail is a disclosure above the page, so the switch sits in the page's margin;
+     `.page-in` already ends on an 80px pad, which is what keeps it off the last line of prose */
+  .theme-switch { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .theme-switch .theme-label { display: none; }
+  .theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 32px; }
+}

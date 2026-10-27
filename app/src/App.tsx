@@ -11,6 +11,7 @@ import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ItemPage } from "./site/ItemPage";
 import { ChromePage } from "./site/ChromePage";
+import { ThemeSwitch } from "./site/ThemeSwitch";
 
 /**
  * The shell, and nothing else: the frame, the rail's two mounts, the render switch and the provenance layer.
@@ -70,6 +71,7 @@ export default function App() {
           // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}
       </SidebarInset>
+      <ThemeSwitch />
       <Provenance />
     </SidebarProvider>
   );

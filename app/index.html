@@ -6,9 +6,52 @@
     <title>design catalog</title>
     <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
     <meta name="description" content="%CATALOG_COUNT% entries from five reference libraries — %CATALOG_RENDERED% rendered here, with their source." />
+    <!-- the phone's chrome colour; the boot script keeps it on the theme that actually won -->
+    <meta name="theme-color" content="#ffffff" />
     <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
     <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/instrument-sans-latin-var.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/jetbrains-mono-latin-var.woff2" />
+    <script>
+      /* THE THEME RULE, IN ONE PLACE, BEFORE A SINGLE BYTE OF CSS IS PARSED.
+         Three states — system (the default), light, dark. Only an explicit choice is stored; no stored value
+         means "system", and "system" keeps following the OS afterwards. The class lands on <html> here, in the
+         head, so the first painted frame is already the right one: no flash, and nothing waits for React.
+         site/ThemeSwitch.tsx calls this object instead of restating the rule. */
+      (function () {
+        var KEY = "catalog-theme";
+        var root = document.documentElement;
+        function read() {
+          try {
+            var v = localStorage.getItem(KEY);
+            return v === "light" || v === "dark" ? v : "system";
+          } catch (e) {
+            return "system";
+          }
+        }
+        function paint(mode) {
+          var dark = mode === "dark" || (mode === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          root.classList.toggle("dark", dark);
+          root.setAttribute("data-theme", mode);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", dark ? "#09090b" : "#ffffff");
+          return mode;
+        }
+        var mq = matchMedia("(prefers-color-scheme: dark)");
+        var follow = function () { if (read() === "system") paint("system"); };
+        if (mq.addEventListener) mq.addEventListener("change", follow); else mq.addListener(follow);
+        window.catalogTheme = {
+          read: read,
+          /* choose: persist the explicit choice (or forget it, for system) and repaint */
+          choose: function (mode) {
+            try {
+              if (mode === "system") localStorage.removeItem(KEY); else localStorage.setItem(KEY, mode);
+            } catch (e) {}
+            return paint(mode);
+          }
+        };
+        paint(read());
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
