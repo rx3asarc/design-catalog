@@ -1,11 +1,34 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
+
+/**
+ * The meta description in `index.html` states how many entries there are and how many actually render here.
+ * A hand-typed count is a lie waiting for the next ingest, so both numbers are read from `manifest.json` — the
+ * authoritative source — and substituted at build time. If the manifest grows, the description keeps up by
+ * itself; nothing else in the build changes.
+ */
+const manifest = JSON.parse(
+  readFileSync(fileURLToPath(new URL("./manifest.json", import.meta.url)), "utf8"),
+) as { variants?: unknown[] }[];
+
+function catalogCounts() {
+  const counts: Record<string, string> = {
+    "%CATALOG_COUNT%": String(manifest.length),
+    "%CATALOG_RENDERED%": String(manifest.filter((i) => i.variants?.length).length),
+  };
+  return {
+    name: "catalog-counts",
+    transformIndexHtml: (html: string) =>
+      Object.entries(counts).reduce((out, [token, n]) => out.split(token).join(n), html),
+  };
+}
 
 export default defineConfig({
   base: "/design-catalog/",
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), catalogCounts()],
   build: {
     rollupOptions: {
       input: {

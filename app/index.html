@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="en" class="light">
+<html lang="en" data-catalog-item="shadcn/font-instrument-sans">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>design catalog</title>
-    <meta name="description" content="769 UI components, blocks and effects from five reference libraries — rendered, with their source." />
+    <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
+    <meta name="description" content="%CATALOG_COUNT% entries from five reference libraries — %CATALOG_RENDERED% rendered here, with their source." />
+    <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/instrument-sans-latin-var.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/jetbrains-mono-latin-var.woff2" />
   </head>
   <body>
     <div id="root"></div>
