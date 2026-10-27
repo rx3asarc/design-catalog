@@ -68,20 +68,54 @@ export class Boundary extends React.Component<{ children: React.ReactNode }, { e
 }
 
 /**
+ * What the gallery can ask a frame for, on top of the item and the variant index (§D-C). Every key is optional
+ * and an absent key means today's behaviour: `demo.html#<id>|<i>` still renders exactly as it always did.
+ */
+export type FrameAddr = {
+  /** thumbnail mode: the child freezes CSS animation until it is told to play */
+  static?: boolean;
+  /** `light` | `dark`, from the site's own theme — the child sets it on its `<html>` */
+  theme?: "light" | "dark";
+  /** `off` stops every animation and transition in the child */
+  motion?: "on" | "off";
+  /** remount nonce for a motion demo */
+  replay?: number;
+};
+
+/** The child's address, built in one place: `#<encodeURIComponent(id)>|<index>[|k=v]…`. */
+export function frameSrc(id: string, index: number, addr?: FrameAddr): string {
+  const seg = [encodeURIComponent(id), String(index)];
+  if (addr?.static) seg.push("static=1");
+  if (addr?.theme) seg.push(`theme=${addr.theme}`);
+  if (addr?.motion) seg.push(`motion=${addr.motion}`);
+  if (addr?.replay !== undefined) seg.push(`replay=${addr.replay}`);
+  return `/design-catalog/demo.html#${seg.join("|")}`;
+}
+
+/**
  * The demo frame. `{id, index, zoom, floor}` only — no required props were added, so an item page and any
  * later stage mount the same frame. `floor` is the height used until the demo reports its own.
+ *
+ * `addr` is the gallery's half of §D-C and `onSize` reports what the child measured (height always, width when
+ * the child sends it). Neither changes what an item page renders today.
  */
-export function DemoFrame({ id, index, zoom, floor }: { id: string; index: number; zoom: number; floor: number }) {
+export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
+  id: string; index: number; zoom: number; floor: number;
+  addr?: FrameAddr; play?: boolean; onSize?: (m: { height: number; width: number }) => void;
+}) {
   const wrap = React.useRef<HTMLDivElement>(null);
   const frame = React.useRef<HTMLIFrameElement>(null);
   const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
   const [h, setH] = React.useState(0); // 0 = not measured yet
   const grows = React.useRef(0);
   const locked = React.useRef(false);
+  const sized = React.useRef(onSize);
+  sized.current = onSize;
   React.useEffect(() => {
     const on = (e: MessageEvent) => {
       const d = e.data;
       if (!d || d.designCatalogDemo !== true || d.id !== id || d.index !== index) return;
+      sized.current?.({ height: typeof d.height === "number" ? d.height : 0, width: typeof d.width === "number" ? d.width : 0 });
       // a viewport-filling demo can report its own frame back and grow without bound; clamp it
       if (typeof d.height !== "number" || d.height <= 0 || locked.current) return;
       // first measurement is just the measurement; the growth watch is for later ones
@@ -105,12 +139,22 @@ export function DemoFrame({ id, index, zoom, floor }: { id: string; index: numbe
   React.useEffect(() => {
     frame.current?.setAttribute("title", `${id} demo`);
   }, [id]);
+  // §D-C's one parent→child message: play/pause for a frame the gallery mounted in thumbnail mode. It is sent
+  // on every change and once on load, because the child's listener is not installed when the frame is created.
+  const want = React.useRef(play);
+  want.current = play;
+  const ping = React.useCallback(() => {
+    if (want.current === undefined) return;
+    frame.current?.contentWindow?.postMessage({ designCatalogPlay: !!want.current }, "*");
+  }, []);
+  React.useEffect(() => { ping(); }, [play, ping]);
   return (
     <div ref={wrap} style={{ height: cap, overflow: "hidden", width: "100%" }}>
       <iframe
         ref={frame}
-        src={`/design-catalog/demo.html#${encodeURIComponent(id)}|${index}`}
+        src={frameSrc(id, index, addr)}
         loading="lazy"
+        onLoad={ping}
         style={{
           width: `${100 / zoom}%`,
           height: shown,
