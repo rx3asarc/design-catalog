@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{o as t,t as n}from"./chart-DBtAQT1G.js";import{n as r,t as i}from"./BarChart-CPT9i--_.js";var a=e();function o(){return(0,a.jsx)(n,{children:(0,a.jsxs)(i,{data,children:[(0,a.jsx)(r,{dataKey:`value`}),(0,a.jsx)(ChartTooltip,{content:(0,a.jsx)(t,{})})]})})}function s(){return(0,a.jsx)(o,{})}export{o as MyChart,s as default};

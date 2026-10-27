@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./badge-CC76XeoY.js";import{t as n}from"./arrow-up-right-Cj5gz2V5.js";var r=e();function i(){return(0,r.jsxs)(t,{render:(0,r.jsx)(`a`,{href:`#link`}),children:[`Open Link `,(0,r.jsx)(n,{"data-icon":`inline-end`})]})}function a(){return(0,r.jsx)(i,{})}export{i as BadgeAsLink,a as default};

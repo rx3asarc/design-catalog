@@ -1,1 +1,0 @@
-import{i as e,t}from"./jsx-runtime-EIAPxkjE.js";import{t as n}from"./react-BPk_wmJm.js";import{t as r}from"./calendar-D-R_s1DP.js";var i=e(n(),1),a=t();function o(){let[e,t]=i.useState(new Date);return(0,a.jsx)(r,{mode:`single`,selected:e,onSelect:t,className:`rounded-lg border`,captionLayout:`dropdown`})}function s(){return(0,a.jsx)(o,{})}export{o as CalendarDemo,s as default};

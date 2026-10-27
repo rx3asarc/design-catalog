@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./label-JKoerJmS.js";import{t as n}from"./switch-EiNVreW3.js";var r=e();function i(){return(0,r.jsxs)(`div`,{className:`flex items-center space-x-2`,children:[(0,r.jsx)(n,{id:`airplane-mode`}),(0,r.jsx)(t,{htmlFor:`airplane-mode`,children:`Airplane Mode`})]})}function a(){return(0,r.jsx)(i,{})}export{a as default};

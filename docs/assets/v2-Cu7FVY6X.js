@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";var t=e();function n(){let[e,n]=React.useState(void 0),[r,i]=React.useState(void 0);return React.useEffect(()=>{i(Intl.DateTimeFormat().resolvedOptions().timeZone)},[]),(0,t.jsx)(Calendar,{mode:`single`,selected:e,onSelect:n,timeZone:r})}function r(){return(0,t.jsx)(n,{})}export{n as CalendarWithTimezone,r as default};

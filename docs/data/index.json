@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T16:38:55Z",
+ "generated": "2026-10-27T21:55:27Z",
  "sources": {
   "beautifului": {
    "name": "beautifului.dev",
@@ -60,11 +60,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "parked",
-    "reason": "Operator decision 2026-10-25: no batch action exists to protect yet. Unparks when bulk mark-as-known, multi-source filing or flashcard-set creation ships.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-approval-card.json",
    "files": 1,
    "bytes": 16504
@@ -81,11 +76,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in a maths-learning app: we are not a code editor surface.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-code-block.json",
    "files": 1,
    "bytes": 236
@@ -102,11 +92,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Retrieved chunks with sources \u2014 maps to our sources panel with real citation rows.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-context-cards.json",
    "files": 1,
    "bytes": 4234
@@ -123,11 +108,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Model fine-tuning UI; we do not expose training.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-fine-tune-card.json",
    "files": 1,
    "bytes": 12135
@@ -144,11 +124,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Diagram rendering is not part of the learning loop we have.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-flowchart.json",
    "files": 1,
    "bytes": 17366
@@ -165,11 +140,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Marketing-style insight cards with no data shape behind them here.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-insight-cards.json",
    "files": 1,
    "bytes": 19944
@@ -186,11 +156,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Skeleton set for a demo gallery; our loading states are per-surface.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-loading-state.json",
    "files": 1,
    "bytes": 5062
@@ -207,11 +172,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "ported",
-    "reason": "Composer ported as the chat Prompt Bar (engrane f5898f1): autosize, @ menu, dictation, syncSend. Pattern taken, React/Tailwind machinery replaced with Jinja2 + vanilla.",
-    "ours_path": "static/components/chat-bar.css"
-   },
    "path": "data/items/beautifului-prompt-bar.json",
    "files": 1,
    "bytes": 30493
@@ -228,11 +188,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Confidence-meter suggestion card; no recommendation engine to feed it.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-recommendation-card.json",
    "files": 1,
    "bytes": 5812
@@ -249,11 +204,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Duplicates our nav search; declined with the rest of their chrome.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-search.json",
    "files": 1,
    "bytes": 4387
@@ -270,11 +220,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Highlight text then act on it (explain / make a flashcard). The only item here that changes what the product does.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-selection-actions.json",
    "files": 1,
    "bytes": 19567
@@ -291,11 +236,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "ported",
-    "reason": "Streamed answer with a stop control (engrane f9436a6/177bbf7) over SSE; first token ~7s.",
-    "ours_path": "app/sse.py"
-   },
    "path": "data/items/beautifului-streaming-text.json",
    "files": 1,
    "bytes": 10289
@@ -312,11 +252,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Live job status rows; the generation page has its own trail being fixed now \u2014 revisit after that lands.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-task-rows.json",
    "files": 1,
    "bytes": 10040
@@ -333,11 +268,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Highest-value remaining: a real step list rather than three dots. Their smallest target is 28px, below our 44px floor, so the port must not copy the density.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-thinking-state.json",
    "files": 1,
    "bytes": 11358
@@ -354,11 +284,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A tool call as a compact chip. Needs real job/tool rows behind it, so it belongs with the thinking/steps work.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-tool-chips.json",
    "files": 1,
    "bytes": 13967
@@ -389,11 +314,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A stepper that grows steps as needed \u2014 maps to multi-step problems and quiz progress.",
-    "ours_path": null
-   },
    "path": "data/items/beui-adaptive-stepper.json",
    "files": 5,
    "bytes": 24450
@@ -409,11 +329,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Agent activity feed belongs to a developer console, not a maths app.",
-    "ours_path": null
-   },
    "path": "data/items/beui-agent-activity.json",
    "files": 10,
    "bytes": 28510
@@ -429,11 +344,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded: our conversation rail shipped from beautifului sidebar-nav anatomy. Two rails would be one too many.",
-    "ours_path": null
-   },
    "path": "data/items/beui-ai-sidebar.json",
    "files": 10,
    "bytes": 102818
@@ -449,11 +359,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Inline alert states, including quiet failure. Pairs with the error sentences we already write in fixed strings.",
-    "ours_path": null
-   },
    "path": "data/items/beui-alert.json",
    "files": 13,
    "bytes": 59647
@@ -484,11 +389,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded by our shipped rail; porting a second sidebar would be churn, not progress.",
-    "ours_path": null
-   },
    "path": "data/items/beui-animated-sidebar.json",
    "files": 5,
    "bytes": 49868
@@ -504,11 +404,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Stacked confirmations for save/filing actions; we currently have nothing for \"source filed\" or \"draft kept\".",
-    "ours_path": null
-   },
    "path": "data/items/beui-animated-toast-stack.json",
    "files": 4,
    "bytes": 20400
@@ -524,11 +419,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "parked",
-    "reason": "Same operator decision as beautifului approval-card (2026-10-25): nothing to protect until a batch action exists.",
-    "ours_path": null
-   },
    "path": "data/items/beui-approval-card.json",
    "files": 17,
    "bytes": 71522
@@ -574,11 +464,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Phone surface for actions that cannot live in a 64px rail \u2014 the collapsed rail currently cannot reach rename/delete.",
-    "ours_path": null
-   },
    "path": "data/items/beui-bottom-sheet.json",
    "files": 7,
    "bytes": 23627
@@ -594,11 +479,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded by our shipped rail.",
-    "ours_path": null
-   },
    "path": "data/items/beui-bounce-sidebar.json",
    "files": 3,
    "bytes": 9009
@@ -644,11 +524,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Rank-over-time chart \u2014 the only one of their 14 charts with an obvious learning use (progress ranking).",
-    "ours_path": null
-   },
    "path": "data/items/beui-bump-chart.json",
    "files": 27,
    "bytes": 98412
@@ -679,11 +554,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-candlestick-chart.json",
    "files": 14,
    "bytes": 40937
@@ -729,11 +599,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "A whole chat application shell \u2014 that is the product we already have.",
-    "ours_path": null
-   },
    "path": "data/items/beui-chat-app.json",
    "files": 63,
    "bytes": 429456
@@ -764,11 +629,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Inline citations with sources \u2014 maps to our sources panel and would let an answer point at the page it used.",
-    "ours_path": null
-   },
    "path": "data/items/beui-citations.json",
    "files": 7,
    "bytes": 15586
@@ -784,11 +644,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-code-block.json",
    "files": 5,
    "bytes": 14077
@@ -864,11 +719,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-composition-chart.json",
    "files": 20,
    "bytes": 81269
@@ -944,11 +794,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Simple share-of-completion ring for study progress.",
-    "ours_path": null
-   },
    "path": "data/items/beui-donut-chart.json",
    "files": 11,
    "bytes": 27033
@@ -964,11 +809,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Same problem as bottom-sheet; pick one, not both.",
-    "ours_path": null
-   },
    "path": "data/items/beui-drawer.json",
    "files": 6,
    "bytes": 12917
@@ -1014,11 +854,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "We do not propose code edits to the learner.",
-    "ours_path": null
-   },
    "path": "data/items/beui-file-diff.json",
    "files": 10,
    "bytes": 42312
@@ -1049,11 +884,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-funnel-chart.json",
    "files": 22,
    "bytes": 91954
@@ -1069,11 +899,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Study-streak heat calendar; the classic retention device for a learning product.",
-    "ours_path": null
-   },
    "path": "data/items/beui-heat-calendar.json",
    "files": 21,
    "bytes": 84037
@@ -1089,11 +914,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No image generation in the product.",
-    "ours_path": null
-   },
    "path": "data/items/beui-image-generation.json",
    "files": 5,
    "bytes": 18564
@@ -1139,11 +959,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-liquidity-heatmap.json",
    "files": 22,
    "bytes": 97180
@@ -1174,11 +989,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Their agent loading set is for a console; our loading states are per-surface.",
-    "ours_path": null
-   },
    "path": "data/items/beui-loading-states.json",
    "files": 10,
    "bytes": 34762
@@ -1209,11 +1019,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Our chat transcript is built and shipped; their message primitives would duplicate it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-message.json",
    "files": 33,
    "bytes": 169382
@@ -1229,11 +1034,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Same: our transcript has its own bubble/turn structure.",
-    "ours_path": null
-   },
    "path": "data/items/beui-message-bubble.json",
    "files": 33,
    "bytes": 169460
@@ -1249,11 +1049,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Same: the transcript pane already owns scrolling and follow behaviour.",
-    "ours_path": null
-   },
    "path": "data/items/beui-message-scroller.json",
    "files": 33,
    "bytes": 170837
@@ -1299,11 +1094,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Animated number transitions. A maths app changes numbers constantly; this is the one motion primitive that belongs to the subject rather than the chrome.",
-    "ours_path": null
-   },
    "path": "data/items/beui-number.json",
    "files": 6,
    "bytes": 15964
@@ -1319,11 +1109,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-order-book.json",
    "files": 13,
    "bytes": 41555
@@ -1369,11 +1154,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-price-target-fan.json",
    "files": 22,
    "bytes": 92441
@@ -1389,11 +1169,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Already ours: the composer was ported from beautifului prompt-bar (f5898f1).",
-    "ours_path": null
-   },
    "path": "data/items/beui-prompt-input.json",
    "files": 20,
    "bytes": 84026
@@ -1454,11 +1229,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-returns-calendar.json",
    "files": 20,
    "bytes": 86310
@@ -1474,11 +1244,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-sankey-chart.json",
    "files": 21,
    "bytes": 136938
@@ -1554,11 +1319,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Reorderable stack \u2014 a practice deck or a set of pending cards.",
-    "ours_path": null
-   },
    "path": "data/items/beui-sortable-stack.json",
    "files": 5,
    "bytes": 18940
@@ -1574,11 +1334,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-status-bar.json",
    "files": 24,
    "bytes": 93550
@@ -1594,11 +1349,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Already ours: SSE streaming with a stop control (engrane f9436a6).",
-    "ours_path": null
-   },
    "path": "data/items/beui-streaming-response.json",
    "files": 8,
    "bytes": 27012
@@ -1659,11 +1409,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Reveal text by word/char with real timing control. Useful for step explanations that arrive one line at a time rather than a wall.",
-    "ours_path": null
-   },
    "path": "data/items/beui-text-animation.json",
    "files": 10,
    "bytes": 32584
@@ -1724,11 +1469,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Checkable list with real state; maps to generation steps the learner can see tick over.",
-    "ours_path": null
-   },
    "path": "data/items/beui-todo-list.json",
    "files": 7,
    "bytes": 31015
@@ -1744,11 +1484,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "parked",
-    "reason": "Same parked decision: there is no destructive batch action to gate yet.",
-    "ours_path": null
-   },
    "path": "data/items/beui-tool-approval.json",
    "files": 6,
    "bytes": 18592
@@ -1764,11 +1499,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Tool results are an agent-console idea; our surface talks to learners.",
-    "ours_path": null
-   },
    "path": "data/items/beui-tool-result.json",
    "files": 7,
    "bytes": 30498
@@ -1799,11 +1529,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-treemap.json",
    "files": 23,
    "bytes": 118510
@@ -1819,11 +1544,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Decorative voice visualiser; dictation is already a control in our composer.",
-    "ours_path": null
-   },
    "path": "data/items/beui-voice-orb.json",
    "files": 5,
    "bytes": 18409
@@ -1839,11 +1559,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Financial-market visualisation; nothing in the product trades or holds an order book.",
-    "ours_path": null
-   },
    "path": "data/items/beui-volume-profile.json",
    "files": 21,
    "bytes": 115828
@@ -1875,11 +1590,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "A generic \"AI is working\" status widget; our step trail carries that job with real stages.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-ai-status.json",
    "files": 1,
    "bytes": 16396
@@ -1896,11 +1606,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Counter that animates to a value; numbers are the subject, not the chrome.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-animated-counter.json",
    "files": 1,
    "bytes": 9799
@@ -1917,11 +1622,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded: our conversation rail shipped from beautifului sidebar-nav anatomy.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-bounce-sidebar.json",
    "files": 1,
    "bytes": 5315
@@ -1938,11 +1638,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "We are not a code editor surface.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-code-block.json",
    "files": 1,
    "bytes": 16916
@@ -1959,11 +1654,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A delete affordance with a real commit/undo beat. Relevant to the parked Approval Card question: this is what a single destructive action should feel like.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-delete-button.json",
    "files": 1,
    "bytes": 8449
@@ -1980,11 +1670,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Pick a duration/value from a rail \u2014 a plausible input for timed practice sets.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-duration-picker.json",
    "files": 1,
    "bytes": 12290
@@ -2001,11 +1686,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-emoji-reaction.json",
    "files": 1,
    "bytes": 17767
@@ -2022,11 +1702,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-family-drawer.json",
    "files": 1,
    "bytes": 31035
@@ -2043,11 +1718,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Plain accordion for the marketing pages, which currently have no such block.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-faq.json",
    "files": 1,
    "bytes": 7312
@@ -2064,11 +1734,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Declined before this catalog existed: an AI-generated orb is exactly the generic flourish the taste canon rejects.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-fluid-orb.json",
    "files": 1,
    "bytes": 5002
@@ -2085,11 +1750,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-folder-component.json",
    "files": 1,
    "bytes": 14971
@@ -2106,11 +1766,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-github-activity.json",
    "files": 1,
    "bytes": 19239
@@ -2127,11 +1782,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Playful morphing nav; our nav is 88/72px with a fixed token set.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-gooey-nav.json",
    "files": 1,
    "bytes": 7631
@@ -2148,11 +1798,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Declined earlier for the same reason \u2014 decorative letter physics with no informational job.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-gravity-letters.json",
    "files": 1,
    "bytes": 19758
@@ -2169,11 +1814,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Staggered grid reveal for the library index; cheap and uses real content, not placeholders.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-grid-reveal.json",
    "files": 1,
    "bytes": 18883
@@ -2190,11 +1830,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded by our rail.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-hook-sidebar.json",
    "files": 1,
    "bytes": 6532
@@ -2211,11 +1846,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 a maths-learning surface has no use for it.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-matrix-orb.json",
    "files": 1,
    "bytes": 6955
@@ -2232,11 +1862,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "A bell with a count implies an inbox we do not have.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-notification-bell.json",
    "files": 1,
    "bytes": 10169
@@ -2253,11 +1878,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No OTP flow in the product.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-otp-input.json",
    "files": 1,
    "bytes": 11526
@@ -2274,11 +1894,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No password surface of our own to restyle.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-password-input.json",
    "files": 1,
    "bytes": 12899
@@ -2295,11 +1910,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded by our rail; a second sidebar pattern would be churn.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-proximity-sidebar.json",
    "files": 1,
    "bytes": 9631
@@ -2316,11 +1926,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A table of contents as a rail \u2014 same shape as the settings rail that just shipped, applied to long articles.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-rail-toc.json",
    "files": 1,
    "bytes": 14965
@@ -2337,11 +1942,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Reading progress for long articles, which the library already has.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-scroll-progress.json",
    "files": 1,
    "bytes": 12939
@@ -2358,11 +1958,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A player for a sequence of steps \u2014 the closest thing here to a worked solution advancing one line at a time.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-step-player.json",
    "files": 1,
    "bytes": 13242
@@ -2379,11 +1974,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Checkable task list with real state; maps to generation steps or a study checklist.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-task-list.json",
    "files": 1,
    "bytes": 10157
@@ -2400,11 +1990,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "We ship one token set by design; a theme picker would fight RULES-v2.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-theme-selector.json",
    "files": 1,
    "bytes": 8315
@@ -2421,11 +2006,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Their cn() helper: irrelevant in a Jinja2 + vanilla codebase.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-utils.json",
    "files": 1,
    "bytes": 258
@@ -2442,11 +2022,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Dictation already exists as a composer control; a second audio surface is not needed.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-voice-note.json",
    "files": 1,
    "bytes": 21394
@@ -2463,11 +2038,6 @@
    "licence_url": "https://www.rareui.com/llms.txt",
    "withheld": true,
    "withheld_reason": "their repo reports NOASSERTION rather than a named licence",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Their demo web-search chrome; our sourcing lives behind the generation job, not a results page.",
-    "ours_path": null
-   },
    "path": "data/items/rareui-web-search.json",
    "files": 1,
    "bytes": 30869
@@ -3429,11 +2999,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "A full agent workspace screen \u2014 product we are not building.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-agent-screen.json",
    "files": 1,
    "bytes": 14775
@@ -3450,11 +3015,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Tabbed chat panel; our chat page already carries this job, so only the reasoning-reply pattern is worth taking.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-chat-composer.json",
    "files": 1,
    "bytes": 8463
@@ -3471,11 +3031,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job: we do not propose tabular edits to the user.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-diff-table.json",
    "files": 1,
    "bytes": 11380
@@ -3492,11 +3047,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Status-chip table for CRM data; no equivalent surface.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-filter-table.json",
    "files": 1,
    "bytes": 6006
@@ -3513,11 +3063,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "CRM grid with 120 controls below 44px; nothing in Engrane is a records app.",
-    "ours_path": null
-   },
    "path": "data/items/beautifului-records-table.json",
    "files": 1,
    "bytes": 59535
@@ -3534,11 +3079,6 @@
    "licence_url": "https://beautifului.dev/",
    "withheld": true,
    "withheld_reason": "their terms are unclear, so we do not republish it",
-   "verdict": {
-    "verdict": "ported",
-    "reason": "Ported as the conversation rail: partial + CSS on main, wired into /chat by feat/chat-rail-wire. Anatomy copied \u2014 workspace control, primary action row, grouped truncating rows, 180ms label-slide collapse.",
-    "ours_path": "app/templates/partials/chat_rail.html"
-   },
    "path": "data/items/beautifului-sidebar-nav.json",
    "files": 1,
    "bytes": 18307
@@ -3554,11 +3094,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-availability-scheduler.json",
    "files": 27,
    "bytes": 135250
@@ -3574,11 +3109,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-bloom-menu.json",
    "files": 6,
    "bytes": 18620
@@ -3594,11 +3124,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-card-dealer.json",
    "files": 11,
    "bytes": 37977
@@ -3614,11 +3139,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-card-folder.json",
    "files": 5,
    "bytes": 23488
@@ -3634,11 +3154,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Keyboard-first jump to any conversation, subject or card. Fits the rig discipline (everything operable from the keyboard) and would replace tabbing through the nav.",
-    "ours_path": null
-   },
    "path": "data/items/beui-command-palette.json",
    "files": 9,
    "bytes": 27415
@@ -3654,11 +3169,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-dynamic-island.json",
    "files": 12,
    "bytes": 38468
@@ -3674,11 +3184,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-expandable-action-bar.json",
    "files": 7,
    "bytes": 34408
@@ -3694,11 +3199,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-expandable-tabs.json",
    "files": 4,
    "bytes": 18798
@@ -3714,11 +3214,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Collect \"this answer was wrong\" without leaving the page.",
-    "ours_path": null
-   },
    "path": "data/items/beui-feedback-widget.json",
    "files": 11,
    "bytes": 39432
@@ -3734,11 +3229,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-file-upload.json",
    "files": 15,
    "bytes": 112567
@@ -3754,11 +3244,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-infinite-masonry.json",
    "files": 4,
    "bytes": 16315
@@ -3774,11 +3259,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-knockout-bracket.json",
    "files": 15,
    "bytes": 124427
@@ -3794,11 +3274,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A search field that grows into its results \u2014 the shape our library/source search wants, instead of a results page.",
-    "ours_path": null
-   },
    "path": "data/items/beui-morphing-search.json",
    "files": 6,
    "bytes": 26658
@@ -3814,11 +3289,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-morphing-tabs.json",
    "files": 5,
    "bytes": 40605
@@ -3834,11 +3304,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-not-found.json",
    "files": 12,
    "bytes": 24568
@@ -3854,11 +3319,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-notification-stack.json",
    "files": 9,
    "bytes": 41814
@@ -3874,11 +3334,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-otp-input.json",
    "files": 4,
    "bytes": 17502
@@ -3894,11 +3349,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-overflow-actions.json",
    "files": 5,
    "bytes": 14451
@@ -3914,11 +3364,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-prediction-market.json",
    "files": 20,
    "bytes": 141508
@@ -3934,11 +3379,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-project-folder.json",
    "files": 5,
    "bytes": 18629
@@ -3954,11 +3394,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-signup-form.json",
    "files": 13,
    "bytes": 48307
@@ -3974,11 +3409,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-swap.json",
    "files": 13,
    "bytes": 34604
@@ -3994,11 +3424,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Swipe to advance/dismiss on phones; a natural fit for card practice.",
-    "ours_path": null
-   },
    "path": "data/items/beui-swipeable-list.json",
    "files": 4,
    "bytes": 26015
@@ -4014,11 +3439,6 @@
    "licence": "MIT",
    "licence_url": "https://beui.dev/llms.txt",
    "withheld": false,
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No job in Engrane \u2014 no surface in a maths-learning app needs it.",
-    "ours_path": null
-   },
    "path": "data/items/beui-wallet-card.json",
    "files": 22,
    "bytes": 66905
@@ -6961,7 +6381,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-dm-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -6976,7 +6396,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-eb-garamond.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -6991,7 +6411,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-figtree.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7006,7 +6426,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-geist.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7021,7 +6441,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-geist-mono.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7036,7 +6456,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-dm-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7051,7 +6471,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-eb-garamond.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7066,7 +6486,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-figtree.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7081,7 +6501,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-geist.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7096,7 +6516,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-geist-mono.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7111,7 +6531,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-ibm-plex-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7126,7 +6546,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-instrument-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7141,7 +6561,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-instrument-serif.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7156,7 +6576,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-inter.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7171,7 +6591,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-jetbrains-mono.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7186,7 +6606,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-lora.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7201,7 +6621,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-manrope.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7216,7 +6636,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-merriweather.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7231,7 +6651,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-montserrat.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7246,7 +6666,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-noto-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7261,7 +6681,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-noto-serif.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7276,7 +6696,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-nunito-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7291,7 +6711,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-outfit.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7306,7 +6726,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-oxanium.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7321,7 +6741,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-playfair-display.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7336,7 +6756,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-public-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7351,7 +6771,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-raleway.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7366,7 +6786,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-roboto.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7381,7 +6801,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-roboto-slab.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7396,7 +6816,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-source-sans-3.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7411,7 +6831,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-heading-space-grotesk.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7426,7 +6846,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-ibm-plex-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7441,7 +6861,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-instrument-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7456,7 +6876,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-instrument-serif.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7471,7 +6891,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-inter.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7486,7 +6906,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-jetbrains-mono.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7501,7 +6921,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-lora.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7516,7 +6936,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-manrope.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7531,7 +6951,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-merriweather.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7546,7 +6966,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-montserrat.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7561,7 +6981,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-noto-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7576,7 +6996,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-noto-serif.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7591,7 +7011,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-nunito-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7606,7 +7026,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-outfit.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7621,7 +7041,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-oxanium.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7636,7 +7056,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-playfair-display.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7651,7 +7071,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-public-sans.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7666,7 +7086,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-raleway.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7681,7 +7101,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-roboto.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7696,7 +7116,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-roboto-slab.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7711,7 +7131,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-source-sans-3.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -7726,7 +7146,7 @@
    "withheld": false,
    "path": "data/items/shadcn-font-space-grotesk.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -8206,7 +7626,7 @@
    "withheld": false,
    "path": "data/items/shadcn-index.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9331,7 +8751,7 @@
    "withheld": false,
    "path": "data/items/shadcn-style.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9466,7 +8886,7 @@
    "withheld": false,
    "path": "data/items/shadcn-theme-gray.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9481,7 +8901,7 @@
    "withheld": false,
    "path": "data/items/shadcn-theme-neutral.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9496,7 +8916,7 @@
    "withheld": false,
    "path": "data/items/shadcn-theme-slate.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9511,7 +8931,7 @@
    "withheld": false,
    "path": "data/items/shadcn-theme-stone.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9526,7 +8946,7 @@
    "withheld": false,
    "path": "data/items/shadcn-theme-zinc.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -9960,11 +9380,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pointer-tracking tilt on cards; nothing in a maths app benefits from a card that leans.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-3d-tilt.json",
    "files": 2,
    "bytes": 7215
@@ -9981,11 +9396,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Our settings rail and FAQ disclosure already solve this; one more accordion pattern is churn.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-accordion.json",
    "files": 2,
    "bytes": 5636
@@ -10002,11 +9412,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No avatars in a single-user study app.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-avatar-group-hover.json",
    "files": 2,
    "bytes": 5326
@@ -10023,11 +9428,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No banners.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-banner-stacking.json",
    "files": 1,
    "bytes": 3480
@@ -10044,11 +9444,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Auto-height animation; the pane owns height and animating it would fight the layout.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-card-resize.json",
    "files": 2,
    "bytes": 1973
@@ -10065,14 +9460,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro transition (paywalled) and no card-stack surface.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-card-stack-hover.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10086,11 +9476,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "We have no checkboxes yet; revisit if mark-as-known lands.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-checkbox-check.json",
    "files": 2,
    "bytes": 3554
@@ -10107,14 +9492,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro and paywalled; confetti in a study tool reads as a toy.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-confetti-burst.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10128,14 +9508,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; a dissolve would hide what was deleted, which is the opposite of what a delete confirmation needs.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-delete-with-smoky-dissolve.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10149,14 +9524,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; no drag surface.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-drag-drop-with-physics.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10170,11 +9540,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No dropdown menus in our nav.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-dropdown-menu-morph.json",
    "files": 2,
    "bytes": 7801
@@ -10191,11 +9556,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A single shake on invalid input, paired with the sentence we already write. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-error-state-shake.json",
    "files": 2,
    "bytes": 8906
@@ -10212,14 +9572,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Their own marketing button.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-get-pro-button.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10233,14 +9588,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; no floating action button.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-gooey-plus-menu.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10254,11 +9604,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Small win, not worth a unit on its own.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-icon-swap.json",
    "files": 2,
    "bytes": 3381
@@ -10275,14 +9620,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; no image generation.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-image-generation-placeholder.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10296,14 +9636,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; no image viewer.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-image-open-tilt.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10317,11 +9652,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Our composer already clears with keyboard behaviour that matters more than the fade.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-input-clear-with-dissolve.json",
    "files": 2,
    "bytes": 13626
@@ -10338,11 +9668,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Marketing hover flourish.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-learn-more-hover.json",
    "files": 2,
    "bytes": 3605
@@ -10359,11 +9684,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No like affordance; feedback is a written signal, not a heart.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-like-button.json",
    "files": 2,
    "bytes": 8163
@@ -10380,11 +9700,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Decorative dot loader; a maths app can do better than dots.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-matrix-dot-loader.json",
    "files": 1,
    "bytes": 1341
@@ -10401,11 +9716,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Same \u2014 our nav is a fixed rail.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-menu-dropdown.json",
    "files": 2,
    "bytes": 4914
@@ -10422,11 +9732,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No modal in the product; the pane layout deliberately avoids them.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-modal-open-close.json",
    "files": 2,
    "bytes": 3808
@@ -10443,11 +9748,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A count badge that animates in; relevant if the rail ever shows unread turns. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-notification-badge.json",
    "files": 2,
    "bytes": 5085
@@ -10464,11 +9764,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A number that pops into place. Numbers are the subject here, not decoration. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-number-pop-in.json",
    "files": 2,
    "bytes": 4220
@@ -10485,14 +9780,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; decorative.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-organic-shimmer.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10506,11 +9796,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "We do not page horizontally between documents.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-page-side-by-side.json",
    "files": 2,
    "bytes": 4229
@@ -10527,11 +9812,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Superseded by the settings rail collapse (measured 256 -> 64px).",
-    "ours_path": null
-   },
    "path": "data/items/transitions-panel-reveal.json",
    "files": 2,
    "bytes": 3582
@@ -10548,14 +9828,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro; gradient text is exactly the kind of flourish the taste canon rejects.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-pro-gradient-text.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10569,11 +9844,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Streams emerging reasoning text with a stable container \u2014 same problem as our step trail and the live transcript. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-reasoning-stream.json",
    "files": 1,
    "bytes": 1799
@@ -10590,11 +9860,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A gradient that runs through text to signal work in progress without a spinner. Pairs with thinking-states. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-shimmer-text.json",
    "files": 2,
    "bytes": 4173
@@ -10611,11 +9876,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Skeleton that reveals real content in place; matches the generation-preview waiting state better than a spinner. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-skeleton-loader-and-reveal.json",
    "files": 2,
    "bytes": 7065
@@ -10632,14 +9892,9 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Pro, and our stop/completion path is textual rather than a spinner morph.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-spinner-to-check-morph.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "transitions",
@@ -10653,11 +9908,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Counts up to a value rather than snapping to it; useful for stats on the landing page. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-spinning-counter.json",
    "files": 2,
    "bytes": 5583
@@ -10674,11 +9924,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "Already ours: streaming with a Stop control shipped (engrane f9436a6), and ours is on SSE, not their CSS shimmer.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-streaming-text.json",
    "files": 1,
    "bytes": 912
@@ -10695,11 +9940,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "A checkmark that draws itself on success; would suit \"source filed\" or \"card kept\". Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-success-check.json",
    "files": 2,
    "bytes": 7329
@@ -10716,11 +9956,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "An indicator that slides between tabs instead of jumping \u2014 applies to any segmented control we add. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-tabs-sliding.json",
    "files": 2,
    "bytes": 6416
@@ -10737,11 +9972,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Swaps a label in place without moving anything around it; useful for \"Thinking / Searching / Writing\" and for Save states. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-text-states-swap.json",
    "files": 2,
    "bytes": 4051
@@ -10758,11 +9988,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Reveals text line by line on arrival, which is what a streamed answer already does \u2014 worth comparing timing against ours. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-texts-reveal.json",
    "files": 2,
    "bytes": 5563
@@ -10779,11 +10004,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "The best thing on the site for us: a status line that swaps state text with no layout shift, because a hidden sizer holds the longest string and every state centres inside it. Our generation trail currently reflows as stages change, and this is the measured fix. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-thinking-states.json",
    "files": 1,
    "bytes": 3150
@@ -10800,11 +10020,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Toasts that stack and close without jitter. We have no toast system at all. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-toast-open-close.json",
    "files": 2,
    "bytes": 3275
@@ -10821,11 +10036,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "rejected",
-    "reason": "No toggles in the shipped surfaces.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-toggle.json",
    "files": 2,
    "bytes": 4000
@@ -10842,11 +10052,6 @@
    "licence_url": "https://transitions.dev/terms.html",
    "withheld": true,
    "withheld_reason": "their terms allow use but forbid republishing the collection",
-   "verdict": {
-    "verdict": "candidate",
-    "reason": "Tooltip timing done properly; our rail labels are hidden on phones and could use it. Reference only: the licence forbids redistributing their code, so the curve is re-implemented in our CSS, never copied.",
-    "ours_path": null
-   },
    "path": "data/items/transitions-tooltip-open-close.json",
    "files": 2,
    "bytes": 7785
@@ -10864,7 +10069,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-changelog.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10879,7 +10084,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-cli.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10894,7 +10099,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-accordion.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10909,7 +10114,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-alert.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10924,7 +10129,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-alert-dialog.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10939,7 +10144,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-aspect-ratio.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10954,7 +10159,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-avatar.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10969,7 +10174,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-badge.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10984,7 +10189,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-breadcrumb.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -10999,7 +10204,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-button.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11014,7 +10219,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-button-group.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11029,7 +10234,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-calendar.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11044,7 +10249,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-card.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11059,7 +10264,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-carousel.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11074,7 +10279,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-chart.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11089,7 +10294,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-checkbox.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11104,7 +10309,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-collapsible.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11119,7 +10324,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-combobox.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11134,7 +10339,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-command.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11149,7 +10354,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-context-menu.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11164,7 +10369,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-data-table.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11179,7 +10384,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-date-picker.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11194,7 +10399,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-dialog.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11209,7 +10414,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-direction.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11224,7 +10429,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-drawer.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11239,7 +10444,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-dropdown-menu.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11254,7 +10459,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-empty.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11269,7 +10474,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-field.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11284,7 +10489,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-hover-card.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11299,7 +10504,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-input.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11314,7 +10519,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-input-group.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11329,7 +10534,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-input-otp.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11344,7 +10549,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-item.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11359,7 +10564,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-json.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11374,7 +10579,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-kbd.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11389,7 +10594,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-label.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11404,7 +10609,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-menubar.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11419,7 +10624,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-native-select.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11434,7 +10639,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-navigation-menu.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11449,7 +10654,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-pagination.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11464,7 +10669,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-popover.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11479,7 +10684,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-progress.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11494,7 +10699,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-radio-group.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11509,7 +10714,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-resizable.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11524,7 +10729,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-scroll-area.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11539,7 +10744,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-select.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11554,7 +10759,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-separator.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11569,7 +10774,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-sheet.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11584,7 +10789,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-sidebar.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11599,7 +10804,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-skeleton.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11614,7 +10819,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-slider.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11629,7 +10834,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-sonner.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11644,7 +10849,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-spinner.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11659,7 +10864,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-switch.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11674,7 +10879,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-table.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11689,7 +10894,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-tabs.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11704,7 +10909,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-textarea.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11719,7 +10924,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-toast.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11734,7 +10939,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-toggle.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11749,7 +10954,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-toggle-group.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11764,7 +10969,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-tooltip.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11779,7 +10984,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-components-typography.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11794,7 +10999,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-dark-mode.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11809,7 +11014,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-dark-mode-astro.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11824,7 +11029,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-dark-mode-next.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11839,7 +11044,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-dark-mode-remix.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11854,7 +11059,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-dark-mode-vite.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11869,7 +11074,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-directory.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11884,7 +11089,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-figma.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11899,7 +11104,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-forms.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11914,7 +11119,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-forms-formisch.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11929,7 +11134,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-forms-next.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11944,7 +11149,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-forms-react-hook-form.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11959,7 +11164,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-forms-tanstack-form.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11974,7 +11179,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-index.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -11989,7 +11194,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-astro.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12004,7 +11209,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-gatsby.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12019,7 +11224,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-laravel.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12034,7 +11239,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-manual.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12049,7 +11254,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-next.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12064,7 +11269,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-react-router.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12079,7 +11284,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-remix.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12094,7 +11299,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-tanstack.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12109,7 +11314,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-tanstack-router.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12124,7 +11329,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-installation-vite.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12139,7 +11344,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-javascript.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12154,7 +11359,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-mcp.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12169,7 +11374,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-monorepo.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12184,7 +11389,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-react-19.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12199,7 +11404,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12214,7 +11419,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-authentication.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12229,7 +11434,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-examples.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12244,7 +11449,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-faq.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12259,7 +11464,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-getting-started.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12274,7 +11479,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-mcp.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12289,7 +11494,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-namespace.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12304,7 +11509,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-open-in-v0.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12319,7 +11524,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-registry-index.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12334,7 +11539,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-registry-item-json.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12349,7 +11554,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-registry-registry-json.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12364,7 +11569,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-rtl.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12379,7 +11584,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-rtl-next.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12394,7 +11599,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-rtl-start.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12409,7 +11614,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-rtl-vite.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12424,7 +11629,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-skills.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12439,7 +11644,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-tailwind-v4.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12454,7 +11659,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-theming.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   },
   {
    "source": "shadcn",
@@ -12469,7 +11674,7 @@
    "withheld": false,
    "path": "data/items/shadcn-docs-typeset.json",
    "files": 0,
-   "bytes": 0
+   "bytes": null
   }
  ]
 }

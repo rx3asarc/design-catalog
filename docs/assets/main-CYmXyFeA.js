@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./react-BPk_wmJm.js";import{t as n}from"./utils-D0T3A-kS.js";import{t as r}from"./slider-ZvT9OX4D.js";t();var i=e();function a({className:e,...t}){return(0,i.jsx)(r,{defaultValue:[50],max:100,step:1,className:n(`w-[60%]`,e),...t})}function o(){return(0,i.jsx)(a,{})}export{o as default};

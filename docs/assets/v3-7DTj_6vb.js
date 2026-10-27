@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{S as t}from"./sidebar-CXs36sHo.js";var n=e();function r(){let{state:e,open:n,setOpen:r,openMobile:i,setOpenMobile:a,isMobile:o,toggleSidebar:s}=t()}function i(){return(0,n.jsx)(r,{})}export{r as AppSidebar,i as default};

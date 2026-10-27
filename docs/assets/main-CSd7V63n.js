@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-eOHSbu31.js";import{t as n}from"./link-kNhJNnV1.js";var r=e();function i(){return(0,r.jsx)(t,{asChild:!0,children:(0,r.jsx)(n,{href:`/login`,children:`Login`})})}function a(){return(0,r.jsx)(i,{})}export{a as default};

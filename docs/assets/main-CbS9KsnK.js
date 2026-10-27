@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./chat-preview-C_NA3OT5.js";var n=e();function r(){return(0,n.jsx)(t,{reply:`That message mounted once with a spring pop. Streaming updates only change its content, so the entrance does not replay.`,placeholder:`Send a bubble…`})}function i(){return(0,n.jsx)(r,{})}export{i as default};

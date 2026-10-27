@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./calendar-D-R_s1DP.js";var n=e();function r(){return(0,n.jsx)(t,{mode:`single`,className:`rounded-lg border`})}function i(){return(0,n.jsx)(r,{})}export{r as CalendarBasic,i as default};

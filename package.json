@@ -1,6 +1,6 @@
 {
   "name": "design-catalog",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "769 UI components, blocks and effects from five reference libraries \u2014 with source, licence and port verdicts. CLI and MCP server in one binary.",
   "type": "module",
   "bin": {
