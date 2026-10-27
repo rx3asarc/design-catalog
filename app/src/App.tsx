@@ -11,6 +11,7 @@ import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ItemPage } from "./site/ItemPage";
 import { ChromePage } from "./site/ChromePage";
+import { Palette, PaletteTrigger } from "./site/CommandPalette";
 
 /**
  * The shell, and nothing else: the frame, the rail's two mounts, the render switch and the provenance layer.
@@ -38,6 +39,7 @@ export default function App() {
       style={{ "--sidebar-width": "288px" } as React.CSSProperties}>
       <div className="topbar">
         <a className="brand" href="#/">design catalog</a>
+        <PaletteTrigger place="bar" />
         <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
           {menu ? "Close" : `Browse ${items.length}`}
         </Button>
@@ -70,6 +72,8 @@ export default function App() {
           // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}
       </SidebarInset>
+      <PaletteTrigger place="float" />
+      <Palette />
       <Provenance />
     </SidebarProvider>
   );
