@@ -9,6 +9,7 @@ import { items } from "./site/lib";
 import { neighbours, useRoute, useScrollReset, useTree } from "./site/route";
 import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
+import { About } from "./site/About";
 import { ItemPage } from "./site/ItemPage";
 import { ChromePage } from "./site/ChromePage";
 
@@ -66,6 +67,7 @@ export default function App() {
           // is rendered by the front page until then. Replace this `<Home />` with the gallery, nothing else.
           : route.kind === "gallery" ? <Home />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
+          : route.kind === "about" ? <About />
           // an unknown `#/i/<id>` falls through to the front page: that is what it has always done, and it is
           // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}

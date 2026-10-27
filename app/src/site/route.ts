@@ -13,11 +13,13 @@ export type Route =
   | { kind: "home" }
   | { kind: "chrome" }
   | { kind: "gallery"; filter: string }
+  | { kind: "about" }
   | { kind: "item"; id: string; item?: Item };
 
 /** The hash, read once. `#/g/<anything>` is the gallery with that filter; anything unknown is the front page. */
 export function parseRoute(hash: string): Route {
   if (hash === "#/chrome") return { kind: "chrome" };
+  if (hash === "#/about") return { kind: "about" };
   if (hash === "#/g" || hash.startsWith("#/g/")) return { kind: "gallery", filter: hash.slice(3).replace(/^\//, "") };
   if (hash.startsWith("#/i/")) {
     const id = hash.slice(4);
