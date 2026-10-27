@@ -9,10 +9,20 @@ allowed; interactive controls are not.
     python3 check_chrome.py --warn     # report, always exit 0 (used while the rail is still being swapped)
 
 Every finding names file, line and what to import instead.
-"""
-import re, sys, pathlib
 
-SHELL = ["src/App.tsx", "src/demo-main.tsx", "src/main.tsx", "src/provenance.tsx"]
+The shell is the root modules plus **every module under `src/site/`**, discovered by glob: a new surface module
+is covered the moment it exists. The site's own copy on `#/chrome` promises exactly that, so the file list is
+derived, never hand-maintained.
+"""
+import pathlib
+import re
+import sys
+
+ROOT = pathlib.Path(".")
+# the shell, at the root of src/ …
+ROOT_SHELL = ["src/App.tsx", "src/demo-main.tsx", "src/main.tsx", "src/provenance.tsx"]
+# … and every surface module, globbed so nothing new can slip past the guard
+SITE_GLOB = "src/site/*.tsx"
 
 # tag -> the registry component that should replace it
 BANNED = {
@@ -24,18 +34,20 @@ BANNED = {
     "summary": "CollapsibleTrigger",
     "table": "Table",
 }
-WHITELIST = {
-    # inside generated demo code we must not touch the library's own markup
-    "src/demos/",
-}
+
+
+def shell_files():
+    """The files the guard reads. Printed under the result, so a green run names what it covered."""
+    files = [ROOT / rel for rel in ROOT_SHELL]
+    files += sorted(ROOT.glob(SITE_GLOB))
+    return [p for p in files if p.exists()]
+
 
 def scan(path: pathlib.Path):
     out = []
     # comments talk about tags; only code counts. Blank them out but keep line numbers.
     raw = re.sub(r"/\*.*?\*/", lambda m: "\n" * m.group(0).count("\n"), path.read_text(), flags=re.S)
     for n, line in enumerate(raw.splitlines(), 1):
-        if any(path.as_posix().startswith(p) for p in WHITELIST):
-            continue
         code = re.sub(r"//.*$", "", line)
         code = re.sub(r"\{/\*.*?\*/\}", "", code)
         code = re.sub(r"^\s*\*.*$", "", code)
@@ -44,23 +56,26 @@ def scan(path: pathlib.Path):
                 out.append((path.as_posix(), n, tag, replacement, line.strip()[:96]))
     return out
 
+
 def main():
     warn = "--warn" in sys.argv
-    root = pathlib.Path(".")
+    files = shell_files()
     findings = []
-    for rel in SHELL:
-        p = root / rel
-        if p.exists():
-            findings.extend(scan(p))
+    for p in files:
+        findings.extend(scan(p))
+    covered = ", ".join(p.as_posix().replace("src/", "") for p in files)
     if not findings:
         print("chrome: every interactive element is a catalogue component")
+        print(f"chrome: {len(files)} shell file(s) scanned — {covered}")
         return 0
     print(f"chrome: {len(findings)} hand-written control(s) — the interface is not yet the product\n")
     for f, n, tag, repl, text in findings:
         print(f"  {f}:{n}  <{tag}>  ->  import {{ {repl} }} from \"@/registry/new-york-v4/ui/{repl.lower()}\"")
         print(f"      {text}")
+    print(f"\nchrome: {len(files)} shell file(s) scanned — {covered}")
     print("\nwarn mode: publishing anyway" if warn else "\nrefusing: swap the plain tag for the component above")
     return 0 if warn else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
