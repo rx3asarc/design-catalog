@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Copy } from "./Code";
 import { key, useCode, type Variant } from "./lib";
+import { FLOOR, SELF_FLOOR, STAGE_PX, SURFACE_MIN, type Stage } from "./Stage";
 
 /**
  * The live half of an item page: the frame a demo runs in, the demo card around it, and the hook that decides
@@ -99,14 +100,25 @@ export function frameSrc(id: string, index: number, addr?: FrameAddr): string {
  * `addr` is the gallery's half of §D-C and `onSize` reports what the child measured (height always, width when
  * the child sends it). Neither changes what an item page renders today.
  */
-export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
+export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWidth, selfFloor }: {
   id: string; index: number; zoom: number; floor: number;
+  /** the height a demo gets when it reports 0, i.e. when it sizes itself to the frame */
+  selfFloor?: number;
   addr?: FrameAddr; play?: boolean; onSize?: (m: { height: number; width: number }) => void;
+  /**
+   * The child's viewport in CSS px, when a stage has narrowed it. Absent = the frame fills its box, which is
+   * every frame on every item page before this prop existed. The frame is then scaled by `zoom` like any other,
+   * so the demo *lays out* at this width and only the paint is smaller — the child is never given a scaled-down
+   * viewport pretending to be a phone.
+   */
+  frameWidth?: number;
 }) {
   const wrap = React.useRef<HTMLDivElement>(null);
   const frame = React.useRef<HTMLIFrameElement>(null);
   const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
   const [h, setH] = React.useState(0); // 0 = not measured yet
+  // the child said 0: it sizes itself to its frame, so there is no height to wait for and the floor is the answer
+  const [self, setSelf] = React.useState(false);
   const grows = React.useRef(0);
   const locked = React.useRef(false);
   const sized = React.useRef(onSize);
@@ -117,7 +129,9 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
       if (!d || d.designCatalogDemo !== true || d.id !== id || d.index !== index) return;
       sized.current?.({ height: typeof d.height === "number" ? d.height : 0, width: typeof d.width === "number" ? d.width : 0 });
       // a viewport-filling demo can report its own frame back and grow without bound; clamp it
-      if (typeof d.height !== "number" || d.height <= 0 || locked.current) return;
+      if (typeof d.height !== "number" || locked.current) return;
+      setSelf(d.height === 0);
+      if (d.height <= 0) return;
       // first measurement is just the measurement; the growth watch is for later ones
       if (hRef.current === 0) { setH(Math.min(Math.ceil(d.height), 4000)); return; }
       // a demo that sizes itself to the frame will report one growth after another; three is a loop, not a layout
@@ -132,8 +146,19 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
   }, [id, index, phone]);
   const hRef = React.useRef(h);
   hRef.current = h;
-  // a measurement wins over the fallback: the fallback is only for demos that cannot report
-  const shown = h > 0 ? h : floor;
+  // a different item in the same slot is a different demo: forget what the last one measured
+  React.useEffect(() => {
+    setH(0); setSelf(false); grows.current = 0; locked.current = false;
+  }, [id, index]);
+  // the growth watch guards against a demo that grows without bound at one size — not against a visitor who
+  // asked for a different viewport. A stage that changes the width grows the demo honestly, and if the watch
+  // counted that, three mode changes would lock the frame to the floor for the rest of the visit.
+  React.useEffect(() => {
+    grows.current = 0; locked.current = false;
+  }, [frameWidth, addr?.theme, addr?.motion, addr?.replay]);
+  // a measurement wins over the fallback: the fallback is only for demos that cannot report, or that fill
+  // whatever frame they are given. `self` is the child saying the second thing out loud.
+  const shown = h > 0 ? h : self ? selfFloor : floor;
   // no inner scroller: the frame is exactly as tall as the demo, and the page does the scrolling
   const cap = shown * zoom;
   React.useEffect(() => {
@@ -149,14 +174,14 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
   }, []);
   React.useEffect(() => { ping(); }, [play, ping]);
   return (
-    <div ref={wrap} style={{ height: cap, overflow: "hidden", width: "100%" }}>
+    <div ref={wrap} style={{ height: cap, overflow: "hidden", width: frameWidth ? frameWidth * zoom : "100%" }}>
       <iframe
         ref={frame}
         src={frameSrc(id, index, addr)}
         loading="lazy"
         onLoad={ping}
         style={{
-          width: `${100 / zoom}%`,
+          width: frameWidth ? frameWidth : `${100 / zoom}%`,
           height: shown,
           border: 0,
           display: "block",
@@ -170,20 +195,66 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize }: {
   );
 }
 
-/** The demo card: header with the code toggle and the Fit toggle, the frame, and the code pane when opened. */
-export function Demo({ id, index, variant, isBlock }: { id: string; index: number; variant: Variant; isBlock: boolean }) {
-  const [open, setOpen] = useState(false);
-  const box = React.useRef<HTMLDivElement>(null);
-  // The measured canvas is a separate element and it is not attached anywhere in this card today, so `useFit`
-  // short-circuits and the Fit toggle never appears. Kept exactly as it was: attaching it would start zooming
-  // demos out on phones (Fit defaults on below 860px), which is a stage change, not a split.
-  const canvas = React.useRef<HTMLDivElement>(null);
-  const fit = useFit(box, canvas, variant.module);
-  const [choice, setChoice] = useState<boolean | null>(null); // the user's Fit toggle wins over the default
+/** The demo card: header with the code toggle, the frame on its stage surface, and the code pane when opened. */
+const SCALE_TEXT: React.CSSProperties = {
+  fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)",
+  fontSize: 11,
+  letterSpacing: "0.02em",
+  color: "var(--muted-foreground)",
+  whiteSpace: "nowrap",
+};
 
-  const autoFit = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
-  const fitted = fit ? (choice ?? autoFit) : false;
-  const zoom = fitted && fit ? fit.zoom : 1;
+export function Demo({ id, index, variant, isBlock, stage }: {
+  id: string; index: number; variant: Variant; isBlock: boolean; stage: Stage;
+}) {
+  const [open, setOpen] = useState(false);
+  // `useFit` is not called here: its measured canvas would have to live inside this card, and the demo renders in
+  // its own document, so it always returned null and its Fit toggle never appeared (proved on this build: every
+  // demo's `fit` is null). The stage's width control is the honest version of what Fit was reaching for, and the
+  // measurement it needs — the demo's own content width — is the number the child reports. One sizing path.
+
+  // ── the stage's half of the sizing: one lane, one target, one zoom ───────────────────────────────────────
+  const lane = React.useRef<HTMLDivElement>(null);
+  const [laneW, setLaneW] = useState(0);
+  const [natW, setNatW] = useState(0); // what the child says its own content needs
+  React.useEffect(() => {
+    const el = lane.current;
+    if (!el) return;
+    const read = () => setLaneW(el.clientWidth);
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const onSize = React.useCallback((m: { height: number; width: number }) => {
+    if (m.width > 0) setNatW(m.width);
+  }, []);
+
+  // the mode decides the child's viewport; the lane decides how much of that viewport can be shown unscaled
+  const target = stage.width === "full" ? laneW : STAGE_PX[stage.width];
+  const want = target || laneW; // before the first measure there is no lane: the frame simply fills it
+  const room = want > 0 && laneW > 0 ? Math.min(1, laneW / want) : 1;
+  const content = natW > want ? want / natW : 1; // a demo that cannot reflow is scaled, never clipped
+  const zoom = Math.min(1, room * content);
+  const rendered = want > 0 && laneW > 0 ? want * zoom : undefined;
+  // no floor at 0.3 here, unlike `useFit`: the lane is a hard limit, and a demo too wide to reflow must stay inside it
+  const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
+  const floor = isBlock ? (phone ? FLOOR.block.phone : FLOOR.block.wide) : FLOOR.other;
+  const selfFloor = isBlock ? (phone ? SELF_FLOOR.block.phone : SELF_FLOOR.block.wide) : SELF_FLOOR.other;
+  // the stage surface: air around the demo, so a 44 px toolbar is a component on a stage and not a small white box
+  const screen: React.CSSProperties = {
+    width: rendered ?? "100%",
+    margin: "0 auto",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: isBlock ? SURFACE_MIN.block : SURFACE_MIN.component,
+    borderRadius: 10,
+    overflow: "hidden",
+    background: "var(--background)",
+    boxShadow: "0 0 0 1px var(--border), 0 1px 2px rgba(0,0,0,0.05)",
+  };
+
   const Lazy = useMemo(() => React.lazy(DEMOS[key(variant.module)] as any), [variant.module]);
   const code = useCode(variant.module);
   return (
@@ -191,18 +262,31 @@ export function Demo({ id, index, variant, isBlock }: { id: string; index: numbe
       <header className="demo-head">
         <span>{variant.label}</span>
         <span className="sp" />
+        {/* what the frame really is, in the card that owns it: a 390 px viewport at 90% is not 390 px of screen */}
+        {want > 0 && Math.round(zoom * 100) < 100 && (
+          <span data-demo-scale={Math.round(zoom * 100)} style={SCALE_TEXT} aria-live="polite">
+            {stage.width === "full" ? "column" : want} → {Math.round(zoom * 100)}%
+          </span>
+        )}
         <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
         {open ? "Hide code" : "View code"}
       </Button>
         {code && <Copy text={code} />}
-        {fit && (
-          <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-fit" onClick={() => setChoice(!fitted)} aria-pressed={fitted}>
-            {fitted ? `Fit ${Math.round(fit.zoom * 100)}%` : "Fit"}
-          </Button>
-        )}
       </header>
-      <div className="demo-body" ref={box}>
-        <DemoFrame id={id} index={index} zoom={zoom} floor={isBlock ? (typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches ? 720 : 900) : 90} />
+      <div className="demo-body">
+        {/* the site's own phone gutter (`styles.css`: `.demo-body > div { padding: 0 14px }`) lands on this div;
+            the lane below it is padding-free, so the width we measure is the width we can actually use */}
+        <div style={{ width: "100%", minWidth: 0 }}>
+          <div ref={lane} style={{ width: "100%", minWidth: 0 }}>
+            <div style={screen}>
+              <DemoFrame
+                id={id} index={index} zoom={zoom} floor={floor} selfFloor={selfFloor}
+                frameWidth={want || undefined} onSize={onSize}
+                addr={{ theme: stage.theme, motion: stage.motion, replay: stage.replay > 0 ? stage.replay : undefined }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
       {open && code && <div className="demo-code"><pre>{code}</pre></div>}
     </section>
