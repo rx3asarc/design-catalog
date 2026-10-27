@@ -12,6 +12,7 @@ import { Home } from "./site/Home";
 import { ItemPage } from "./site/ItemPage";
 import { ChromePage } from "./site/ChromePage";
 import { Palette, PaletteTrigger } from "./site/CommandPalette";
+import { PageTurn } from "./site/PageTurn";
 
 /**
  * The shell, and nothing else: the frame, the rail's two mounts, the render switch and the provenance layer.
@@ -62,6 +63,7 @@ export default function App() {
       )}
       {phone ? null : <RailReopen />}
       <SidebarInset className="page" data-route={route.kind}>
+        <PageTurn hash={hash}>
         {route.kind === "chrome" ? <ChromePage /> : null}
         {route.kind === "chrome" ? null
           // GALLERY SEAM — the gallery unit owns this line: `#/g/<filter>` parses in site/route.ts today and
@@ -71,6 +73,7 @@ export default function App() {
           // an unknown `#/i/<id>` falls through to the front page: that is what it has always done, and it is
           // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}
+        </PageTurn>
       </SidebarInset>
       <PaletteTrigger place="float" />
       <Palette />
