@@ -6,7 +6,7 @@ import {
   SidebarProvider, SidebarRail,
 } from "@/registry/new-york-v4/ui/sidebar";
 import { items } from "./site/lib";
-import { neighbours, useRoute, useTree } from "./site/route";
+import { neighbours, useRoute, useScrollReset, useTree } from "./site/route";
 import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ItemPage } from "./site/ItemPage";
@@ -23,7 +23,8 @@ export default function App() {
   const [from, setFrom] = useState<string>("");
   const phone = usePhone();
   // the phone drawer closes on every route change, exactly as the hash listener used to do it
-  const { route } = useRoute(() => setMenu(false));
+  const { route, hash } = useRoute(() => setMenu(false));
+  useScrollReset(hash);
 
   const tree = useTree(q, from);
   const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);

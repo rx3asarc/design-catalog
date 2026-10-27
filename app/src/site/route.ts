@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { byId, items, type Item, type TreeSection } from "./lib";
 
 /**
@@ -41,6 +41,19 @@ export function useRoute(onNavigate?: () => void) {
   }, []);
   const route = useMemo(() => parseRoute(hash), [hash]);
   return { route, hash };
+}
+
+/**
+ * The page scroller goes to the top on every route change.
+ *
+ * `.page` is the scroller (`styles.css`) and it is never remounted, so without this a new page opens wherever
+ * the last one was left. A layout effect, so the reset happens before the new page is painted.
+ */
+export function useScrollReset(key: string) {
+  useLayoutEffect(() => {
+    const page = document.querySelector<HTMLElement>(".page");
+    if (page) page.scrollTop = 0;
+  }, [key]);
 }
 
 /** The four rail sections, in the order the rail shows them. */
