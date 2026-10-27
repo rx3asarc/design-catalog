@@ -26,6 +26,9 @@ export type Item = {
 export const items = manifest as unknown as Item[];
 export const byId = new Map(items.map((i) => [i.id, i]));
 
+/** What a visitor reads. Never a casing rule invented here: the data says the name, or the slug is the name. */
+export const label = (i: Item) => i.displayName ?? i.name;
+
 const base = (p: string) => p.split("/").pop() ?? p;
 const stem = (p: string) => base(p).replace(/\.[^.]+$/, "");
 

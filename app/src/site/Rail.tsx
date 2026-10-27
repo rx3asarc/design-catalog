@@ -6,7 +6,7 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem,
   SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
-import type { Item, TreeSection } from "./lib";
+import { label as displayLabel, type Item, type TreeSection } from "./lib";
 
 /**
  * The rail: four sections, their categories, the families inside those, and one more level where a family is
@@ -46,7 +46,7 @@ export function Row({ item, active }: { item: Item; active: boolean }) {
     <SidebarMenuSubItem>
       <SidebarMenuButton asChild isActive={active} className="rail-item">
         <a href={`#/i/${item.id}`} aria-current={active ? "page" : undefined}>
-          <span className="t">{item.name}</span>
+          <span className="t">{displayLabel(item)}</span>
           {!item.variants.length && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
         </a>
       </SidebarMenuButton>
