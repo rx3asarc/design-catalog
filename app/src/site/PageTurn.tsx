@@ -46,5 +46,11 @@ export function PageTurn({ hash, children }: { hash: string; children: React.Rea
     );
   }, [hash]);
 
-  return <div ref={box} data-catalog-item={ITEM}>{children}</div>;
+  // the outer box clips, the inner box moves: a transform is scrollable overflow, so without the clip the first
+  // 250 ms of every route change widened the document by exactly the 8 px the page slides in from.
+  return (
+    <div className="page-turn">
+      <div ref={box} data-catalog-item={ITEM}>{children}</div>
+    </div>
+  );
 }

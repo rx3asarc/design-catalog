@@ -1,17 +1,64 @@
 <!doctype html>
-<html lang="en" class="light">
+<html lang="en" data-catalog-item="shadcn/font-instrument-sans">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>design catalog</title>
-    <meta name="description" content="769 UI components, blocks and effects from five reference libraries — rendered, with their source." />
-    <script type="module" crossorigin src="/design-catalog/assets/main-saD2ZhTB.js"></script>
+    <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
+    <meta name="description" content="769 entries from five reference libraries — 486 rendered here, with their source." />
+    <!-- the phone's chrome colour; the boot script keeps it on the theme that actually won -->
+    <meta name="theme-color" content="#ffffff" />
+    <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/design-catalog/fonts/instrument-sans-latin-var.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/design-catalog/fonts/jetbrains-mono-latin-var.woff2" />
+    <script>
+      /* THE THEME RULE, IN ONE PLACE, BEFORE A SINGLE BYTE OF CSS IS PARSED.
+         Three states — system (the default), light, dark. Only an explicit choice is stored; no stored value
+         means "system", and "system" keeps following the OS afterwards. The class lands on <html> here, in the
+         head, so the first painted frame is already the right one: no flash, and nothing waits for React.
+         site/ThemeSwitch.tsx calls this object instead of restating the rule. */
+      (function () {
+        var KEY = "catalog-theme";
+        var root = document.documentElement;
+        function read() {
+          try {
+            var v = localStorage.getItem(KEY);
+            return v === "light" || v === "dark" ? v : "system";
+          } catch (e) {
+            return "system";
+          }
+        }
+        function paint(mode) {
+          var dark = mode === "dark" || (mode === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          root.classList.toggle("dark", dark);
+          root.setAttribute("data-theme", mode);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", dark ? "#09090b" : "#ffffff");
+          return mode;
+        }
+        var mq = matchMedia("(prefers-color-scheme: dark)");
+        var follow = function () { if (read() === "system") paint("system"); };
+        if (mq.addEventListener) mq.addEventListener("change", follow); else mq.addListener(follow);
+        window.catalogTheme = {
+          read: read,
+          /* choose: persist the explicit choice (or forget it, for system) and repaint */
+          choose: function (mode) {
+            try {
+              if (mode === "system") localStorage.removeItem(KEY); else localStorage.setItem(KEY, mode);
+            } catch (e) {}
+            return paint(mode);
+          }
+        };
+        paint(read());
+      })();
+    </script>
+    <script type="module" crossorigin src="/design-catalog/assets/main-CACtS8x_.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-Be1PHk9I.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-2Wyd7Nz_.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/utils-D0T3A-kS.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CrmmMB6Z.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CxxkyQYn.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BG8iMffh.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-v2fiQHm_.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-8Hn8bRnR.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DYP7iJt8.js">
@@ -19,39 +66,45 @@
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DkVxz1RS.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-LZsJZJ7J.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bu2gY_uY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BiCh4cBN.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BT4RmG9R.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BPijsFW8.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Ctr-C0x_.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/es2015-CT9qBaO1.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-sy2Cky8E.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.dom-BZqiDFn-.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.react-dom-OsFXgi6N.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-8IDUETzF.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-CtM0ItyA.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.react-dom-Tu3iw_XR.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DMeusawV.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-U2yXQVMd.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-ChPFJK-A.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D8Wfxh48.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-CuKHXPuz.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-Bh7OBFrd.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-NilkmuZg.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DsJlRuxZ.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DJtmDoLH.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-BtEngQOk.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-ZcS8RRfP.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-bRlbaNmV.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-CJ_EtFCn.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-jTa17Rv_.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/button-Ce2Do0lH.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/input-tqgSFUZc.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/skeleton-BN0VueHu.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-HshFdvb1.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DjXkJqcx.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tooltip-Cz7nBLzw.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-Bb0TDHDB.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BMrHDYX3.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tooltip-CjAJn_W2.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/createLucideIcon-D9y8R4Uu.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/panel-left-BzwMTzWJ.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/use-mobile-B_fF2G8h.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Cu3zmumX.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CbB2awWT.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/x-CvPCzChs.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-QR20OWi8.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-Bxir2iXg.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bi-9r6Az.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-BuB_mSjL.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-705n38_m.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-DxEz7PqU.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-By4w6lAM.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-Blfpw4a-.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/badge-CC76XeoY.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/table-BwxuhHBZ.js">
-    <link rel="stylesheet" crossorigin href="/design-catalog/assets/styles-D0koO9aP.css">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/kbd-BHGc2fm9.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/search-CRDMuLPk.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-Cr-pBi-z.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/command-D1x0ke9-.js">
+    <link rel="stylesheet" crossorigin href="/design-catalog/assets/styles-qw_TzWZY.css">
   </head>
   <body>
     <div id="root"></div>

@@ -173,6 +173,8 @@ body { margin: 0; -webkit-font-smoothing: antialiased; }
 
 .page { overflow: auto; min-height: 0; }
 .page-in { max-width: 860px; margin: 0 auto; padding: 40px 32px 120px; }
+.page-turn { overflow-x: clip; }
+
 .crumb { font-size: 12px; color: var(--muted-foreground); margin-bottom: 10px; }
 .page h2.title { font-size: 30px; letter-spacing: -.02em; margin: 0 0 8px; font-weight: 650; }
 .page p.lede { font-size: 15px; color: var(--muted-foreground); margin: 0 0 20px; max-width: 62ch; }
