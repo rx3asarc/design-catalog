@@ -1,6 +1,37 @@
 @import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 
+/* ═══ the two faces ═══════════════════════════════════════════════════════════════════════════════
+   Instrument Sans carries the interface, the headings and the prose; JetBrains Mono carries the labels,
+   the counts and the code. Both are catalogue goods — `shadcn/font-instrument-sans` and
+   `shadcn/font-jetbrains-mono` are items in this catalogue, so the site's own type is dogfooding, not
+   taste by vibes. Both are SIL OFL 1.1, both are self-hosted (the site promises no third-party requests,
+   and a CDN font is a third-party request), both are variable woff2 and both are cut to the latin subset:
+   30,092 B and 31,432 B, which is the entire cost of the type. `fonts/OFL.txt` ships the licence beside
+   them; `LICENSES-FONTS.md` at the repo root names family, source, licence and retrieval date.
+   `font-display: swap` — the metrics of the fallbacks are close enough that a swap is a small reflow, and
+   a blank paragraph for 200 ms is not.
+   Vite rewrites the root-absolute `url()` below to the configured base; see app/vite.config.ts. */
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("/fonts/instrument-sans-latin-var.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin-var.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -107,7 +138,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* the face first, the machine's own UI stack behind it: if the woff2 never arrives the site still reads */
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 @layer base {
@@ -160,11 +192,11 @@ body { margin: 0; -webkit-font-smoothing: antialiased; }
 .demo-body.plain { justify-content: flex-start; display: block; }
 .demo-code { border-top: 1px solid var(--border); background: color-mix(in oklab, var(--muted) 55%, var(--card)); }
 pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-size: 12.5px; line-height: 1.6;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 2; }
+  font-family: var(--font-mono); tab-size: 2; }
 .section-h { font-size: 13px; font-weight: 600; margin: 30px 0 10px; }
 .cmd { display: flex; gap: 8px; align-items: center; border: 1px solid var(--border); border-radius: 8px;
   background: color-mix(in oklab, var(--muted) 50%, var(--card)); padding: 10px 12px; font-size: 12.5px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  font-family: var(--font-mono); }
 .tabs { display: flex; gap: 2px; margin: 0 0 0; }
 .tabs button { font-size: 11.5px; padding: 4px 8px; border-radius: 6px 6px 0 0; border: 1px solid transparent;
   border-bottom: 0; background: none; color: var(--muted-foreground); cursor: pointer; }
@@ -189,7 +221,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .cmd-wrap { margin: 0 0 12px; }
 .cmd-label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted-foreground); margin: 0 0 5px; }
 .cmd code { flex: 1; min-width: 0; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55; }
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; }
 .cmd { align-items: flex-start; }
 .cmd button { flex: none; margin-top: -2px; }
 
@@ -426,7 +458,9 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   --s-half: 4px; --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 40px; --s6: 48px; --s8: 64px;
 
   --ink-accent: oklch(0.5 0.13 264);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* one mono stack, one place: the labels, the counts and the code all read this. It used to be copy-pasted
+     three times without "SF Mono" in it; now a change here is the only way to change them. */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 /* the rail runs on two steps, not the five it had: one for items, one for the labels above them */
@@ -441,7 +475,10 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 /* the title is the 30/36 step whether it is an item, the chrome page or the front one */
 .page h2.title, .page-in h2.title {
   font-size: var(--t-title); line-height: var(--lh-title); font-weight: 650;
-  letter-spacing: -0.015em; margin: 0 0 var(--s1);
+  /* Instrument Sans is a grotesque with open sidebearings: at 30px it wants one more notch closed than the
+     system stack did, or the headline reads spaced-out rather than set. 36px on 30 keeps the two-step
+     relationship the scale already had. */
+  letter-spacing: -0.02em; margin: 0 0 var(--s1);
 }
 .page p.lede, .page-in .lede {
   font-size: var(--t-lede); line-height: var(--lh-lede); margin: 0 0 var(--s3); max-width: 62ch;
@@ -454,7 +491,9 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 }
 .crumb {
   font-family: var(--font-mono); font-size: var(--t-label); line-height: var(--lh-label);
-  text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 var(--s2);
+  /* JetBrains Mono's advance is already wide and its caps sit generous: the tracking the system mono needed
+     to open up reads as loose here, so the mono labels lose 0.02em each. */
+  text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 var(--s2);
 }
 
 /* the accent, in its two places: a link's rule, and the way-in numbers (further down) */
@@ -473,7 +512,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .nav2 { margin-top: var(--s6); padding-top: var(--s2); }
 .hint { margin: 0 0 var(--s1); }
 .cmd-wrap { margin: 0 0 var(--s2); }
-.cmd-label { font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.06em; margin: 0 0 var(--s-half); }
+.cmd-label { font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.045em; margin: 0 0 var(--s-half); }
 .demo { margin: var(--s2) 0 var(--s4); }
 .tabs { margin: 0 0 var(--s1); }
 .file-tabs { margin-bottom: 0; }
@@ -487,7 +526,7 @@ pre { font-family: var(--font-mono); }
   padding: var(--s2) 0; border-bottom: 1px solid var(--border);
 }
 .way-n {
-  font-family: var(--font-mono); font-size: var(--t-label); line-height: 1.7; letter-spacing: 0.08em;
+  font-family: var(--font-mono); font-size: var(--t-label); line-height: 1.7; letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums; color: var(--ink-accent); padding-top: 1px;
 }
 .way-h { font-size: var(--t-body); line-height: 1.4; font-weight: 600; margin: 0 0 var(--s-half); }
@@ -501,7 +540,7 @@ pre { font-family: var(--font-mono); }
 }
 .tally-item { display: inline-flex; align-items: baseline; gap: 6px; }
 .tally-n { font-size: var(--t-body); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-.tally-l { font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-foreground); }
+.tally-l { font-family: var(--font-mono); font-size: var(--t-label); letter-spacing: 0.045em; text-transform: uppercase; color: var(--muted-foreground); }
 .tally-note { font-size: var(--t-body); line-height: var(--lh-body); color: var(--muted-foreground); margin: 0; max-width: 66ch; }
 
 /* phone: the scale steps down but keeps its ratios, and nothing we own drops under 12px */
@@ -614,3 +653,33 @@ pre { font-family: var(--font-mono); }
 .prov-tag .prov-uses, .prov-tag .prov-quiet { color: var(--muted-foreground); }
 .prov-tag .prov-n { font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .prov-tag { font-size: 12px; } }
+
+/* ═══ the theme switch: three states, out of flow ═════════════════════════════════════════════════
+   Fixed to the foot of the rail column, exactly like `.rail-reopen` is fixed to its head — so it is
+   never a row in the layout, and flipping it cannot move anything (measured: §"no layout shift" in
+   /root/docs/catalog-redesign/build/catalog-identity.md). It is the shell's own chrome, so it wears the
+   shell's two steps: the group on the label step in mono, the items on the rail step. */
+.theme-switch {
+  position: fixed; left: 14px; bottom: 14px; z-index: 30;
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px 4px 10px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
+}
+.theme-switch .theme-label {
+  font-family: var(--font-mono); font-size: 10px; line-height: 1; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--muted-foreground);
+}
+/* the three items are one fixed width, so the row cannot change shape when the picked one moves across it —
+   a segmented control whose segments resize as you use it is the cheapest way to make a toolbar feel wrong */
+.theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 26px; padding: 0 6px; border-radius: 999px; }
+.theme-switch [data-slot="toggle-group-item"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+/* the rail's last rows must be able to scroll clear of a control that floats over them */
+@media (min-width: 861px) { .rail-list { padding-bottom: 64px; } }
+@media (max-width: 860px) {
+  /* on a phone the rail is a disclosure above the page, so the switch sits in the page's margin;
+     `.page-in` already ends on an 80px pad, which is what keeps it off the last line of prose */
+  .theme-switch { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .theme-switch .theme-label { display: none; }
+  .theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 32px; }
+}
