@@ -242,7 +242,31 @@ def prune_missing_exports(manifest: list) -> int:
     return dropped
 
 
-def curation(items: list) -> dict[int, dict]:
+ATTR = re.compile(r'data-catalog-item="([^"]+)"')
+SHELL_SUFFIXES = (".tsx", ".ts", ".jsx", ".js", ".html")
+# Everything under these directories is copied from the libraries; the shell is what is left.
+COPIED = {"demos", "registry", "components", "lib", "hooks", "blocks", "examples", "app", "shims"}
+
+
+def used_here() -> dict[str, int]:
+    """Which catalogue items the shell actually renders, counted from the attribute that names them.
+
+    `App.tsx`'s CHROME array is nine ids maintained by hand, so the site's claim to be built out of the
+    catalogue depends on somebody remembering to edit an array. This is a grep instead: it cannot drift,
+    and it grows by itself as new surfaces tag what they use.
+    """
+    hits: dict[str, int] = {}
+    files = [p for p in (APP / "index.html",) if p.is_file()]
+    for p in SRC.rglob("*"):
+        if p.is_file() and p.suffix in SHELL_SUFFIXES and (p.relative_to(SRC).parts[0] not in COPIED):
+            files.append(p)
+    for p in files:
+        for m in ATTR.findall(p.read_text(errors="ignore")):
+            hits[m] = hits.get(m, 0) + 1
+    return hits
+
+
+def curation(items: list) -> tuple[dict[int, dict], dict[str, int]]:
     """The public-curation fields, in bulk: six SELECTs over the whole store, not 769 round trips.
 
     Every field here is either a query or absent. Absence is `null`, never `0` — `publish_export.py:121`
@@ -269,6 +293,7 @@ def curation(items: list) -> dict[int, dict]:
     for r in rows("SELECT * FROM pick ORDER BY item_id, at, id"):  # newest wins: last write is the pick
         picks[r["item_id"]] = {k: r[k] for k in ("text", "author", "at", "good_for") if r[k] is not None}
     notes = {r["item_id"]: r for r in rows("SELECT * FROM port_note WHERE public=1")}
+    used = used_here()
     # every item carries the three numeric fields, so a UI toggle never has to know which rows the
     # aggregate queries happened to return; the value is what says whether there is anything there
     for it in items:
@@ -286,7 +311,7 @@ def curation(items: list) -> dict[int, dict]:
         if it["id"] in notes:
             d["verdict"] = {k: notes[it["id"]][k] for k in ("verdict", "reason", "ours_path")}
         out[it["id"]] = d
-    return out
+    return out, used
 
 
 def assert_manifest_honest(manifest: list, items: list, withheld: int) -> None:
@@ -411,7 +436,7 @@ def main() -> int:
 
     manifest = []
     demos = 0
-    cur = curation(items)
+    cur, usage = curation(items)
     withheld = sum(1 for it in items if it["source"] in ("rareui", "beautifului", "transitions"))
 
     for it in items:
@@ -502,6 +527,7 @@ def main() -> int:
     for e in manifest:
         e["has_demo"] = bool(e["variants"])
         e["reference_only"] = not e["has_demo"]
+        e["used_here"] = usage.get(e["id"], 0)
 
     assert_manifest_honest(manifest, items, withheld)
     (APP / "manifest.json").write_text(json.dumps(manifest, separators=(",", ":")))
@@ -513,7 +539,8 @@ def main() -> int:
           f"with concepts {sum(1 for m in manifest if 'concepts' in m)} | "
           f"with composition {sum(1 for m in manifest if 'composition' in m)} | "
           f"with a pick {sum(1 for m in manifest if 'pick' in m)} | "
-          f"with a public verdict {sum(1 for m in manifest if 'verdict' in m)}")
+          f"with a public verdict {sum(1 for m in manifest if 'verdict' in m)} | "
+          f"used_here>0 {sum(1 for m in manifest if m['used_here'])}")
     return 0
 
 
