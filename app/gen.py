@@ -265,6 +265,10 @@ def curation(items: list) -> dict[int, dict]:
     for r in rows("""SELECT ci.item_id, c.key FROM concept_item ci JOIN concept c ON c.id = ci.concept_id
                      ORDER BY c.key"""):
         cons.setdefault(r["item_id"], []).append(r["key"])
+    picks: dict[int, dict] = {}
+    for r in rows("SELECT * FROM pick ORDER BY item_id, at, id"):  # newest wins: last write is the pick
+        picks[r["item_id"]] = {k: r[k] for k in ("text", "author", "at", "good_for") if r[k] is not None}
+    notes = {r["item_id"]: r for r in rows("SELECT * FROM port_note WHERE public=1")}
     # every item carries the three numeric fields, so a UI toggle never has to know which rows the
     # aggregate queries happened to return; the value is what says whether there is anything there
     for it in items:
@@ -277,6 +281,10 @@ def curation(items: list) -> dict[int, dict]:
             d["composition"] = {"count": len(prim), "primitives": prim, "lower_bound": True}
         if cons.get(it["id"]):
             d["concepts"] = cons[it["id"]]
+        if it["id"] in picks:
+            d["pick"] = picks[it["id"]]
+        if it["id"] in notes:
+            d["verdict"] = {k: notes[it["id"]][k] for k in ("verdict", "reason", "ours_path")}
         out[it["id"]] = d
     return out
 
@@ -503,7 +511,9 @@ def main() -> int:
     print(f"items {len(manifest)} | with a demo {with_demo} | demo modules {demos} | withheld {withdrawn}")
     print(f"reference-only {len(manifest) - with_demo} | bytes null {sum(1 for m in manifest if m['bytes'] is None)} | "
           f"with concepts {sum(1 for m in manifest if 'concepts' in m)} | "
-          f"with composition {sum(1 for m in manifest if 'composition' in m)}")
+          f"with composition {sum(1 for m in manifest if 'composition' in m)} | "
+          f"with a pick {sum(1 for m in manifest if 'pick' in m)} | "
+          f"with a public verdict {sum(1 for m in manifest if 'verdict' in m)}")
     return 0
 
 
