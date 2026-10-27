@@ -12,11 +12,13 @@ import { byId, items, type Item, type TreeSection } from "./lib";
 export type Route =
   | { kind: "home" }
   | { kind: "chrome" }
+  | { kind: "gallery"; filter: string }
   | { kind: "item"; id: string; item?: Item };
 
 /** The hash, read once. `#/g/<anything>` is the gallery with that filter; anything unknown is the front page. */
 export function parseRoute(hash: string): Route {
   if (hash === "#/chrome") return { kind: "chrome" };
+  if (hash === "#/g" || hash.startsWith("#/g/")) return { kind: "gallery", filter: hash.slice(3).replace(/^\//, "") };
   if (hash.startsWith("#/i/")) {
     const id = hash.slice(4);
     return { kind: "item", id, item: byId.get(id) };

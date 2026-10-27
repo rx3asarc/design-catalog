@@ -59,10 +59,15 @@ export default function App() {
         </Sidebar>
       )}
       {phone ? null : <RailReopen />}
-      <SidebarInset className="page">
+      <SidebarInset className="page" data-route={route.kind}>
         {route.kind === "chrome" ? <ChromePage /> : null}
         {route.kind === "chrome" ? null
+          // GALLERY SEAM — the gallery unit owns this line: `#/g/<filter>` parses in site/route.ts today and
+          // is rendered by the front page until then. Replace this `<Home />` with the gallery, nothing else.
+          : route.kind === "gallery" ? <Home />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
+          // an unknown `#/i/<id>` falls through to the front page: that is what it has always done, and it is
+          // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}
       </SidebarInset>
       <Provenance />
