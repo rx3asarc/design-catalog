@@ -26,6 +26,7 @@ export type Route =
   | { kind: "home" }
   | { kind: "chrome" }
   | { kind: "gallery"; filter: string; query: GalleryQuery }
+  | { kind: "about" }
   | { kind: "item"; id: string; item?: Item };
 
 /** The keys this build understands. Any other key in the hash is reported, never obeyed. */
@@ -66,6 +67,7 @@ export function gridHref(q: GalleryQuery): string {
  */
 export function parseRoute(hash: string): Route {
   if (hash === "#/chrome") return { kind: "chrome" };
+  if (hash === "#/about") return { kind: "about" };
   if (hash === "#/g" || hash.startsWith("#/g?") || hash.startsWith("#/g/")) {
     const raw = hash.slice(3).replace(/^[/?]/, "");
     return { kind: "gallery", filter: raw, query: parseGalleryQuery(raw) };

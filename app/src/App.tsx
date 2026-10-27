@@ -10,6 +10,7 @@ import { neighbours, useRoute, useScrollReset, useTree } from "./site/route";
 import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { Gallery } from "./site/Gallery";
+import { About } from "./site/About";
 import { ItemPage } from "./site/ItemPage";
 import { ChromePage } from "./site/ChromePage";
 import { ThemeSwitch } from "./site/ThemeSwitch";
@@ -68,6 +69,7 @@ export default function App() {
           // the grid here. An unknown `#/i/<id>` still falls through to the front page.
           : route.kind === "gallery" ? <Gallery query={route.query} />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
+          : route.kind === "about" ? <About />
           // an unknown `#/i/<id>` falls through to the front page: that is what it has always done, and it is
           // an accident of the switch, not a feature the gallery should inherit.
           : <Home />}
