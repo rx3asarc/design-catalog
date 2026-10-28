@@ -116,6 +116,23 @@ const useOpen = () => React.useSyncExternalStore(subscribe, getSnapshot, getSnap
  */
 let returnTo: HTMLElement | null = null;
 
+/* ---- the open palette is a history entry, so Back is a way out and not a way under it ------------------
+ * Measured before this: open the palette on an item page, press Back, and the page turned into the front page
+ * *underneath a still-open, still-scroll-locked palette* (`location.hash` "" , `.page` home, `body` locked).
+ *
+ * So opening pushes an entry with the URL it was opened at. Back then pops that entry — the URL does not move,
+ * so no page can change under the palette — and the `popstate` closes it. Escape, the ✕, the overlay and ⌘K
+ * all go out through `history.back()` for the same reason: there is one exit, and it unwinds the entry. If the
+ * visitor's Back is what arrives, the same handler closes it, and the page is already the page it was. */
+const ENTRY = "catalogPalette";
+let pushed = false;   // the current history entry is the one the palette pushed
+let closing = false;  // we asked for a back and have not seen its popstate yet
+
+/** A reload can leave the palette's entry on the stack with nothing open; give it back to the page. */
+if (typeof history !== "undefined" && history.state?.[ENTRY]) {
+  try { history.replaceState(null, "", location.href); } catch { /* a file:// or sandboxed context: no entry, no harm */ }
+}
+
 function show(from?: HTMLElement | null) {
   // the element to hand focus back to: the control that opened us when there is one (a touch has not focused
   // the button yet when `pointerdown` fires), otherwise whatever already had focus
@@ -123,14 +140,42 @@ function show(from?: HTMLElement | null) {
   returnTo = from instanceof HTMLElement
     ? from
     : active instanceof HTMLElement && active !== document.body ? active : null;
+  if (!pushed) {
+    try {
+      history.pushState({ [ENTRY]: true }, "", location.href);
+      pushed = true;
+    } catch { /* history can be unavailable; the palette still opens, Back just behaves as it did before */ }
+  }
   setOpen(true);
 }
 
-function close() {
+/** The palette is closed — the state, the entry bookkeeping and the focus, in one place, for every path. */
+function finishClose() {
+  pushed = false;
+  closing = false;
   setOpen(false);
   const back = returnTo;
   returnTo = null;
   if (back && document.contains(back)) requestAnimationFrame(() => back.focus());
+}
+
+/** A close the visitor asked for: unwind the palette's own entry and let its popstate do the closing. */
+function requestClose() {
+  if (closing) return;
+  if (pushed && history.state?.[ENTRY]) {
+    closing = true;
+    history.back();
+    return;
+  }
+  finishClose();
+}
+
+if (typeof window !== "undefined") {
+  addEventListener("popstate", () => {
+    // a popstate with the palette closed is just the page moving: the entry bookkeeping follows it
+    if (!isOpen) { pushed = false; closing = false; return; }
+    finishClose();
+  });
 }
 
 /** ⌘ on a Mac, Ctrl everywhere else — the label has to be the key the visitor actually presses. */
@@ -213,20 +258,35 @@ export function Palette() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && !e.altKey && lower(e.key) === "k") {
         e.preventDefault();
-        if (isOpen) close(); else show();
+        if (isOpen) requestClose(); else show();
         return;
       }
       // cmdk does not handle Escape at all; the palette closes itself (and puts focus back) so the behaviour
-      // does not depend on which of radix's dismiss paths is in play.
-      if (e.key === "Escape" && isOpen) close();
+      // does not depend on which of radix's dismiss paths is in play. It also unwinds the history entry, so
+      // Escape and the browser's Back are the same exit.
+      if (e.key === "Escape" && isOpen) requestClose();
     };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
   }, []);
 
+  /**
+   * Open an item. The entry the palette pushed becomes the item's own entry, so Back from the item page returns
+   * to the page the visitor was reading when they opened the palette — not to a dead copy of it. `replaceState`
+   * fires no event of its own, so the router is told in the one way it listens for (`hashchange`).
+   */
   const go = (id: string) => {
-    close();
-    if (location.hash !== `#/i/${id}`) location.hash = `#/i/${id}`;
+    const href = `#/i/${id}`;
+    if (pushed && history.state?.[ENTRY]) {
+      pushed = false;
+      closing = false;
+      try { history.replaceState(null, "", href); } catch { location.hash = href; }
+      finishClose();
+      if (location.hash === href) dispatchEvent(new Event("hashchange"));
+      return;
+    }
+    finishClose();
+    if (location.hash !== href) location.hash = href;
   };
 
   const heading = own
@@ -234,7 +294,7 @@ export function Palette() {
     : total > hits.length ? `${hits.length} of ${total} matches` : `${total} match${total === 1 ? "" : "es"}`;
 
   return (
-    <Dialog open={open} onOpenChange={(o: boolean) => { if (o) setQ(""); else close(); }}>
+    <Dialog open={open} onOpenChange={(o: boolean) => { if (o) setQ(""); else requestClose(); }}>
       <DialogContent
         showCloseButton={false}
         className="gap-0 overflow-hidden p-0 max-sm:top-3 max-sm:right-2 max-sm:left-2 max-sm:w-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0"
