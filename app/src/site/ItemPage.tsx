@@ -7,6 +7,8 @@ import { Demo } from "./demo";
 import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 import { conceptHref } from "./route";
+// the one plain sentence per licence value, defined once in the file that explains licensing
+import { licenceName, licenceSentence } from "./About";
 
 /**
  * One item's page: what it is, whether its source is ours to publish, its demos, how to install it, its files
@@ -89,16 +91,31 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.one_line && <p className="lede">{item.one_line}</p>}
       <div className="badges">
         <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
-          {item.withheld ? "source withheld" : "source included"}
+          {item.withheld ? "code not shown" : "code shown here"}
         </Badge>
-        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
-        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge" title={item.licence}>
+          {licenceName(item.licence)}
+        </Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
+          {item.files.length} {item.files.length === 1 ? "file" : "files"}
+        </Badge>
         {item.variants.length > 0 && (
           <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
             {item.variants.length} demo{item.variants.length > 1 ? "s" : ""}
           </Badge>
         )}
       </div>
+
+      {/*
+       * The licence in one plain sentence, with the manifest's own string beside it in a code span: the badge
+       * names it, this says what it allows, and the raw value stays on the page so the sentence can be checked
+       * against it. A value with no sentence yet (one this build has not met) prints the raw string alone — a
+       * missing sentence is not a licence to invent one.
+       */}
+      <p className="hint" data-licence="" style={{ margin: "0 0 20px" }}>
+        Licence: <code title={item.licence}>{item.licence}</code>
+        {licenceSentence(item.licence) ? ` — ${licenceSentence(item.licence)}` : null}
+      </p>
 
       {/*
        * The way into a comparison, from the item, where a visitor is already asking "and the others?". One line,
@@ -128,12 +145,14 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.withheld ? (
         <div className="withheld">
           {/*
-           * Facts only: whose the code is, that we do not republish it, and where their page is. The old sentence
-           * promised "our verdict" alongside the entry — there is no verdict on this site to promise. The way out
-           * is the primary action on the page, not a "↗" afterthought.
+           * Facts only, in the words a visitor already speaks: whether the code is here, why not when it is not,
+           * and where to read it. The old sentence ("The code is theirs. It is not republished here") said the
+           * same thing in two abstractions — "theirs" and "republished" — and named no reason. The licence is
+           * the reason and the badge above still carries its name, so the sentence can stay short and true.
            */}
           <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
-            The code is theirs. It is not republished here; their page has it.
+            Code not shown here because the licence does not allow us to republish it.
+            {host(item.page) ? ` See it on ${host(item.page)}.` : ""}
           </p>
           {host(item.page) && (
             <Button
@@ -169,7 +188,9 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.withheld ? (
         item.files.length > 0 && (
           <>
-            <div className="section-h">Source files ({item.files.length})</div>
+            <div className="section-h">
+              Source {item.files.length === 1 ? "file" : "files"} ({item.files.length})
+            </div>
             <p className="hint">
               {item.files.map((f, i) => (
                 <span key={f}>

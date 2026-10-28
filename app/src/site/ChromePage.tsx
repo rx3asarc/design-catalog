@@ -36,11 +36,11 @@ const PROSE = "max-[860px]:hidden";
 
 /** Authored prose only. Sparse on purpose: an id the catalogue never heard of gets no sentence. */
 const WHERE: Record<string, string> = {
-  "shadcn/sidebar": "the rail frame and the trigger that reopens it",
-  "shadcn/collapsible": "every level of the rail, and each family inside it",
+  "shadcn/sidebar": "the menu's frame, and the button that reopens it",
+  "shadcn/collapsible": "every level of the menu, and each group inside it",
   "shadcn/button": "the phone browse control, the source tabs, the palette's way in",
   "shadcn/badge": "licence and status badges, on every item page",
-  "shadcn/input": "the filter box above the rail",
+  "shadcn/input": "the filter box above the menu",
   "shadcn/tabs": "the source-file tab strip, on item pages",
   "shadcn/scroll-area": "the pane a long source file scrolls in, on item pages",
   "shadcn/table": "this listing — the table of everything above it",
@@ -125,11 +125,11 @@ export function ChromePage() {
   return (
     <div className="page-in">
       <div className="crumb">this site · built from the catalogue</div>
-      <h2 className="title">Chrome</h2>
+      <h2 className="title">Components used to build this site</h2>
       <p className="lede">
         Everything you are looking at, the shop and the shelves, is one of these. Each row is a catalogue item
         and the count is how many of it this page is running on right now, counted from the page itself. Point at
-        any of them — a badge, the filter box, a level of the rail — and the page names it.
+        any of them — a badge, the filter box, a level of the menu — and the page names it.
       </p>
 
       <p className="hint">
@@ -163,13 +163,14 @@ export function ChromePage() {
       </Table>
 
       <p className="hint">
-        A zero in that column is labelled, not excused. <b>not this view</b> means the tag rendered somewhere
+        A zero in that column is labelled, not excused. <b>not this view</b> means the tag appears somewhere
         else in this session and this page simply does not mount it. <b>unseen</b> means no view this session
         has run it yet — click the row to open its page, come back, and the label settles into one of the other
         two. A row that stays <b>unseen</b> after that is a bug in the tagging, and this page cannot check that
         for you from here: {" "}
         {unseen.length === 0 ? "every row has been seen somewhere this session"
-          : `${unseen.length} row(s) above are still unchecked`}.
+          : `${unseen.length} ${unseen.length === 1 ? "row" : "rows"} above ${
+            unseen.length === 1 ? "is" : "are"} still unchecked`}.
       </p>
 
       <h3 className="section-h">Where the DOM and the manifest disagree</h3>

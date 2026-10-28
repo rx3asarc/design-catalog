@@ -242,7 +242,8 @@ function ChromeTags() {
               {hit.id}
               <span className="prov-uses">
                 {" · used "}
-                <span className="prov-n">{n}</span>×
+                <span className="prov-n">{n}</span>
+                {n === 1 ? " time on this page" : " times on this page"}
               </span>
             </a>
           ) : (
@@ -251,7 +252,7 @@ function ChromeTags() {
               <span className="prov-uses">
                 {" · "}
                 <span className="prov-n">{n}</span>
-                {" on this page · no page"}
+                {n === 1 ? " time on this page · it has no page of its own" : " times on this page · it has no page of its own"}
               </span>
             </span>
           )}
