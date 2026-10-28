@@ -777,8 +777,10 @@ pre { font-family: var(--font-mono); }
 
   .menu-open .rail-phone {
     display: block;
-    position: fixed; left: 0; right: 0; bottom: 0;
-    top: var(--phone-header);
+    position: fixed; left: 0; right: 0;
+    top: var(--phone-header); bottom: auto;
+    /* height from the tree, capped by the viewport under the header: a filtered menu is a short sheet with the
+       page visible (and tappable) below it, a full tree is a tall one that scrolls itself */
     max-height: calc(100dvh - var(--phone-header));
     z-index: 35;
     overflow-y: auto; overflow-x: hidden;
@@ -790,6 +792,20 @@ pre { font-family: var(--font-mono); }
   }
   /* one scroller, not two: the panel scrolls, the list must not clip what the panel is scrolling */
   .menu-open .rail-phone .rail-list { overflow: visible; max-height: none; }
+
+  /* The backdrop: everything the page owns below the header, dimmed, and none of it tappable while the menu
+     is up. Behind the panel (z 34 vs 35), so it is only visible — and only tappable — where the panel does not
+     reach, which is the top of the menu on a phone tall enough for a filtered tree, and never a hole over the
+     page. */
+  .menu-veil, .menu-veil:hover {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    top: var(--phone-header);
+    z-index: 34;
+    width: auto; height: auto; min-height: 0; padding: 0; border: 0; border-radius: 0;
+    background: oklch(0 0 0 / 0.4);
+    cursor: default;
+    overscroll-behavior: contain;
+  }
   /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls */
   .rail-phone .rail-theme { background: var(--card); }
 }
