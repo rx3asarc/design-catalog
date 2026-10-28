@@ -5,7 +5,7 @@ import { Copy } from "./Code";
 import { counts } from "./counts";
 import { items, type Item } from "./lib";
 import { buildTree } from "./route";
-import { faceted, hasDemo } from "./Tile";
+import { Grid, faceted, hasDemo, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
 
 /**
  * The front page: the thing itself, then what it is, the two ways in, then the counts.
@@ -212,6 +212,41 @@ function Terminal() {
   );
 }
 
+/**
+ * The row itself: the gallery's own `Grid`, at a size that fits six on the first screen.
+ *
+ * Not a second tile and not a second harness — `Grid` owns the pool, the observers and the parked→live handover,
+ * and it already renders the reference card for an item with no demo. What is the row's own:
+ *
+ *  1. the column template — three across in the page's column, two on a phone, so all six land inside the first
+ *     screen instead of stacking into six rows;
+ *  2. the cap — six frames, half the 9 the grid measured, because six is all the row has;
+ *  3. `frozen` — every tile here loads `static=1`, a frozen first frame, and only the tile the visitor hovers or
+ *     focuses is told to play. The frame is on the critical path on this page in a way it is not in a grid;
+ *  4. `defer` — the pool starts on the first idle slot after the first paint, not at it. The posters are already
+ *     there in the exact boxes the frames will take, so this costs no layout shift (measured: CLS 0 for the row,
+ *     0 for the page); it only decides when six frames' worth of mount work begins.
+ */
+function HeroRow() {
+  const narrow = useNarrow();
+  const bodyH = narrow ? 132 : 210;
+  const { colW, host } = useColumnWidth(narrow, HERO_TILES.length);
+  const theme = useSiteTheme();
+  return (
+    <div ref={host} data-hero-tiles="" data-hero-ids={HERO_TILES.map((i) => i.id).join(" ")}>
+      <Grid
+        rows={HERO_TILES}
+        colW={colW}
+        bodyH={bodyH}
+        narrow={narrow}
+        theme={theme}
+        cap={HERO_TILES.length}
+        columns={narrow ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))"}
+      />
+    </div>
+  );
+}
+
 /** The front page is a first-run screen: the thing itself, what it is, the two ways in, then what is in it. */
 export function Home() {
   const c = counts;
@@ -227,6 +262,11 @@ export function Home() {
         Browse it, or ask your agent. {c.total} components, blocks, effects and doc pages from {libraries}{" "}
         reference libraries, collected in one place.
       </p>
+
+      <p className="hint" data-hero-note="" style={{ margin: "0 0 10px" }}>
+        {HERO_NOTE}.
+      </p>
+      <HeroRow />
 
       <ol className="ways">
         <li className="way">

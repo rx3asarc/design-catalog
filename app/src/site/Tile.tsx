@@ -479,12 +479,24 @@ export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
 
 /* ── the grid, and the observers that decide what is mounted ────────────────────────────────────────────── */
 
-export function Grid({ rows, colW, bodyH, narrow, theme }: {
+export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns }: {
   rows: Item[]; colW: number; bodyH: number; narrow: boolean; theme: "light" | "dark";
+  /**
+   * How many frames may run at once. Absent is the grid's own budget — 9 wide, 2 on a phone, both measured — and
+   * a surface that shows fewer tiles than that budget may pass its own, because the budget is a ceiling on long
+   * tasks, not a target: a row of six does not need nine. Never above the measured 9.
+   */
+  cap?: number;
+  /**
+   * The grid's own column template when absent: `minmax(300px, 1fr)`, one column on a phone. A row on a page
+   * that is narrower than a grid (the front page's column) asks for its own, because 300 px minimums would
+   * stack six tiles into six rows and put four of them below the fold.
+   */
+  columns?: string;
 }) {
   const host = useRef<HTMLUListElement>(null);
-  const cap = narrow ? PHONE_CAP : LIVE_CAP;
-  const pool = useMemo(() => new Pool(cap), [cap]);
+  const limit = cap ?? (narrow ? PHONE_CAP : LIVE_CAP);
+  const pool = useMemo(() => new Pool(limit), [limit]);
 
   // one pair of observers over the tiles: mount inside 300 px, detach beyond 600 px. Two, because a single
   // observer has a single rootMargin and the exit margin is deliberately twice the entrance.
@@ -511,7 +523,7 @@ export function Grid({ rows, colW, bodyH, narrow, theme }: {
       style={{
         listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8,
         // the spec's own grid: 300 px minimum, as many columns as fit, one column on a phone
-        gridTemplateColumns: narrow ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))",
+        gridTemplateColumns: columns ?? (narrow ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))"),
       }}
     >
       {rows.map((item) =>
