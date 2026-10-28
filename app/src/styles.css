@@ -701,8 +701,14 @@ pre { font-family: var(--font-mono); }
 /* QA I: the hero's Setup button was 36 px tall. */
 .cmd-wrap > button, [data-catalog-item="shadcn/button"].h-9 { min-height: 44px; }
 
-/* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px. Not a phone target (the rail is
-   a drawer there), but the only sub-24 px control in the shell. */
+/* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px.
+   On the phone the rail is no longer a drawer, it is the Browse menu, so this is the one thing in that menu
+   under 44 px and it is worth saying exactly why it stays there: the DOOR is decoration — a 28×28 grid glyph
+   at the right edge of a 44 px row — and the ROW is the target. The row's own trigger/link carries the hit
+   area across the full width (hit-tested at its centre: 234 of 234 reachable rows at 375, 211/211 at 600,
+   203/203 at 768), and a 44×44 door would claim the right 44 px of a 44 px row, turning every "open this
+   level" tap near the count into "open a grid". So: row 44 px + `min-width/min-height: 44px` for every other
+   control in the menu, door 28 px and none of the row's centre. */
 [data-sidebar="menu-action"] { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
 
 
@@ -798,4 +804,12 @@ pre { font-family: var(--font-mono); }
   /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls: `.rail-theme`
      is already `position: sticky; top: 0` for the desktop rail, and the panel is the scroll container here */
   .rail-phone .rail-theme { background: var(--card); padding: 10px 12px; }
+  /* nothing in the menu is under 12 px once it is the phone's whole way in. Three things were, all borrowed from
+     the desktop rail and all left alone on desktop: the 11 px label step (`--t-label`: the counts on every level
+     row, "769 items · 486 rendered", the legend), the switch's 10 px "Theme" and its 11 px segment words, and
+     the 10 px "no demo" on a row. The menu re-declares the step and names the three; desktop keeps its sizes. */
+  .rail-phone { --t-label: 12px; }
+  .rail-phone .rail-item .nodemo,
+  .rail-phone .theme-switch .theme-label,
+  .rail-phone .theme-switch [data-slot="toggle-group-item"] { font-size: 12px; }
 }
