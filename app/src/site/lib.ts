@@ -70,6 +70,20 @@ export function useCode(rel: string | null) {
   return code;
 }
 
+/**
+ * Which items the catalogue treats as motion, so a stage can offer Replay only where replay means something.
+ *
+ * The manifest has no motion flag, so this is what the data does say: beui's library is motion-driven, the
+ * "Motion and effects" category is motion, and `effect` items are motion by kind. It over-matches a little (a
+ * beui button is static in practice) — over-matching costs a frozen first frame, under-matching costs a gallery
+ * of 486 things animating at once.
+ *
+ * `site/Gallery.tsx` carries the same rule inline (it landed first). One copy is the goal; the gallery unit's
+ * file was not this unit's to edit, so the duplicate is left standing and named in the build report.
+ */
+export const isMotionItem = (i: Item) =>
+  i.source === "beui" || i.category === "Motion and effects" || i.kind === "effect";
+
 export type TreeFamily = { key: string; rows: Item[]; subs: { key: string; rows: Item[] }[] };
 export type TreeCat = { key: string; label: string; rows: Item[]; families: TreeFamily[] };
 export type TreeSection = { label: string; count: number; cats: TreeCat[] };

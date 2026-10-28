@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { label, mainFile, type Item } from "./lib";
+import { label, mainFile, isMotionItem, type Item } from "./lib";
 import { Copy, Files } from "./Code";
 import { Demo } from "./demo";
+import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 
 /**
@@ -58,6 +59,9 @@ function PagerLink({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
 
 export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; next?: Neighbour }) {
   const name = label(item);
+  // the stage: one console for every demo on the page, so a 15-variant item does not grow 15 theme switches
+  const api = useStage();
+  const canReplay = isMotionItem(item);
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       <div className="pager">
@@ -99,7 +103,12 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           {item.page && <p style={{ margin: 0 }}><a href={item.page} target="_blank" rel="noreferrer">Their page ↗</a></p>}
         </div>
       ) : item.variants.length ? (
-        item.variants.map((v, i) => <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} />)
+        <div className="stage" data-stage={item.id}>
+          <StageBar item={item} api={api} canReplay={canReplay} />
+          {item.variants.map((v, i) => (
+            <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
+          ))}
+        </div>
       ) : (
         <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
       )}
