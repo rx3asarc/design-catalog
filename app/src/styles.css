@@ -212,7 +212,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .copied { font-size: 11.5px; color: oklch(0.55 0.14 150); }
 @media (max-width: 860px) {
   .cat { grid-template-columns: 1fr; height: auto; }
-  .rail { border-right: 0; border-bottom: 1px solid var(--border); max-height: 42dvh; }
+  .rail { border-right: 0; border-bottom: 0; max-height: none; }
   .page-in { padding: 24px 18px 80px; }
   .page h2.title { font-size: 24px; }
 }
@@ -237,8 +237,6 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .menu-btn { min-height: 44px; padding: 0 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--background); color: var(--foreground); cursor: pointer; }
   .rail { display: none; }
-  .menu-open .rail { display: flex; max-height: none; border-bottom: 1px solid var(--border); }
-  .menu-open .rail-list { max-height: 70dvh; }
   .rail-item { min-height: 44px; font-size: 14px; }
   .rail input { height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming on focus */
   .page { overflow: visible; }
@@ -743,4 +741,55 @@ pre { font-family: var(--font-mono); }
     padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
     background: var(--card); border-top: 1px solid var(--border);
   }
+}
+
+/* ═══ the phone's Browse menu is an overlay, not the third row of the column ═════════════════════
+   It was a flex item between the sticky header and the page, in a column that is exactly one viewport
+   tall (`@media (max-width: 860px) { .cat { height: 100dvh; overflow: hidden } }`, further down). Two
+   shrinkable items (rail `0 1 auto`, page `1 1 auto`) in a 100dvh column: the rail lost, the list lost
+   inside it, and the rows were laid out past the clipped box — so the tree existed, at the right 44 px,
+   invisible, with the page painted over it. Measured on the build before this rule was written (375×812):
+   panel 375×222, `.rail-list` viewport 46 px against 4578 px of scroll content, rows 8-10 of the menu
+   hit-testing as `H2.title`/`P.lede` (the page heading), and 0 of the rows inside the panel were tappable
+   at their centre. At 600×900 the same shape gave a 78 px window and at 768 a 150 px one: the menu worked
+   but one and a half rows at a time.
+
+   So the panel leaves the flow. It is `fixed` under the header, `100dvh - header` tall at most, and it is
+   the scroller itself (`overscroll-behavior: contain`, so a flick at the end of the tree does not hand the
+   gesture to the page). `display: block`, not flex: a flex column with overflowing children shrinks them
+   before it scrolls, which is the bug in miniature. Rows keep their 44 px (the phone rule above), and the
+   list stops being a second scroller — one surface, one scroll.
+
+   Measured after (same harness, same viewports): panel 375×747 fixed @0,65 z 35, its own scroll box
+   4822/746 (the whole tree, not 46 px of it), list 4578/4578 with `overflow: visible`; the first ten menu
+   rows hit-test as the row itself at all three widths, and every row that is reachable while the panel is
+   scrolled — 234 at 375, 211 at 600, 203 at 768 — hits as its own row (was 0 / 42 / 121 of the few rows the
+   squeezed window showed). The last row of a fully-expanded menu is hittable and navigates.
+
+   z-index 35: above `.page` (auto), above the sticky header (20) and above the theme lane (30) it used to
+   lose to, below the palette (50). The header is sticky and the panel starts *below* it, so the Browse/Close
+   trigger stays tappable while the menu is open — a menu you cannot close with the control that opened it is
+   not closed by it either. */
+@media (max-width: 860px) {
+  /* 44 px control + 2×10 px header padding + the header's 1 px rule. `PhoneRail` re-measures it on open and
+     on resize and writes the same property on <html>, so a header that grows cannot leave a gap. */
+  :root { --phone-header: 65px; }
+
+  .menu-open .rail-phone {
+    display: block;
+    position: fixed; left: 0; right: 0; bottom: 0;
+    top: var(--phone-header);
+    max-height: calc(100dvh - var(--phone-header));
+    z-index: 35;
+    overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: var(--card);
+    border-top: 1px solid var(--border); border-bottom: 0;
+    box-shadow: 0 -1px 2px oklch(0 0 0 / 0.05);
+  }
+  /* one scroller, not two: the panel scrolls, the list must not clip what the panel is scrolling */
+  .menu-open .rail-phone .rail-list { overflow: visible; max-height: none; }
+  /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls */
+  .rail-phone .rail-theme { background: var(--card); }
 }

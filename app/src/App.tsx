@@ -7,7 +7,7 @@ import {
 } from "@/registry/new-york-v4/ui/sidebar";
 import { items } from "./site/lib";
 import { neighbours, useRoute, useScrollReset, useTree } from "./site/route";
-import { RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
+import { PhoneRail, RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { Gallery } from "./site/Gallery";
 import { About } from "./site/About";
@@ -49,10 +49,7 @@ export default function App() {
         </Button>
       </div>
       {phone ? (
-        <div className="rail rail-phone" id="rail">
-          {head}
-          <div className="rail-list">{rail}</div>
-        </div>
+        <PhoneRail open={menu} onClose={() => setMenu(false)} head={head} rail={rail} />
       ) : (
         <Sidebar collapsible="offcanvas" variant="sidebar" data-catalog-item="shadcn/sidebar">
           {head}

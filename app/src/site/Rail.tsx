@@ -218,6 +218,40 @@ export function RailReopen() {
   );
 }
 
+/**
+ * The phone's Browse menu: a surface over the page, not a row in it.
+ *
+ * It was a flex item between the sticky header and the page, and the column is exactly one viewport tall, so
+ * the rail was squeezed to a few pixels while its rows were laid out past the clipped box — the tree existed,
+ * at the right height, with the page painted over it. Taps on "Blocks and pages" landed on the page heading.
+ * The geometry is the overlay rule at the foot of `styles.css`; what CSS cannot do is measure the header, because
+ * the panel starts under it. The 65 px fallback in the stylesheet is 44 + 2×10 + the header's rule; the
+ * measurement below is what keeps that honest if the header ever changes.
+ */
+export function PhoneRail({ open, head, rail }: {
+  open: boolean; onClose: () => void; head: React.ReactNode; rail: React.ReactNode;
+}) {
+  // The header is sticky and the panel starts at its foot: measure it rather than trust the constant.
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>(".topbar");
+    if (!header) return;
+    const root = document.documentElement;
+    const set = () => root.style.setProperty("--phone-header", `${Math.round(header.getBoundingClientRect().height)}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(header);
+    addEventListener("resize", set);
+    return () => { ro.disconnect(); removeEventListener("resize", set); };
+  }, []);
+
+  return (
+    <div className={`rail rail-phone${open ? " is-open" : ""}`} id="rail" aria-label="Browse the catalogue">
+      {head}
+      <div className="rail-list">{rail}</div>
+    </div>
+  );
+}
+
 /** The catalogue's own sidebar is a desktop sidebar; a phone gets the same tree as a disclosure above the page. */
 const PHONE = "(max-width: 860px)";
 export function usePhone() {
