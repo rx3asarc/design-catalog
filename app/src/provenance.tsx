@@ -1,9 +1,10 @@
 import * as React from "react";
 import manifest from "../manifest.json";
 import { Popover, PopoverAnchor, PopoverContent } from "@/registry/new-york-v4/ui/popover";
+import { useRoute } from "./site/route";
 
 /**
- * Provenance you can see.
+ * Provenance you can see — **on `#/chrome` only**.
  *
  * Every element the shell renders carries `data-catalog-item`, naming the catalogue item it came from. This
  * layer reads those attributes back out of the DOM: hovering (or focusing) one of them raises a small tag that
@@ -11,6 +12,15 @@ import { Popover, PopoverAnchor, PopoverContent } from "@/registry/new-york-v4/u
  *
  * The number is the DOM's, not ours: `used 6×` is a querySelectorAll of the mounted tree, counted through the
  * same store that `#/chrome` reads, so the two can never disagree.
+ *
+ * **The tag is a property of the Chrome page, not of the site.** At catalogue scale a document-wide
+ * pointerover/focusin layer that floats "beui/marquee · used 1×" over whatever is pointed at is debug UI: it
+ * has covered card titles and an item-page heading. So the gate is the mount, not the handler — off `#/chrome`
+ * this renders `null` and the listeners are **never installed**, rather than installed and told to do nothing.
+ * The `data-catalog-item` attributes themselves stay exactly where they were: `#/chrome` counts them (every
+ * printed count is the DOM's own) and `app/check_chrome.py` scans for them.
+ *
+ * Hover-only stays the desktop behaviour, and a touch still raises nothing (`pointerType === "touch"`).
  */
 
 const ATTR = "data-catalog-item";
@@ -36,6 +46,7 @@ let counts: Record<string, number> = {};
 const listeners = new Set<() => void>();
 let queued = false;
 let watching = false;
+let observer: MutationObserver | null = null;
 
 function recount() {
   if (queued) return;
@@ -53,7 +64,8 @@ function watch() {
   if (watching || typeof MutationObserver === "undefined") return;
   watching = true;
   // attributeFilter keeps this off the radar of every data-state radix writes; a portal opening still counts
-  new MutationObserver(recount).observe(document.documentElement, {
+  observer = new MutationObserver(recount);
+  observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
     attributeFilter: [ATTR],
@@ -62,11 +74,21 @@ function watch() {
   recount();
 }
 
+/** The counter is only live while something reads it: leave `#/chrome` and the observer goes with the page. */
+function unwatch() {
+  if (!watching) return;
+  watching = false;
+  observer?.disconnect();
+  observer = null;
+  removeEventListener("hashchange", recount);
+}
+
 function subscribe(l: () => void) {
   watch();
   listeners.add(l);
   return () => {
     listeners.delete(l);
+    if (!listeners.size) unwatch();
   };
 }
 
@@ -114,7 +136,18 @@ function tagUnder(target: EventTarget | null): Hit | null {
 // a tag that swallows clicks meant for the row beneath it is worse than no tag.
 const TAG_CLASS = "prov-tag";
 
+/**
+ * The gate, and nothing else: the tags exist on the Chrome page and nowhere else.
+ *
+ * Returning `null` here is what makes the rule structural rather than advisory — no mount, no listeners.
+ */
 export function Provenance() {
+  const { route } = useRoute();
+  return route.kind === "chrome" ? <ChromeTags /> : null;
+}
+
+/** The tag layer itself: today's behaviour, unchanged, armed only while `#/chrome` is the route. */
+function ChromeTags() {
   const usage = useUsage();
   const [hit, setHit] = React.useState<Hit | null>(null);
   const anchor = React.useRef<Element | null>(null);
