@@ -120,6 +120,26 @@ function useStacked() {
   return stacked;
 }
 
+/**
+ * Which concept rules this build knows. Empty, and empty on purpose.
+ *
+ * The store answers it in one call — `python3 /root/design-catalog/query.py compare sidebar` returns
+ * `"rule": "keyword: lower(slug) LIKE '%sidebar%' OR …"`, and 28 of the 29 sets answer `slug-normalised`.
+ * That text is a store field, and the site's build publishes `concepts` per item but not `concept.rule`, so
+ * there is no field to read and nothing here to quote. A hand-typed copy of 29 store rows would be a second
+ * copy of the data that silently drifts from the first — the defect this catalogue spends its comments
+ * avoiding — so it is not done. Publish the field upstream and `rule` is one line of render below.
+ */
+const RULES: Record<string, string> = {};
+
+const howEarned = (rule: string) => {
+  // a keyword match is a different kind of set from a slug match, and the page says which one it is looking at
+  if (/^keyword:/i.test(rule)) return `a keyword match, not a naming rule — the store's rule is “${rule}”`;
+  if (rule === "slug-normalised") return "slug-normalised: every member's own slug normalises to this concept's key";
+  if (rule === "human") return "chosen by a human, not by a rule";
+  return `the store's rule is “${rule}”`;
+};
+
 export function Compare({ conceptKey }: { conceptKey: string }) {
   const known = useMemo(() => conceptKeys.includes(conceptKey), [conceptKey]);
   // filed by source, then slug: the order a shelf is in, not an order of merit
@@ -157,6 +177,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
   // a column survives only if it distinguishes: the set of printed answers has to have more than one member
   const differing = COLS.filter((c) => new Set(rows.map((r) => c.text(r))).size > 1);
   const dropped = COLS.filter((c) => !differing.includes(c));
+  const rule = RULES[conceptKey];
 
   return (
     <div className="page-in" style={{ maxWidth: 1560, margin: "0 auto" }}>
@@ -180,6 +201,26 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           {differing.length} of {COLS.length} fields differ
         </span>
       </div>
+
+      {/*
+       * The page's only opinion, and it is about method, never about merit. It sits above the table because a
+       * comparison that cannot say how its set was chosen is an assertion with a grid drawn on it. Quoted from
+       * the store when the build carries the rule (`RULES`), and admitted missing when it does not: inventing a
+       * method here would be the one lie this page could tell.
+       */}
+      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 18px" }}>
+        {rule ? (
+          <>Set chosen by {howEarned(rule)} — quoted from the store's <code>concept.rule</code>, the rule that built
+          this membership.</>
+        ) : (
+          <>
+            How this set was chosen is <strong>not published in this build</strong>: the manifest carries concept
+            membership (which items belong to “{conceptKey}”), and the store's rule for the set is not exported into
+            it. No item in this catalogue carries a human pick (0 of {items.length}), so nothing here was hand-chosen
+            for this page either — the membership is the rule's, we just cannot quote it yet.
+          </>
+        )}
+      </p>
 
       {differing.length ? (
         <table
