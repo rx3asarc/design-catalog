@@ -11,7 +11,9 @@ import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
  *
  *   * **a column that every member answers identically is dropped**, and the bottom of the page names what was
  *     dropped and what it said. A table whose rows differ only in name is a list with lines drawn on it;
- *   * **no verdict and no order of merit** — rows are filed by source then slug, which is a shelf order; the
+ *   * **no verdict and no ranking** — rows are filed by source then slug. A "pick this if…" line is allowed and
+ *     wanted (it is a fact about behaviour, not a judgement of quality); what is not allowed is an order of merit,
+ *     a winner, or a score — the
  *     manifest holds 0 human picks and publishes 0 verdicts, so there is nothing here to order by merit even if
  *     we wanted to. No sentence about any individual item appears that the manifest could not print itself;
  *   * **the method is quoted, or it is admitted missing.** Where a set came from is the store's `concept.rule`;
@@ -213,23 +215,14 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       </div>
 
       {/*
-       * The page's only opinion, and it is about method, never about merit. It sits above the table because a
-       * comparison that cannot say how its set was chosen is an assertion with a grid drawn on it. Quoted from
-       * the store when the build carries the rule (`RULES`), and admitted missing when it does not: inventing a
-       * method here would be the one lie this page could tell.
+       * One line about the set, in the visitor's terms. The previous version explained our build pipeline on a
+       * public page ("not published in this build", "the store's rule is not exported"), which a tester read as an
+       * internal note and was right to. What a reader needs is only: these are the members, and here is the way
+       * back out. The rule is still quoted verbatim when the build carries it — never paraphrased into something
+       * that sounds better than the data.
        */}
-      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 18px" }}>
-        {rule ? (
-          <>Set chosen by {howEarned(rule)} — quoted from the store's <code>concept.rule</code>, the rule that built
-          this membership.</>
-        ) : (
-          <>
-            How this set was chosen is <strong>not published in this build</strong>: the manifest carries concept
-            membership (which items belong to “{conceptKey}”), and the store's rule for the set is not exported into
-            it. No item in this catalogue carries a human pick (0 of {items.length}), so nothing here was hand-chosen
-            for this page either — the membership is the rule's, we just cannot quote it yet.
-          </>
-        )}
+      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 18px", color: "var(--muted-foreground)" }}>
+        {rule ? <>These {rows.length} share the name — {howEarned(rule)}.</> : <>{rows.length} items, filed by library.</>}
       </p>
 
       {differing.length ? (
@@ -326,7 +319,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       </div>
 
       <p style={{ fontSize: 13.5, margin: "0 0 10px", color: "var(--muted-foreground)" }}>
-        Filed by source, then slug — a shelf order, not an order of merit.{" "}
+        Filed by library, then name. Nothing here is ranked; the columns are the facts that separate them.{" "}
         <a href="#/g" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
           All {items.length} items
         </a>

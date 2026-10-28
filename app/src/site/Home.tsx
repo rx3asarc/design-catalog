@@ -87,33 +87,48 @@ const rowsOf = (label: string) =>
   (RAIL.find((s) => s.label === label)?.cats ?? []).flatMap((c) => c.rows);
 
 const taken = new Set<string>();
-/** The best `n` tiles of one section, by the rule, preferring items that run. Marks what it takes. */
+
+/**
+ * What a tile has to be to belong on the front page, and it took a tester to find out.
+ *
+ * The first version of this row chose by size and reuse alone, and it put `shadcn/button` in the hero: one 32 px
+ * control, scaled to a third, inside a 210 px box. Measured on the live build at 375×812, that tile is a white
+ * rectangle — a tile that looks broken, in the first thing anybody sees. So the row has a second precondition
+ * beside "it runs": **it is more than one control** — `composition.count >= 2`, a composition rather than a lone
+ * part (the button that started this has none: it *is* one part). And a section with nothing that both runs and
+ * composes (Docs: 108 pages, no demo between them) does not get a tile, because a hero is not a place to show a
+ * card that says "demo" and has none.
+ */
+const legible = (i: Item) => (faceted(i).composition?.count ?? 0) >= 2;
+
+/** The best `n` tiles of one section, by the rule, from the items that are both running and legible. */
 const pickSection = (label: string, n: number): Item[] => {
-  const rows = rowsOf(label);
-  const running = rows.filter(hasDemo);
-  const chosen = (running.length ? running : rows)
-    .filter((i) => !taken.has(i.id))
-    .sort(byManifest())
-    .slice(0, n);
+  const rows = rowsOf(label).filter((i) => hasDemo(i) && legible(i));
+  const chosen = rows.filter((i) => !taken.has(i.id)).sort(byManifest()).slice(0, n);
   chosen.forEach((i) => taken.add(i.id));
   return chosen;
 };
 
-/** Six tiles, frozen: the order is the order they are shown in, and it is the same six on every build. */
+/**
+ * Six tiles, frozen, every one of them running: two from each of the three sections that have something that runs
+ * and is more than one control. The order is the order they are shown in, and it is the same six on every build.
+ */
 export const HERO_TILES: Item[] = [
-  ...pickSection("Blocks and pages", 1),
+  ...pickSection("Blocks and pages", 2),
   ...pickSection("Components", 2),
-  ...pickSection("Motion and effects", 1),
-  ...pickSection("Docs", 1),
-  ...items.filter((i) => hasDemo(i) && !taken.has(i.id)).sort(byManifest("used")).slice(0, 1),
+  ...pickSection("Motion and effects", 2),
+  // topped up to six from everything else that runs and composes: a section may have fewer than two that qualify,
+  // and the row is six tiles or it is not the row
+  ...items.filter((i) => hasDemo(i) && legible(i) && !taken.has(i.id)).sort(byManifest()).slice(0, 6 - taken.size),
 ];
 
 /**
- * The rule, in one sentence, under the row. No number of ours: the only numeral is the count of tiles above it,
- * which is the length of `HERO_TILES`, and the catalogue's own totals stay where they already were (the crumb, the
- * tally and `#/g`), so the front page cannot drift from `./counts` in a sentence a visitor reads as truth.
+ * What the row says about itself: nothing about how it was chosen.
+ *
+ * The previous sentence — "six from the catalogue, chosen by size and reuse — not by hand" — was true and addressed
+ * to the wrong reader. A visitor wants to know what the boxes are and what happens when they touch one.
  */
-const HERO_NOTE = "six from the catalogue, chosen by size and reuse — not by hand";
+const HERO_NOTE = "Six things from the catalogue. Tap any of them to open its page.";
 
 const TARBALL = "https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz";
 const MCP_CONFIG = `{
@@ -233,7 +248,15 @@ function HeroRow() {
   const { colW, host } = useColumnWidth(narrow, HERO_TILES.length);
   const theme = useSiteTheme();
   return (
-    <div ref={host} data-hero-tiles="" data-hero-ids={HERO_TILES.map((i) => i.id).join(" ")}>
+    <div
+      ref={host}
+      data-hero-tiles=""
+      data-hero-ids={HERO_TILES.map((i) => i.id).join(" ")}
+      /* On a phone the row is one band that scrolls sideways. Six tiles stacked two-by-two need three screens
+         before the page says anything else; a strip shows the first one whole, the second peeking, and the rest a
+         swipe away — measured at 375×812 and 390×844, the band's own height is 190 px and it fits under the lede. */
+      style={narrow ? { overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", paddingBottom: 4 } : undefined}
+    >
       <Grid
         rows={HERO_TILES}
         colW={colW}
@@ -241,7 +264,7 @@ function HeroRow() {
         narrow={narrow}
         theme={theme}
         cap={HERO_TILES.length}
-        columns={narrow ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))"}
+        columns={narrow ? "repeat(6, 78vw)" : "repeat(6, minmax(0, 1fr))"}
         frozen
         defer
       />

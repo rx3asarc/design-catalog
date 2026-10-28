@@ -224,6 +224,67 @@ async function page(vp) {
   }
 }
 
+/* ── I. the hero row: it runs, it is legible, and it is where it claims to be ─────────────────────────────── */
+{
+  // the first version of this check counted a tile whose *top* was on screen, which is how "all six above the
+  // fold at 390" was reported while a phone showed four. A tile is on the first screen when its bottom edge is.
+  for (const vp of [{ width: 390, height: 844 }, { width: 375, height: 812 }, { width: 1440, height: 900 }]) {
+    const p = await page(vp);
+    await p.goto(BASE + "#/", { waitUntil: "load" });
+    await p.waitForTimeout(1200);
+    const m = await p.evaluate(() => {
+      const band = document.querySelector("[data-hero-tiles]");
+      const tiles = [...document.querySelectorAll("[data-tile]")];
+      const ids = (band?.getAttribute("data-hero-ids") ?? "").split(" ").filter(Boolean);
+      const br = band?.getBoundingClientRect();
+      const painted = tiles.filter((t) => {
+        const poster = t.querySelector("[data-poster]");
+        const frame = t.querySelector("iframe");
+        return !!poster || !!frame;
+      }).length;
+      // a tile is on the first screen when its whole card is
+      const onScreen = tiles.filter((t) => { const r = t.getBoundingClientRect(); return r.bottom > 0 && r.bottom <= innerHeight + 1; }).length;
+      return {
+        ids, tiles: tiles.length, onScreen, painted,
+        band: br ? { top: Math.round(br.top), bottom: Math.round(br.bottom), h: Math.round(br.height), scrollW: band.scrollWidth, clientW: band.clientWidth } : null,
+        vh: innerHeight,
+      };
+    });
+    const fresh = MANIFEST.filter((i) => m.ids.includes(i.id));
+    const allRun = fresh.every((i) => (i.files?.length ?? 0) > 0 && (i.variants?.length ?? 0) > 0);
+    const allLegible = fresh.every((i) => ((i.composition?.count ?? 0) >= 2));
+    ok(`hero: six tiles exist and all run (${vp.width})`, m.ids.length === 6 && allRun,
+      `${m.ids.length} ids: ${m.ids.join(" ")}`);
+    ok(`hero: no lone control, no docs page (${vp.width})`, allLegible,
+      fresh.filter((i) => (i.composition?.count ?? 0) < 2).map((i) => i.id).join(" ") || "all have >=2 parts");
+    ok(`hero: an item is drawn in every tile, never a blank box (${vp.width})`, m.painted === m.tiles,
+      `${m.painted}/${m.tiles} tiles have a poster or a frame`);
+    if (vp.width < 860) {
+      ok(`hero: the band is one screen tall and scrolls sideways (${vp.width})`, !!m.band && m.band.h <= 300 && m.band.scrollW > m.band.clientW,
+        `band ${m.band?.h}px at top ${m.band?.top}, scrollW ${m.band?.scrollW} > clientW ${m.band?.clientW}, ${m.onScreen} whole tiles on screen`);
+    } else {
+      ok(`hero: all six whole on the first screen (${vp.width})`, m.onScreen === 6, `${m.onScreen}/6 whole tiles`);
+    }
+    await p.context().close();
+  }
+}
+
+/* ── J. the comparison page: reachable, and a visitor's words, not ours ───────────────────────────────────── */
+{
+  const p = await page({ width: 1440, height: 900 });
+  await p.goto(BASE + "#/g", { waitUntil: "load" });
+  await p.waitForTimeout(1500);
+  const links = await p.evaluate(() => [...document.querySelectorAll("[data-compare-links] a")].map((a) => a.getAttribute("href")));
+  ok("the gallery links to the comparisons", links.length >= 1, `${links.length} links: ${links.slice(0, 4).join(" ")}`);
+  await p.goto(BASE + "#/c/sidebar", { waitUntil: "load" });
+  await p.waitForTimeout(1500);
+  const body = await p.evaluate(() => document.body.innerText);
+  ok("no build note on a public page", !/not published in this build|not exported|this build/i.test(body),
+    (body.match(/not published in this build|not exported|this build/gi) ?? []).join(", "));
+  ok("no shelf-order apology either", !/shelf order|order of merit/i.test(body), "found one");
+  await p.context().close();
+}
+
 ok("no console errors anywhere in this run", errors.length === 0, errors.slice(0, 3).join(" | "));
 
 await browser.close();

@@ -98,6 +98,18 @@ export function resolve(query: GalleryQuery): Resolved {
  * honest toggle that is also in the URL. A filter value that matches nothing is named, because a gallery that
  * silently renders the catalogue for a typo is the defect this route replaces.
  */
+/**
+ * The concept sets worth a door of their own: four or more members, so the comparison is a comparison and not a pair.
+ * Computed from the manifest's per-item \`concepts\` — the same field \`#/c/<key>\` reads, so a link here cannot point
+ * at a set the page does not know.
+ */
+const COMPARABLE = (() => {
+  const n = new Map<string, number>();
+  for (const i of items) for (const k of (i as Item & { concepts?: string[] }).concepts ?? []) n.set(k, (n.get(k) ?? 0) + 1);
+  return [...n.entries()].filter(([, c]) => c >= 4).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([key, count]) => ({ key, n: count }));
+})();
+
 export function Gallery({ query }: { query: GalleryQuery }) {
   const narrow = useNarrow();
   const bodyH = narrow ? 180 : 210;
@@ -123,6 +135,21 @@ export function Gallery({ query }: { query: GalleryQuery }) {
         {resolved.demo.length} of the items in this filter run live here — a scaled viewport onto the demo, with the
         item page behind the tile. {resolved.refOnly.length} are reference-only: a licence entry with no demo.
       </p>
+      {/*
+       * Comparisons were reachable only from an item page, which a tester reported as "no one can find it".
+       * These are the sets big enough to be worth comparing (four or more members), named by the concept's own
+       * key — the same key the store uses, so \`#/c/sidebar\` here and \`compare sidebar\` on the CLI are one set.
+       */}
+      {COMPARABLE.length > 0 && (
+        <p data-compare-links="" style={{ fontSize: 13, margin: "0 0 10px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
+          <span style={{ color: "var(--muted-foreground)" }}>Compare side by side:</span>
+          {COMPARABLE.map((c) => (
+            <a key={c.key} href={\`#/c/\${c.key}\`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+              {c.key} <span style={{ color: "var(--muted-foreground)", marginLeft: 4 }}>{c.n}</span>
+            </a>
+          ))}
+        </p>
+      )}
       <div style={{
         display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, margin: "0 0 16px",
         paddingBottom: 12, borderBottom: "1px solid var(--border)",

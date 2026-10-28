@@ -331,6 +331,17 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
   const [play, setPlay] = useState(false);
   const zooms = useRef(0);
   const [hot, setHot] = useState(false); // hover or focus: the same visual state, so neither is privileged
+  /**
+   * A frame is late, and a poster that vanishes when the mount happens is a grey box for six to twelve seconds.
+   *
+   * Measured on the live front page: the hero's frames took 6–12 s to paint, and because the tile was `live ?
+   * frame : poster`, the poster was swapped out the moment the pool mounted the tile — the visitor watched empty
+   * rectangles for the whole of that, in the first thing on the page. The poster now stays *under* the frame and is
+   * covered only when the child has spoken (its first `onSize` message, which the protocol sends once the demo has
+   * booted), so a slow frame is a labelled card that becomes a demo, never a blank.
+   */
+  const [ready, setReady] = useState(false);
+  useEffect(() => { if (!live) setReady(false); }, [live]);
   useLayoutEffect(() => {
     const el = host.current;
     if (!el) return;
@@ -342,6 +353,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
   // Re-zoom stops after four corrections or when the reported width stops moving by more than 8%: a demo that
   // re-flows at a different frame width must not be able to oscillate the scale frame after frame.
   const onSize = useCallback((m: { height: number; width: number }) => {
+    setReady(true);
     const w = m.width;
     if (!w || w < 32) return;
     if (zooms.current >= 4) return;                       // four corrections is a scale, not an oscillation
@@ -373,8 +385,13 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
         onBlur={() => { setHot(false); setPlay(false); }}
       >
         <div style={{ position: "relative", height: bodyH, overflow: "hidden", background: "var(--muted)" }}>
+          {!ready ? <Poster item={item} /> : null}
           {live ? (
-            <div {...{ inert: "" }} aria-hidden="true" style={{ pointerEvents: "none" }}>
+            <div
+              {...{ inert: "" }}
+              aria-hidden="true"
+              style={{ pointerEvents: "none", position: "relative", opacity: ready ? 1 : 0, transition: "opacity 140ms linear" }}
+            >
               <DemoFrame
                 id={item.id}
                 index={0}
@@ -386,9 +403,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
                 onSize={onSize}
               />
             </div>
-          ) : (
-            <Poster item={item} />
-          )}
+          ) : null}
         </div>
         <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
           <span style={{ fontSize: 14, lineHeight: 1.35, fontWeight: 500, overflowWrap: "anywhere" }}>{title(item)}</span>
