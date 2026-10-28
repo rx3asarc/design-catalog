@@ -48,7 +48,7 @@ export function Install({ install }: { install: string }) {
       </div>
       <div className="cmd">
         <code>{text}</code>
-        <Copy text={text} />
+        <Copy text={text} label="Copy install command" />
       </div>
     </>
   );
@@ -169,17 +169,29 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           )}
         </div>
       ) : item.variants.length ? (
-        <div className="stage" data-stage={item.id}>
-          <StageBar item={item} api={api} canReplay={canReplay} />
-          {item.variants.map((v, i) => (
-            <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
-          ))}
-        </div>
+        <>
+          {/*
+           * The install command comes before the demos, because it is the thing a visitor came for and because the
+           * tester's report was exact: "the first visible Copy on an item page copies a preview wrapper". Measured
+           * before this change on \`#/i/beui/animated-sidebar\`, the first Copy was the demo's source; after it, the
+           * first Copy in document order is the install command, labelled for what it puts on the clipboard.
+           */}
+          {item.install && <Install install={item.install} />}
+          <div className="stage" data-stage={item.id}>
+            <StageBar item={item} api={api} canReplay={canReplay} />
+            {item.variants.map((v, i) => (
+              <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
+            ))}
+          </div>
+        </>
       ) : (
         <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
       )}
 
-      {item.install && <Install install={item.install} />}
+      {/*
+       * The install block moved above the stage, so it is not repeated here: one command, one Copy, in the place a
+       * visitor looks first.
+       */}
       {/*
        * A withheld item gets no \`<Files>\`. The viewer was handed a placeholder line and rendered it inside a 560 px
        * box — an empty code pane under a page that had already said the code is not here. The file *names* are
