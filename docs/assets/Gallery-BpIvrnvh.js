@@ -144,7 +144,7 @@ export function Gallery({ query }: { query: GalleryQuery }) {
         <p data-compare-links="" style={{ fontSize: 13, margin: "0 0 10px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
           <span style={{ color: "var(--muted-foreground)" }}>Compare side by side:</span>
           {COMPARABLE.map((c) => (
-            <a key={c.key} href={\`#/c/\${c.key}\`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+            <a key={c.key} href={\`#/c/\${c.key}\`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, minWidth: 44, paddingInline: 6 }}>
               {c.key} <span style={{ color: "var(--muted-foreground)", marginLeft: 4 }}>{c.n}</span>
             </a>
           ))}
