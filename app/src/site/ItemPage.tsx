@@ -21,6 +21,16 @@ export function command(pm: string, install: string) {
   return `bunx --bun ${tail}`;
 }
 
+/** Where an outbound link goes, in the words of the link: "View on beui.dev →", not "↗". */
+function host(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export function Install({ install }: { install: string }) {
   const [pm, setPm] = useState<string>("pnpm");
   const text = command(pm, install);
@@ -93,10 +103,27 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
 
       {item.withheld ? (
         <div className="withheld">
-          <p style={{ margin: "0 0 10px" }}>
-            The code is not ours to republish, so it is not rendered here. The entry, its files list and our verdict are.
+          {/*
+           * Facts only: whose the code is, that we do not republish it, and where their page is. The old sentence
+           * promised "our verdict" alongside the entry — there is no verdict on this site to promise. The way out
+           * is the primary action on the page, not a "↗" afterthought.
+           */}
+          <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
+            The code is theirs. It is not republished here; their page has it.
           </p>
-          {item.page && <p style={{ margin: 0 }}><a href={item.page} target="_blank" rel="noreferrer">Their page ↗</a></p>}
+          {host(item.page) && (
+            <Button
+              asChild
+              data-catalog-item="shadcn/button"
+              variant="default"
+              className="h-11 px-4"
+              style={{ height: 44, minHeight: 44 }}
+            >
+              <a href={item.page!} target="_blank" rel="noreferrer">
+                View on {host(item.page)} →
+              </a>
+            </Button>
+          )}
         </div>
       ) : item.variants.length ? (
         <div className="stage" data-stage={item.id}>
