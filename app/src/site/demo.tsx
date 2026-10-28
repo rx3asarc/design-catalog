@@ -195,6 +195,24 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWid
   );
 }
 
+/**
+ * The ink a frame's own surface is painted with, per theme.
+ *
+ * The surface under a demo has to follow **the frame's** theme, not the site's: on an item page the stage can
+ * preview `dark` while the catalogue is `light`, and a site token would then paint a white ring around a dark
+ * demo (measured: `--background` is `oklch(1 0 0)` in both columns of that table before this existed).
+ *
+ * These two pairs are the values `styles.css` gives `--background` and `--border` in `:root` and in `.dark`
+ * (styles.css:36-37 and :71/:79). They are restated because the stylesheet has no `.light` scope: `class="dark"`
+ * on a wrapper would give a dark surface inside a dark site, but nothing in the shell can put the light palette
+ * back inside `html.dark`. Two values, one table, one place — and the report reads them back off the running
+ * child, so a palette change in `styles.css` shows up as a disagreement in the measurement instead of hiding.
+ */
+export const FRAME_SURFACE = {
+  light: { ink: "oklch(1 0 0)", rule: "oklch(0.92 0.004 286.32)" },
+  dark: { ink: "oklch(0.141 0.005 285.823)", rule: "oklch(1 0 0 / 10%)" },
+} as const;
+
 /** The demo card: header with the code toggle, the frame on its stage surface, and the code pane when opened. */
 const SCALE_TEXT: React.CSSProperties = {
   fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)",
@@ -241,7 +259,11 @@ export function Demo({ id, index, variant, isBlock, stage }: {
   const phone = typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches;
   const floor = isBlock ? (phone ? FLOOR.block.phone : FLOOR.block.wide) : FLOOR.other;
   const selfFloor = isBlock ? (phone ? SELF_FLOOR.block.phone : SELF_FLOOR.block.wide) : SELF_FLOOR.other;
-  // the stage surface: air around the demo, so a 44 px toolbar is a component on a stage and not a small white box
+  // the stage surface: air around the demo, so a 44 px toolbar is a component on a stage and not a small white box.
+  // It is painted in the frame's theme — the rule — because it is the paper the demo is rendered on. The card
+  // around it, the header and the code pane stay the catalogue's own (they are chrome, and chrome follows the
+  // site); the surface is the only element that touches the demo.
+  const paint = FRAME_SURFACE[stage.theme];
   const screen: React.CSSProperties = {
     width: rendered ?? "100%",
     margin: "0 auto",
@@ -251,8 +273,10 @@ export function Demo({ id, index, variant, isBlock, stage }: {
     minHeight: isBlock ? SURFACE_MIN.block : SURFACE_MIN.component,
     borderRadius: 10,
     overflow: "hidden",
-    background: "var(--background)",
-    boxShadow: "0 0 0 1px var(--border), 0 1px 2px rgba(0,0,0,0.05)",
+    background: paint.ink,
+    // form controls and scrollbars inside the surface follow the same theme the demo is in
+    colorScheme: stage.theme,
+    boxShadow: `0 0 0 1px ${paint.rule}, 0 1px 2px rgba(0,0,0,0.05)`,
   };
 
   const Lazy = useMemo(() => React.lazy(DEMOS[key(variant.module)] as any), [variant.module]);
@@ -278,7 +302,7 @@ export function Demo({ id, index, variant, isBlock, stage }: {
             the lane below it is padding-free, so the width we measure is the width we can actually use */}
         <div style={{ width: "100%", minWidth: 0 }}>
           <div ref={lane} style={{ width: "100%", minWidth: 0 }}>
-            <div style={screen}>
+            <div style={screen} data-frame-surface={stage.theme}>
               <DemoFrame
                 id={id} index={index} zoom={zoom} floor={floor} selfFloor={selfFloor}
                 frameWidth={want || undefined} onSize={onSize}
