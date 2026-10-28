@@ -691,7 +691,8 @@ pre { font-family: var(--font-mono); }
   padding: 8px 12px 8px;
   background: var(--sidebar); border-bottom: 1px solid var(--border);
 }
-/* the phone's corner: out of flow, over `.page-in`'s 80px bottom pad, so it lands on nothing */
+/* the float rule. On a phone it is not used — see "the theme switch's phone lane" at the end of this file,
+   which docks the switch in a lane that cannot cover a card. */
 .theme-switch-float {
   position: fixed; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 30;
 }
@@ -707,3 +708,39 @@ pre { font-family: var(--font-mono); }
 /* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px. Not a phone target (the rail is
    a drawer there), but the only sub-24 px control in the shell. */
 [data-sidebar="menu-action"] { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
+
+
+/* ═══ the theme switch's phone lane ══════════════════════════════════════════════════════════════
+   It was `position: fixed` in the phone's corner, over the content, with nothing reserved under it, so at
+   390 px the bottom-left of every screenful was a card — measured, at the top, the middle and the end of the
+   gallery: exactly one tile under the pill in each. Every one of those was a tap target it ate, and a fixed
+   control over a full-width scrolling column cannot be fixed with padding: cards keep scrolling under it.
+
+   So the pill is docked in a lane instead. On a phone `.cat` is the viewport and nothing longer than it,
+   `.page` is the scroller *inside* it, and the switch is the last row of that column — outside the scroll
+   area, so no card can ever be under it at any scroll offset. Lane, not overlay: it reserves its own height
+   (54 px pill + 6 px padding, plus the safe area), keeps every control at 44x44, and covers nothing.
+
+   This is why `.page` scrolls on a phone: the window is no longer the scroller, `.page` is (the desktop
+   arrangement, extended below 861). `site/Gallery.tsx` resolves its scroller by walking up for an
+   overflow-y element with scrollHeight > clientHeight, so the mount pool follows the change by itself;
+   `useScrollReset` in site/route.ts scrolls `.page`, which until now was a no-op on a phone — it now resets
+   the page the visitor actually scrolls. */
+@media (max-width: 860px) {
+  .cat {
+    display: flex; flex-direction: column;
+    height: 100dvh; min-height: 100dvh;
+    overflow: hidden;
+  }
+  .page {
+    flex: 1 1 auto; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior-y: contain; /* the page does not rubber-band the document: there is nothing outside it */
+  }
+  .theme-switch-float {
+    position: static; flex: none;
+    display: flex; align-items: center; justify-content: flex-start;
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: var(--card); border-top: 1px solid var(--border);
+  }
+}

@@ -121,6 +121,33 @@ const SECTIONS: [string, string[]][] = [
 ];
 
 /**
+ * A section, plus the collapse `buildTree` decided for it.
+ *
+ * The rail renders this tree and the gallery resolves filters through the same object, so a duplicated level
+ * is not cosmetic: "Motion and effects → Motion and effects" is a row the reader opens twice and a filter
+ * value that exists at two depths. So the collapse happens here, in the tree, and it comes out as data — the
+ * render decides nothing, it only follows what this file says.
+ *
+ *   `flatten: "cat"`    the section declares one category, so the section **is** that category: its families
+ *                       hang directly off the section (Blocks and pages, Motion and effects).
+ *   `flatten: "family"` …and that category holds a single family whose key is the section's own name
+ *                       (Docs → "docs"), so the family's subs are the section's children instead.
+ *
+ * The collapse is expressed **beside** `cats`, never instead of it: `cats`/`families`/`subs` stay complete, so
+ * `resolve()` in `site/Gallery.tsx` keeps resolving the published spelling.
+ *
+ *   CANONICAL, what the rail emits today:  `#/g?sec=Docs`
+ *   still accepted (old links, and the grid's own chips):  `#/g?sec=Docs&cat=Docs and guides&fam=docs`
+ *
+ * Both resolve because the tree still carries the category and the family; only the rendering is shallower. No
+ * spelling changed, so no published link needed a second spelling or a redirect.
+ */
+export type RailSection = TreeSection & { flatten?: "cat" | "family" };
+
+/** A name as a slug token, for comparing a family key against a section label ("Docs" ↔ "docs"). */
+const slugOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/**
  * The rail's text filter: one predicate, so the grid and the rail cannot disagree about what a search found.
  * A grid that opens 12 rows must count the same 12 the rail counted.
  */
@@ -130,7 +157,7 @@ export function needleHit(i: Item, q?: string): boolean {
 }
 
 /** Four sections, their categories, families inside those, and one more level where a family is big. */
-export function buildTree(q: string, from: string): TreeSection[] {
+export function buildTree(q: string, from: string): RailSection[] {
   const hit = items.filter((i) => (!from || i.source === from) && needleHit(i, q));
   const fam = (rows: Item[], pick: (i: Item) => string) => {
     const m = new Map<string, Item[]>();
@@ -151,7 +178,15 @@ export function buildTree(q: string, from: string): TreeSection[] {
       const families = fam(rows, subOf).map((f) => ({ ...f, subs: f.rows.length > 12 ? fam(f.rows, secondOf) : [] }));
       return { key: c, label: c, rows, families };
     });
-    return { label, count: catNodes.reduce((n, c) => n + c.rows.length, 0), cats: catNodes };
+    const sec: RailSection = { label, count: catNodes.reduce((n, c) => n + c.rows.length, 0), cats: catNodes };
+    // one declared category = the section and that category are the same level; a single family that repeats
+    // the section's own name is that level too. Both tests read the declared/derived structure, never the
+    // filtered count, so the rail does not re-nest itself while the reader types in the filter box.
+    if (cats.length === 1 && catNodes.length === 1) {
+      const only = catNodes[0];
+      sec.flatten = only.families.length === 1 && slugOf(only.families[0].key) === slugOf(label) ? "family" : "cat";
+    }
+    return sec;
   }).filter((s) => s.count > 0);
 }
 
@@ -160,7 +195,7 @@ export const subKey = (i: Item) => { const t = i.slug.split("-")[0]; return t.le
 /** The sub-family: the slug's second token, or the slug itself when there is no usable second token. */
 export const secondKey = (i: Item) => { const t = i.slug.split("-")[1]; return t && t.length > 1 ? t : i.slug; };
 
-export function useTree(q: string, from: string): TreeSection[] {
+export function useTree(q: string, from: string): RailSection[] {
   return useMemo(() => buildTree(q, from), [q, from]);
 }
 

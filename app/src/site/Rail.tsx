@@ -6,8 +6,8 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
   SidebarMenuSubItem, SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
-import { label as displayLabel, type Item, type TreeSection } from "./lib";
-import { gridHref } from "./route";
+import { label as displayLabel, type Item, type TreeCat, type TreeFamily } from "./lib";
+import { gridHref, type RailSection } from "./route";
 
 /**
  * The rail: four sections, their categories, the families inside those, and one more level where a family is
@@ -70,40 +70,106 @@ export function Row({ item, active }: { item: Item; active: boolean }) {
   );
 }
 
+/**
+ * A family key, pluralised for the rail.
+ *
+ * The key is a slug token (`i.slug.split("-")[0]`), not an English noun, so the old `${key}${key.endsWith("s")
+ * ? "" : "s"}` produced "Matrixs", "checkboxs", "switchs", "typographys" — measured, 7 wrong labels out of
+ * the 101 the rail renders. The mapping is a table plus three suffix rules, in this order:
+ *
+ *   1. `FAMILY_IRREGULAR` — the keys no rule can derive (matrix → matrices, index → indices) plus box and
+ *      switch, which the rules would get right anyway; they are here so the intended outcome is readable in
+ *      one place instead of being an argument about suffix rules.
+ *   2. `FAMILY_INVARIANT` — keys that are already plural (records, returns, texts, tabs, docs, utils,
+ *      citations) or non-count (progress). Never pluralised: "recordses" is worse than "records".
+ *   3. the English suffix rules — -s/-x/-z/-ch/-sh take `es`, a consonant + `y` takes `ies`, otherwise `s`.
+ *
+ * The noun is the **last** token of the key, so a compound pluralises its head, not its qualifier:
+ * `ai-status` → "ai statuses", `3d-tilt` → "3d tilts". Capitalisation is the rail's own: every key is
+ * lowercase and the label stays lowercase. Unit-checked against every family key in the manifest (191 keys,
+ * `build/r2-shell-small-measure.mjs`), and against the labels the rail actually renders.
+ */
+const FAMILY_IRREGULAR: Record<string, string> = {
+  matrix: "matrices",
+  index: "indices",
+  box: "boxes",
+  switch: "switches",
+};
+const FAMILY_INVARIANT = new Set([
+  "records", "returns", "texts", "tabs", "docs", "utils", "citations", // already plural
+  "progress", // non-count
+]);
+
+/** The rail's label for a family key. `matrix` → "matrices", `switch` → "switches", `icon` → "icons". */
+export function familyLabel(key: string): string {
+  const plain = key.replace(/-/g, " ");
+  const head = key.slice(key.lastIndexOf("-") + 1);
+  const irregular = FAMILY_IRREGULAR[head];
+  if (irregular) return plain.slice(0, plain.length - head.length) + irregular;
+  if (FAMILY_INVARIANT.has(key) || FAMILY_INVARIANT.has(head)) return plain;
+  if (/(s|x|z|ch|sh)$/.test(head)) return `${plain}es`;
+  if (/[^aeiou]y$/.test(head)) return `${plain.slice(0, -1)}ies`;
+  return `${plain}s`;
+}
+
 /** Four sections, their categories, families inside those, and one more level where a family is big. */
-export function RailTree({ tree, activeId }: { tree: TreeSection[]; activeId?: string }) {
+export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: string }) {
+  const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
+
+  /** The sub-family level: a family too big for one list, rendered inside its family row. */
+  const subLevels = (f: TreeFamily, sec: RailSection, cat: TreeCat, lvl: "rail-sub" | "rail-sub2") =>
+    f.subs.map((g2) => (
+      <Level key={g2.key} lvl={lvl} count={g2.rows.length}
+        href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key, sub: g2.key })}
+        title={g2.key.replace(/-/g, " ")}
+        label={g2.key.replace(/-/g, " ")}>
+        {g2.rows.map(leaf)}
+      </Level>
+    ));
+
+  /** The family level: one row per family, or the item itself when the family is a single item. */
+  const family = (f: TreeFamily, sec: RailSection, cat: TreeCat) => {
+    if (f.rows.length === 1) return leaf(f.rows[0]);
+    return (
+      <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
+        href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key })} title={f.key.replace(/-/g, " ")}
+        label={familyLabel(f.key)}>
+        {f.subs.length > 1 ? subLevels(f, sec, cat, "rail-sub2") : f.rows.map(leaf)}
+      </Level>
+    );
+  };
+
   return (
     <SidebarMenu className="rail-menu">
       {tree.map((sec) => (
         <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen
           href={gridHref({ sec: sec.label })} title={sec.label}
           label={<span className="sec-n">{sec.label}</span>}>
-          {sec.cats.map((cat) => (
-            <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length}
-              href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
-              defaultOpen={sec.cats.length <= 2}>
-              {cat.families.map((f) => {
-                const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
-                if (f.rows.length === 1) return leaf(f.rows[0]);
-                return (
-                  <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
-                    href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key })} title={f.key.replace(/-/g, " ")}
-                    label={`${f.key.replace(/-/g, " ")}${f.key.endsWith("s") ? "" : "s"}`}>
-                    {f.subs.length > 1
-                      ? f.subs.map((g2) => (
-                          <Level key={g2.key} lvl="rail-sub2" count={g2.rows.length}
-                            href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key, sub: g2.key })}
-                            title={g2.key.replace(/-/g, " ")}
-                            label={g2.key.replace(/-/g, " ")}>
-                            {g2.rows.map(leaf)}
-                          </Level>
-                        ))
-                      : f.rows.map(leaf)}
-                  </Level>
-                );
-              })}
-            </Level>
-          ))}
+          {sec.cats.map((cat) => {
+            // `buildTree` collapsed this section onto its own category (and, for Docs, onto that category's
+            // single same-named family): the rows hang one level shallower and nothing here re-derives that.
+            // The hrefs keep the full sec/cat/fam spelling, so every #/g link the rail emits resolves through
+            // the same tree the grid resolves through.
+            if (sec.flatten === "family" && cat.families.length === 1) {
+              const only = cat.families[0];
+              if (only.rows.length === 1) return <React.Fragment key={cat.key}>{leaf(only.rows[0])}</React.Fragment>;
+              return (
+                <React.Fragment key={cat.key}>
+                  {only.subs.length > 1 ? subLevels(only, sec, cat, "rail-sub") : only.rows.map(leaf)}
+                </React.Fragment>
+              );
+            }
+            if (sec.flatten === "cat") {
+              return <React.Fragment key={cat.key}>{cat.families.map((f) => family(f, sec, cat))}</React.Fragment>;
+            }
+            return (
+              <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length}
+                href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
+                defaultOpen={sec.cats.length <= 2}>
+                {cat.families.map((f) => family(f, sec, cat))}
+              </Level>
+            );
+          })}
         </Level>
       ))}
     </SidebarMenu>
