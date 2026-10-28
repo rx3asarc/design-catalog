@@ -20,6 +20,11 @@ export type Item = {
   category?: string;
   one_line: string | null; url: string | null; licence: string; page: string | null;
   install: string | null; files: string[]; variants: Variant[]; withheld?: boolean;
+  /**
+   * The concept sets this item belongs to, by the store's own key. Published by the data unit; absent means
+   * "in none" and never "not known" — 118 of the 769 items carry one or more, across 29 sets.
+   */
+  concepts?: string[] | null;
 };
 
 export const items = manifest as unknown as Item[];
@@ -27,6 +32,20 @@ export const byId = new Map(items.map((i) => [i.id, i]));
 
 /** What a visitor reads. Never a casing rule invented here: the data says the name, or the slug is the name. */
 export const label = (i: Item) => i.displayName ?? i.name;
+
+/**
+ * Concept membership, exactly as the manifest publishes it — the only input a comparison page has.
+ *
+ * What the manifest does **not** publish is the store's `concept.rule`: how each set was chosen
+ * (`slug-normalised`, a keyword matcher, or a human). That is a missing field, not a licence to invent one, so
+ * the accessor for it does not exist here and `site/Compare.tsx` says the method is unpublished instead of
+ * guessing at it. Add the field upstream (the generator, not this module) and the page prints it verbatim.
+ */
+export const conceptsOf = (i: Item): string[] => i.concepts ?? [];
+/** Every concept key in the build, sorted — 29 today, every one of them with at least two members. */
+export const conceptKeys: string[] = [...new Set(items.flatMap(conceptsOf))].sort();
+/** The members of one concept, in manifest order; empty for a key no item carries. */
+export const conceptMembers = (key: string): Item[] => items.filter((i) => conceptsOf(i).includes(key));
 
 const base = (p: string) => p.split("/").pop() ?? p;
 const stem = (p: string) => base(p).replace(/\.[^.]+$/, "");
