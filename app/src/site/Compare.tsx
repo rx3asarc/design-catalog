@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { conceptKeys, conceptMembers, items, label, type Item } from "./lib";
 import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
-import { BEHAVIOUR_COLS, behaviourOf, measuredOn, NOT_MEASURED, separates, type FactCol } from "./behaviour";
+import { BEHAVIOUR_COLS, behaviourOf, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
 
 /**
  * `#/c/<concept-key>` — the members of one concept, compared on what separates one from another.
@@ -178,9 +178,18 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           </thead>
           <tbody style={{ display: stacked ? "block" : "table-row-group" }}>
             {rows.map((item) => {
+              const pick = pickLine(item, rows);
+              // At 1440 the sentence gets its own full-width row under the member: in the name cell it cost ~5
+              // wrapped lines per member (a measured 153 px row), and a comparison table that is mostly sentence
+              // stops being scannable. On a 390 px frame it is the same two rows, styled as one card.
               const card = stacked
-                ? { display: "block", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px", margin: "0 0 10px" }
+                ? { display: "block", border: "1px solid var(--border)", borderBottom: pick ? "0" : "1px solid var(--border)",
+                    borderRadius: pick ? "10px 10px 0 0" : 10, padding: "10px 12px", margin: pick ? 0 : "0 0 10px" }
                 : { borderTop: "1px solid var(--border)" };
+              const pickRow = stacked
+                ? { display: "block", border: "1px solid var(--border)", borderTop: 0, borderRadius: "0 0 10px 10px",
+                    padding: "0 12px 10px", margin: "0 0 10px" }
+                : { border: 0 };
               return (
                 <Fragment key={item.id}>
                   <tr data-compare-row={item.id} style={card}>
@@ -218,6 +227,19 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
                       );
                     })}
                   </tr>
+                  {pick ? (
+                    <tr data-compare-pick-row={item.id} style={pickRow}>
+                      {/* Derived from this member's own facts, in one template for every member: a fact about
+                          behaviour, not a verdict. Absent when the facts do not support a line. */}
+                      <td
+                        colSpan={differing.length + 1}
+                        data-compare-pick={item.id}
+                        style={{ padding: stacked ? 0 : "0 10px 10px 0", fontSize: 12.5, lineHeight: 1.5, color: "var(--muted-foreground)" }}
+                      >
+                        {pick}
+                      </td>
+                    </tr>
+                  ) : null}
                 </Fragment>
               );
             })}
@@ -309,6 +331,8 @@ const HEAD: React.CSSProperties = {
 
 const NAME: React.CSSProperties = {
   textAlign: "left", fontSize: 14.5, fontWeight: 500, padding: "8px 10px 8px 0",
+  // the name cell carries the "pick this if…" line, so it wraps now — a nowrap row would push the
+  // behaviour columns off a 1440 px page the moment one member's sentence ran long
   whiteSpace: "normal", verticalAlign: "top",
 };
 

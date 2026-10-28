@@ -249,3 +249,64 @@ export function separates(col: FactCol, rows: Item[]): boolean {
   return new Set(answers).size > 1;
 }
 
+const AND = (parts: string[]) =>
+  parts.length <= 1 ? (parts[0] ?? "") : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+
+/**
+ * One "pick this if…" line, built from that member's own measured facts, in one voice for every member.
+ *
+ * The clauses are properties, never verdicts: "collapses to an icon rail" and "does not collapse" are both
+ * things a person might want, and which of them is wanted is the reader's business, not this module's.
+ *
+ * `peers` (the rest of the set) only decides *which* three clauses to print: rarest first, so a line leads with
+ * the thing that separates this member from the ones beside it instead of opening with the fact eighteen of them
+ * share. Ranking clauses by how many peers share them is not ranking members — it is how a sentence about one
+ * item stays worth reading next to a table of twenty-five.
+ *
+ * If the record answered nothing, there is no line: an absent sentence is the honest output for an absent
+ * measurement.
+ */
+export function pickLine(item: Item, peers: Item[] = []): string | null {
+  const b = behaviourOf(item);
+  if (!b) return null;
+
+  type Clause = { text: string; rarity: number };
+  const out: Clause[] = [];
+  // how many members of the set answered this fact the way this member did; 0 when there is no set to compare to
+  const rarity = (key: keyof Measured) => {
+    const mine = b[key];
+    if (typeof mine !== "boolean") return 0;
+    return peers.filter((p) => behaviourOf(p)?.[key] === mine).length;
+  };
+  const add = (key: keyof Measured, text: string) => out.push({ text, rarity: rarity(key) });
+
+  if (b.collapses === true) {
+    add("collapses",
+      b.collapseKind === "icon rail" ? "collapses to an icon rail"
+        : b.collapseKind === "off canvas" ? "collapses off-canvas rather than to icons"
+          : "collapses to something narrower");
+  } else if (b.collapses === false) add("collapses", "does not collapse");
+
+  if (b.nests === true) {
+    const d = b.nestDepth;
+    add("nests", d && d > 2 ? `nests its menu ${d === 3 ? "three" : num(d)} levels deep` : "nests its menu two levels deep");
+  } else if (b.nests === false) add("nests", "keeps its menu to one level");
+
+  if (b.sheet === true) add("sheet", "comes back as a sheet on a 390 px frame");
+  else if (b.sheet === false) add("sheet", "stays put at 390 px instead of becoming a sheet");
+
+  if (b.keyboard === true) add("keyboard", "takes Tab to its own rows");
+  else if (b.keyboard === false) add("keyboard", "keeps Tab out of its rows");
+
+  if (b.shape === true) add("shape", "fills the frame as a page");
+  else if (b.shape === false) add("shape", "sits in the frame as a component");
+
+  if (!out.length) return null;
+  const chosen = out
+    .map((c, i) => ({ ...c, i }))
+    .sort((x, y) => x.rarity - y.rarity || x.i - y.i)
+    .slice(0, 3)
+    .map((c) => c.text);
+  const day = measuredOn(b);
+  return `Pick this if you want a sidebar that ${AND(chosen)} — measured in this demo${day ? ` on ${day}` : ""}.`;
+}
