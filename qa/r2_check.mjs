@@ -122,16 +122,28 @@ async function page(vp) {
 {
   const p = await page({ width: 1440, height: 900 });
   await p.goto(BASE + "#/g", { waitUntil: "load" });
-  await p.waitForTimeout(6000);
+  await p.waitForTimeout(5000);
   const before = await p.evaluate(() => document.querySelectorAll("iframe").length);
-  await p.evaluate(() => window.catalogTheme?.choose?.("dark"));
-  await p.waitForTimeout(2500);
-  const classes = await p.evaluate(() => [...document.querySelectorAll("iframe")]
-    .map((f) => { try { return f.contentDocument?.documentElement.className ?? "?"; } catch { return "x"; } })
-    .filter((c) => c !== "?"));
-  const darkOnes = classes.filter((c) => /dark/.test(c)).length;
-  ok("live frames follow a theme change", before >= 2 && darkOnes >= Math.min(before, 2),
-    `${darkOnes}/${classes.length} frames dark after the switch (${before} iframes)`);
+  // the visitor's own path: click the Dark control, not the API behind it
+  const clicked = await p.evaluate(() => {
+    const el = [...document.querySelectorAll("[role='radio'], button")].find((n) => /^dark$/i.test((n.textContent ?? "").trim()));
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    el.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 }));
+    return true;
+  });
+  const dark = async () => p.evaluate(() => {
+    let n = 0;
+    for (const f of document.querySelectorAll("iframe")) {
+      try { if (/dark/.test(f.contentDocument?.documentElement?.className ?? "")) n += 1; } catch { /* not same-origin yet */ }
+    }
+    return n;
+  });
+  let darkOnes = 0, waited = 0;
+  while (waited < 8000) { darkOnes = await dark(); if (darkOnes >= before) break; await p.waitForTimeout(400); waited += 400; }
+  const siteDark = await p.evaluate(() => document.documentElement.classList.contains("dark"));
+  ok("live frames follow a theme change", clicked && siteDark && before >= 2 && darkOnes >= before - 1,
+    `${darkOnes}/${before} frames dark after ${waited}ms (site dark=${siteDark})`);
   await p.context().close();
 }
 

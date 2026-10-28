@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{i as t,r as n,t as r}from"./tabs-DajMaT7a.js";var i=e();function a(){return(0,i.jsx)(r,{defaultValue:`home`,children:(0,i.jsxs)(n,{children:[(0,i.jsx)(t,{value:`home`,children:`Home`}),(0,i.jsx)(t,{value:`settings`,disabled:!0,children:`Disabled`})]})})}function o(){return(0,i.jsx)(a,{})}export{a as TabsDisabled,o as default};
