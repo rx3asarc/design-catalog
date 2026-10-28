@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{S as t}from"./sidebar-DR6_CLax.js";var n=e();function r(){let{toggleSidebar:e}=t();return(0,n.jsx)(`button`,{onClick:e,children:`Toggle Sidebar`})}function i(){return(0,n.jsx)(r,{})}export{r as CustomTrigger,i as default};
