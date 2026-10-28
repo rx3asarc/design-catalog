@@ -20,7 +20,6 @@ export type Item = {
   category?: string;
   one_line: string | null; url: string | null; licence: string; page: string | null;
   install: string | null; files: string[]; variants: Variant[]; withheld?: boolean;
-  verdict?: { verdict: string; reason: string; ours_path?: string | null };
 };
 
 export const items = manifest as unknown as Item[];

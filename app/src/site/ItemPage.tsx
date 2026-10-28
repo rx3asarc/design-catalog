@@ -21,6 +21,16 @@ export function command(pm: string, install: string) {
   return `bunx --bun ${tail}`;
 }
 
+/** Where an outbound link goes, in the words of the link: "View on beui.dev →", not "↗". */
+function host(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export function Install({ install }: { install: string }) {
   const [pm, setPm] = useState<string>("pnpm");
   const text = command(pm, install);
@@ -77,11 +87,6 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           {item.withheld ? "source withheld" : "source included"}
         </Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
-        {item.verdict && (
-          <Badge data-catalog-item="shadcn/badge" variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
-            {item.verdict.verdict}
-          </Badge>
-        )}
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
         {item.variants.length > 0 && (
           <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
@@ -90,17 +95,35 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
         )}
       </div>
 
-      {item.verdict?.reason && (
-        <p className="verdict"><b>{item.verdict.verdict}.</b> {item.verdict.reason}
-          {item.verdict.ours_path ? <> — ours: <code>{item.verdict.ours_path}</code></> : null}</p>
-      )}
+      {/*
+       * No verdict badge and no reason paragraph. `port_note` may carry a verdict in the data; this shell does not
+       * read it and a visitor never sees it — the page states what the item is, what it looks like, what it costs
+       * in files, and where it came from. Anything that read like a grade is gone from this file on purpose.
+       */}
 
       {item.withheld ? (
         <div className="withheld">
-          <p style={{ margin: "0 0 10px" }}>
-            The code is not ours to republish, so it is not rendered here. The entry, its files list and our verdict are.
+          {/*
+           * Facts only: whose the code is, that we do not republish it, and where their page is. The old sentence
+           * promised "our verdict" alongside the entry — there is no verdict on this site to promise. The way out
+           * is the primary action on the page, not a "↗" afterthought.
+           */}
+          <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
+            The code is theirs. It is not republished here; their page has it.
           </p>
-          {item.page && <p style={{ margin: 0 }}><a href={item.page} target="_blank" rel="noreferrer">Their page ↗</a></p>}
+          {host(item.page) && (
+            <Button
+              asChild
+              data-catalog-item="shadcn/button"
+              variant="default"
+              className="h-11 px-4"
+              style={{ height: 44, minHeight: 44 }}
+            >
+              <a href={item.page!} target="_blank" rel="noreferrer">
+                View on {host(item.page)} →
+              </a>
+            </Button>
+          )}
         </div>
       ) : item.variants.length ? (
         <div className="stage" data-stage={item.id}>
@@ -114,7 +137,28 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       )}
 
       {item.install && <Install install={item.install} />}
-      <Files files={item.files} main={mainFile(item)} />
+      {/*
+       * A withheld item gets no `<Files>`. The viewer was handed a placeholder line and rendered it inside a 560 px
+       * box — an empty code pane under a page that had already said the code is not here. The file *names* are
+       * facts and they are published, so they stay as text; the viewer is only for files we can actually show.
+       */}
+      {item.withheld ? (
+        item.files.length > 0 && (
+          <>
+            <div className="section-h">Source files ({item.files.length})</div>
+            <p className="hint">
+              {item.files.map((f, i) => (
+                <span key={f}>
+                  {i > 0 && " · "}
+                  <code>{f}</code>
+                </span>
+              ))}
+            </p>
+          </>
+        )
+      ) : (
+        <Files files={item.files} main={mainFile(item)} />
+      )}
 
       <nav className="nav2">
         {prev ? <PagerLink n={prev} dir="prev" /> : <span />}
