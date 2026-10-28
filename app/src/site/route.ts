@@ -22,11 +22,15 @@ export type GalleryQuery = {
   ref?: boolean; ignored?: string[];
 };
 
-export type Route =
-  | { kind: "home" }
+export type Route = {
+  kind: "home"
+}
   | { kind: "chrome" }
   | { kind: "gallery"; filter: string; query: GalleryQuery }
   | { kind: "about" }
+  // one concept's members, compared: `#/c/<concept-key>`. An unknown key is a route too — the page names the
+  // miss, which is what the gallery does, and a route that silently became the front page could not do that.
+  | { kind: "concept"; key: string }
   | { kind: "item"; id: string; item?: Item };
 
 /** The keys this build understands. Any other key in the hash is reported, never obeyed. */
@@ -62,6 +66,12 @@ export function gridHref(q: GalleryQuery): string {
 }
 
 /**
+ * The one spelling of a comparison address, so an item page's link, a hand-typed URL and a page that quotes its
+ * own address cannot disagree. The key is the store's, printed verbatim — never slugged again on the way out.
+ */
+export const conceptHref = (key: string) => `#/c/${key}`;
+
+/**
  * The hash, read once. `#/g[?…]` is the gallery with that filter; `#/g/…` is the same query without the `?`,
  * which is the shape this parser was split off with and stays readable. Anything unknown is the front page.
  */
@@ -72,6 +82,7 @@ export function parseRoute(hash: string): Route {
     const raw = hash.slice(3).replace(/^[/?]/, "");
     return { kind: "gallery", filter: raw, query: parseGalleryQuery(raw) };
   }
+  if (hash.startsWith("#/c/")) return { kind: "concept", key: hash.slice(4) };
   if (hash.startsWith("#/i/")) {
     const id = hash.slice(4);
     return { kind: "item", id, item: byId.get(id) };

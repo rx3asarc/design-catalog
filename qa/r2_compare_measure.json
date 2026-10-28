@@ -1,0 +1,1059 @@
+{
+ "base": "http://localhost:8891/design-catalog/",
+ "viewports": [
+  "1440x900",
+  "390x844"
+ ],
+ "gates": {
+  "sidebar.1440x900.members-equal-store": [
+   {
+    "pass": true,
+    "detail": "25 vs store 25"
+   }
+  ],
+  "sidebar.1440x900.numbers-equal-manifest": [
+   {
+    "pass": true,
+    "detail": "every cell equals its field"
+   }
+  ],
+  "sidebar.1440x900.no-horizontal-overflow": [
+   {
+    "pass": true,
+    "detail": "doc 0px, .page 0px"
+   }
+  ],
+  "sidebar.1440x900.no-clipped-text": [
+   {
+    "pass": true,
+    "detail": "0 clipped cell(s)"
+   }
+  ],
+  "sidebar.1440x900.zero-console-errors": [
+   {
+    "pass": true,
+    "detail": "0 errors"
+   }
+  ],
+  "sidebar.1440x900.real-table": [
+   {
+    "pass": true,
+    "detail": "table table, tbody table-row-group"
+   }
+  ],
+  "sidebar.1440x900.controls-44": [
+   {
+    "pass": true,
+    "detail": "0/56 under 44px"
+   }
+  ],
+  "sidebar.1440x900.tiles-one-per-member": [
+   {
+    "pass": true,
+    "detail": "25 tiles for 25 members"
+   }
+  ],
+  "sidebar.1440x900.reference-card-not-empty-box": [
+   {
+    "pass": true,
+    "detail": "5 reference (want 5), 20 demo (want 20), 0 empty, \"no demo\" on every reference: true"
+   }
+  ],
+  "sidebar.1440x900.tiles-mount-frames": [
+   {
+    "pass": true,
+    "detail": "7 live frame(s) mounted below the table"
+   }
+  ],
+  "sidebar.1440x900.tiles-scroll-clean": [
+   {
+    "pass": true,
+    "detail": "2 error(s) during the sweep, 2 reproduce on the item pages that own the demo, 0 novel"
+   }
+  ],
+  "sidebar.390x844.members-equal-store": [
+   {
+    "pass": true,
+    "detail": "25 vs store 25"
+   }
+  ],
+  "sidebar.390x844.numbers-equal-manifest": [
+   {
+    "pass": true,
+    "detail": "every cell equals its field"
+   }
+  ],
+  "sidebar.390x844.no-horizontal-overflow": [
+   {
+    "pass": true,
+    "detail": "doc 0px, .page 0px"
+   }
+  ],
+  "sidebar.390x844.no-clipped-text": [
+   {
+    "pass": true,
+    "detail": "0 clipped cell(s)"
+   }
+  ],
+  "sidebar.390x844.zero-console-errors": [
+   {
+    "pass": true,
+    "detail": "0 errors"
+   }
+  ],
+  "sidebar.390x844.stacked-rows": [
+   {
+    "pass": true,
+    "detail": "thead none, tbody block"
+   }
+  ],
+  "sidebar.390x844.controls-44": [
+   {
+    "pass": true,
+    "detail": "0/56 under 44px"
+   }
+  ],
+  "sidebar.390x844.tiles-one-per-member": [
+   {
+    "pass": true,
+    "detail": "25 tiles for 25 members"
+   }
+  ],
+  "sidebar.390x844.reference-card-not-empty-box": [
+   {
+    "pass": true,
+    "detail": "5 reference (want 5), 20 demo (want 20), 0 empty, \"no demo\" on every reference: true"
+   }
+  ],
+  "sidebar.390x844.tiles-mount-frames": [
+   {
+    "pass": true,
+    "detail": "2 live frame(s) mounted below the table"
+   }
+  ],
+  "sidebar.390x844.tiles-scroll-clean": [
+   {
+    "pass": true,
+    "detail": "2 error(s) during the sweep, 2 reproduce on the item pages that own the demo, 0 novel"
+   }
+  ],
+  "every-concept.renders": [
+   {
+    "pass": true,
+    "detail": "29 keys, 0 failing"
+   }
+  ],
+  "every-concept.count-equals-store": [
+   {
+    "pass": true,
+    "detail": "all 29 equal"
+   }
+  ],
+  "every-concept.errors-are-pre-existing": [
+   {
+    "pass": true,
+    "detail": "tooltip: 1 error(s), 1 reproduce on the item pages that own the demo, 0 novel"
+   }
+  ],
+  "utils.still-compares": [
+   {
+    "pass": true,
+    "detail": "2 rows, table true, store 2"
+   }
+  ],
+  "nope.names-the-miss": [
+   {
+    "pass": true,
+    "detail": "Nothing here is called concept “nope”. This catalogue has 769 items in 29 concept sets. Show everything"
+   }
+  ],
+  "nope.links-the-gallery": [
+   {
+    "pass": true,
+    "detail": "#/g"
+   }
+  ],
+  "nope.no-fallback-to-everything": [
+   {
+    "pass": true,
+    "detail": "table rendered: false"
+   }
+  ],
+  "near-miss.is-not-a-set": [
+   {
+    "pass": true,
+    "detail": "Nothing here is called concept “sidebars”. This catalogue has 769 items in 29 concept sets. Show everything"
+   }
+  ],
+  "item-link.exactly-when-2-plus": [
+   {
+    "pass": true,
+    "detail": "17 items with sets, 12 without, all correct"
+   }
+  ],
+  "item-link.zero-console-errors": [
+   {
+    "pass": true,
+    "detail": "0 console error(s) across 29 item pages — demo-module errors are recorded, not gated: the item page is not this unit's surface"
+   }
+  ],
+  "no-verdict-words": [
+   {
+    "pass": true,
+    "detail": "no best/winner/rank in four rendered pages"
+   }
+  ],
+  "reduced-motion.no-animations": [
+   {
+    "pass": true,
+    "detail": "0 before the turn, 0 during it"
+   }
+  ],
+  "page-turn.250ms": [
+   {
+    "pass": true,
+    "detail": "durations [250]"
+   }
+  ]
+ },
+ "concepts": {
+  "accordion": {
+   "key": "accordion",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,licence,kind,files,size,deps,parts,demo",
+   "dropped": "used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “accordion” answers them identically: used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "alert": {
+   "key": "alert",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “alert” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "approval-card": {
+   "key": "approval-card",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,files,size,deps,parts",
+   "dropped": "kind,used,demo",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 6 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “approval-card” answers them identically: kind = component · used here = 0 · live demo = no. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "aspect-ratio": {
+   "key": "aspect-ratio",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “aspect-ratio” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "bounce-sidebar": {
+   "key": "bounce-sidebar",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,files,size,deps,parts,demo",
+   "dropped": "kind,used",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “bounce-sidebar” answers them identically: kind = component · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "breadcrumb": {
+   "key": "breadcrumb",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “breadcrumb” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "button": {
+   "key": "button",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “button” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "card": {
+   "key": "card",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “card” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "checkbox": {
+   "key": "checkbox",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “checkbox” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "code-block": {
+   "key": "code-block",
+   "members": 3,
+   "sources": 3,
+   "shown": "source,licence,files,size,deps,parts,demo",
+   "dropped": "kind,used",
+   "rows": 3,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 3,
+   "storeRule": "slug-normalised",
+   "countLine": "3 members · 3 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “code-block” answers them identically: kind = component · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "collapsible": {
+   "key": "collapsible",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “collapsible” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "combobox": {
+   "key": "combobox",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “combobox” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "context-menu": {
+   "key": "context-menu",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “context-menu” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "drawer": {
+   "key": "drawer",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “drawer” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "faq": {
+   "key": "faq",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,kind,files,size,deps,parts",
+   "dropped": "used,demo",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “faq” answers them identically: used here = 0 · live demo = no. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "input": {
+   "key": "input",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “input” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "message": {
+   "key": "message",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,files,size,deps,parts,demo",
+   "dropped": "licence,kind,used",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 6 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “message” answers them identically: licence = MIT · kind = component · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "message-scroller": {
+   "key": "message-scroller",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,files,size,deps,parts,demo",
+   "dropped": "licence,kind,used",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 6 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “message-scroller” answers them identically: licence = MIT · kind = component · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "otp-input": {
+   "key": "otp-input",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,kind,files,size,deps,parts,demo",
+   "dropped": "used",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “otp-input” answers them identically: used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "popover": {
+   "key": "popover",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “popover” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "select": {
+   "key": "select",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “select” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "sidebar": {
+   "key": "sidebar",
+   "members": 25,
+   "sources": 4,
+   "shown": "source,licence,kind,files,size,deps,parts,used,demo",
+   "dropped": "",
+   "rows": 25,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 25,
+   "storeRule": "keyword: lower(slug) LIKE '%sidebar%' OR lower(name) LIKE '%sidebar%' (any kind)",
+   "countLine": "25 members · 4 sources · 9 of 9 fields differ",
+   "droppedNote": "Every field the manifest publishes differs inside this set, so every field is a column."
+  },
+  "streaming-text": {
+   "key": "streaming-text",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,kind,size",
+   "dropped": "files,deps,parts,used,demo",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 4 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “streaming-text” answers them identically: files = 1 · deps = — · parts = — · used here = 0 · live demo = no. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "switch": {
+   "key": "switch",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “switch” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "table": {
+   "key": "table",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “table” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "tabs": {
+   "key": "tabs",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,used,demo",
+   "dropped": "licence",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “tabs” answers them identically: licence = MIT. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "toggle": {
+   "key": "toggle",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,licence,kind,files,size,deps,parts,demo",
+   "dropped": "used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 8 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “toggle” answers them identically: used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "tooltip": {
+   "key": "tooltip",
+   "members": 4,
+   "sources": 2,
+   "shown": "source,kind,files,size,deps,parts,demo",
+   "dropped": "licence,used",
+   "rows": 4,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 4,
+   "storeRule": "slug-normalised",
+   "countLine": "4 members · 2 sources · 7 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “tooltip” answers them identically: licence = MIT · used here = 0. A field that cannot separate two members cannot help anyone choose between them."
+  },
+  "utils": {
+   "key": "utils",
+   "members": 2,
+   "sources": 2,
+   "shown": "source,licence,size,deps",
+   "dropped": "kind,files,parts,used,demo",
+   "rows": 2,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storeMembers": 2,
+   "storeRule": "slug-normalised",
+   "countLine": "2 members · 2 sources · 4 of 9 fields differ",
+   "droppedNote": "Dropped, because every member of “utils” answers them identically: kind = component · files = 1 · parts = — · used here = 0 · live demo = no. A field that cannot separate two members cannot help anyone choose between them."
+  }
+ },
+ "perViewport": {
+  "1440x900": {
+   "key": "sidebar",
+   "members": 25,
+   "sources": 4,
+   "shown": "source,licence,kind,files,size,deps,parts,used,demo",
+   "dropped": "",
+   "rows": 25,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storedMembers": 25,
+   "countLine": "25 members · 4 sources · 9 of 9 fields differ",
+   "droppedNote": "Every field the manifest publishes differs inside this set, so every field is a column.",
+   "methodNote": "How this set was chosen is not published in this build: the manifest carries concept membership (which items belong to “sidebar”), and the store's rule for the set is not exported into it. No item in this catalogue carries a human pick (0 of 769), so nothing here was hand-chosen for this page either — the membership is the rule's, we just cannot quote it yet.",
+   "tableDisplay": "table",
+   "theadDisplay": "table-header-group",
+   "tbodyDisplay": "table-row-group",
+   "docOverflow": 0,
+   "errors": [
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+   ]
+  },
+  "390x844": {
+   "key": "sidebar",
+   "members": 25,
+   "sources": 4,
+   "shown": "source,licence,kind,files,size,deps,parts,used,demo",
+   "dropped": "",
+   "rows": 25,
+   "clipped": 0,
+   "overflow": 0,
+   "pageOverflow": 0,
+   "status": null,
+   "failures": [],
+   "storedMembers": 25,
+   "countLine": "25 members · 4 sources · 9 of 9 fields differ",
+   "droppedNote": "Every field the manifest publishes differs inside this set, so every field is a column.",
+   "methodNote": "How this set was chosen is not published in this build: the manifest carries concept membership (which items belong to “sidebar”), and the store's rule for the set is not exported into it. No item in this catalogue carries a human pick (0 of 769), so nothing here was hand-chosen for this page either — the membership is the rule's, we just cannot quote it yet.",
+   "tableDisplay": "block",
+   "theadDisplay": "none",
+   "tbodyDisplay": "block",
+   "docOverflow": 0,
+   "errors": [
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+    "http: 404 http://localhost:8891/avatars/shadcn.jpg",
+    "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+   ]
+  }
+ },
+ "conceptTable": [
+  [
+   "accordion",
+   4,
+   4,
+   2,
+   "source,licence,kind,files,size,deps,parts,demo",
+   "used",
+   "ok"
+  ],
+  [
+   "alert",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "approval-card",
+   2,
+   2,
+   2,
+   "source,licence,files,size,deps,parts",
+   "kind,used,demo",
+   "ok"
+  ],
+  [
+   "aspect-ratio",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "bounce-sidebar",
+   2,
+   2,
+   2,
+   "source,licence,files,size,deps,parts,demo",
+   "kind,used",
+   "ok"
+  ],
+  [
+   "breadcrumb",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "button",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "card",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "checkbox",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "code-block",
+   3,
+   3,
+   3,
+   "source,licence,files,size,deps,parts,demo",
+   "kind,used",
+   "ok"
+  ],
+  [
+   "collapsible",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "combobox",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "context-menu",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "drawer",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "faq",
+   2,
+   2,
+   2,
+   "source,licence,kind,files,size,deps,parts",
+   "used,demo",
+   "ok"
+  ],
+  [
+   "input",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "message",
+   2,
+   2,
+   2,
+   "source,files,size,deps,parts,demo",
+   "licence,kind,used",
+   "ok"
+  ],
+  [
+   "message-scroller",
+   2,
+   2,
+   2,
+   "source,files,size,deps,parts,demo",
+   "licence,kind,used",
+   "ok"
+  ],
+  [
+   "otp-input",
+   2,
+   2,
+   2,
+   "source,licence,kind,files,size,deps,parts,demo",
+   "used",
+   "ok"
+  ],
+  [
+   "popover",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "select",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "sidebar",
+   25,
+   25,
+   4,
+   "source,licence,kind,files,size,deps,parts,used,demo",
+   "—",
+   "ok"
+  ],
+  [
+   "streaming-text",
+   2,
+   2,
+   2,
+   "source,licence,kind,size",
+   "files,deps,parts,used,demo",
+   "ok"
+  ],
+  [
+   "switch",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "table",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "tabs",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,used,demo",
+   "licence",
+   "ok"
+  ],
+  [
+   "toggle",
+   4,
+   4,
+   2,
+   "source,licence,kind,files,size,deps,parts,demo",
+   "used",
+   "ok"
+  ],
+  [
+   "tooltip",
+   4,
+   4,
+   2,
+   "source,kind,files,size,deps,parts,demo",
+   "licence,used",
+   "ok"
+  ],
+  [
+   "utils",
+   2,
+   2,
+   2,
+   "source,licence,size,deps",
+   "kind,files,parts,used,demo",
+   "ok"
+  ]
+ ],
+ "demoBleed": {
+  "tooltip": {
+   "onPage": [
+    "Error: `Tooltip` must be used within `TooltipProvider`\n    at us"
+   ],
+   "alsoOnItemPages": [
+    "Error: `Tooltip` must be used within `TooltipProvider`\n    at us"
+   ],
+   "novel": []
+  }
+ },
+ "summary": {
+  "checks": 35,
+  "pass": 35,
+  "fail": 0
+ }
+}

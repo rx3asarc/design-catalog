@@ -12,6 +12,7 @@ import { Home } from "./site/Home";
 import { Gallery } from "./site/Gallery";
 import { About } from "./site/About";
 import { ItemPage } from "./site/ItemPage";
+import { Compare } from "./site/Compare";
 import { ChromePage } from "./site/ChromePage";
 import { ThemeSwitch } from "./site/ThemeSwitch";
 import { Palette, PaletteTrigger } from "./site/CommandPalette";
@@ -79,6 +80,8 @@ export default function App() {
           // GALLERY SEAM — the gallery unit owns this line: `#/g[?filter]` parses in site/route.ts and renders
           // the grid here. An unknown `#/i/<id>` still falls through to the front page.
           : route.kind === "gallery" ? <Gallery query={route.query} />
+          // COMPARISON SEAM — `#/c/<concept>` parses in site/route.ts; one arm, one surface (site/Compare.tsx).
+          : route.kind === "concept" ? <Compare conceptKey={route.key} />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
           : route.kind === "about" ? <About />
           // an unknown `#/i/<id>` falls through to the front page: that is what it has always done, and it is

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { label, mainFile, isMotionItem, type Item } from "./lib";
+import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, type Item } from "./lib";
 import { Copy, Files } from "./Code";
 import { Demo } from "./demo";
 import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
+import { conceptHref } from "./route";
 
 /**
  * One item's page: what it is, whether its source is ours to publish, its demos, how to install it, its files
@@ -72,6 +73,10 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
   // the stage: one console for every demo on the page, so a 15-variant item does not grow 15 theme switches
   const api = useStage();
   const canReplay = isMotionItem(item);
+  // the comparisons this item is a member of, and only those with something to compare against
+  const comparable = conceptsOf(item)
+    .map((key) => ({ key, others: conceptMembers(key).length - 1 }))
+    .filter((c) => c.others >= 1);
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       <div className="pager">
@@ -94,6 +99,25 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           </Badge>
         )}
       </div>
+
+      {/*
+       * The way into a comparison, from the item, where a visitor is already asking "and the others?". One line,
+       * and only for a set that can actually be compared: a concept of one is not a comparison, and the count is
+       * the data's, so a set that grows or shrinks changes the sentence instead of contradicting it. An item can
+       * sit in two sets (beui/bounce-sidebar is in `bounce-sidebar` and in `sidebar`), so the line names each.
+       */}
+      {comparable.length > 0 && (
+        <p data-compare-links="" style={{ fontSize: 14, margin: "0 0 20px" }}>
+          {comparable.map((c, i) => (
+            <span key={c.key}>
+              {i > 0 && " · "}
+              <a href={conceptHref(c.key)}>
+                Compare with the {c.others} other{c.others === 1 ? "" : "s"} in <strong>{c.key}</strong>
+              </a>
+            </span>
+          ))}
+        </p>
+      )}
 
       {/*
        * No verdict badge and no reason paragraph. `port_note` may carry a verdict in the data; this shell does not
