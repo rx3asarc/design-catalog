@@ -308,9 +308,35 @@ function useNarrow() {
   return narrow;
 }
 
-/** The site's current theme, read from the document rather than tracked here: the theme is another unit's. */
-const themeOf = (): "light" | "dark" =>
-  typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
+/** The site's current theme, as a subscription — not as a read.
+ *
+ * `<html>` carries the theme as a class: the boot script in `app/index.html` paints it before the first CSS byte
+ * and `site/ThemeSwitch.tsx` calls that same rule. Reading the class once per render (what this replaces) is why
+ * a theme change left a mixed grid: the switch repaints `<html>`, nothing re-renders the gallery, and every frame
+ * already mounted keeps the theme it was mounted with — a dark catalogue full of light demos.
+ *
+ * A `MutationObserver` on the class (and on `data-theme`, which the boot script sets to the *choice*, not the
+ * paint) is the subscription: the class is the answer because it is what the browser has painted, `data-theme`
+ * says only `light`/`dark`/`system`. `prefers-color-scheme` is watched too, because in the "auto" state the boot
+ * script's own `matchMedia` listener is what repaints `<html>` when the OS changes — the observer catches that as
+ * well, and this is the belt to that braces. No context provider, no dependency, and `ThemeSwitch` is untouched:
+ * both read the one rule the boot script already owns.
+ */
+function useSiteTheme(): "light" | "dark" {
+  const read = (): "light" | "dark" =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
+  const [theme, setTheme] = useState(read);
+  useEffect(() => {
+    const sync = () => setTheme((prev) => { const next = read(); return next === prev ? prev : next; });
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", sync);
+    sync();
+    return () => { mo.disconnect(); mq.removeEventListener("change", sync); };
+  }, []);
+  return theme;
+}
 
 const title = (i: Item) => displayLabel(i);
 
@@ -570,7 +596,8 @@ export function Gallery({ query }: { query: GalleryQuery }) {
   const bodyH = narrow ? 180 : 210;
   const resolved = useMemo(() => resolve(query), [query]);
   const { colW, host } = useColumnWidth(narrow, resolved.shown.length);
-  const theme = themeOf();
+  // a subscription, so a theme change reaches the frames that are already mounted below (§ the hook's comment)
+  const theme = useSiteTheme();
   const sig = JSON.stringify([query, resolved.shown.length]);
 
   const title = resolved.levels.length
