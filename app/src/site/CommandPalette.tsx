@@ -184,7 +184,7 @@ function HitRow({ hit, onSelect }: { hit: Hit; onSelect: (id: string) => void })
       value={item.id}
       onSelect={() => onSelect(item.id)}
       // 32 px tall from the registry's py-1.5; a row you are meant to hit with a thumb clears 44
-      className="gap-2 max-[860px]:min-h-11"
+      className="min-w-0 gap-2 max-[860px]:min-h-11"
       // the row is a search result, not a control: it wears the command item's slot, and the shell's
       // provenance layer reads the same filter box through the Command wrapper's tag
     >
@@ -261,9 +261,14 @@ export function Palette() {
             onValueChange={setQ}
             placeholder={`Search ${items.length} items — name, source, category, concept…`}
           />
-          <CommandList className="max-h-[min(60dvh,420px)]">
-            <CommandEmpty>
-              <span className="block">
+          <CommandList className="max-h-[min(60dvh,420px)] min-w-0">
+            {/* A query is not bounded by the box it is echoed in. The empty state is a centred line, so a
+                500-character paste with no break opportunity in it used to run out of both sides at once —
+                measured 3 495 px of overflow at 390 and 3 357 px at 1440. `overflow-wrap: anywhere` gives the
+                line a break opportunity inside a “word” that has none, and `min-w-0`/`max-w-full` on the row
+                and its children let the flex/grid chain actually shrink to the dialog instead of to the text. */}
+            <CommandEmpty className="min-w-0 max-w-full overflow-hidden px-3">
+              <span className="block min-w-0 max-w-full [overflow-wrap:anywhere]">
                 {`Nothing in ${items.length} items matches “${q.trim()}” — not a name, a slug, a source, a category or a concept.`}
               </span>
               <Button
@@ -280,7 +285,7 @@ export function Palette() {
               </Button>
             </CommandEmpty>
             {hits.length ? (
-              <CommandGroup heading={heading}>
+              <CommandGroup heading={heading} className="min-w-0">
                 {hits.map((h) => <HitRow key={h.item.id} hit={h} onSelect={go} />)}
               </CommandGroup>
             ) : null}
