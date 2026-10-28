@@ -102,6 +102,29 @@ export function Copy({ text, label, detail }: { text: string; label: string; det
 }
 
 /**
+ * How the file tab strip behaves when an item has more files than fit on one line.
+ *
+ * It wrapped. The registry's `TabsList` pins `h-9` in a *variant* selector (`group-data-[orientation=
+ * horizontal]/tabs:h-9`), and `cn` is tailwind-merge: `h-auto` and that variant class are different keys, so both
+ * survived and the stylesheet's order decided — it decided 36 px. The wrapped second row then painted *outside*
+ * the list's own box, straight over the path bar below it: measured on the base build at 390 px, tabs sat at
+ * y 399–443 while the path bar sat at 398–417, and at 1440 px the fifth tab covered the file pane's Copy button
+ * (Playwright refused the click: "subtree intercepts pointer events"). Not a cosmetic overlap — a stolen click.
+ *
+ * So the row scrolls sideways instead of wrapping, and the height is inline because that is the only channel
+ * that wins against a variant utility (`styles.css` is not this unit's file, and this must not depend on which
+ * order the compiler emits two conflicting classes in).
+ */
+const STRIP: React.CSSProperties = {
+  height: "auto",
+  overflowY: "hidden",
+  scrollbarWidth: "thin",
+};
+
+/** One tab: 44 px tall, never shrunk below its own text, so five files scroll rather than clip. */
+const TAB: React.CSSProperties = { height: 44, minHeight: 44, flex: "none" };
+
+/**
  * The source pane: a tab strip of the item's files and the text of the open one.
  *
  * `main` is the file to open first (the item's `mainFile`, see `mainFile()` in `./lib`). The open file is
@@ -119,10 +142,15 @@ export function Files({ files, main }: { files: string[]; main?: string }) {
       <div className="section-h">Source files ({files.length})</div>
       {files.length > 1 && (
         <Tabs data-catalog-item="shadcn/tabs" value={sel ?? ""} onValueChange={setChosen} className="file-tabs">
-          <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-none border-b border-border bg-transparent p-0">
+          <TabsList
+            // named, because it is a control and two tab strips share an item page's vocabulary (managers vs files)
+            aria-label="Source files"
+            className="file-tab-strip w-full flex-nowrap justify-start gap-1 overflow-x-auto overscroll-x-contain rounded-none border-b border-border bg-transparent p-0"
+            style={STRIP}
+          >
             {files.map((f) => (
-              <TabsTrigger key={f} value={f} title={f}
-                className="h-9 rounded-none border-b-2 border-transparent px-2.5 text-xs data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+              <TabsTrigger key={f} value={f} title={f} style={TAB}
+                className="flex-none rounded-none border-b-2 border-transparent px-2.5 text-xs data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none">
                 {f.split("/").pop()}
               </TabsTrigger>
             ))}
@@ -130,7 +158,8 @@ export function Files({ files, main }: { files: string[]; main?: string }) {
         </Tabs>
       )}
       <div className="cmd" style={{ borderRadius: "0 8px 0 0" }}>
-        <span className="path">{sel}</span>
+        {/* one line, ellipsised, full path in the tooltip: the strip above scrolls, this never grows */}
+        <span className="path truncate" title={sel ?? undefined}>{sel}</span>
         {code && <Copy text={code} label="Copy file" detail={sel ?? undefined} />}
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
