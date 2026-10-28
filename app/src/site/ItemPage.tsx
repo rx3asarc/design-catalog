@@ -137,7 +137,28 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       )}
 
       {item.install && <Install install={item.install} />}
-      <Files files={item.files} main={mainFile(item)} />
+      {/*
+       * A withheld item gets no `<Files>`. The viewer was handed a placeholder line and rendered it inside a 560 px
+       * box — an empty code pane under a page that had already said the code is not here. The file *names* are
+       * facts and they are published, so they stay as text; the viewer is only for files we can actually show.
+       */}
+      {item.withheld ? (
+        item.files.length > 0 && (
+          <>
+            <div className="section-h">Source files ({item.files.length})</div>
+            <p className="hint">
+              {item.files.map((f, i) => (
+                <span key={f}>
+                  {i > 0 && " · "}
+                  <code>{f}</code>
+                </span>
+              ))}
+            </p>
+          </>
+        )
+      ) : (
+        <Files files={item.files} main={mainFile(item)} />
+      )}
 
       <nav className="nav2">
         {prev ? <PagerLink n={prev} dir="prev" /> : <span />}
