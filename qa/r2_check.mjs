@@ -195,31 +195,66 @@ async function page(vp) {
   await p.context().close();
 }
 
-/* ── H. the theme pill never covers a card (review: "overlaps the cards") ── */
+/* ── H. no fixed strip over the content, and the theme control is reachable on a phone ─────────────────────── */
 {
-  for (const vp of [{ width: 390, height: 844 }, { width: 768, height: 1024 }]) {
+  for (const vp of [{ width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 600, height: 900 }]) {
     const p = await page(vp);
     await p.goto(BASE + "#/g", { waitUntil: "load" });
-    await p.waitForTimeout(3500);
-    const hit = await p.evaluate(async () => {
-      const pill = document.querySelector(".theme-switch-float") ?? document.querySelector(".theme-switch");
-      if (!pill) return { pill: false };
+    await p.waitForTimeout(3000);
+    const at = await p.evaluate(async () => {
+      const fixed = [...document.querySelectorAll("body *")].filter((n) => {
+        const cs = getComputedStyle(n);
+        if (!/fixed|sticky/.test(cs.position)) return false;
+        const r = n.getBoundingClientRect();
+        // a sticky header at the top edge is not a cover: content passes under it, which is what a header is.
+        // What the testers hit was a floating control over the middle of the content, so that is what is counted.
+        return r.width > 40 && r.height > 20 && getComputedStyle(n).visibility !== "hidden" && r.top > 8;
+      });
       const scroller = document.querySelector(".page") ?? document.scrollingElement;
-      scroller.scrollTop = scroller.scrollHeight;                 // the end of the list is what a fixed bar can hide
-      await new Promise((r) => setTimeout(r, 500));
-      const a = pill.getBoundingClientRect();
-      const tiles = [...document.querySelectorAll("a[href^='#/i/']")];
-      const covered = tiles.filter((t) => {
+      const tiles = () => [...document.querySelectorAll("a[href^='#/i/']")];
+      const covers = () => tiles().filter((t) => {
         const b = t.getBoundingClientRect();
         if (b.bottom <= 0 || b.top >= innerHeight) return false;
-        return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        return fixed.some((f) => {
+          const a = f.getBoundingClientRect();
+          return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+        });
       }).length;
-      const ctl = [...pill.querySelectorAll("[role='radio'], button")];
-      const small = ctl.filter((c) => { const r = c.getBoundingClientRect(); return r.width < 44 || r.height < 44; }).length;
-      return { pill: true, covered, h: Math.round(a.height), w: Math.round(a.width), lane: a.width >= innerWidth - 4, small, ctl: ctl.length };
+      const mid = covers();
+      scroller.scrollTop = scroller.scrollHeight;
+      await new Promise((r) => setTimeout(r, 400));
+      const end = covers();
+      return { floats: document.querySelectorAll(".theme-switch-float").length, fixed: fixed.length, mid, end };
     });
-    ok(`the theme control hides nothing at the end of the list (${vp.width})`, hit.pill && hit.covered === 0 && hit.small === 0,
-      `${hit.covered ?? "?"} tiles under it, ${hit.h}×${hit.w} lane=${hit.lane}, ${hit.small}/${hit.ctl} controls under 44px`);
+    ok(`no fixed strip covers the grid (${vp.width})`, at.floats === 0 && at.mid === 0 && at.end === 0,
+      `${at.floats} floating theme strips, ${at.fixed} fixed/sticky boxes, ${at.mid} tiles covered mid-scroll, ${at.end} at the end`);
+
+    if (vp.width < 860) {
+      // on a phone the theme control lives in the Browse menu now, and the menu must own its own scroll
+      const opened = await p.evaluate(() => {
+        const el = [...document.querySelectorAll("button")].find((n) => /browse/i.test(n.innerText));
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        el.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 }));
+        return true;
+      });
+      await p.waitForTimeout(700);
+      const m = await p.evaluate(() => {
+        const radios = [...document.querySelectorAll(".theme-switch [role='radio'], .theme-switch button")];
+        const list = [document.querySelector(".rail.rail-phone"), ...document.querySelectorAll("body *")]
+          .filter(Boolean)
+          .find((n) => /auto|scroll/.test(getComputedStyle(n).overflowY) && n.scrollHeight > n.clientHeight + 20) ?? null;
+        const cs = list ? getComputedStyle(list) : null;
+        return {
+          radios: radios.map((n) => { const r = n.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; }),
+          scrolls: !!list && list.scrollHeight > list.clientHeight + 20 && /auto|scroll/.test(cs?.overflowY ?? ""),
+        };
+      });
+      ok(`the phone theme control is in the menu and ≥44 px (${vp.width})`,
+        opened && m.radios.length === 3 && m.radios.every((r) => r.w >= 44 && r.h >= 44),
+        m.radios.map((r) => `${r.w}×${r.h}`).join(" "));
+      ok(`the phone menu owns its scroll (${vp.width})`, m.scrolls, m.scrolls ? "scrollable" : "the list does not scroll itself");
+    }
     await p.context().close();
   }
 }
