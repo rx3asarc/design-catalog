@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Skeleton } from "@/registry/new-york-v4/ui/skeleton";
-import { label as displayLabel, items, type Item } from "./lib";
+import { label as displayLabel, items, type Item, isMotionItem } from "./lib";
 import { DemoFrame } from "./demo";
 import { buildTree, gridHref, needleHit, type GalleryQuery, type TreeSection } from "./route";
 
@@ -36,15 +36,6 @@ const faceted = (i: Item) => i as Faceted;
 
 /** The published flag when the data has one; otherwise the fact the build already carries. */
 const hasDemo = (i: Item) => faceted(i).has_demo ?? i.variants.length > 0;
-
-/**
- * Motion items load in thumbnail mode (§D-C `static=1`). The manifest has no motion flag, so this is what the
- * data does say: beui's library is motion-driven, the "Motion and effects" category is motion, and `effect`
- * items are motion by kind. It over-matches a little (a beui button is static in practice) — over-matching
- * costs a frozen first frame, under-matching costs a gallery of 486 things animating at once.
- */
-const isMotion = (i: Item) =>
-  i.source === "beui" || i.category === "Motion and effects" || i.kind === "effect";
 
 /* ── the filter, resolved through the same tree the rail renders ───────────────────────────────────────── */
 
@@ -421,8 +412,8 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
                 index={0}
                 zoom={zoom}
                 floor={Math.ceil(bodyH / zoom) + 8}
-                addr={{ static: isMotion(item), theme }}
-                play={isMotion(item) ? play : undefined}
+                addr={{ static: isMotionItem(item), theme }}
+                play={isMotionItem(item) ? play : undefined}
                 onSize={onSize}
               />
             </div>
