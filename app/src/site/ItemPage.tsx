@@ -96,7 +96,9 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge" title={item.licence}>
           {licenceName(item.licence)}
         </Badge>
-        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
+          {item.files.length} {item.files.length === 1 ? "file" : "files"}
+        </Badge>
         {item.variants.length > 0 && (
           <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
             {item.variants.length} demo{item.variants.length > 1 ? "s" : ""}
@@ -186,7 +188,9 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.withheld ? (
         item.files.length > 0 && (
           <>
-            <div className="section-h">Source files ({item.files.length})</div>
+            <div className="section-h">
+              Source {item.files.length === 1 ? "file" : "files"} ({item.files.length})
+            </div>
             <p className="hint">
               {item.files.map((f, i) => (
                 <span key={f}>

@@ -138,9 +138,11 @@ export function About() {
         the library publishes, the facts and the licence.
       </div>
       <p>
-        &quot;Code shown here&quot; is a licence label, not a file count. {c.licenceFull} items sit under a
-        licence that would allow publication, {c.published} of the {c.total} publish a file, and {c.noFile}{" "}
-        have no captured source to publish.
+        &quot;Code shown here&quot; is a licence label, not a file count. {c.licenceFull} items sit under the MIT
+        licence, the only one that allows publication. {c.licenceFullNoFile} of those {c.licenceFull} have no
+        captured file, and {c.published} of the {c.total} items publish one. {c.noFile} items have no captured
+        file at all — those {c.licenceFullNoFile}, plus {c.noFile - c.licenceFullNoFile} under the three licences
+        that do not allow publication.
       </p>
 
       <div className="section-h">Each licence, in one sentence</div>
