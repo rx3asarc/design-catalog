@@ -16,5 +16,5 @@ mkdir -p docs/assets
 cp -r app/dist/* docs/
 find docs/assets -type f -mtime +7 -delete 2>/dev/null || true
 echo "== exporting data, package and checksums"
-python3 /root/design-catalog/publish_export.py
+python3 "$(dirname "$0")/scripts/publish_export.py"
 echo "== done"
