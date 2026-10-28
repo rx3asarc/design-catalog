@@ -17,6 +17,7 @@ import { ChromePage } from "./site/ChromePage";
 import { ThemeSwitch } from "./site/ThemeSwitch";
 import { Palette, PaletteTrigger } from "./site/CommandPalette";
 import { PageTurn } from "./site/PageTurn";
+import { useScrollRestore } from "./site/useScrollRestore";
 
 /**
  * The shell, and nothing else: the frame, the rail's two mounts, the render switch and the provenance layer.
@@ -31,6 +32,9 @@ export default function App() {
   // the phone drawer closes on every route change, exactly as the hash listener used to do it
   const { route, hash } = useRoute(() => setMenu(false));
   useScrollReset(hash);
+  // …and Back puts it back where it was. Order matters and is deliberate: the reset above runs first (a forward
+  // navigation starts at the top) and the restore immediately overwrites it for a traversal, in the same frame.
+  useScrollRestore(hash);
 
   const tree = useTree(q, from);
   const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);
