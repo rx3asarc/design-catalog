@@ -306,7 +306,9 @@ export function Demo({ id, index, variant, isBlock, stage }: {
         <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
         {open ? "Hide code" : "View code"}
       </Button>
-        {code && <Copy text={code} />}
+        {/* the demo module's own text — an import of a preview and three lines of wiring, not an install command;
+            the label says exactly that, because on an item page this is the first Copy a visitor meets */}
+        {code && <Copy text={code} label="Copy demo source" />}
       </header>
       <div className="demo-body">
         {/* the site's own phone gutter (`styles.css`: `.demo-body > div { padding: 0 14px }`) lands on this div;

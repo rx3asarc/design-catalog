@@ -123,7 +123,7 @@ export function Files({ files, main }: { files: string[]; main?: string }) {
       )}
       <div className="cmd" style={{ borderRadius: "0 8px 0 0" }}>
         <span className="path">{sel}</span>
-        {code && <Copy text={code} />}
+        {code && <Copy text={code} label="Copy file" />}
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
         <div className="demo-code" style={{ borderTop: 0 }}>
