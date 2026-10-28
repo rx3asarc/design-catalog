@@ -1,0 +1,603 @@
+{
+  "checks": [
+    {
+      "section": "A",
+      "id": "check_chrome.py exit 0",
+      "asserted": "guard exits 0 on the merged tree",
+      "value": "exit=0, 16 shell file(s) scanned",
+      "verdict": "PASS"
+    },
+    {
+      "section": "A",
+      "id": "guard catches a planted violation in a NEW site/*.tsx file",
+      "asserted": "planting a raw <button> in a new shell file makes the guard exit non-zero and names the file",
+      "value": "exit=1; src/site/__qa_guard_probe.tsx:3  <button>  ->  import { Button } from \"@/registry/new-york-v4/ui/button\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "A",
+      "id": "guard is clean again after removing the probe",
+      "asserted": "exit 0, tree as found",
+      "value": "exit=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "A",
+      "id": "npx vite build exit 0",
+      "asserted": "the merged tree builds",
+      "value": "exit=0, built in 7.06s, 8.3 s wall, load 2.67",
+      "verdict": "PASS"
+    },
+    {
+      "section": "A",
+      "id": "no raw <button/input/textarea/select/table/details/summary> in the shell",
+      "asserted": "grep of app/src outside the whitelist (registry/, demos/, components/, shims/, demo-main.tsx)",
+      "value": "0 hit(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "B",
+      "id": "H forward: source → withheld shows nothing from the previous item",
+      "asserted": "no .path / no code pane text, no fragment of the previous item's code",
+      "value": "path=null, code=absent, withheld box=true",
+      "verdict": "PASS"
+    },
+    {
+      "section": "B",
+      "id": "H forward: the withheld item still says why",
+      "asserted": "the page carries the 'not ours to republish' sentence",
+      "value": "true",
+      "verdict": "PASS"
+    },
+    {
+      "section": "B",
+      "id": "H reverse: withheld → source renders the new item's file",
+      "asserted": "path is this item's file, pane carries its code, nothing left over",
+      "value": "path=registry/new-york-v4/ui/button.tsx, codeLen=2382, tab=null",
+      "verdict": "PASS"
+    },
+    {
+      "section": "B",
+      "id": "rapid chain of three (260 ms apart)",
+      "asserted": "each step shows only its own item: a withheld step has no pane, source steps have their own file",
+      "value": "beui/bloom-menu:path=components/motion/bloom-menu.tsx | transitions/card-stack-hover:path=none | shadcn/sidebar:path=registry/new-york-v4/ui/sidebar.tsx",
+      "verdict": "PASS"
+    },
+    {
+      "section": "B",
+      "id": "no reload during the whole section",
+      "asserted": "performance.getEntriesByType('navigation').length stays 1",
+      "value": "1",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "tile count matches the manifest for the filter (#/g, no query)",
+      "asserted": "demo tiles == manifest demo count; no reference cards by default",
+      "value": "486 demo tiles (manifest 486), 0 ref cards, header \"769 items · 486 shown · 283 reference-only hidden\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "header counts equal the DOM counts",
+      "asserted": "data-gallery-shown == demo tiles, hidden == ref cards not rendered, total == manifest total",
+      "value": "shown=486 hidden=283 total=769 vs DOM demo=486 ref=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "max live iframes across a full descent ≤ 9",
+      "asserted": "sample document.querySelectorAll('iframe').length on every animation frame while the whole grid scrolls",
+      "value": "max=9, samples=388, distribution={\"0\":333,\"1\":1,\"2\":1,\"3\":1,\"4\":1,\"5\":1,\"6\":1,\"7\":1,\"8\":1,\"9\":47}",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "no more than one mount per animation frame",
+      "asserted": "no frame where the iframe count rises by ≥2; app counter perFrameMax == 1",
+      "value": "frames with +≥2: 0; __gallery.perFrameMax=1, mounts=18, evictions=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "p95 rAF interval while scrolling (baseline: stage.md 16.7 p50 / 16.8 p95 at 9 frames; gallery's own claim 16.7/16.8)",
+      "asserted": "rAF deltas sampled during the descent, compared with the scout's N=9 baseline",
+      "value": "p50=16.7 ms, p95=33.3 ms, max=233.3 ms, 19/386 frames > 33.4 ms — load 2.37",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "a filtered grid (#/g?src=shadcn) matches the manifest for that filter",
+      "asserted": "demo tiles == manifest items with source=shadcn and a demo; header total == all shadcn items",
+      "value": "383 tiles (expect 383), 0 ref cards, header \"566 items · 383 shown · 183 reference-only hidden\", title \"Everything\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "p95 rAF interval, wheel descent (the unit's own method; its claim was p50 16.7 / p95 16.8, 4–6 of ~875 frames over 33.4 ms)",
+      "asserted": "220 wheel events of 400 px, 45 ms apart, rAF deltas sampled every frame until the grid's end",
+      "value": "p50=16.7 ms, p95=16.8 ms, max=233.4 ms, 13/960 frames > 33.4 ms, max live=9, 962 frames in 17.2 s — load 2.35",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "no more than one mount per animation frame, wheel descent (independent inference)",
+      "asserted": "no sampled frame where the iframe count rises by ≥2; plus __gallery.perFrameMax",
+      "value": "frames with +≥2: 0; __gallery.perFrameMax=1, mounts=9, evictions=0, deferred=42, live=9",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "20 random demo-bearing items reached 'alive'",
+      "asserted": "their own designCatalogDemo postMessage arrived after the demo module mounted and measured",
+      "value": "20/20 alive, slowest 623 ms, load 2.48",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "390: 1–2 live frames",
+      "asserted": "the phone pool cap is 2 and the descent never exceeds it",
+      "value": "max=2, distribution={\"0\":1404,\"1\":7,\"2\":83}, cap=2",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "390: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the gallery after a full descent",
+      "value": "390 / 390",
+      "verdict": "PASS"
+    },
+    {
+      "section": "C",
+      "id": "390: 0 tap targets under 44 px on the gallery",
+      "asserted": "census of every rendered control (a, button, role=button/radio/tab, input, select, textarea, summary, [tabindex])",
+      "value": "4 under 44 px: div.group/toggle-group.flex 168×32 \"Theme\" | button.inline-flex.items-center 56×32 \"Theme: system\" | button.inline-flex.items-center 56×32 \"Theme: light\" | button.inline-flex.items-center 56×32 \"Theme: dark\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "D",
+      "id": "default gallery excludes the reference-only items",
+      "asserted": "no tile with data-mode=reference; shown == manifest demo count",
+      "value": "0 reference tiles, 486 demo tiles, header \"769 items · 486 shown · 283 reference-only hidden\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "ref=1 includes them",
+      "asserted": "tiles == 769, reference cards == 283, all 283 carry an outbound link",
+      "value": "769 tiles, 283 reference cards, 283 outbound links, header \"769 items · 769 shown · 283 reference-only included\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "a reference card is visibly a different object",
+      "asserted": "dashed border vs the demo tile's solid one; no iframe; 'View on <library> ↗' link",
+      "value": "card border dashed 1px vs tile solid 0px; link \"View on beautifului ↗\" → https://beautifului.dev/#agent-screen",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "header counts equal the DOM counts with ref included",
+      "asserted": "shown == 769 == tiles, hidden == 0, total == 769",
+      "value": "shown=769 tiles=769 hidden=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "?ref=1 survives a reload (it is in the URL)",
+      "asserted": "hash still carries ref=1 and the grid still shows 769",
+      "value": "hash=#/g?ref=1, tiles=769",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "every counted rail row carries a link to its own grid",
+      "asserted": "a grid link inside each .rail-sec/.rail-cat/.rail-sub/.rail-sub2 row",
+      "value": "23 of 23 rows have a #/g link; e.g. \"Blocks and pages\" (20) → #/g?sec=Blocks+and+pages, link 20×20, aria-label \"Open the grid for Blocks and pages — 20 items\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "D",
+      "id": "a rail row's count opens a grid of that count",
+      "asserted": "the row's printed number vs the grid header's total (one tree, no second derivation)",
+      "value": "rail \"Blocks and pages\" says 20; grid header \"20 items · 19 shown · 1 reference-only hidden\" (total 20, title \"Blocks and pages\")",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "the manifest's published numbers re-derive from the DB",
+      "asserted": "each of the brief's 10 numbers, re-derived by this harness's own SQL / manifest read",
+      "value": "769 items=769, 486 with a demo=486, 283 reference-only=283, 93 withheld=93, 591 with files=591, 178 with null (not 0)=178, 159 curated (port_note rows)=159, 28 concepts=28, 95 memberships=95, 0 published verdicts=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "no zero published where the data has none",
+      "asserted": "bytes:0 count and file_count:0 count in the manifest",
+      "value": "bytes 0: 0, file_count 0: 0, null: 178",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "the manifest carries no verdict key at all",
+      "asserted": "item.verdict absent on 769/769 (the store's port_note.public gate)",
+      "value": "0 items carry verdict",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "curation is published as data, not as verdicts",
+      "asserted": "concepts on 95 items, composition on 445, pick on 0",
+      "value": "concepts=95 composition=445 pick=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "the front page's numbers are the data's numbers",
+      "asserted": "each figure in the crumb/tally/note found in the manifest",
+      "value": "769:ok, 5 libraries:ok, 591 with a file:ok, 486 live demos:ok, 283 reference-only:ok, tally per source:ok",
+      "verdict": "PASS"
+    },
+    {
+      "section": "E",
+      "id": "#/about's numbers are the data's numbers",
+      "asserted": "676 / 167 / 93 / 178 / 509 each cross-checked against the manifest",
+      "value": "676 licence-full:ok, 167 MIT without a file:ok, 93 without source:ok, 178 no captured source:ok, 509 publish a file:ok",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "prefers-reduced-motion: reduce ⇒ zero RUNNING CSS animations in the child (shadcn/skeleton)",
+      "asserted": "child document.getAnimations() filtered to playState=running, with the stage defaulting to motion=off",
+      "value": "animations=0, running=0, child <html>=\"light motion-off\", 0 of 0 styled elements changed in 500 ms — no JS-driven motion observed",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "reduced-motion honesty, shadcn/skeleton: what the bar claims vs what moves",
+      "asserted": "under OS reduce: the bar says 'CSS motion stopped … Script-driven motion keeps running'. Does anything still move?",
+      "value": "bar ends \"390 768 full MOTION on off CSS motion stopped — your system asks for reduced motion. Script-driven motion keeps running.\"; 0 moving element(s) ⇒ motion/react honours the OS preference, so the sentence over-states for this demo",
+      "verdict": "INFO"
+    },
+    {
+      "section": "F",
+      "id": "prefers-reduced-motion: reduce ⇒ zero RUNNING CSS animations in the child (beui/bloom-menu)",
+      "asserted": "child document.getAnimations() filtered to playState=running, with the stage defaulting to motion=off",
+      "value": "animations=0, running=0, child <html>=\"light motion-off\", 0 of 1 styled elements changed in 500 ms — no JS-driven motion observed",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "reduced-motion honesty, beui/bloom-menu: what the bar claims vs what moves",
+      "asserted": "under OS reduce: the bar says 'CSS motion stopped … Script-driven motion keeps running'. Does anything still move?",
+      "value": "bar ends \"ull MOTION on off ↻ Replay CSS motion stopped — your system asks for reduced motion. Script-driven motion keeps running.\"; 0 moving element(s) ⇒ motion/react honours the OS preference, so the sentence over-states for this demo",
+      "verdict": "INFO"
+    },
+    {
+      "section": "F",
+      "id": "motion=off stops the CSS, and the JS-driven motion that keeps running is named (or shown to be absent)",
+      "asserted": "OS does not reduce motion; the demo is woken with a click inside the frame, then its computed styles are sampled 420 ms apart with motion on and with motion=off",
+      "value": "motion=on: 0/10 moving, 20 running CSS; motion=off: 2/4 moving, 0 running CSS; child class \"light motion-off\"; src /design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=off — still moving: <div class=\"w-[min(86vw,420px)] overflow-hidden bord\"> matrix(0.471935, 0, 0, 0.343745, 0, 0)|0.325 → matrix(0.342857, 0, 0, 0.183333, 0, 0)|0; <div class=\"\"> matrix(2.11894, 0, 0, 2.90913, 0, 0)|1 → matrix(2.91667, 0, 0, 5.45455, 0, 0)|1",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "the brief's third subject — an item whose demo reports height 0 — exists (or is shown not to)",
+      "asserted": "scan: every demo whose own CSS asks for a viewport height (the only branch that can report 0), plus 40 seeded-random demo items; child-reported height from the designCatalogDemo message",
+      "value": "0 zero-height report(s) in 9473 reports over 42 items (2 candidate + 40 random); reported heights seen: 64, 68, 78, 79, 80, 90, 96, 100, 101, 112, 116, 148, 149, 160, 173, 181, 183, 184, 196, 197, 235, 241, 243, 256, 267, 283, 293, 294, 300, 330, 405, 406, 410, 411, 430, 432, 506, 507, 529, 536, 537, 560, 561, 585, 655, 656, 758, 1113, 1674",
+      "verdict": "NONE"
+    },
+    {
+      "section": "F",
+      "id": "the 0 branch reads SELF_FLOOR — 360 for a component; for a block the class floor is already 900, so it is a no-op there",
+      "asserted": "the demo iframe's load is aborted, the page posts the child's own 0 report ({designCatalogDemo:true, height:0}), and the frame's height is read from the DOM",
+      "value": "shadcn/button: 180 px (floor 180px) → 360 px (360px) = SELF_FLOOR.other 360; shadcn/dashboard-01: 900 → 900 px, unchanged because FLOOR.block.wide == SELF_FLOOR.block.wide == 900; lane 280→440",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "shadcn/dashboard-01: child viewport is exactly 390 / 768 / column in the three modes",
+      "asserted": "child documentElement.clientWidth per mode",
+      "value": "390→390, 768→768, full→770; rendered 365×1882 / 768×2012 / 770×2012",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "shadcn/dashboard-01: no horizontal clipping in any mode",
+      "asserted": "child documentElement.scrollWidth ≤ clientWidth, lane scrollWidth ≤ clientWidth, page scrollWidth == clientWidth",
+      "value": "child overflow x: 0/0/0; lane 850/850 850/850 850/850",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "shadcn/dashboard-01: Replay absent on a non-motion item (not a dead button)",
+      "asserted": "the Replay control is only rendered for motion items",
+      "value": "Replay buttons: 0 — item is not motion",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "shadcn/dashboard-01: the theme switch changes the child's <html> class and not the site's",
+      "asserted": "child <html> gains .dark, site <html> keeps no class; 'follow site' hands it back",
+      "value": "child \"dark\" / site \"\"; after follow: child \"light\" / site \"\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "beui/bloom-menu: child viewport is exactly 390 / 768 / column in the three modes",
+      "asserted": "child documentElement.clientWidth per mode",
+      "value": "390→390, 768→768, full→770; rendered 390×420 / 768×420 / 770×420",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "beui/bloom-menu: no horizontal clipping in any mode",
+      "asserted": "child documentElement.scrollWidth ≤ clientWidth, lane scrollWidth ≤ clientWidth, page scrollWidth == clientWidth",
+      "value": "child overflow x: 0/0/0; lane 850/850 850/850 850/850",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "beui/bloom-menu: replay works three times",
+      "asserted": "each click changes the replay nonce and the child reports again (designCatalogDemo count rises)",
+      "value": "1 → 2 → 3; alive counts 9→13, 13→16, 16→21",
+      "verdict": "PASS"
+    },
+    {
+      "section": "F",
+      "id": "beui/bloom-menu: the theme switch changes the child's <html> class and not the site's",
+      "asserted": "child <html> gains .dark, site <html> keeps no class; 'follow site' hands it back",
+      "value": "child \"dark\" / site \"\"; after follow: child \"light\" / site \"\"",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "mod+k opens the palette with the keyboard alone, and focuses it",
+      "asserted": "dialog present, focus inside it (the command input), announced by aria-labelledby/describedby",
+      "value": "dialog=true, focus=command-input, inside=true, labelled \"Search the catalogue\", describedby=true",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "finds `sidebar` and Enter navigates",
+      "asserted": "the first row is a sidebar item; Enter lands on its item page and closes the palette",
+      "value": "20 rows, first \"sidebarshadcncomponentlicence MIT\"; hash=#/i/shadcn/sidebar, route=item, dialog=false",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "Esc closes and returns focus",
+      "asserted": "focus lands back on the element that had it before the palette opened",
+      "value": "before=\"a[aria-label=Previous: pagination — same category]\" after=\"a[aria-label=Previous: pagination — same category]\" dialog=false",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "page transition duration < 300 ms",
+      "asserted": "the call the page actually made: Element.prototype.animate interposed for the route change, plus getAnimations() on the tagged wrapper at the first frame",
+      "value": "recorded=1 call(s) on \"transitions/page-side-by-side\"; duration=250 ms, easing=cubic-bezier(0.22, 1, 0.36, 1), props=[\"opacity\",\"transform\"], state=running; present in getAnimations() at frame 1: 1; other animate() calls on the run: [\"transitions/page-side-by-side\"]",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "the scroll reset still works",
+      "asserted": "a route change returns the scroller to 0",
+      "value": ".page: 400 → 0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "the drift table lists exactly the tagged-but-unused ids (and the tags that name nothing)",
+      "asserted": "every data-catalog-item in #/chrome's own DOM, split into in-catalogue-but-used_here-0 and not-a-catalogue-id; the page's drift table must equal that set",
+      "value": "10 tagged elements → expected drift [transitions/page-side-by-side] + unknown [shadcn/table-row]; the page shows drift [transitions/page-side-by-side] + unknown [shadcn/table-row]",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "#/chrome's rows equal manifest.filter(used_here > 0).length",
+      "asserted": "row count on the page vs the manifest",
+      "value": "14 rows vs 14 items with used_here>0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "no row claims a use the DOM contradicts",
+      "asserted": "printed count vs querySelectorAll('[data-catalog-item=id]').length on the same view",
+      "value": "0 row(s) differ",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "zero animations on a route change under reduced motion",
+      "asserted": "prefers-reduced-motion: reduce ⇒ document.getAnimations() running == 0",
+      "value": "running document animations=0, on the transition wrapper=0",
+      "verdict": "PASS"
+    },
+    {
+      "section": "G",
+      "id": "the palette is usable at 390 with no horizontal scroll",
+      "asserted": "document, dialog and result list scrollWidth == clientWidth; the input is focused",
+      "value": "doc 390/390, dialog 372/372 (374 px wide), list 372/372, focus=command-input",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "the two woff2 files are actually served by the build",
+      "asserted": "document.fonts.check() true for both families + a request for each .woff2 + the file in dist",
+      "value": "sans=true, mono=true; requested: instrument-sans-latin-var.woff2, jetbrains-mono-latin-var.woff2; in dist: fonts/instrument-sans-latin-var.woff2, fonts/jetbrains-mono-latin-var.woff2 (dist/fonts/, not dist/assets/ — they are public/ files, copied verbatim)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "no CDN request appears in the network log",
+      "asserted": "every request on the page is same-origin (no fonts.googleapis/gstatic, no third-party script)",
+      "value": "56 requests, 0 off-origin",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "the theme toggle has three states",
+      "asserted": "three role=radio items, each with its own accessible name, exactly one checked",
+      "value": "Theme: system* · Theme: light · Theme: dark",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "the choice survives a reload",
+      "asserted": "choose dark → reload → still dark, still stored",
+      "value": "stored=dark, class=\"dark\", data-theme=dark",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "system is a third state, not a conversion",
+      "asserted": "choosing system forgets the stored choice and hands the theme back to the OS (dark OS here)",
+      "value": "stored=null, class=\"dark\", data-theme=system",
+      "verdict": "PASS"
+    },
+    {
+      "section": "H",
+      "id": "the page does not flash light before painting (prefers-color-scheme: dark)",
+      "asserted": "method: (a) <html> class+background captured in the FIRST requestAnimationFrame of the document (a frame runs before the first paint), (b) a screenshot taken ~60 ms after navigation start, decoded in the browser and sampled",
+      "value": "first rAF: class \"dark\", data-theme=system, bg rgba(0, 0, 0, 0) at 146 ms; screenshot at 25 ms: centre rgb(9,9,11), corner rgb(9,9,11)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 home: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the route",
+      "value": "390 / 390 (page height 1766)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 home: no text clipped at the edges",
+      "asserted": "no element whose scrollWidth exceeds its clientWidth with overflow-x neither auto nor scroll",
+      "value": "0 clipped element(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 home: 0 tap targets under 44 px",
+      "asserted": "census of every rendered control",
+      "value": "8 under 44 px (4 not inline in a sentence, 4 inline prose links): button.inline-flex.shrink-0 145×36 \"Setup for an agent\" | a 342×42 \"The five sources, what their licences al\" | div.group/toggle-group.flex 168×32 \"Theme\" | button.inline-flex.items-center 56×32 \"Theme: light\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "I",
+      "id": "390 gallery: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the route",
+      "value": "390 / 390 (page height 124813)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 gallery: no text clipped at the edges",
+      "asserted": "no element whose scrollWidth exceeds its clientWidth with overflow-x neither auto nor scroll",
+      "value": "0 clipped element(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 gallery: 0 tap targets under 44 px",
+      "asserted": "census of every rendered control",
+      "value": "4 under 44 px (2 not inline in a sentence, 2 inline prose links): div.group/toggle-group.flex 168×32 \"Theme\" | button.inline-flex.items-center 56×32 \"Theme: light\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "I",
+      "id": "390 item: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the route",
+      "value": "390 / 390 (page height 6166)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 item: no text clipped at the edges",
+      "asserted": "no element whose scrollWidth exceeds its clientWidth with overflow-x neither auto nor scroll",
+      "value": "0 clipped element(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 item: 0 tap targets under 44 px",
+      "asserted": "census of every rendered control",
+      "value": "7 under 44 px (5 not inline in a sentence, 2 inline prose links): button.inline-flex.items-center 43×44 \"Full column width\" | button.inline-flex.items-center 41×44 \"Motion on: the demo animates\" | button.inline-flex.items-center 41×44 \"Motion off: CSS animation and transition\" | div.group/toggle-group.flex 168×32 \"Theme\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "I",
+      "id": "390 chrome: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the route",
+      "value": "390 / 390 (page height 2096)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 chrome: no text clipped at the edges",
+      "asserted": "no element whose scrollWidth exceeds its clientWidth with overflow-x neither auto nor scroll",
+      "value": "0 clipped element(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 chrome: 0 tap targets under 44 px",
+      "asserted": "census of every rendered control",
+      "value": "4 under 44 px (2 not inline in a sentence, 2 inline prose links): div.group/toggle-group.flex 168×32 \"Theme\" | button.inline-flex.items-center 56×32 \"Theme: light\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "I",
+      "id": "390 about: scrollWidth == clientWidth",
+      "asserted": "no horizontal overflow on the route",
+      "value": "390 / 390 (page height 2490)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 about: no text clipped at the edges",
+      "asserted": "no element whose scrollWidth exceeds its clientWidth with overflow-x neither auto nor scroll",
+      "value": "0 clipped element(s)",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390 about: 0 tap targets under 44 px",
+      "asserted": "census of every rendered control",
+      "value": "5 under 44 px (2 not inline in a sentence, 3 inline prose links): div.group/toggle-group.flex 168×32 \"Theme\" | button.inline-flex.items-center 56×32 \"Theme: light\"",
+      "verdict": "FAIL"
+    },
+    {
+      "section": "I",
+      "id": "390: the rail drawer opens and closes",
+      "asserted": "Browse 769 → .rail-phone is displayed, aria-expanded=false → true → false",
+      "value": "open: display=flex, aria-expanded=true, rect {\"x\":0,\"y\":65,\"width\":390,\"height\":836}; closed: display=none, aria-expanded=false",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "390: the drawer is not a scroll trap",
+      "asserted": "the page still scrolls while it is open and the rail list scrolls internally; no overflow:hidden lock on body/html",
+      "value": "body overflow=visible, html overflow=visible, window scrolls=true, rail list 3918/591",
+      "verdict": "PASS"
+    },
+    {
+      "section": "I",
+      "id": "a 1440 screenshot exists for each of the five routes (plus the gallery mid-scroll)",
+      "asserted": "page.screenshot at 1440x900",
+      "value": "route-home-1440.png, route-gallery-1440.png, route-item-1440.png, route-chrome-1440.png, route-about-1440.png, gallery-1440-midscroll.png",
+      "verdict": "PASS"
+    }
+  ],
+  "serverShutdown": {
+    "ssAfter": "",
+    "ss88": "LISTEN 0      5                127.0.0.1:8830       0.0.0.0:*          \nLISTEN 0      5                  0.0.0.0:8897       0.0.0.0:*          \nLISTEN 0      5                  0.0.0.0:8890       0.0.0.0:*          \nLISTEN 0      511                  [::1]:8811          [::]:*",
+    "load": {
+      "l1": 2.63,
+      "l5": 2.76,
+      "l15": 2.81
+    },
+    "totalMs": 214667
+  },
+  "totalMs": 214668
+}

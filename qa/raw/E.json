@@ -1,0 +1,196 @@
+{
+  "db": {
+    "items": 769,
+    "withheld": 93,
+    "with_code": 591,
+    "no_code": 178,
+    "port_note_rows": 159,
+    "port_note_public": 0,
+    "picks": 0,
+    "concepts": 28,
+    "memberships": 95,
+    "concepts_one_source": 0,
+    "bytes_zero_artifacts": 0,
+    "sources": 5,
+    "per_source": {
+      "beautifului": 21,
+      "beui": 110,
+      "rareui": 29,
+      "shadcn": 566,
+      "transitions": 43
+    }
+  },
+  "expected": {
+    "items": 769,
+    "demo": 486,
+    "reference_only": 283,
+    "withheld": 93,
+    "with_files": 591,
+    "null_bytes": 178,
+    "curated_port_notes": 159,
+    "concepts": 28,
+    "memberships": 95,
+    "published_verdicts": 0
+  },
+  "brief": {
+    "items": 769,
+    "demo": 486,
+    "reference_only": 283,
+    "withheld": 93,
+    "with_files": 591,
+    "null_bytes": 178,
+    "curated_port_notes": 159,
+    "concepts": 28,
+    "memberships": 95,
+    "published_verdicts": 0
+  },
+  "load": {
+    "l1": 2.84,
+    "l5": 2.9,
+    "l15": 2.86
+  },
+  "rows": [
+    {
+      "facet": "769 items",
+      "brief": 769,
+      "manifest_or_db": 769,
+      "db_query": "SELECT count(*) FROM item",
+      "pass": true
+    },
+    {
+      "facet": "486 with a demo",
+      "brief": 486,
+      "manifest_or_db": 486,
+      "db_query": "manifest: items with variants.length > 0 (the demo set is resolved at build time, not in SQL)",
+      "pass": true
+    },
+    {
+      "facet": "283 reference-only",
+      "brief": 283,
+      "manifest_or_db": 283,
+      "db_query": "769 - 486: the manifest items with no variants (reference-only), also resolved at build time",
+      "pass": true
+    },
+    {
+      "facet": "93 withheld",
+      "brief": 93,
+      "manifest_or_db": 93,
+      "db_query": "SELECT count(*) FROM item i JOIN source s ON s.id = i.source_id WHERE s.code_policy = 'local-only' (the item table has no withheld column — licence policy is where 93 comes from)",
+      "pass": true
+    },
+    {
+      "facet": "591 with files",
+      "brief": 591,
+      "manifest_or_db": 591,
+      "db_query": "SELECT count(DISTINCT item_id) FROM artifact WHERE kind='code'",
+      "pass": true
+    },
+    {
+      "facet": "178 with null (not 0)",
+      "brief": 178,
+      "manifest_or_db": 178,
+      "db_query": "manifest bytes===null (SQLite sum([]) is 0, so this is a build fact)",
+      "pass": true
+    },
+    {
+      "facet": "159 curated (port_note rows)",
+      "brief": 159,
+      "manifest_or_db": 159,
+      "db_query": "SELECT count(*) FROM port_note",
+      "pass": true
+    },
+    {
+      "facet": "28 concepts",
+      "brief": 28,
+      "manifest_or_db": 28,
+      "db_query": "SELECT count(*) FROM concept",
+      "pass": true
+    },
+    {
+      "facet": "95 memberships",
+      "brief": 95,
+      "manifest_or_db": 95,
+      "db_query": "SELECT count(*) FROM concept_item",
+      "pass": true
+    },
+    {
+      "facet": "0 published verdicts",
+      "brief": 0,
+      "manifest_or_db": 0,
+      "db_query": "SELECT count(*) FROM port_note WHERE public=1",
+      "pass": true
+    }
+  ],
+  "printed": {
+    "390": {
+      "body": "design catalog Search 769 Browse 769 769 ITEMS · 5 LIBRARIES · BROWSER, CLI, MCP design catalog Browse it, or ask your agent. 769 components, blocks, effects and doc pages from 5 reference libraries, collected in one place. 01 Browse Four sections in the rail, down to families. Every item opens to its source file, its licence and a live demo where one runs. The gallery shows every one of them at once. 02 Ask your agent The same index is a CLI and an MCP server: search it, read an item's source, list by source or kind. The terminal below is one search, run for real. $ design-catalog search \"sidebar\" Copy AI Sidebar [beui/component] rejected A collapsible AI workspace sidebar for folders, projects, files, and bookmarks with keyboard navigation, optimistic moves, inline rename, and overflow-aware labels. install: npx shadcn@latest add https://beui.dev/r/ai-sidebar Animated Sidebar [beui/component] rejected A composable application sidebar with morphing nested navigation that folds into an animated icon rail on desktop and becomes a focus-managed sheet on mobile. install: npx shadcn@latest add https://beui.dev/r/animated-sidebar Bounce Sidebar [beui/component] rejected A vertical sidebar whose active dot jumps between destinations on a curved, spring-loaded path. install: npx shadcn@latest add https://beui.dev/r/bounce-sidebar Bounce Sidebar [rareui/component] rejected source withheld A vertical navigation list with a bouncy, spring-animated active indicator. install: npx shadcn@latest add https://www.rareui.com/r/bounce-sidebar.json Hook Sidebar [rareui/component] rejected source withheld A vertical navigation list with a dashed rail that marks the active item. install: npx shadcn@latest add https://www.rareui.com/r/hook-sidebar.json Proximity Sidebar [rareui/component] rejected source withheld A dash-style scroll sidebar whose items expand as the pointer approaches. install: npx shadcn@latest add https://www.rareui.com/r/proximity-sidebar.json sidebar [shadcn/componen",
+      "tally": [
+        "566 SHADCN",
+        "110 BEUI",
+        "43 TRANSITIONS",
+        "29 RAREUI",
+        "21 BEAUTIFULUI"
+      ],
+      "about": "design catalog Search 769 Browse 769 ABOUT · 5 SOURCES · THE LICENCES About An index of 769 components, blocks, effects and doc pages from 5 reference libraries, with the licence each source declares. One index, read three ways: this site, a CLI, an MCP server. The five sources 566 shadcn MIT · 399 items publish a source file · 167 have no captured file 110 beui MIT · 110 items publish a source file 43 transitions MIT with no-redistribution clause · 0 items publish a source file · 43 withheld · 11 have no captured file 29 rareui free-to-use (repo reports NOASSERTION) · 0 items publish a source file · 29 withheld 21 beautifului unclear · 0 items publish a source file · 21 withheld The number on the left is how many items came from that source. Counts are from the manifest, per source. What the licences allow Each source carries a code_policy and each item carries the licence string its source declares. There are two policies: full — 676 items. The licence is MIT. The source may be copied into your own repository, and the item page shows the file. 167 of these have no captured file at all, so they are entries as well. local-only — 93 items. Read the source in the original and re-implement it; it is not redistributed here. The item page keeps the name, the install command the library publishes, the facts and the licence. \"Source included\" is a licence label, not a file count. 676 items sit under a licence that would allow publication, 509 of the 769 publish a file, and 178 have no captured source to publish. The 93 entries without source transitions, rareui, beautifului — 93 items between them, and not one of their files is republished. Their licences are the reason, in the manifest's own words: transitions — MIT with no-redistribution clause; rareui — free-to-use (repo reports NOASSERTION); beautifului — unclear. The page for one of these still carries what the source declares: the name, the one-line description, the original page, the install command the library publ"
+    },
+    "1440": {
+      "body": "design catalog Toggle Sidebar 769 items · 486 rendered Counts are how many are inside. What this site is made of all sources shadcn beui rareui beautifului transitions Blocks and pages 20 Pages and blocks 20 Signups 6 Logins 5 Availability Scheduler Chat App dashboard-01 Dynamic Island Feedback Widget Infinite Masonry Fixtures 404 / Not Found NO DEMO Prediction Market Components 585 Navigation 66 Forms and input 126 Overlays and dialogs 35 Actions and controls 97 Feedback and status 34 Layout and structure 53 Content and text 31 Charts and data 119 Conversation and agent UI 24 Motion and effects 56 Motion and effects 56 Images 4 Image Generation Image generation placeholder Pro NO DEMO Image open tilt Pro NO DEMO Image Viewer NO DEMO Cards 2 Card resize NO DEMO Card stack hover Pro NO DEMO Matrixs 2 Matrix dot loader NO DEMO Matrix Orb NO DEMO Texts 2 Text Animation Text states swap NO DEMO 3D tilt NO DEMO Accordion NO DEMO Animated Counter NO DEMO Avatar group hover NO DEMO Banner stacking NO DEMO Checkbox check NO DEMO Confetti burst Pro NO DEMO Delete with smoky dissolve Pro NO DEMO Drag & drop with physics Pro NO DEMO Dropdown menu morph NO DEMO empty-background Error state shake NO DEMO Fluid Orb NO DEMO Get Pro button Pro NO DEMO Gooey plus menu Pro NO DEMO Gravity Letters NO DEMO Grid Reveal NO DEMO Icon swap NO DEMO Input clear with dissolve NO DEMO item-image Learn more hover NO DEMO Like button NO DEMO Marquee Menu dropdown NO DEMO Modal open/close NO DEMO Notification badge NO DEMO Number pop-in NO DEMO Organic shimmer Pro NO DEMO Page side-by-side NO DEMO Panel reveal NO DEMO Pro gradient text Pro NO DEMO Pull to Refresh Reasoning stream NO DEMO Shader Background Shimmer text NO DEMO Skeleton loader and reveal NO DEMO Spinner to check morph Pro NO DEMO Spinning counter NO DEMO Streaming text NO DEMO Success check NO DEMO Tabs sliding NO DEMO Texts reveal NO DEMO Thinking states NO DEMO Toast open/close NO DEMO Toggle NO DEMO Tooltip open/close NO DEMO Docs 108 Docs and guides 108 Docs 108 769 ITEMS · 5 LIBRARIES · BROWSER, CLI, MCP design catalog Browse it, or ask your agent. 769 components, blocks, effects and doc pages from 5 reference libraries, collected in one place. 01 Browse Four sections in the rail, down to families. Every item opens to its source file, its licence and a live demo where one runs. The gallery shows every one of them at once. 02 Ask your agent The same index is a CLI and an MCP server: search it, read an item's source, list by source or kind. The terminal below is one search, run for real. $ design-catalog search \"sidebar\" Copy AI Sidebar [beui/component] rejected A collapsible AI workspace sidebar for folders, projects, files, and bookmarks with keyboard navigation, optimistic moves, inline rename, and overflow-aware labels. install: npx shadcn@latest add https://beui.dev/r/ai-sidebar Animated Sidebar [beui/component] rejected A composable application sidebar with morphing nested navigation that folds into an animated icon rail on desktop and becomes a focus-managed sheet on mobile. install: npx shadcn@latest add https://beui.dev/r/animated-sidebar Bounce Sidebar [beui/component] rejected A vertical sidebar whose active dot jumps between destinations on a curved, spring-loaded path. install: npx shadcn@latest add https://beui.dev/r/bounce-sidebar Bounce Sidebar [rareui/component] rejected source withheld A vertical navigation list with a bouncy, spring-animated active indicator. install: npx shadcn@latest add https://www.rareui.com/r/bounce-sidebar.json Hook Sidebar [rareui/component] rejected source withheld A vertical navigation list with a dashed rail that marks the active item. install: npx shadcn@latest add https://www.rareui.com/r/hook-sidebar.json Proximity Sidebar [rareui/component] rejected source withheld A dash-style scroll sidebar whose items expand as the pointer approaches. install: npx shadcn@latest add https://www.rareui.com/r/proximity-sidebar.json sidebar [shadcn/component] install: npx shadcn@latest add sidebar Sidebar [shadcn/text] A composable, themeable and customizable sidebar component. install: npx shadcn@latest add docs-components-sidebar … 12 more of 20 — design-catalog search \"sidebar\" --json lists them all Real output of search \"sidebar\" on design-catalog 1.0.2: the first 8 of 20 results. The rows read name [source/kind], then the item's own one-line description, then the command its library publishes for it. Setup for an agent What is in it 566 SHADCN 110 BEUI 43 TRANSITIONS 29 RAREUI 21 BEAUTIFULUI 591 of the 769 include at least one source file; 509 of those show it on the item page. 486 run here as a live demo. The other 283 are entries with a name, a licence and a description, and nothing to run. The five sources, what their licences allow, and how to check a file you download. This site is built out of the catalogue it describes: what it is made of, counted from the page. THEME AUTO LIGHT DARK Search 769 CtrlK",
+      "tally": [
+        "566 SHADCN",
+        "110 BEUI",
+        "43 TRANSITIONS",
+        "29 RAREUI",
+        "21 BEAUTIFULUI"
+      ],
+      "about": "design catalog Toggle Sidebar 769 items · 486 rendered Counts are how many are inside. What this site is made of all sources shadcn beui rareui beautifului transitions Blocks and pages 20 Pages and blocks 20 Signups 6 Logins 5 Availability Scheduler Chat App dashboard-01 Dynamic Island Feedback Widget Infinite Masonry Fixtures 404 / Not Found NO DEMO Prediction Market Components 585 Navigation 66 Forms and input 126 Overlays and dialogs 35 Actions and controls 97 Feedback and status 34 Layout and structure 53 Content and text 31 Charts and data 119 Conversation and agent UI 24 Motion and effects 56 Motion and effects 56 Images 4 Image Generation Image generation placeholder Pro NO DEMO Image open tilt Pro NO DEMO Image Viewer NO DEMO Cards 2 Card resize NO DEMO Card stack hover Pro NO DEMO Matrixs 2 Matrix dot loader NO DEMO Matrix Orb NO DEMO Texts 2 Text Animation Text states swap NO DEMO 3D tilt NO DEMO Accordion NO DEMO Animated Counter NO DEMO Avatar group hover NO DEMO Banner stacking NO DEMO Checkbox check NO DEMO Confetti burst Pro NO DEMO Delete with smoky dissolve Pro NO DEMO Drag & drop with physics Pro NO DEMO Dropdown menu morph NO DEMO empty-background Error state shake NO DEMO Fluid Orb NO DEMO Get Pro button Pro NO DEMO Gooey plus menu Pro NO DEMO Gravity Letters NO DEMO Grid Reveal NO DEMO Icon swap NO DEMO Input clear with dissolve NO DEMO item-image Learn more hover NO DEMO Like button NO DEMO Marquee Menu dropdown NO DEMO Modal open/close NO DEMO Notification badge NO DEMO Number pop-in NO DEMO Organic shimmer Pro NO DEMO Page side-by-side NO DEMO Panel reveal NO DEMO Pro gradient text Pro NO DEMO Pull to Refresh Reasoning stream NO DEMO Shader Background Shimmer text NO DEMO Skeleton loader and reveal NO DEMO Spinner to check morph Pro NO DEMO Spinning counter NO DEMO Streaming text NO DEMO Success check NO DEMO Tabs sliding NO DEMO Texts reveal NO DEMO Thinking states NO DEMO Toast open/close NO DEMO Toggle NO DEMO Tooltip open/close NO DEMO Docs 108 Docs and guides 108 Docs 108 ABOUT · 5 SOURCES · THE LICENCES About An index of 769 components, blocks, effects and doc pages from 5 reference libraries, with the licence each source declares. One index, read three ways: this site, a CLI, an MCP server. The five sources 566 shadcn MIT · 399 items publish a source file · 167 have no captured file 110 beui MIT · 110 items publish a source file 43 transitions MIT with no-redistribution clause · 0 items publish a source file · 43 withheld · 11 have no captured file 29 rareui free-to-use (repo reports NOASSERTION) · 0 items publish a source file · 29 withheld 21 beautifului unclear · 0 items publish a source file · 21 withheld The number on the left is how many items came from that source. Counts are from the manifest, per source. What the licences allow Each source carries a code_policy and each item carries the licence string its source declares. There are two policies: full — 676 items. The licence is MIT. The source may be copied into your own repository, and the item page shows the file. 167 of these have no captured file at all, so they are entries as well. local-only — 93 items. Read the source in the original and re-implement it; it is not redistributed here. The item page keeps the name, the install command the library publishes, the facts and the licence. \"Source included\" is a licence label, not a file count. 676 items sit under a licence that would allow publication, 509 of the 769 publish a file, and 178 have no captured source to publish. The 93 entries without source transitions, rareui, beautifului — 93 items between them, and not one of their files is republished. Their licences are the reason, in the manifest's own words: transitions — MIT with no-redistribution clause; rareui — free-to-use (repo reports NOASSERTION); beautifului — unclear. The page for one of these still carries what the source declares: the name, the one-line description, the original page, the install command the library publi"
+    }
+  },
+  "homeClaims": [
+    [
+      "769",
+      true
+    ],
+    [
+      "5 libraries",
+      true
+    ],
+    [
+      "591 with a file",
+      true
+    ],
+    [
+      "486 live demos",
+      true
+    ],
+    [
+      "283 reference-only",
+      true
+    ],
+    [
+      "tally per source",
+      true
+    ]
+  ],
+  "aboutClaims": [
+    [
+      "676 licence-full",
+      true
+    ],
+    [
+      "167 MIT without a file",
+      true
+    ],
+    [
+      "93 without source",
+      true
+    ],
+    [
+      "178 no captured source",
+      true
+    ],
+    [
+      "509 publish a file",
+      true
+    ]
+  ]
+}

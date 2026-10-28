@@ -1,0 +1,380 @@
+{
+  "load": {
+    "l1": 2.29,
+    "l5": 2.71,
+    "l15": 2.8
+  },
+  "routes": {
+    "home": {
+      "hash": "#/",
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 1766
+      },
+      "tap": {
+        "under44": [
+          {
+            "tag": "a",
+            "cls": "",
+            "w": 71,
+            "h": 18,
+            "label": "The gallery",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.shrink-0",
+            "w": 145,
+            "h": 36,
+            "label": "Setup for an agent",
+            "inline": false
+          },
+          {
+            "tag": "a",
+            "cls": "",
+            "w": 342,
+            "h": 42,
+            "label": "The five sources, what their licences al",
+            "inline": false
+          },
+          {
+            "tag": "a",
+            "cls": "",
+            "w": 354,
+            "h": 42,
+            "label": "what it is made of, counted from the pag",
+            "inline": true
+          },
+          {
+            "tag": "div",
+            "cls": ".group/toggle-group.flex",
+            "w": 168,
+            "h": 32,
+            "label": "Theme",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: system",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: light",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: dark",
+            "inline": true
+          }
+        ],
+        "count": 8
+      },
+      "clip": [],
+      "route": "home",
+      "title": "design catalog",
+      "shot": "route-home-390.png"
+    },
+    "gallery": {
+      "hash": "#/g",
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 124813
+      },
+      "tap": {
+        "under44": [
+          {
+            "tag": "div",
+            "cls": ".group/toggle-group.flex",
+            "w": 168,
+            "h": 32,
+            "label": "Theme",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: system",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: light",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: dark",
+            "inline": true
+          }
+        ],
+        "count": 4
+      },
+      "clip": [],
+      "route": "gallery",
+      "title": "Everything",
+      "shot": "route-gallery-390.png"
+    },
+    "item": {
+      "hash": "#/i/shadcn/button",
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 6166
+      },
+      "tap": {
+        "under44": [
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 43,
+            "h": 44,
+            "label": "Full column width",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 41,
+            "h": 44,
+            "label": "Motion on: the demo animates",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 41,
+            "h": 44,
+            "label": "Motion off: CSS animation and transition",
+            "inline": false
+          },
+          {
+            "tag": "div",
+            "cls": ".group/toggle-group.flex",
+            "w": 168,
+            "h": 32,
+            "label": "Theme",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: system",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: light",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: dark",
+            "inline": true
+          }
+        ],
+        "count": 7
+      },
+      "clip": [],
+      "route": "item",
+      "title": "button",
+      "shot": "route-item-390.png"
+    },
+    "chrome": {
+      "hash": "#/chrome",
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2096
+      },
+      "tap": {
+        "under44": [
+          {
+            "tag": "div",
+            "cls": ".group/toggle-group.flex",
+            "w": 168,
+            "h": 32,
+            "label": "Theme",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: system",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: light",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: dark",
+            "inline": true
+          }
+        ],
+        "count": 4
+      },
+      "clip": [],
+      "route": "chrome",
+      "title": "Chrome",
+      "shot": "route-chrome-390.png"
+    },
+    "about": {
+      "hash": "#/about",
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 2490
+      },
+      "tap": {
+        "under44": [
+          {
+            "tag": "a",
+            "cls": "",
+            "w": 109,
+            "h": 18,
+            "label": "CHECKSUMS.txt",
+            "inline": true
+          },
+          {
+            "tag": "div",
+            "cls": ".group/toggle-group.flex",
+            "w": 168,
+            "h": 32,
+            "label": "Theme",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: system",
+            "inline": true
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: light",
+            "inline": false
+          },
+          {
+            "tag": "button",
+            "cls": ".inline-flex.items-center",
+            "w": 56,
+            "h": 32,
+            "label": "Theme: dark",
+            "inline": true
+          }
+        ],
+        "count": 5
+      },
+      "clip": [],
+      "route": "about",
+      "title": "About",
+      "shot": "route-about-390.png"
+    }
+  },
+  "drawer": {
+    "before": {
+      "railDisplay": "none",
+      "bodyOverflow": "visible",
+      "htmlOverflow": "visible"
+    },
+    "opened": {
+      "railDisplay": "flex",
+      "railRect": {
+        "x": 0,
+        "y": 65,
+        "width": 390,
+        "height": 836
+      },
+      "ariaExpanded": "true",
+      "bodyOverflow": "visible",
+      "htmlOverflow": "visible",
+      "docScrollHeight": 2602,
+      "canScrollWindow": true,
+      "railListScrollable": {
+        "scrollHeight": 3918,
+        "clientHeight": 591,
+        "scrollTop": 0
+      }
+    },
+    "closed": {
+      "railDisplay": "none",
+      "ariaExpanded": "false"
+    }
+  },
+  "wideShots": [
+    {
+      "name": "home",
+      "hash": "#/",
+      "path": "qa/shots/route-home-1440.png"
+    },
+    {
+      "name": "gallery",
+      "hash": "#/g",
+      "path": "qa/shots/route-gallery-1440.png"
+    },
+    {
+      "name": "item",
+      "hash": "#/i/shadcn/button",
+      "path": "qa/shots/route-item-1440.png"
+    },
+    {
+      "name": "chrome",
+      "hash": "#/chrome",
+      "path": "qa/shots/route-chrome-1440.png"
+    },
+    {
+      "name": "about",
+      "hash": "#/about",
+      "path": "qa/shots/route-about-1440.png"
+    },
+    {
+      "name": "gallery-midscroll",
+      "hash": "#/g",
+      "path": "qa/shots/gallery-1440-midscroll.png"
+    }
+  ]
+}

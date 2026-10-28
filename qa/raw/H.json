@@ -1,0 +1,107 @@
+{
+  "load": {
+    "l1": 2.23,
+    "l5": 2.71,
+    "l15": 2.79
+  },
+  "distWoff2": [
+    "fonts/instrument-sans-latin-var.woff2",
+    "fonts/jetbrains-mono-latin-var.woff2"
+  ],
+  "fonts": {
+    "checkSans": true,
+    "checkMono": true,
+    "faces": [
+      {
+        "family": "Instrument Sans",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "status": "loaded"
+      }
+    ],
+    "bodyFamily": "\"Instrument Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "monoFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace",
+    "loaded": [
+      "Instrument Sans",
+      "JetBrains Mono"
+    ],
+    "woffReqs": [
+      "http://127.0.0.1:8820/design-catalog/fonts/instrument-sans-latin-var.woff2",
+      "http://127.0.0.1:8820/design-catalog/fonts/jetbrains-mono-latin-var.woff2"
+    ]
+  },
+  "external": [],
+  "requests": 56,
+  "firstFrame": {
+    "first": {
+      "cls": "dark",
+      "theme": "system",
+      "bg": "rgba(0, 0, 0, 0)",
+      "t": 146
+    },
+    "shotAt": 25,
+    "pixel": {
+      "size": [
+        1440,
+        900
+      ],
+      "topLeft": [
+        9,
+        9,
+        11
+      ],
+      "centre": [
+        9,
+        9,
+        11
+      ],
+      "corner": [
+        9,
+        9,
+        11
+      ]
+    }
+  },
+  "theme": {
+    "states": [
+      {
+        "label": "Theme: system",
+        "checked": "true",
+        "tabindex": "0"
+      },
+      {
+        "label": "Theme: light",
+        "checked": "false",
+        "tabindex": "-1"
+      },
+      {
+        "label": "Theme: dark",
+        "checked": "false",
+        "tabindex": "-1"
+      }
+    ],
+    "systemPaint": {
+      "cls": "dark",
+      "theme": "system",
+      "stored": null
+    },
+    "lightPaint": {
+      "cls": "",
+      "theme": "light",
+      "stored": "light",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "afterReload": {
+      "cls": "dark",
+      "theme": "dark",
+      "stored": "dark"
+    },
+    "backToSystem": {
+      "cls": "dark",
+      "theme": "system",
+      "stored": null
+    }
+  }
+}

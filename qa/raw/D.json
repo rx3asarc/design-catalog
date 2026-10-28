@@ -1,0 +1,144 @@
+{
+  "load": {
+    "l1": 1.62,
+    "l5": 2.68,
+    "l15": 2.79
+  },
+  "default": {
+    "tiles": 486,
+    "demo": 486,
+    "ref": 0,
+    "frames": 9,
+    "counts": {
+      "shown": 486,
+      "hidden": 283,
+      "total": 769,
+      "text": "769 items · 486 shown · 283 reference-only hidden"
+    },
+    "page": {
+      "scrollTop": 0,
+      "scrollHeight": 46207,
+      "clientHeight": 900
+    },
+    "doc": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900
+    },
+    "refHrefs": 43
+  },
+  "withRef": {
+    "tiles": 769,
+    "demo": 486,
+    "ref": 283,
+    "frames": 9,
+    "counts": {
+      "shown": 769,
+      "hidden": 0,
+      "total": 769,
+      "text": "769 items · 769 shown · 283 reference-only included"
+    },
+    "page": {
+      "scrollTop": 0,
+      "scrollHeight": 80498,
+      "clientHeight": 900
+    },
+    "doc": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900
+    },
+    "refCards": 283,
+    "outbound": 283,
+    "cardStyle": {
+      "borderStyle": "dashed",
+      "borderWidth": "1px",
+      "borderRadius": "10px"
+    },
+    "tileStyle": {
+      "borderStyle": "solid",
+      "borderWidth": "0px",
+      "borderRadius": "0px"
+    },
+    "cardText": "NO DEMO block Agent Screen BEAUTIFULUI unclear 1 file 14 KB View on beautifului ↗",
+    "linkHref": "https://beautifului.dev/#agent-screen",
+    "linkText": "View on beautifului ↗"
+  },
+  "afterReload": {
+    "tiles": 769,
+    "demo": 486,
+    "ref": 283,
+    "frames": 7,
+    "counts": {
+      "shown": 769,
+      "hidden": 0,
+      "total": 769,
+      "text": "769 items · 769 shown · 283 reference-only included"
+    },
+    "page": {
+      "scrollTop": 0,
+      "scrollHeight": 80498,
+      "clientHeight": 900
+    },
+    "doc": {
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "scrollHeight": 900
+    }
+  },
+  "rail": {
+    "rows": 23,
+    "withLink": 23,
+    "sample": [
+      {
+        "level": "rail-sec",
+        "label": "Blocks and pages",
+        "count": 20,
+        "href": "#/g?sec=Blocks+and+pages",
+        "linkLabel": "Open the grid for Blocks and pages — 20 items",
+        "linkBox": {
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "level": "rail-cat",
+        "label": "Pages and blocks",
+        "count": 20,
+        "href": "#/g?sec=Blocks+and+pages&cat=Pages+and+blocks",
+        "linkLabel": "Open the grid for Blocks and pages · Pages and blocks — 20 items",
+        "linkBox": {
+          "w": 20,
+          "h": 20
+        }
+      },
+      {
+        "level": "rail-sub",
+        "label": "signups",
+        "count": 6,
+        "href": "#/g?sec=Blocks+and+pages&cat=Pages+and+blocks&fam=signup",
+        "linkLabel": "Open the grid for signup — 6 items",
+        "linkBox": {
+          "w": 20,
+          "h": 20
+        }
+      }
+    ],
+    "first": {
+      "level": "rail-sec",
+      "label": "Blocks and pages",
+      "count": 20,
+      "href": "#/g?sec=Blocks+and+pages",
+      "linkLabel": "Open the grid for Blocks and pages — 20 items",
+      "linkBox": {
+        "w": 20,
+        "h": 20
+      }
+    },
+    "grid": {
+      "total": 20,
+      "header": "20 items · 19 shown · 1 reference-only hidden",
+      "title": "Blocks and pages"
+    }
+  }
+}
