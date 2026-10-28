@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { XIcon } from "lucide-react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Kbd } from "@/registry/new-york-v4/ui/kbd";
@@ -6,7 +7,7 @@ import {
   Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut,
 } from "@/registry/new-york-v4/ui/command";
 import {
-  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
+  Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/registry/new-york-v4/ui/dialog";
 import { items, label, type Item } from "./lib";
 
@@ -115,9 +116,13 @@ const useOpen = () => React.useSyncExternalStore(subscribe, getSnapshot, getSnap
  */
 let returnTo: HTMLElement | null = null;
 
-function show() {
+function show(from?: HTMLElement | null) {
+  // the element to hand focus back to: the control that opened us when there is one (a touch has not focused
+  // the button yet when `pointerdown` fires), otherwise whatever already had focus
   const active = typeof document === "undefined" ? null : document.activeElement;
-  returnTo = active instanceof HTMLElement && active !== document.body ? active : null;
+  returnTo = from instanceof HTMLElement
+    ? from
+    : active instanceof HTMLElement && active !== document.body ? active : null;
   setOpen(true);
 }
 
@@ -141,7 +146,22 @@ export function PaletteTrigger({ place }: { place: "bar" | "float" }) {
     <Button
       type="button"
       variant="outline"
-      onClick={show}
+      // A thumb is not a mouse. `click` is only synthesised when the whole gesture stays inside the browser's
+      // tap slop (~8 px); a real finger that drifts further gets `pointercancel` instead, and the palette never
+      // opened — measured, see build/r3-palette.md §1. `pointerdown` fires in every one of those gestures, so a
+      // touch or a pen opens on the way *down*; a mouse (and the keyboard's own activation, which synthesises a
+      // click with no pointer at all) keeps the click path. `show()` is idempotent, so the trailing click of a
+      // healthy tap is a no-op rather than a toggle.
+      onPointerDown={(e: React.PointerEvent) => {
+        if (e.pointerType === "mouse") return;
+        // the default action of a touch's pointerdown is to synthesise the mouse sequence and to move focus to
+        // the button; both happen *after* the palette is already mounted and traps focus, so the field loses it
+        // to BODY. Cancelling here keeps the gesture off the page's focus handling; `show()` is idempotent, so
+        // the click of a healthy tap is a no-op on top of this.
+        e.preventDefault();
+        show(e.currentTarget as HTMLElement);
+      }}
+      onClick={(e: React.MouseEvent) => show(e.currentTarget as HTMLElement)}
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-keyshortcuts="Meta+K Control+K"
@@ -228,7 +248,14 @@ export function Palette() {
         {/* `shouldFilter={false}`: the ranking in `search()` is the ranking you get. cmdk's own `value`
             prop is the *selected item*, not the search text, so the query is held on the input — which is
             the controlled prop cmdk actually publishes for it. */}
-        <Command shouldFilter={false} label="Search the catalogue" data-catalog-item="shadcn/command">
+        <Command
+          shouldFilter={false}
+          label="Search the catalogue"
+          data-catalog-item="shadcn/command"
+          // the field you type in is a 44 px control like everything else in this palette: the registry's own
+          // input row is 36 px, and this is the shell's copy of it, not the registry's to change
+          className="[&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-input]]:h-12"
+        >
           <CommandInput
             value={q}
             onValueChange={setQ}
@@ -243,7 +270,7 @@ export function Palette() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-2 h-9"
+                className="mt-2 h-11 min-h-11"
                 // cmdk's root keydown calls preventDefault() on Enter, which cancels a button's default click.
                 // The row still has to work from the keyboard, so the key is stopped here instead.
                 onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") e.stopPropagation(); }}
@@ -258,11 +285,26 @@ export function Palette() {
               </CommandGroup>
             ) : null}
           </CommandList>
-          <div className="flex items-center gap-3 border-t px-3 py-2 font-mono text-[10.5px] text-muted-foreground">
-            <span>↑↓ move</span>
-            <span>↵ open</span>
-            <span>esc close</span>
-            <span className="ml-auto">{MOD}K</span>
+          <div className="flex items-center gap-2 border-t px-2 py-1.5">
+            {/* The way out, on every viewport, 44 px tall so a thumb can hit it: the key legend below is
+                supplementary, and on a phone it is also hidden, because a phone has no keys to press. */}
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                aria-label="Close search"
+                className="h-11 min-h-11 min-w-11 shrink-0 gap-2 px-3 text-[12px] max-[860px]:flex-1 max-[860px]:justify-start"
+              >
+                <XIcon className="size-4" aria-hidden="true" />
+                <span>Close</span>
+              </Button>
+            </DialogClose>
+            <div className="ml-auto hidden items-center gap-3 pr-1 font-mono text-[10.5px] text-muted-foreground max-[860px]:hidden min-[861px]:flex">
+              <span>↑↓ move</span>
+              <span>↵ open</span>
+              <span>esc close</span>
+              <span>{MOD}K</span>
+            </div>
           </div>
         </Command>
       </DialogContent>
