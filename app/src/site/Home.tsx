@@ -184,11 +184,11 @@ export function Home() {
           </span>
         ))}
       </div>
-      <p className="tally-note">
-        {c.withFile} of the {c.total} include at least one source file; {c.published} of those show it on the item
-        page. {c.demos} run here as a live demo. The other {c.noDemo} are entries with a name, a licence and a
-        description, and nothing to run.
-      </p>
+      {/*
+       * One number for a visitor. The audit arithmetic (how many include a source file, how many of those show
+       * it) belongs on `#/about`, where it already is; `./counts` still computes every one of them.
+       */}
+      <p className="tally-note">{c.demos} of these run here as a live demo.</p>
       <p className="hint">
         <a href="#/about">The five sources, what their licences allow, and how to check a file you download.</a>
       </p>
