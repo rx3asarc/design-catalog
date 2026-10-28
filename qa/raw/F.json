@@ -1,0 +1,449 @@
+{
+  "load": {
+    "l1": 2.84,
+    "l5": 2.9,
+    "l15": 2.86
+  },
+  "items": {
+    "shadcn/dashboard-01": {
+      "modes": {
+        "390": {
+          "src": "/design-catalog/demo.html#shadcn%2Fdashboard-01|0|theme=light|motion=on",
+          "rendered": {
+            "w": 365,
+            "h": 1882
+          },
+          "childViewport": {
+            "w": 390,
+            "h": 2012
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 7
+        },
+        "768": {
+          "src": "/design-catalog/demo.html#shadcn%2Fdashboard-01|0|theme=light|motion=on",
+          "rendered": {
+            "w": 768,
+            "h": 2012
+          },
+          "childViewport": {
+            "w": 768,
+            "h": 2012
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 8
+        },
+        "full": {
+          "src": "/design-catalog/demo.html#shadcn%2Fdashboard-01|0|theme=light|motion=on",
+          "rendered": {
+            "w": 770,
+            "h": 2012
+          },
+          "childViewport": {
+            "w": 770,
+            "h": 2012
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 9
+        }
+      },
+      "themed": {
+        "src": "/design-catalog/demo.html#shadcn%2Fdashboard-01|0|theme=dark|motion=on",
+        "rendered": {
+          "w": 770,
+          "h": 2012
+        },
+        "childViewport": {
+          "w": 770,
+          "h": 2012
+        },
+        "childOverflowX": 0,
+        "lane": {
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "page": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "childHtmlClass": "dark",
+        "siteHtmlClass": "",
+        "siteThemeAttr": "system",
+        "alive": 9
+      },
+      "followed": {
+        "src": "/design-catalog/demo.html#shadcn%2Fdashboard-01|0|theme=light|motion=on",
+        "rendered": {
+          "w": 770,
+          "h": 2012
+        },
+        "childViewport": {
+          "w": 770,
+          "h": 2012
+        },
+        "childOverflowX": 0,
+        "lane": {
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "page": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "childHtmlClass": "light",
+        "siteHtmlClass": "",
+        "siteThemeAttr": "system",
+        "alive": 9
+      },
+      "hasReplay": false,
+      "replay": [],
+      "load": {
+        "l1": 2.47,
+        "l5": 2.82,
+        "l15": 2.83
+      }
+    },
+    "beui/bloom-menu": {
+      "modes": {
+        "390": {
+          "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on",
+          "rendered": {
+            "w": 390,
+            "h": 420
+          },
+          "childViewport": {
+            "w": 390,
+            "h": 420
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 7
+        },
+        "768": {
+          "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on",
+          "rendered": {
+            "w": 768,
+            "h": 420
+          },
+          "childViewport": {
+            "w": 768,
+            "h": 420
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 8
+        },
+        "full": {
+          "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on",
+          "rendered": {
+            "w": 770,
+            "h": 420
+          },
+          "childViewport": {
+            "w": 770,
+            "h": 420
+          },
+          "childOverflowX": 0,
+          "lane": {
+            "scrollWidth": 850,
+            "clientWidth": 850
+          },
+          "page": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          },
+          "childHtmlClass": "light",
+          "siteHtmlClass": "",
+          "siteThemeAttr": "system",
+          "alive": 9
+        }
+      },
+      "themed": {
+        "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=dark|motion=on",
+        "rendered": {
+          "w": 770,
+          "h": 420
+        },
+        "childViewport": {
+          "w": 770,
+          "h": 420
+        },
+        "childOverflowX": 0,
+        "lane": {
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "page": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "childHtmlClass": "dark",
+        "siteHtmlClass": "",
+        "siteThemeAttr": "system",
+        "alive": 9
+      },
+      "followed": {
+        "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on",
+        "rendered": {
+          "w": 770,
+          "h": 420
+        },
+        "childViewport": {
+          "w": 770,
+          "h": 420
+        },
+        "childOverflowX": 0,
+        "lane": {
+          "scrollWidth": 850,
+          "clientWidth": 850
+        },
+        "page": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "childHtmlClass": "light",
+        "siteHtmlClass": "",
+        "siteThemeAttr": "system",
+        "alive": 9
+      },
+      "hasReplay": true,
+      "replay": [
+        {
+          "click": 1,
+          "srcBefore": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on",
+          "srcAfter": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on|replay=1",
+          "aliveBefore": 9,
+          "aliveAfter": 13,
+          "nonce": "replay=1"
+        },
+        {
+          "click": 2,
+          "srcBefore": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on|replay=1",
+          "srcAfter": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on|replay=2",
+          "aliveBefore": 13,
+          "aliveAfter": 16,
+          "nonce": "replay=2"
+        },
+        {
+          "click": 3,
+          "srcBefore": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on|replay=2",
+          "srcAfter": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on|replay=3",
+          "aliveBefore": 16,
+          "aliveAfter": 21,
+          "nonce": "replay=3"
+        }
+      ],
+      "load": {
+        "l1": 2.38,
+        "l5": 2.78,
+        "l15": 2.82
+      }
+    }
+  },
+  "reduced_shadcn/skeleton": {
+    "childHtmlClass": "light motion-off",
+    "sizes": {
+      "animations": 0,
+      "running": 0
+    },
+    "runningNames": [],
+    "sampled": 0,
+    "moved": 0,
+    "examples": [],
+    "barText": "390 768 full MOTION on off CSS motion stopped — your system asks for reduced motion. Script-driven motion keeps running.",
+    "motionChecked": "true"
+  },
+  "reduced_beui/bloom-menu": {
+    "childHtmlClass": "light motion-off",
+    "sizes": {
+      "animations": 0,
+      "running": 0
+    },
+    "runningNames": [],
+    "sampled": 1,
+    "moved": 0,
+    "examples": [],
+    "barText": "ull MOTION on off ↻ Replay CSS motion stopped — your system asks for reduced motion. Script-driven motion keeps running.",
+    "motionChecked": "true"
+  },
+  "motionOff": {
+    "on": {
+      "childHtmlClass": "light",
+      "animations": 20,
+      "running": 20,
+      "sampled": 10,
+      "moved": 0,
+      "examples": [],
+      "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=on"
+    },
+    "off": {
+      "childHtmlClass": "light motion-off",
+      "animations": 0,
+      "running": 0,
+      "sampled": 4,
+      "moved": 2,
+      "examples": [
+        {
+          "tag": "div",
+          "cls": "w-[min(86vw,420px)] overflow-hidden bord",
+          "a": "matrix(0.471935, 0, 0, 0.343745, 0, 0)|0.325",
+          "b": "matrix(0.342857, 0, 0, 0.183333, 0, 0)|0"
+        },
+        {
+          "tag": "div",
+          "cls": "",
+          "a": "matrix(2.11894, 0, 0, 2.90913, 0, 0)|1",
+          "b": "matrix(2.91667, 0, 0, 5.45455, 0, 0)|1"
+        }
+      ],
+      "src": "/design-catalog/demo.html#beui%2Fbloom-menu|0|theme=light|motion=off"
+    }
+  },
+  "heightZero": {
+    "candidateFiles": [
+      "demos/shadcn/sheet/v1.tsx",
+      "demos/shadcn/dialog/v4.tsx",
+      "demos/shadcn/dialog/v3.tsx"
+    ],
+    "candidateItems": [
+      "shadcn/dialog",
+      "shadcn/sheet"
+    ],
+    "scanned": 42,
+    "reports": 9473,
+    "zeros": [],
+    "distinct": [
+      64,
+      68,
+      78,
+      79,
+      80,
+      90,
+      96,
+      100,
+      101,
+      112,
+      116,
+      148,
+      149,
+      160,
+      173,
+      181,
+      183,
+      184,
+      196,
+      197,
+      235,
+      241,
+      243,
+      256,
+      267,
+      283,
+      293,
+      294,
+      300,
+      330,
+      405,
+      406,
+      410,
+      411,
+      430,
+      432,
+      506,
+      507,
+      529,
+      536,
+      537,
+      560,
+      561,
+      585,
+      655,
+      656,
+      758,
+      1113,
+      1674
+    ]
+  },
+  "selfFloor": {
+    "comp": {
+      "id": "shadcn/button",
+      "before": {
+        "frame": 180,
+        "declared": "180px",
+        "lane": 280
+      },
+      "after": {
+        "frame": 360,
+        "declared": "360px",
+        "lane": 440
+      }
+    },
+    "block": {
+      "id": "shadcn/dashboard-01",
+      "before": {
+        "frame": 900,
+        "declared": "900px",
+        "lane": 980
+      },
+      "after": {
+        "frame": 900,
+        "declared": "900px",
+        "lane": 980
+      }
+    },
+    "note": "the child's own load is aborted on purpose, so the 0 report is the first and only one"
+  }
+}

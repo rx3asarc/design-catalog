@@ -1,0 +1,369 @@
+{
+  "load": {
+    "l1": 2.08,
+    "l5": 2.7,
+    "l15": 2.79
+  },
+  "opened": {
+    "beforeFocus": {
+      "tag": "a",
+      "label": "design catalog",
+      "same": false
+    },
+    "dialog": true,
+    "labelled": "Search the catalogue",
+    "described": true,
+    "focusInside": true,
+    "focusSlot": "command-input",
+    "guards": 2,
+    "width": 512
+  },
+  "results": {
+    "n": 20,
+    "first": "sidebarshadcncomponentlicence MIT",
+    "hasSidebar": true,
+    "hash": "#/i/shadcn/sidebar",
+    "route": "item",
+    "dialog": false
+  },
+  "esc": {
+    "focusBeforeEsc": "a[aria-label=Previous: pagination — same category]",
+    "dialog": false,
+    "focus": "a[aria-label=Previous: pagination — same category]",
+    "waitedMs": 0
+  },
+  "transition": {
+    "found": true,
+    "recorded": 1,
+    "called": {
+      "t": 4774,
+      "tag": "transitions/page-side-by-side",
+      "duration": 250,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "props": [
+        "opacity",
+        "transform"
+      ],
+      "state": "running"
+    },
+    "presentAtFirstFrame": 1,
+    "live": [
+      {
+        "duration": 250,
+        "state": "running"
+      }
+    ],
+    "allRecorded": [
+      "transitions/page-side-by-side"
+    ]
+  },
+  "scrollReset": {
+    "scroller": ".page",
+    "before": 400,
+    "after": 0
+  },
+  "chrome": {
+    "rows": [
+      {
+        "id": "shadcn/badge",
+        "printed": "0not this view",
+        "cells": [
+          "shadcn/badge",
+          "licence and status badges, on every item page",
+          "0not this view"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/button",
+        "printed": "8",
+        "cells": [
+          "shadcn/button",
+          "the phone browse control, the source tabs, the palette's way in",
+          "8"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/collapsible",
+        "printed": "23",
+        "cells": [
+          "shadcn/collapsible",
+          "every level of the rail, and each family inside it",
+          "23"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/command",
+        "printed": "0unseen",
+        "cells": [
+          "shadcn/command",
+          "the Cmd/Ctrl+K palette, while it is open",
+          "0unseen"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/font-instrument-sans",
+        "printed": "1",
+        "cells": [
+          "shadcn/font-instrument-sans",
+          "the typeface of everything you are reading",
+          "1"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/font-jetbrains-mono",
+        "printed": "1",
+        "cells": [
+          "shadcn/font-jetbrains-mono",
+          "the typeface of every count and label",
+          "1"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/input",
+        "printed": "1",
+        "cells": [
+          "shadcn/input",
+          "the filter box above the rail",
+          "1"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/popover",
+        "printed": "0unseen",
+        "cells": [
+          "shadcn/popover",
+          "the provenance tag, while one is showing",
+          "0unseen"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/scroll-area",
+        "printed": "0not this view",
+        "cells": [
+          "shadcn/scroll-area",
+          "the pane a long source file scrolls in, on item pages",
+          "0not this view"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/sidebar",
+        "printed": "1",
+        "cells": [
+          "shadcn/sidebar",
+          "the rail frame and the trigger that reopens it",
+          "1"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/skeleton",
+        "printed": "0unseen",
+        "cells": [
+          "shadcn/skeleton",
+          "no sentence yet",
+          "0unseen"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/table",
+        "printed": "2",
+        "cells": [
+          "shadcn/table",
+          "this listing — the table of everything above it",
+          "2"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/tabs",
+        "printed": "0unseen",
+        "cells": [
+          "shadcn/tabs",
+          "the source-file tab strip, on item pages",
+          "0unseen"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/toggle-group",
+        "printed": "1",
+        "cells": [
+          "shadcn/toggle-group",
+          "no sentence yet",
+          "1"
+        ],
+        "linked": true
+      }
+    ],
+    "drift": [
+      {
+        "id": "transitions/page-side-by-side",
+        "printed": "1",
+        "cells": [
+          "transitions/page-side-by-side",
+          "the page-change animation, on this element's parent",
+          "1"
+        ],
+        "linked": true
+      },
+      {
+        "id": "shadcn/table-row",
+        "printed": "16",
+        "cells": [
+          "shadcn/table-row",
+          "not a catalogue id — the tag names nothing, so no page can open it",
+          "16"
+        ],
+        "linked": false
+      }
+    ],
+    "domCounts": [
+      {
+        "id": "shadcn/badge",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/button",
+        "dom": 8
+      },
+      {
+        "id": "shadcn/collapsible",
+        "dom": 23
+      },
+      {
+        "id": "shadcn/command",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/font-instrument-sans",
+        "dom": 1
+      },
+      {
+        "id": "shadcn/font-jetbrains-mono",
+        "dom": 1
+      },
+      {
+        "id": "shadcn/input",
+        "dom": 1
+      },
+      {
+        "id": "shadcn/popover",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/scroll-area",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/sidebar",
+        "dom": 1
+      },
+      {
+        "id": "shadcn/skeleton",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/table",
+        "dom": 2
+      },
+      {
+        "id": "shadcn/tabs",
+        "dom": 0
+      },
+      {
+        "id": "shadcn/toggle-group",
+        "dom": 1
+      }
+    ],
+    "tables": 2,
+    "tagged": [
+      "shadcn/font-instrument-sans",
+      "shadcn/button",
+      "shadcn/sidebar",
+      "shadcn/input",
+      "shadcn/collapsible",
+      "transitions/page-side-by-side",
+      "shadcn/table",
+      "shadcn/table-row",
+      "shadcn/font-jetbrains-mono",
+      "shadcn/toggle-group"
+    ],
+    "body": "design catalog Toggle Sidebar 769 items · 486 rendered Counts are how many are inside. What this site is made of all sources shadcn beui rareui beautifului transitions Blocks and pages 20 Pages and blocks 20 Signups 6 Logins 5 Availability Scheduler Chat App dashboard-01 Dynamic Island Feedback Widget Infinite Masonry Fixtures 404 / Not Found NO DEMO Prediction Market Components 585 Navigation 66 Forms and input 126 Overlays and dialogs 35 Actions and controls 97 Feedback and status 34 Layout and structure 53 Content and text 31 Charts and data 119 Conversation and agent UI 24 Motion and effec",
+    "driftTruth": {
+      "taggedCount": 10,
+      "tagged": [
+        "shadcn/button",
+        "shadcn/collapsible",
+        "shadcn/font-instrument-sans",
+        "shadcn/font-jetbrains-mono",
+        "shadcn/input",
+        "shadcn/sidebar",
+        "shadcn/table",
+        "shadcn/table-row",
+        "shadcn/toggle-group",
+        "transitions/page-side-by-side"
+      ],
+      "expectedDrift": [
+        "transitions/page-side-by-side"
+      ],
+      "expectedUnknown": [
+        "shadcn/table-row"
+      ],
+      "shownDrift": [
+        "transitions/page-side-by-side"
+      ],
+      "shownUnknown": [
+        "shadcn/table-row"
+      ],
+      "equal": true
+    },
+    "expected": 14,
+    "ids": [
+      "shadcn/badge",
+      "shadcn/button",
+      "shadcn/collapsible",
+      "shadcn/command",
+      "shadcn/input",
+      "shadcn/popover",
+      "shadcn/scroll-area",
+      "shadcn/sidebar",
+      "shadcn/skeleton",
+      "shadcn/table",
+      "shadcn/tabs",
+      "shadcn/toggle-group",
+      "shadcn/font-instrument-sans",
+      "shadcn/font-jetbrains-mono"
+    ]
+  },
+  "chromeContradictions": [],
+  "reducedMotionTransition": {
+    "anims": 0,
+    "tagAnims": 0
+  },
+  "palette390": {
+    "doc": {
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    "dialog": {
+      "w": 374,
+      "scrollWidth": 372,
+      "clientWidth": 372
+    },
+    "list": {
+      "scrollWidth": 372,
+      "clientWidth": 372
+    },
+    "focus": "command-input"
+  }
+}

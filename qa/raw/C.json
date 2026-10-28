@@ -1,0 +1,330 @@
+{
+  "load": {
+    "l1": 2.54,
+    "l5": 3,
+    "l15": 2.89
+  },
+  "wide": {
+    "initial": {
+      "tiles": 486,
+      "demo": 486,
+      "ref": 0,
+      "frames": 9,
+      "counts": {
+        "shown": 486,
+        "hidden": 283,
+        "total": 769,
+        "text": "769 items · 486 shown · 283 reference-only hidden"
+      },
+      "page": {
+        "scrollTop": 0,
+        "scrollHeight": 46207,
+        "clientHeight": 900
+      },
+      "doc": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 900
+      }
+    },
+    "scroll": {
+      "scroller": "page",
+      "maxScroll": 45307,
+      "framesSampled": 388,
+      "maxLive": 9,
+      "liveDistribution": {
+        "0": 333,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 1,
+        "9": 47
+      },
+      "perFrameIncreaseGe2": 0,
+      "firstJumps": [],
+      "raf": {
+        "n": 386,
+        "p50": 16.7,
+        "p95": 33.3,
+        "max": 233.3,
+        "over33": 19
+      },
+      "gallery": {
+        "mounts": 18,
+        "perFrameMax": 1,
+        "frames": 358,
+        "evictions": 0,
+        "deferred": 5,
+        "live": 9,
+        "cap": 9
+      },
+      "load": {
+        "l1": 2.37,
+        "l5": 2.95,
+        "l15": 2.88
+      }
+    },
+    "filtered": {
+      "tiles": 383,
+      "ref": 0,
+      "header": "566 items · 383 shown · 183 reference-only hidden",
+      "total": 566,
+      "title": "Everything",
+      "expectDemo": 383,
+      "expectTotal": 566
+    },
+    "wheel": {
+      "seconds": 17.2,
+      "frames": 962,
+      "maxLive": 9,
+      "liveDistribution": {
+        "9": 962
+      },
+      "perFrameIncreaseGe2": 0,
+      "raf": {
+        "n": 960,
+        "p50": 16.7,
+        "p95": 16.8,
+        "max": 233.4,
+        "over33": 13
+      },
+      "gallery": {
+        "mounts": 9,
+        "perFrameMax": 1,
+        "frames": 51,
+        "evictions": 0,
+        "deferred": 42,
+        "live": 9,
+        "cap": 9
+      },
+      "load": {
+        "l1": 2.35,
+        "l5": 2.91,
+        "l15": 2.86
+      }
+    },
+    "load": {
+      "l1": 2.35,
+      "l5": 2.91,
+      "l15": 2.86
+    }
+  },
+  "phone": {
+    "initial": {
+      "tiles": 486,
+      "demo": 486,
+      "ref": 0,
+      "frames": 2,
+      "counts": {
+        "shown": 486,
+        "hidden": 283,
+        "total": 769,
+        "text": "769 items · 486 shown · 283 reference-only hidden"
+      },
+      "page": {
+        "scrollTop": 0,
+        "scrollHeight": 124748,
+        "clientHeight": 124748
+      },
+      "doc": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "scrollHeight": 124813
+      }
+    },
+    "scroll": {
+      "scroller": "window",
+      "maxScroll": 123969,
+      "maxLive": 2,
+      "liveDistribution": {
+        "0": 1404,
+        "1": 7,
+        "2": 83
+      },
+      "gallery": {
+        "mounts": 4,
+        "perFrameMax": 1,
+        "frames": 1426,
+        "evictions": 0,
+        "deferred": 6,
+        "live": 2,
+        "cap": 2
+      }
+    },
+    "doc": {
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    "tapUnder44": [
+      {
+        "tag": "div",
+        "cls": ".group/toggle-group.flex",
+        "w": 168,
+        "h": 32,
+        "label": "Theme",
+        "inline": false
+      },
+      {
+        "tag": "button",
+        "cls": ".inline-flex.items-center",
+        "w": 56,
+        "h": 32,
+        "label": "Theme: system",
+        "inline": true
+      },
+      {
+        "tag": "button",
+        "cls": ".inline-flex.items-center",
+        "w": 56,
+        "h": 32,
+        "label": "Theme: light",
+        "inline": false
+      },
+      {
+        "tag": "button",
+        "cls": ".inline-flex.items-center",
+        "w": 56,
+        "h": 32,
+        "label": "Theme: dark",
+        "inline": true
+      }
+    ],
+    "load": {
+      "l1": 1.62,
+      "l5": 2.68,
+      "l15": 2.79
+    }
+  },
+  "alive": {
+    "sample": [
+      "shadcn/button-group-input-group",
+      "beui/checkbox",
+      "shadcn/button-group-separator",
+      "shadcn/form-tanstack-input",
+      "beui/bump-chart",
+      "beui/overflow-actions",
+      "shadcn/input-demo",
+      "shadcn/spinner-color",
+      "shadcn/chart-bar-demo-grid",
+      "shadcn/badge-demo",
+      "shadcn/chart-pie-donut-active",
+      "shadcn/form-rhf-radiogroup",
+      "shadcn/mode-toggle",
+      "shadcn/chart-area-axes",
+      "shadcn/spinner-badge",
+      "shadcn/chart-area-stacked",
+      "shadcn/button-link",
+      "shadcn/toggle-group",
+      "shadcn/typography-inline-code",
+      "shadcn/aspect-ratio"
+    ],
+    "alive": [
+      {
+        "id": "shadcn/button-group-input-group",
+        "alive": true,
+        "ms": 623
+      },
+      {
+        "id": "beui/checkbox",
+        "alive": true,
+        "ms": 175
+      },
+      {
+        "id": "shadcn/button-group-separator",
+        "alive": true,
+        "ms": 163
+      },
+      {
+        "id": "shadcn/form-tanstack-input",
+        "alive": true,
+        "ms": 119
+      },
+      {
+        "id": "beui/bump-chart",
+        "alive": true,
+        "ms": 137
+      },
+      {
+        "id": "beui/overflow-actions",
+        "alive": true,
+        "ms": 124
+      },
+      {
+        "id": "shadcn/input-demo",
+        "alive": true,
+        "ms": 138
+      },
+      {
+        "id": "shadcn/spinner-color",
+        "alive": true,
+        "ms": 83
+      },
+      {
+        "id": "shadcn/chart-bar-demo-grid",
+        "alive": true,
+        "ms": 95
+      },
+      {
+        "id": "shadcn/badge-demo",
+        "alive": true,
+        "ms": 128
+      },
+      {
+        "id": "shadcn/chart-pie-donut-active",
+        "alive": true,
+        "ms": 177
+      },
+      {
+        "id": "shadcn/form-rhf-radiogroup",
+        "alive": true,
+        "ms": 200
+      },
+      {
+        "id": "shadcn/mode-toggle",
+        "alive": true,
+        "ms": 125
+      },
+      {
+        "id": "shadcn/chart-area-axes",
+        "alive": true,
+        "ms": 142
+      },
+      {
+        "id": "shadcn/spinner-badge",
+        "alive": true,
+        "ms": 140
+      },
+      {
+        "id": "shadcn/chart-area-stacked",
+        "alive": true,
+        "ms": 96
+      },
+      {
+        "id": "shadcn/button-link",
+        "alive": true,
+        "ms": 156
+      },
+      {
+        "id": "shadcn/toggle-group",
+        "alive": true,
+        "ms": 519
+      },
+      {
+        "id": "shadcn/typography-inline-code",
+        "alive": true,
+        "ms": 217
+      },
+      {
+        "id": "shadcn/aspect-ratio",
+        "alive": true,
+        "ms": 245
+      }
+    ],
+    "n": 20,
+    "slowest": 623
+  }
+}

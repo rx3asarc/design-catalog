@@ -1,0 +1,93 @@
+{
+  "steps": [
+    {
+      "step": "open #/i/shadcn/button (has source)",
+      "path": "registry/new-york-v4/ui/button.tsx",
+      "code": "import * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\nimport { cn } from \"cn\"\nimport { Slot } from \"radix-ui\"\n\nconst buttonVariants = cva(\n  \"inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disab",
+      "codeLen": 2382,
+      "activeTab": null,
+      "withheld": false,
+      "navigations": 1,
+      "hash": "#/i/shadcn/button",
+      "title": "button",
+      "bodyHasA": true,
+      "bodyHasB": false
+    },
+    {
+      "step": "navigate in-app (mod+k → \"card stack hover\" → Enter) to withheld transitions/card-stack-hover",
+      "firstResult": "Card stack hover Protransitionseffectno demolicence MIT with no-redistribution clause",
+      "path": null,
+      "code": null,
+      "codeLen": 0,
+      "activeTab": null,
+      "withheld": true,
+      "navigations": 1,
+      "hash": "#/i/transitions/card-stack-hover",
+      "title": "Card stack hover Pro",
+      "bodyHasA": false,
+      "bodyHasB": false
+    },
+    {
+      "step": "reverse: in-app back to an item with source",
+      "path": "registry/new-york-v4/ui/button.tsx",
+      "code": "import * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\nimport { cn } from \"cn\"\nimport { Slot } from \"radix-ui\"\n\nconst buttonVariants = cva(\n  \"inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disab",
+      "codeLen": 2382,
+      "activeTab": null,
+      "withheld": false,
+      "navigations": 1,
+      "hash": "#/i/shadcn/button",
+      "title": "button",
+      "bodyHasA": true,
+      "bodyHasB": false
+    },
+    {
+      "step": "rapid chain: beui/bloom-menu → withheld → shadcn/sidebar (260 ms apart)",
+      "chain": [
+        {
+          "target": "beui/bloom-menu",
+          "path": "components/motion/bloom-menu.tsx",
+          "code": "\"use client\";\n// beui.dev/components/blocks/bloom-menu\n\nimport {\n  Bell,\n  FileText,\n  FolderClosed,\n  LayoutGrid,\n  Link,\n  Plus,\n  Table,\n  X,\n} from \"lucide-react\";\nimport { AnimatePresence, motion, useReducedMotion } from \"motion/react\";\nimport {\n  type ComponentType,\n  type KeyboardEvent,\n  useCallback,\n  useEffect,\n  useId,\n  useMemo,\n  useRef,\n  useState,\n} from \"react\";\nimport { EASE_OUT }",
+          "codeLen": 11896,
+          "activeTab": "bloom-menu.tsx",
+          "withheld": false,
+          "navigations": 1,
+          "hash": "#/i/beui/bloom-menu",
+          "title": "Bloom Menu",
+          "bodyHasA": false,
+          "bodyHasB": true
+        },
+        {
+          "target": "transitions/card-stack-hover",
+          "path": null,
+          "code": null,
+          "codeLen": 0,
+          "activeTab": null,
+          "withheld": true,
+          "navigations": 1,
+          "hash": "#/i/transitions/card-stack-hover",
+          "title": "Card stack hover Pro",
+          "bodyHasA": false,
+          "bodyHasB": false
+        },
+        {
+          "target": "shadcn/sidebar",
+          "path": "registry/new-york-v4/ui/sidebar.tsx",
+          "code": "\"use client\"\n\nimport * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\nimport { cn } from \"cn\"\nimport { PanelLeftIcon } from \"lucide-react\"\nimport { Slot } from \"radix-ui\"\n\nimport { useIsMobile } from \"@/registry/new-york-v4/hooks/use-mobile\"\nimport { Button } from \"@/registry/new-york-v4/ui/button\"\nimport { Input } from \"@/registry/new-york-v4/ui/input\"\nimp",
+          "codeLen": 21713,
+          "activeTab": null,
+          "withheld": false,
+          "navigations": 1,
+          "hash": "#/i/shadcn/sidebar",
+          "title": "sidebar",
+          "bodyHasA": false,
+          "bodyHasB": false
+        }
+      ]
+    }
+  ],
+  "load": {
+    "l1": 2.54,
+    "l5": 3,
+    "l15": 2.89
+  }
+}
