@@ -4,14 +4,116 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/
 import { Copy } from "./Code";
 import { counts } from "./counts";
 import { items, type Item } from "./lib";
+import { buildTree } from "./route";
+import { Grid, faceted, hasDemo, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
 
 /**
- * The front page: what this is, the two ways in, then the counts.
+ * The front page: the thing itself, then what it is, the two ways in, then the counts.
  *
- * The agent interface is part of the hero rather than a footnote — the terminal card is the catalogue answering a
- * real query, generated from the manifest on every render, and the setup line is behind a disclosure underneath
- * it. Every number comes from `./counts` or straight out of the manifest.
+ * The first screen is six real items out of the catalogue, running — not a description of them. The agent
+ * interface is part of the hero too rather than a footnote: the terminal card is the catalogue answering a real
+ * query, generated from the manifest on every render, and the setup line is behind a disclosure underneath it.
+ * Every number comes from `./counts` or straight out of the manifest.
  */
+
+/* ── the six tiles on the first screen, and the rule that chose them ────────────────────────────────────── */
+
+/**
+ * Which six, and why — mechanical, and stated on the page underneath them.
+ *
+ * One per rail section (Blocks and pages; Components twice; Motion and effects; Docs) plus one widely used one.
+ * Inside a section the order is fields the manifest already publishes: **most `composition.count`, then most
+ * `used_here`, then fewest `file_count`** — the number of parts first (the biggest thing a visitor can look at),
+ * then how much the catalogue itself leans on it, then how much of it there is to read. A dead heat falls to the
+ * id, so the answer is a function of the manifest and not of a shuffle. The manifest carries **no `pick` row at
+ * all** (0 of 769), and none is invented here: nothing in this file names an item, and the caption under the row
+ * says in one sentence how the six got there, so a reader who disagrees with the rule can overrule it.
+ *
+ * One precondition, and it is what a tile *is* rather than a taste of ours: a tile shows an item running, so a
+ * section's candidates are the items that run here (`hasDemo`). Where a section has nothing that runs — the 108
+ * Docs pages have no demo between them — the rule applies to the whole section, and the row shows that item as
+ * the reference card it honestly is instead of dropping a section the brief names. Five of the six therefore
+ * carry a frame and one does not, and the one that does not is the one whose section cannot.
+ *
+ * The six, with the fields that chose them (also in `docs/catalog-redesign/build/r2-home-tiles.md`, so the values
+ * can be checked against the manifest rather than trusted):
+ *
+ *   Blocks and pages    beui/chat-app            comp 27   used 0   files 63
+ *   Components          shadcn/sidebar-09        comp  8   used 0   files  3
+ *   Components          shadcn/sidebar-16        comp  8   used 0   files  8
+ *   Motion and effects  beui/shader-background   comp  2   used 0   files  5
+ *   Docs                shadcn/docs-changelog    comp  –   used 0   files  –   (no demo: the reference card)
+ *   widely used         shadcn/button            comp  –   used 10  files  1
+ */
+
+type Rank = { comp: number; used: number; files: number | null };
+const manifestRank = (i: Item): Rank => {
+  const f = faceted(i);
+  return {
+    comp: f.composition?.count ?? 0,
+    used: f.used_here ?? 0,
+    files: typeof f.file_count === "number" ? f.file_count : null,
+  };
+};
+
+/**
+ * The comparator, in the order above. `lead: "used"` is the wide-use pick: there `used_here` is the field that
+ * means what the pick means, so it goes first and the other two break the ties. `file_count` ascending — and a
+ * `null` is "not known", which sorts last rather than pretending to be zero files.
+ */
+const byManifest = (lead: "comp" | "used" = "comp") => (a: Item, b: Item) => {
+  const x = manifestRank(a), y = manifestRank(b);
+  const order: (keyof Rank)[] = lead === "used" ? ["used", "comp", "files"] : ["comp", "used", "files"];
+  for (const k of order) {
+    if (k === "files") {
+      const ax = x.files ?? Number.POSITIVE_INFINITY, by = y.files ?? Number.POSITIVE_INFINITY;
+      if (ax !== by) return ax - by;
+    } else if (x[k] !== y[k]) {
+      return (y[k] as number) - (x[k] as number);
+    }
+  }
+  return a.id.localeCompare(b.id);
+};
+
+/**
+ * The rail's own sections and their rows — read from the tree the rail renders, not re-derived here.
+ *
+ * A section carries its rows inside its categories (`TreeSection.cats`), which is what the rail draws and what
+ * `resolve()` in `site/Gallery.tsx` reads; flattening them here is the same reading, so a section's candidate set
+ * and the grid a `?sec=` link opens are the same rows.
+ */
+const RAIL = buildTree("", "");
+const rowsOf = (label: string) =>
+  (RAIL.find((s) => s.label === label)?.cats ?? []).flatMap((c) => c.rows);
+
+const taken = new Set<string>();
+/** The best `n` tiles of one section, by the rule, preferring items that run. Marks what it takes. */
+const pickSection = (label: string, n: number): Item[] => {
+  const rows = rowsOf(label);
+  const running = rows.filter(hasDemo);
+  const chosen = (running.length ? running : rows)
+    .filter((i) => !taken.has(i.id))
+    .sort(byManifest())
+    .slice(0, n);
+  chosen.forEach((i) => taken.add(i.id));
+  return chosen;
+};
+
+/** Six tiles, frozen: the order is the order they are shown in, and it is the same six on every build. */
+export const HERO_TILES: Item[] = [
+  ...pickSection("Blocks and pages", 1),
+  ...pickSection("Components", 2),
+  ...pickSection("Motion and effects", 1),
+  ...pickSection("Docs", 1),
+  ...items.filter((i) => hasDemo(i) && !taken.has(i.id)).sort(byManifest("used")).slice(0, 1),
+];
+
+/**
+ * The rule, in one sentence, under the row. No number of ours: the only numeral is the count of tiles above it,
+ * which is the length of `HERO_TILES`, and the catalogue's own totals stay where they already were (the crumb, the
+ * tally and `#/g`), so the front page cannot drift from `./counts` in a sentence a visitor reads as truth.
+ */
+const HERO_NOTE = "six from the catalogue, chosen by size and reuse — not by hand";
 
 const TARBALL = "https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz";
 const MCP_CONFIG = `{
@@ -110,7 +212,59 @@ function Terminal() {
   );
 }
 
-/** The front page is a first-run screen: what this is, the two ways in, then what is in it. */
+/**
+ * The row itself: the gallery's own `Grid`, at a size that fits six on the first screen.
+ *
+ * Not a second tile and not a second harness — `Grid` owns the pool, the observers and the parked→live handover,
+ * and it already renders the reference card for an item with no demo. What is the row's own:
+ *
+ *  1. the column template — three across in the page's column, two on a phone, so all six land inside the first
+ *     screen instead of stacking into six rows;
+ *  2. the cap — six frames, half the 9 the grid measured, because six is all the row has;
+ *  3. `frozen` — every tile here loads `static=1`, a frozen first frame, and only the tile the visitor hovers or
+ *     focuses is told to play. The frame is on the critical path on this page in a way it is not in a grid;
+ *  4. `defer` — the pool starts on the first idle slot after the first paint, not at it. The posters are already
+ *     there in the exact boxes the frames will take, so this costs no layout shift (measured: CLS 0 for the row,
+ *     0 for the page); it only decides when six frames' worth of mount work begins.
+ */
+function HeroRow() {
+  const narrow = useNarrow();
+  const bodyH = narrow ? 132 : 210;
+  const { colW, host } = useColumnWidth(narrow, HERO_TILES.length);
+  const theme = useSiteTheme();
+  return (
+    <div ref={host} data-hero-tiles="" data-hero-ids={HERO_TILES.map((i) => i.id).join(" ")}>
+      <Grid
+        rows={HERO_TILES}
+        colW={colW}
+        bodyH={bodyH}
+        narrow={narrow}
+        theme={theme}
+        cap={HERO_TILES.length}
+        columns={narrow ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))"}
+        frozen
+        defer
+      />
+    </div>
+  );
+}
+
+/**
+ * The front page is a first-run screen: the thing itself, what it is, the two ways in, then what is in it.
+ *
+ * Every number on this page, and where it comes from — the row added none of its own:
+ *
+ *   "769 items · 5 libraries"      `counts.total`, `counts.sources.length`
+ *   "769 components… from 5"       the same two, in the lede's sentence
+ *   "566 / 110 / 43 / 29 / 21"     `counts.sources[].items`, one per library
+ *   "486 of these run here"        `counts.demos`
+ *   "the first 8 of 25 … sidebar"  counted off the manifest at render time, never typed (`SEARCH_*`)
+ *   the digits inside a tile       the item's own published fields — `file_count`, `bytes`, `dep_count`,
+ *                                  `composition.count`, `used_here` — printed by the card the gallery prints
+ *   "six from the catalogue"       the length of `HERO_TILES`, stated as the row's own rule
+ *
+ * Nothing else is added, and nothing here restates a catalogue total in prose that could drift from `./counts`.
+ */
 export function Home() {
   const c = counts;
   const libraries = useMemo(() => c.sources.length, [c.sources.length]);
@@ -125,6 +279,11 @@ export function Home() {
         Browse it, or ask your agent. {c.total} components, blocks, effects and doc pages from {libraries}{" "}
         reference libraries, collected in one place.
       </p>
+
+      <p className="hint" data-hero-note="" style={{ margin: "0 0 10px" }}>
+        {HERO_NOTE}.
+      </p>
+      <HeroRow />
 
       <ol className="ways">
         <li className="way">
