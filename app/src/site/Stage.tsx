@@ -196,6 +196,17 @@ export function StageBar({
   const word = (w: string) => (narrow ? "" : w);
   const px = STAGE_PX[stage.width];
   const shown = stage.width === "full" ? "the column" : `${px} CSS px`;
+  /**
+   * The id of the sentence that says what `motion=off` *means* — and, when the OS asked for it, why.
+   *
+   * Every toggle in this console already reports its state to assistive technology: the three groups are
+   * `role="radiogroup"` with `role="radio"` items and `aria-checked`, which is the correct pattern for "one of
+   * n" and the reason no `aria-pressed` appears in this file (a pressed button would be the wrong control for a
+   * single-choice group — measured before and after each click, in the build report). What a radio cannot say by
+   * itself is the *consequence* of its state, so the group is described by the sentence the console prints when
+   * motion is off, and that sentence is a live region: turning motion off is announced, not merely painted.
+   */
+  const noteId = `stage-motion-note-${item.id.replace(/[^a-zA-Z0-9]+/g, "-")}`;
   return (
     <div
       data-stage-bar={item.id}
@@ -247,6 +258,7 @@ export function StageBar({
           type="single" size="sm" variant="outline" style={groupStyle}
           value={stage.motion} onValueChange={api.chooseMotion}
           aria-label="Demo motion: on, or off (reduced motion)"
+          aria-describedby={stage.motion === "off" ? noteId : undefined}
         >
           <ToggleGroupItem value="on" style={itemStyle} tabIndex={tabStop(stage.motion === "on")} aria-label="Motion on: the demo animates">on</ToggleGroupItem>
           <ToggleGroupItem value="off" style={itemStyle} tabIndex={tabStop(stage.motion === "off")} aria-label="Motion off: CSS animation and transition stopped">off</ToggleGroupItem>
@@ -262,7 +274,7 @@ export function StageBar({
 
       <span style={{ flex: 1, minWidth: 0 }} />
       {stage.motion === "off" && (
-        <span style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 11.5, whiteSpace: "normal", maxWidth: "46ch" }}>
+        <span id={noteId} role="status" style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 11.5, whiteSpace: "normal", maxWidth: "46ch" }}>
           CSS motion stopped{stage.fromSystem ? " — your system asks for reduced motion" : ""}. Demos that animate with JavaScript keep running.
         </span>
       )}
