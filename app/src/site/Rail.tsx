@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
@@ -6,6 +6,7 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
   SidebarMenuSubItem, SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
+import { ThemeSwitch } from "./ThemeSwitch";
 import { label as displayLabel, type Item, type TreeCat, type TreeFamily } from "./lib";
 import { gridHref, type RailSection } from "./route";
 
@@ -215,6 +216,90 @@ export function RailReopen() {
     <div className="rail-reopen">
       <SidebarTrigger data-catalog-item="shadcn/button" className="rail-reopen-btn" />
     </div>
+  );
+}
+
+/**
+ * The phone's Browse menu: a surface over the page, not a row in it.
+ *
+ * It was a flex item between the sticky header and the page, and the column is exactly one viewport tall, so
+ * the rail was squeezed to a few pixels while its rows were laid out past the clipped box — the tree existed,
+ * at the right height, with the page painted over it. Taps on "Blocks and pages" landed on the page heading.
+ * The geometry is the overlay rule at the foot of `styles.css`. This component is the three things CSS cannot
+ * do:
+ *
+ *   1. **measure the header** (`--phone-header`) — the panel starts under it. The 65 px fallback in the
+ *      stylesheet is 44 + 2×10 + the header's rule; the measurement is what keeps that honest.
+ *   2. **close like a menu**: Escape, a tap on the backdrop, and focus back on the trigger afterwards. The
+ *      trigger itself toggles and navigation closes the menu through the route hook in App — those two
+ *      already existed and still do; these are the other two.
+ *   3. **block the page behind it**: while the sheet is up, a tap meant for the panel must never land on the
+ *      catalogue underneath. The backdrop is that guarantee, not only a way out.
+ *
+ * `aria-controls="rail"` is the trigger's own promise (`aria-expanded` + `aria-controls` pair it with this
+ * panel), so it is also how the focus target is found without threading a ref through the shell. Exactly one
+ * element carries it: the Browse/Close button in the top bar.
+ */
+export function PhoneRail({ open, onClose, head, rail }: {
+  open: boolean; onClose: () => void; head: React.ReactNode; rail: React.ReactNode;
+}) {
+  // The header is sticky and the panel starts at its foot: measure it rather than trust the constant.
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>(".topbar");
+    if (!header) return;
+    const root = document.documentElement;
+    const set = () => root.style.setProperty("--phone-header", `${Math.round(header.getBoundingClientRect().height)}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(header);
+    addEventListener("resize", set);
+    return () => { ro.disconnect(); removeEventListener("resize", set); };
+  }, []);
+
+  // Escape closes it from wherever focus is: this is a menu, not a dialog, so it does not trap focus and must
+  // still listen on the document. A palette open above it owns its own Escape (radix dialogs close on it too).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (document.querySelector('[data-slot="dialog-content"]')) return;
+      onClose();
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  // Closing returns focus to the trigger. Skipped on the first render of a menu that was never opened, so a
+  // phone that loads with the menu shut does not steal focus from the page.
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (open) { wasOpen.current = true; return; }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    document.querySelector<HTMLElement>('[aria-controls="rail"]')?.focus();
+  }, [open]);
+
+  return (
+    <>
+      {/* The backdrop: a full-area close control behind the sheet. It is skippable by Tab (the menu is not a
+          dialog and the trigger already closes it), and it exists as much to keep taps off the page as to be
+          one of the ways out. */}
+      {open && (
+        <Button type="button" variant="ghost" tabIndex={-1} aria-label="Close the menu"
+          className="menu-veil" onClick={onClose} />
+      )}
+      <div className={`rail rail-phone${open ? " is-open" : ""}`} id="rail" aria-label="Browse the catalogue">
+        {/* The phone has one surface that is ever above the page, and the theme control belongs on it: the
+            switch used to be a fixed pill in the page's corner, then a reserved lane at the foot of the column,
+            and both were furniture over the catalogue. First row, sticky, so it is under the thumb for as long
+            as the menu is open — and nowhere else, because nowhere else on a phone is above the content. */}
+        <div className="rail-theme rail-theme-phone">
+          <ThemeSwitch />
+        </div>
+        {head}
+        <div className="rail-list">{rail}</div>
+      </div>
+    </>
   );
 }
 

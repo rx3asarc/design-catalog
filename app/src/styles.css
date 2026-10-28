@@ -212,7 +212,7 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
 .copied { font-size: 11.5px; color: oklch(0.55 0.14 150); }
 @media (max-width: 860px) {
   .cat { grid-template-columns: 1fr; height: auto; }
-  .rail { border-right: 0; border-bottom: 1px solid var(--border); max-height: 42dvh; }
+  .rail { border-right: 0; border-bottom: 0; max-height: none; }
   .page-in { padding: 24px 18px 80px; }
   .page h2.title { font-size: 24px; }
 }
@@ -237,8 +237,6 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .menu-btn { min-height: 44px; padding: 0 14px; font-size: 13px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--background); color: var(--foreground); cursor: pointer; }
   .rail { display: none; }
-  .menu-open .rail { display: flex; max-height: none; border-bottom: 1px solid var(--border); }
-  .menu-open .rail-list { max-height: 70dvh; }
   .rail-item { min-height: 44px; font-size: 14px; }
   .rail input { height: 44px; font-size: 16px; } /* 16px keeps iOS from zooming on focus */
   .page { overflow: visible; }
@@ -670,8 +668,9 @@ pre { font-family: var(--font-mono); }
    not mine to spend either, so the switch is the rail scroll area's first row: above the 769-row tree and in
    the DOM before it, so Tab reaches it in twelve presses instead of a hundred and twenty-nine, and the head
    stays 230.4px with the list's viewport at 670px (measured, before and after).
-   On a phone the rail is a disclosure (`display: none` until Browse opens), so its first row is not a way in
-   and the switch takes the page's own corner instead — exactly one instance at every width, never two. */
+   On a phone there is one instance too, and it is the first row of the Browse menu itself (`.rail-theme-phone`):
+   the menu is the only surface on a phone that is ever above the page, so the switch lives there instead of in
+   a strip of its own. Exactly one instance at every width, never two — and nothing fixed over the content. */
 .theme-switch {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 4px 4px 4px 10px; border-radius: 999px;
@@ -691,12 +690,9 @@ pre { font-family: var(--font-mono); }
   padding: 8px 12px 8px;
   background: var(--sidebar); border-bottom: 1px solid var(--border);
 }
-/* the float rule. On a phone it is not used — see "the theme switch's phone lane" at the end of this file,
-   which docks the switch in a lane that cannot cover a card. */
-.theme-switch-float {
-  position: fixed; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 30;
-}
-.theme-switch-float .theme-switch { box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
+/* on the phone the switch is the menu's first row, over the tree: it keeps the hairline the float used to have.
+   The desktop rail row is unchanged. */
+.rail-phone .rail-theme .theme-switch { box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
 
 /* QA I: the stage console's three Motion/Width controls were 41-43 px wide — 44 tall was asserted, 44 wide was
    not. A control is only a target if you can hit it in both directions. */
@@ -705,27 +701,30 @@ pre { font-family: var(--font-mono); }
 /* QA I: the hero's Setup button was 36 px tall. */
 .cmd-wrap > button, [data-catalog-item="shadcn/button"].h-9 { min-height: 44px; }
 
-/* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px. Not a phone target (the rail is
-   a drawer there), but the only sub-24 px control in the shell. */
+/* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px.
+   On the phone the rail is no longer a drawer, it is the Browse menu, so this is the one thing in that menu
+   under 44 px and it is worth saying exactly why it stays there: the DOOR is decoration — a 28×28 grid glyph
+   at the right edge of a 44 px row — and the ROW is the target. The row's own trigger/link carries the hit
+   area across the full width (hit-tested at its centre: 234 of 234 reachable rows at 375, 211/211 at 600,
+   203/203 at 768), and a 44×44 door would claim the right 44 px of a 44 px row, turning every "open this
+   level" tap near the count into "open a grid". So: row 44 px + `min-width/min-height: 44px` for every other
+   control in the menu, door 28 px and none of the row's centre. */
 [data-sidebar="menu-action"] { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
 
 
-/* ═══ the theme switch's phone lane ══════════════════════════════════════════════════════════════
-   It was `position: fixed` in the phone's corner, over the content, with nothing reserved under it, so at
-   390 px the bottom-left of every screenful was a card — measured, at the top, the middle and the end of the
-   gallery: exactly one tile under the pill in each. Every one of those was a tap target it ate, and a fixed
-   control over a full-width scrolling column cannot be fixed with padding: cards keep scrolling under it.
+/* ═══ the phone column: bounded viewport, and the page is the scroller ═══════════════════════════
+   The theme switch used to be docked in a lane at the foot of this column (a 67 px strip reserved outside the
+   scroll area, which is why `.page` — not the window — became the phone's scroller). The lane is gone: the
+   switch is the Browse menu's first row now, and with it went the only reason a strip had to exist at all.
 
-   So the pill is docked in a lane instead. On a phone `.cat` is the viewport and nothing longer than it,
-   `.page` is the scroller *inside* it, and the switch is the last row of that column — outside the scroll
-   area, so no card can ever be under it at any scroll offset. Lane, not overlay: it reserves its own height
-   (54 px pill + 6 px padding, plus the safe area), keeps every control at 44x44, and covers nothing.
-
-   This is why `.page` scrolls on a phone: the window is no longer the scroller, `.page` is (the desktop
-   arrangement, extended below 861). `site/Gallery.tsx` resolves its scroller by walking up for an
-   overflow-y element with scrollHeight > clientHeight, so the mount pool follows the change by itself;
-   `useScrollReset` in site/route.ts scrolls `.page`, which until now was a no-op on a phone — it now resets
-   the page the visitor actually scrolls. */
+   What stays is the shape, because two things depend on it. 1) The menu overlay is anchored to a bounded
+   viewport: `.cat` is exactly 100dvh with `overflow: hidden`, so `calc(100dvh - var(--phone-header))` is the
+   menu's real ceiling and the page cannot scroll the document out from under it. 2) `.page` is the scroller on
+   a phone: `site/Gallery.tsx` resolves its scroller by walking up for an overflow-y element with
+   scrollHeight > clientHeight, so the mount pool follows it, and `useScrollReset` in site/route.ts scrolls it
+   on every route change. Measured before and after removing the lane: `.page` scrolls on a phone (0 tiles,
+   0 demo fields under any fixed box at 375/600/768), the document does not (`scrollHeight == innerHeight`),
+   and the gallery still mounts 2 live frames at 390. */
 @media (max-width: 860px) {
   .cat {
     display: flex; flex-direction: column;
@@ -737,10 +736,80 @@ pre { font-family: var(--font-mono); }
     overflow-y: auto; overflow-x: hidden;
     overscroll-behavior-y: contain; /* the page does not rubber-band the document: there is nothing outside it */
   }
-  .theme-switch-float {
-    position: static; flex: none;
-    display: flex; align-items: center; justify-content: flex-start;
-    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
-    background: var(--card); border-top: 1px solid var(--border);
+}
+
+/* ═══ the phone's Browse menu is an overlay, not the third row of the column ═════════════════════
+   It was a flex item between the sticky header and the page, in a column that is exactly one viewport
+   tall (`@media (max-width: 860px) { .cat { height: 100dvh; overflow: hidden } }`, further down). Two
+   shrinkable items (rail `0 1 auto`, page `1 1 auto`) in a 100dvh column: the rail lost, the list lost
+   inside it, and the rows were laid out past the clipped box — so the tree existed, at the right 44 px,
+   invisible, with the page painted over it. Measured on the build before this rule was written (375×812):
+   panel 375×222, `.rail-list` viewport 46 px against 4578 px of scroll content, rows 8-10 of the menu
+   hit-testing as `H2.title`/`P.lede` (the page heading), and 0 of the rows inside the panel were tappable
+   at their centre. At 600×900 the same shape gave a 78 px window and at 768 a 150 px one: the menu worked
+   but one and a half rows at a time.
+
+   So the panel leaves the flow. It is `fixed` under the header, `100dvh - header` tall at most, and it is
+   the scroller itself (`overscroll-behavior: contain`, so a flick at the end of the tree does not hand the
+   gesture to the page). `display: block`, not flex: a flex column with overflowing children shrinks them
+   before it scrolls, which is the bug in miniature. Rows keep their 44 px (the phone rule above), and the
+   list stops being a second scroller — one surface, one scroll.
+
+   Measured after (same harness, same viewports): panel 375×747 fixed @0,65 z 35, its own scroll box
+   4822/746 (the whole tree, not 46 px of it), list 4578/4578 with `overflow: visible`; the first ten menu
+   rows hit-test as the row itself at all three widths, and every row that is reachable while the panel is
+   scrolled — 234 at 375, 211 at 600, 203 at 768 — hits as its own row (was 0 / 42 / 121 of the few rows the
+   squeezed window showed). The last row of a fully-expanded menu is hittable and navigates.
+
+   z-index 35: above `.page` (auto), above the sticky header (20) and above the theme lane (30) it used to
+   lose to, below the palette (50). The header is sticky and the panel starts *below* it, so the Browse/Close
+   trigger stays tappable while the menu is open — a menu you cannot close with the control that opened it is
+   not closed by it either. */
+@media (max-width: 860px) {
+  /* 44 px control + 2×10 px header padding + the header's 1 px rule. `PhoneRail` re-measures it on open and
+     on resize and writes the same property on <html>, so a header that grows cannot leave a gap. */
+  :root { --phone-header: 65px; }
+
+  .menu-open .rail-phone {
+    display: block;
+    position: fixed; left: 0; right: 0;
+    top: var(--phone-header); bottom: auto;
+    /* height from the tree, capped by the viewport under the header: a filtered menu is a short sheet with the
+       page visible (and tappable) below it, a full tree is a tall one that scrolls itself */
+    max-height: calc(100dvh - var(--phone-header));
+    z-index: 35;
+    overflow-y: auto; overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: var(--card);
+    border-top: 1px solid var(--border); border-bottom: 0;
+    box-shadow: 0 -1px 2px oklch(0 0 0 / 0.05);
   }
+  /* one scroller, not two: the panel scrolls, the list must not clip what the panel is scrolling */
+  .menu-open .rail-phone .rail-list { overflow: visible; max-height: none; }
+
+  /* The backdrop: everything the page owns below the header, dimmed, and none of it tappable while the menu
+     is up. Behind the panel (z 34 vs 35), so it is only visible — and only tappable — where the panel does not
+     reach, which is the top of the menu on a phone tall enough for a filtered tree, and never a hole over the
+     page. */
+  .menu-veil, .menu-veil:hover {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    top: var(--phone-header);
+    z-index: 34;
+    width: auto; height: auto; min-height: 0; padding: 0; border: 0; border-radius: 0;
+    background: oklch(0 0 0 / 0.4);
+    cursor: default;
+    overscroll-behavior: contain;
+  }
+  /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls: `.rail-theme`
+     is already `position: sticky; top: 0` for the desktop rail, and the panel is the scroll container here */
+  .rail-phone .rail-theme { background: var(--card); padding: 10px 12px; }
+  /* nothing in the menu is under 12 px once it is the phone's whole way in. Three things were, all borrowed from
+     the desktop rail and all left alone on desktop: the 11 px label step (`--t-label`: the counts on every level
+     row, "769 items · 486 rendered", the legend), the switch's 10 px "Theme" and its 11 px segment words, and
+     the 10 px "no demo" on a row. The menu re-declares the step and names the three; desktop keeps its sizes. */
+  .rail-phone { --t-label: 12px; }
+  .rail-phone .rail-item .nodemo,
+  .rail-phone .theme-switch .theme-label,
+  .rail-phone .theme-switch [data-slot="toggle-group-item"] { font-size: 12px; }
 }
