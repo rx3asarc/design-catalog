@@ -77,11 +77,6 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           {item.withheld ? "source withheld" : "source included"}
         </Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
-        {item.verdict && (
-          <Badge data-catalog-item="shadcn/badge" variant="outline" className={`badge ${item.verdict.verdict === "rejected" ? "bad" : ""}`}>
-            {item.verdict.verdict}
-          </Badge>
-        )}
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
         {item.variants.length > 0 && (
           <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
@@ -90,10 +85,11 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
         )}
       </div>
 
-      {item.verdict?.reason && (
-        <p className="verdict"><b>{item.verdict.verdict}.</b> {item.verdict.reason}
-          {item.verdict.ours_path ? <> — ours: <code>{item.verdict.ours_path}</code></> : null}</p>
-      )}
+      {/*
+       * No verdict badge and no reason paragraph. `port_note` may carry a verdict in the data; this shell does not
+       * read it and a visitor never sees it — the page states what the item is, what it looks like, what it costs
+       * in files, and where it came from. Anything that read like a grade is gone from this file on purpose.
+       */}
 
       {item.withheld ? (
         <div className="withheld">
