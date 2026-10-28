@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { Skeleton } from "@/registry/new-york-v4/ui/skeleton";
 import { label as displayLabel, items, type Item, isMotionItem } from "./lib";
 import { DemoFrame } from "./demo";
 import { buildTree, gridHref, needleHit, type GalleryQuery, type TreeSection } from "./route";
@@ -451,7 +450,7 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
               />
             </div>
           ) : (
-            <Placeholder />
+            <Poster item={item} />
           )}
         </div>
         <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
@@ -463,22 +462,50 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
   );
 }
 
+/* ── the poster: what a parked tile says, before its frame exists ─────────────────────────────────────── */
+
+const POSTER_MONO: React.CSSProperties = {
+  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase",
+  color: "var(--muted-foreground)", whiteSpace: "nowrap",
+};
+
 /**
- * Not mounted is not broken: the tile says a demo exists here, in the box the demo will occupy.
+ * Not mounted is not broken: a parked tile **names the item it will become**, in the exact box the demo will
+ * occupy — title, `source · kind`, and the same facets the card prints below it.
  *
- * The skeleton is deliberately **not** `animate-pulse`. Measured on the 486-tile grid: 954 pulsing skeletons
- * cost the main thread more than the nine live demo frames do — p95 rAF 66.8 ms animated vs **16.7 ms** with the
- * same 954 skeletons in the DOM and the animation off. A parked tile is a still picture of a tile.
+ * Why text and not a picture of the demo: the mount budget is one frame per animation frame and there are 486
+ * tiles, so the tail of this grid is 5–10 seconds of tiles that have not been mounted yet. A skeleton and the
+ * word "demo" say "wait"; the name says *which* item the wait is for, so a visitor can read the grid as a grid
+ * before a single frame exists. Still, deliberately: 954 `animate-pulse` skeletons measured p95 66.8 ms against
+ * **16.7 ms** for the very same DOM with the animation off (the gallery's own measurement, §5.4), so nothing
+ * here pulses, spins or fades. Same reason there is no screenshot still — a still per tile is a payload, a name
+ * is a string that is already in the manifest.
+ *
+ * The label keeps the same slot and casing as `RefCard`'s "no demo", so the two kinds of card stay one family
+ * seen from two sides: this box is a demo that has not been mounted yet, that one is an item with no demo at all.
  */
-function Placeholder() {
+function Poster({ item }: { item: Item }) {
   return (
-    <div style={{ position: "absolute", inset: 0, padding: 12, display: "grid", alignContent: "space-between" }}>
-      <Skeleton data-catalog-item="shadcn/skeleton" className="animate-none" style={{ width: "62%", height: 12 }} />
-      <Skeleton data-catalog-item="shadcn/skeleton" className="animate-none" style={{ width: "86%", height: 42 }} />
-      <span style={{
-        fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-        color: "var(--muted-foreground)",
-      }}>demo</span>
+    <div
+      data-poster={item.id}
+      style={{
+        position: "absolute", inset: 0, padding: "11px 12px 13px", display: "grid",
+        alignContent: "space-between", gap: 10, minWidth: 0,
+      }}
+    >
+      <span style={POSTER_MONO}>demo</span>
+      <span style={{ display: "grid", gap: 3, minWidth: 0 }}>
+        <span style={{
+          fontSize: 15, lineHeight: 1.3, fontWeight: 500, overflowWrap: "anywhere",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>{title(item)}</span>
+        <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis" }}>
+          {item.source} · {item.kind}
+        </span>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, lineHeight: 1.45, color: "var(--muted-foreground)" }}>
+          <Facets item={item} />
+        </span>
+      </span>
     </div>
   );
 }
