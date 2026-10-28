@@ -42,12 +42,18 @@ function words(state: CopyState, label: string) {
  * component caused: one item page carried sixteen of them, copying four different kinds of thing, with nothing
  * on screen to tell them apart.
  *
+ * `detail` names the one specific thing, when the label cannot: the file in the pane, the demo variant. It is
+ * appended to the accessible name ("Copy file: lib/utils.ts") and never shown — the path bar above the button,
+ * or the demo card's own header beside it, already names it visibly, and the button has to stay small. The
+ * accessible name is therefore *the visible text, then a colon, then the exact payload*: it can be longer than
+ * the button, it can never contradict it.
+ *
  * The runtime fallback to "Copy" exists for exactly one reason: the call sites in `ItemPage.tsx` and `Home.tsx`
  * are another unit's files and have not been wired yet. `label` is required in the type, so those three are
  * type errors today and cannot be written afresh — but a page that is already built still shows a word instead
  * of an empty button until the lead wires them (see the r3-copy report for the labels to use).
  */
-export function Copy({ text, label }: { text: string; label: string }) {
+export function Copy({ text, label, detail }: { text: string; label: string; detail?: string }) {
   const [state, setState] = useState<CopyState>("idle");
   const hold = useRef<number | null>(null);
   useEffect(() => () => { if (hold.current) window.clearTimeout(hold.current); }, []);
@@ -59,6 +65,8 @@ export function Copy({ text, label }: { text: string; label: string }) {
   };
 
   const shown = words(state, label || "Copy");
+  // idle: the label, plus the one thing it copies. Copied/failed: exactly the words on the button.
+  const name = state === "idle" && detail ? `${label}: ${detail}` : shown;
 
   return (
     <>
@@ -70,8 +78,8 @@ export function Copy({ text, label }: { text: string; label: string }) {
         variant="outline"
         size="sm"
         className="h-8"
-        aria-label={shown}
-        title={shown}
+        aria-label={name}
+        title={name}
         onClick={async () => {
           const clip = typeof navigator === "undefined" ? undefined : navigator.clipboard;
           // no Clipboard API at all (an insecure origin, an old browser) is a failure, not a silent success
@@ -123,7 +131,7 @@ export function Files({ files, main }: { files: string[]; main?: string }) {
       )}
       <div className="cmd" style={{ borderRadius: "0 8px 0 0" }}>
         <span className="path">{sel}</span>
-        {code && <Copy text={code} label="Copy file" />}
+        {code && <Copy text={code} label="Copy file" detail={sel ?? undefined} />}
       </div>
       <div className="demo" style={{ borderRadius: "0 0 8px 8px", borderTop: 0 }}>
         <div className="demo-code" style={{ borderTop: 0 }}>

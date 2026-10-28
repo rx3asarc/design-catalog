@@ -227,7 +227,8 @@ export const FRAME_SURFACE = {
 /** The demo card: header with the code toggle, the frame on its stage surface, and the code pane when opened. */
 const SCALE_TEXT: React.CSSProperties = {
   fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)",
-  fontSize: 11,
+  // 11 px was the last sub-12 px text this unit owns; the readout is a number a visitor has to read
+  fontSize: 12,
   letterSpacing: "0.02em",
   color: "var(--muted-foreground)",
   whiteSpace: "nowrap",
@@ -306,9 +307,11 @@ export function Demo({ id, index, variant, isBlock, stage }: {
         <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
         {open ? "Hide code" : "View code"}
       </Button>
-        {/* the demo module's own text — an import of a preview and three lines of wiring, not an install command;
-            the label says exactly that, because on an item page this is the first Copy a visitor meets */}
-        {code && <Copy text={code} label="Copy demo source" />}
+        {/* the demo module's own text — an import of a preview and three lines of wiring, not an install command.
+            It is the first Copy on an item page, so it has to say what it is: "Copy demo source", and the
+            variant plus the module file in its accessible name, because fourteen demos share this page and one
+            "Copy demo source" would be fourteen indistinguishable buttons copying fourteen different files. */}
+        {code && <Copy text={code} label="Copy demo source" detail={`${variant.label} · ${variant.module.split("/").pop()}`} />}
       </header>
       <div className="demo-body">
         {/* the site's own phone gutter (`styles.css`: `.demo-body > div { padding: 0 14px }`) lands on this div;
