@@ -1,25 +1,95 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { ScrollArea } from "@/registry/new-york-v4/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger } from "@/registry/new-york-v4/ui/tabs";
 import { useCode } from "./lib";
 
-/** Copy a string to the clipboard, and say so for a moment. Used by every command block and code pane. */
-export function Copy({ text, label = "Copy" }: { text: string; label?: string }) {
-  const [done, setDone] = useState(false);
+/**
+ * The three things a Copy button can be saying, and the only three.
+ *
+ * `copied` is set **after** `navigator.clipboard.writeText` resolves, never before: the old component said
+ * "Copied" whether the write worked or not, so a visitor whose browser refused the clipboard was told a lie and
+ * carried on trusting a clipboard that was empty. `failed` is what a rejection, or a missing Clipboard API at
+ * all, now says — and it is announced, not only recoloured.
+ */
+type CopyState = "idle" | "copied" | "failed";
+
+/** How long a state shows before the button returns to its label. A refusal is worth reading twice as long. */
+const HOLD = { copied: 1600, failed: 3200 } as const;
+
+/** The announcement, kept out of the layout: it is for screen readers, and the button already shows the word. */
+const LIVE: React.CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  margin: -1,
+  padding: 0,
+  border: 0,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  whiteSpace: "nowrap",
+};
+
+/** What a button says, in one place, so the words on screen and the words announced can never disagree. */
+function words(state: CopyState, label: string) {
+  return state === "copied" ? "Copied" : state === "failed" ? "Copy failed" : label;
+}
+
+/**
+ * Copy a string to the clipboard, and say honestly what happened. Used by every command block and code pane.
+ *
+ * `label` is **required** and names what lands on the clipboard. A button called "Copy" is the bug this
+ * component caused: one item page carried sixteen of them, copying four different kinds of thing, with nothing
+ * on screen to tell them apart.
+ *
+ * The runtime fallback to "Copy" exists for exactly one reason: the call sites in `ItemPage.tsx` and `Home.tsx`
+ * are another unit's files and have not been wired yet. `label` is required in the type, so those three are
+ * type errors today and cannot be written afresh — but a page that is already built still shows a word instead
+ * of an empty button until the lead wires them (see the r3-copy report for the labels to use).
+ */
+export function Copy({ text, label }: { text: string; label: string }) {
+  const [state, setState] = useState<CopyState>("idle");
+  const hold = useRef<number | null>(null);
+  useEffect(() => () => { if (hold.current) window.clearTimeout(hold.current); }, []);
+
+  const flash = (s: CopyState) => {
+    setState(s);
+    if (hold.current) window.clearTimeout(hold.current);
+    hold.current = window.setTimeout(() => setState("idle"), HOLD[s]);
+  };
+
+  const shown = words(state, label || "Copy");
+
   return (
-    <Button
-      data-catalog-item="shadcn/button"
-      variant="outline"
-      size="sm"
-      className="h-8"
-      onClick={async () => {
-        try { await navigator.clipboard.writeText(text); } catch { /* clipboard denied */ }
-        setDone(true); setTimeout(() => setDone(false), 1600);
-      }}
-    >
-      {done ? "Copied" : label}
-    </Button>
+    <>
+      <Button
+        data-catalog-item="shadcn/button"
+        // what a test can find this by, without matching on the word "Copy"
+        data-copy
+        data-copy-state={state}
+        variant="outline"
+        size="sm"
+        className="h-8"
+        aria-label={shown}
+        title={shown}
+        onClick={async () => {
+          const clip = typeof navigator === "undefined" ? undefined : navigator.clipboard;
+          // no Clipboard API at all (an insecure origin, an old browser) is a failure, not a silent success
+          if (!clip || typeof clip.writeText !== "function") { flash("failed"); return; }
+          try {
+            await clip.writeText(text);
+            flash("copied");
+          } catch {
+            flash("failed");
+          }
+        }}
+      >
+        {shown}
+      </Button>
+      <span role="status" aria-live="polite" style={LIVE}>
+        {state === "failed" ? "Copy failed — the clipboard refused" : state === "copied" ? "Copied" : ""}
+      </span>
+    </>
   );
 }
 
