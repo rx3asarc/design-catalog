@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
-import { VERSION } from "../version";
 import { Copy } from "./Code";
 import { counts } from "./counts";
+import { items, type Item } from "./lib";
 
 /**
  * The front page: what this is, the two ways in, then the counts.
  *
- * The agent interface is part of the hero rather than a footnote — the terminal card is a real run of the
- * published CLI, pasted, not a mock-up, and the setup line is behind a disclosure underneath it. Every number
- * comes from `./counts`, which reads the manifest.
+ * The agent interface is part of the hero rather than a footnote — the terminal card is the catalogue answering a
+ * real query, generated from the manifest on every render, and the setup line is behind a disclosure underneath
+ * it. Every number comes from `./counts` or straight out of the manifest.
  */
 
 const TARBALL = "https://rx3asarc.github.io/design-catalog/data/design-catalog-latest.tgz";
@@ -31,49 +31,42 @@ const MCP_CONFIG = `{
  */
 const GALLERY_LIVE = true;
 
-const SEARCH_CMD = `design-catalog search "sidebar"`;
+const SEARCH_QUERY = "sidebar";
+const SEARCH_CMD = `design-catalog search "${SEARCH_QUERY}"`;
 
-/** How many of the CLI's rows the card shows before the marker. The marker states the real total. */
+/** How many of the index's rows the card shows before the marker. The marker states the real total. */
 const SEARCH_SHOWN = 8;
 
 /**
- * Verbatim: `npx -y ./design-catalog-1.0.1.tgz search "sidebar"`, first 8 of 20 results, against
- * design-catalog 1.0.1. Trailing whitespace trimmed; nothing else changed.
+ * The card's rows, read out of the manifest at render time — never a pasted transcript.
+ *
+ * The transcript this card used to be had gone stale twice over: it named design-catalog 1.0.1 and it still
+ * carried a verdict on six of its eight rows. A query matches an item's name or slug, a name match outranks a
+ * slug match, ties go by name — the order `bin/cli.mjs`'s `score()` puts them in — and the marker's total is
+ * the number of rows that matched here, counted, not typed.
  */
-const SEARCH_OUTPUT = `AI Sidebar  [beui/component]  rejected
-  A collapsible AI workspace sidebar for folders, projects, files, and bookmarks with keyboard navigation, optimistic moves, inline rename, and overflow-aware labels.
-  install: npx shadcn@latest add https://beui.dev/r/ai-sidebar
+const SEARCH_PATTERN = new RegExp(SEARCH_QUERY.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+const rank = (name: string, slug: string) => (SEARCH_PATTERN.test(name) ? 3 : SEARCH_PATTERN.test(slug) ? 2 : 0);
+const SEARCH_ROWS = items
+  .filter((i) => SEARCH_PATTERN.test(`${i.name} ${i.slug}`))
+  .sort((a, b) => rank(b.name, b.slug) - rank(a.name, a.slug) || a.name.localeCompare(b.name));
+const SEARCH_TOTAL = SEARCH_ROWS.length;
 
-Animated Sidebar  [beui/component]  rejected
-  A composable application sidebar with morphing nested navigation that folds into an animated icon rail on desktop and becomes a focus-managed sheet on mobile.
-  install: npx shadcn@latest add https://beui.dev/r/animated-sidebar
-
-Bounce Sidebar  [beui/component]  rejected
-  A vertical sidebar whose active dot jumps between destinations on a curved, spring-loaded path.
-  install: npx shadcn@latest add https://beui.dev/r/bounce-sidebar
-
-Bounce Sidebar  [rareui/component]  rejected  source withheld
-  A vertical navigation list with a bouncy, spring-animated active indicator.
-  install: npx shadcn@latest add https://www.rareui.com/r/bounce-sidebar.json
-
-Hook Sidebar  [rareui/component]  rejected  source withheld
-  A vertical navigation list with a dashed rail that marks the active item.
-  install: npx shadcn@latest add https://www.rareui.com/r/hook-sidebar.json
-
-Proximity Sidebar  [rareui/component]  rejected  source withheld
-  A dash-style scroll sidebar whose items expand as the pointer approaches.
-  install: npx shadcn@latest add https://www.rareui.com/r/proximity-sidebar.json
-
-sidebar  [shadcn/component]
-
-  install: npx shadcn@latest add sidebar
-
-Sidebar  [shadcn/text]
-  A composable, themeable and customizable sidebar component.
-  install: npx shadcn@latest add docs-components-sidebar`;
-
-/** The total the marker names — one `search "sidebar"` run, counted, not guessed. */
-const SEARCH_TOTAL = 20;
+/**
+ * One row as the CLI prints it: `name  [source/kind]`, then the description the library publishes, then its
+ * install command. A field the manifest does not have is a line the row does not print. There is no verdict
+ * column, here or anywhere a visitor can reach: what this catalogue decided about an item is not shown on the
+ * site (`port_note` keeps it; the shell does not read it).
+ */
+function row(i: Item) {
+  const lines = [`${i.name}  [${i.source}/${i.kind}]${i.withheld ? "  source withheld" : ""}`];
+  if (i.one_line) lines.push(`  ${i.one_line}`);
+  if (i.install) lines.push(`  install: ${i.install}`);
+  return lines.join("\n");
+}
+const SEARCH_TEXT = SEARCH_ROWS.slice(0, SEARCH_SHOWN).map(row).join("\n\n");
+/** The rows the card could not fit. Read off the same list, so the marker cannot drift from the query. */
+const SEARCH_MORE = Math.max(0, SEARCH_TOTAL - Math.min(SEARCH_SHOWN, SEARCH_TOTAL));
 
 export function Cmd({ text, label }: { text: string; label?: string }) {
   return (
@@ -98,13 +91,20 @@ function Terminal() {
           <Copy text={`npx -y ${TARBALL} search "sidebar"`} />
         </div>
         <div className="demo-code">
-          <pre>{`${SEARCH_OUTPUT}\n\n… ${SEARCH_TOTAL - SEARCH_SHOWN} more of ${SEARCH_TOTAL} — ${SEARCH_CMD} --json lists them all`}</pre>
+          <pre>
+            {SEARCH_TEXT}
+            {SEARCH_MORE > 0
+              ? `\n\n… ${SEARCH_MORE} more of ${SEARCH_TOTAL} matched`
+              : `\n\n${SEARCH_TOTAL} of ${SEARCH_TOTAL}, the whole answer`}
+          </pre>
         </div>
       </div>
       <p className="hint">
-        Real output of <code>search &quot;sidebar&quot;</code> on design-catalog {VERSION}: the first {SEARCH_SHOWN} of{" "}
-        {SEARCH_TOTAL} results. The rows read <code>name [source/kind]</code>, then the item&apos;s own
-        one-line description, then the command its library publishes for it.
+        Read out of the catalogue when this page renders, not pasted: the first{" "}
+        {Math.min(SEARCH_SHOWN, SEARCH_TOTAL)} of {SEARCH_TOTAL} items whose name or slug says{" "}
+        <code>{SEARCH_QUERY}</code>, name matches first. A row reads <code>name [source/kind]</code>, then the
+        item&apos;s own one-line description, then the command its library publishes for it. <code>{SEARCH_CMD}</code>{" "}
+        returns the same rows with their fields.
       </p>
     </>
   );
