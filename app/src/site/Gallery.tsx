@@ -419,6 +419,12 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
     setNatural(w);
   }, []);
   const zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, colW > 0 ? colW / (natural || REF_WIDTH) : ZOOM_MIN + 0.15));
+  // The tile is a window of a fixed height, so the frame it looks through must be at least that tall **in the
+  // child's own px** (`bodyH / zoom`, rounded up so the product can never land 0.3 px short). `floor` alone
+  // could not do this: it is only what a demo gets *before* it reports, and a demo that honestly reports 60 px
+  // then got 60 px inside a 210 px tile — measured, `beui/marquee` filled 30.4 px of 210 at 1440. `stretch` is
+  // the prop that says "a tile is not a stage": it is absent everywhere else in the catalogue.
+  const stretch = zoom > 0 ? Math.ceil(bodyH / zoom) : 0;
   return (
     <li ref={host} data-tile={key} data-mode={live ? "live" : "parked"} style={{ listStyle: "none", minWidth: 0 }}>
       <a
@@ -438,6 +444,7 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
                 index={0}
                 zoom={zoom}
                 floor={Math.ceil(bodyH / zoom) + 8}
+                stretch={stretch || undefined}
                 addr={{ static: isMotionItem(item), theme }}
                 play={isMotionItem(item) ? play : undefined}
                 onSize={onSize}

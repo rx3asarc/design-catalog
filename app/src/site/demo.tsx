@@ -100,10 +100,18 @@ export function frameSrc(id: string, index: number, addr?: FrameAddr): string {
  * `addr` is the gallery's half of §D-C and `onSize` reports what the child measured (height always, width when
  * the child sends it). Neither changes what an item page renders today.
  */
-export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWidth, selfFloor }: {
+export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWidth, selfFloor, stretch }: {
   id: string; index: number; zoom: number; floor: number;
   /** the height a demo gets when it reports 0, i.e. when it sizes itself to the frame */
   selfFloor?: number;
+  /**
+   * The height, **in the child's own CSS px**, that the frame must fill even when the demo is shorter: a tile
+   * is a window of a fixed height, so a demo that honestly reports 60 px must still paint the 210 px it was
+   * given, not a strip with 150 px of dead canvas under it. A stage is not a poster and never passes this, so
+   * an absent `stretch` is exactly today's behaviour (`shown = reported | selfFloor | floor`). Additive: the
+   * item page and every address written before this prop existed are untouched.
+   */
+  stretch?: number;
   addr?: FrameAddr; play?: boolean; onSize?: (m: { height: number; width: number }) => void;
   /**
    * The child's viewport in CSS px, when a stage has narrowed it. Absent = the frame fills its box, which is
@@ -158,7 +166,10 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWid
   }, [frameWidth, addr?.theme, addr?.motion, addr?.replay]);
   // a measurement wins over the fallback: the fallback is only for demos that cannot report, or that fill
   // whatever frame they are given. `self` is the child saying the second thing out loud.
-  const shown = h > 0 ? h : self ? selfFloor : floor;
+  const said = h > 0 ? h : self ? selfFloor ?? floor : floor;
+  // …and a tile is a window of a fixed height, so whatever the demo reported, the frame it paints on is at
+  // least as tall as the window. `stretch` is absent everywhere but the gallery, where it is `bodyH / zoom`.
+  const shown = stretch ? Math.max(said, stretch) : said;
   // no inner scroller: the frame is exactly as tall as the demo, and the page does the scrolling
   const cap = shown * zoom;
   React.useEffect(() => {
