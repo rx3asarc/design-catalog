@@ -313,8 +313,15 @@ export const cardStyle: React.CSSProperties = {
  * (a demo is not an app here; the item page is where it is interactive) and the whole tile is one tab stop that
  * opens on Enter. Hover and focus both start a motion demo, so the affordance is not hover-only.
  */
-export function DemoTile({ item, pool, colW, bodyH, theme }: {
+export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
   item: Item; pool: Pool; colW: number; bodyH: number; theme: "light" | "dark";
+  /**
+   * Load the frame as a **frozen first frame** and let only the hovered/focused tile play. Absent is the grid's
+   * own rule: a motion item (`isMotionItem`) loads frozen, everything else loads as it is. A surface whose frames
+   * are on the critical path — the front page's row — passes this for every tile, because there the row is above
+   * the fold and a running demo there is between the visitor and the page. One prop, no second tile.
+   */
+  frozen?: boolean;
 }) {
   const key = item.id;
   const host = useRef<HTMLLIElement>(null);
@@ -351,6 +358,9 @@ export function DemoTile({ item, pool, colW, bodyH, theme }: {
   // then got 60 px inside a 210 px tile — measured, `beui/marquee` filled 30.4 px of 210 at 1440. `stretch` is
   // the prop that says "a tile is not a stage": it is absent everywhere else in the catalogue.
   const stretch = zoom > 0 ? Math.ceil(bodyH / zoom) : 0;
+  // static=1 (a frozen first frame) and a play message are two halves of one rule: a frozen frame plays when, and
+  // only when, this tile is hot. `frozen` widens it from motion items to every tile in the row.
+  const still = frozen ?? isMotionItem(item);
   return (
     <li ref={host} data-tile={key} data-mode={live ? "live" : "parked"} style={{ listStyle: "none", minWidth: 0 }}>
       <a
@@ -371,8 +381,8 @@ export function DemoTile({ item, pool, colW, bodyH, theme }: {
                 zoom={zoom}
                 floor={Math.ceil(bodyH / zoom) + 8}
                 stretch={stretch || undefined}
-                addr={{ static: isMotionItem(item), theme }}
-                play={isMotionItem(item) ? play : undefined}
+                addr={{ static: still, theme }}
+                play={still ? play : undefined}
                 onSize={onSize}
               />
             </div>
@@ -479,7 +489,7 @@ export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
 
 /* ── the grid, and the observers that decide what is mounted ────────────────────────────────────────────── */
 
-export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns }: {
+export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, defer }: {
   rows: Item[]; colW: number; bodyH: number; narrow: boolean; theme: "light" | "dark";
   /**
    * How many frames may run at once. Absent is the grid's own budget — 9 wide, 2 on a phone, both measured — and
@@ -489,20 +499,43 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns }: {
   cap?: number;
   /**
    * The grid's own column template when absent: `minmax(300px, 1fr)`, one column on a phone. A row on a page
-   * that is narrower than a grid (the front page's column) asks for its own, because 300 px minimums would
-   * stack six tiles into six rows and put four of them below the fold.
+   * that is narrower than a grid (the front page's 860 px column) asks for its own, because 300 px minimums
+   * would stack six tiles into six rows and put four of them below the fold.
    */
   columns?: string;
+  /** Load every tile frozen and let the hovered/focused one play — see `DemoTile`'s `frozen`. */
+  frozen?: boolean;
+  /**
+   * Mount after the first paint instead of at it: the frames are the page's heaviest work, so a surface that is
+   * on the critical path starts its pool once the browser is idle (rAF-idle, with a timeout so it cannot be
+   * starved) rather than competing with the first paint. The posters are already in place, in the exact boxes the
+   * frames will occupy, so this costs the row no layout shift — it only decides when the frames begin.
+   */
+  defer?: boolean;
 }) {
   const host = useRef<HTMLUListElement>(null);
   const limit = cap ?? (narrow ? PHONE_CAP : LIVE_CAP);
   const pool = useMemo(() => new Pool(limit), [limit]);
+  const [armed, setArmed] = useState(!defer);
+
+  // the first paint happens without us; the mount queue starts on the first idle slot after it
+  useEffect(() => {
+    if (armed) return;
+    const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+      .requestIdleCallback;
+    if (ric) {
+      const id = ric(() => setArmed(true), { timeout: 1000 });
+      return () => (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(id);
+    }
+    const id = setTimeout(() => setArmed(true), 250); // Safari, until it ships requestIdleCallback
+    return () => clearTimeout(id);
+  }, [armed]);
 
   // one pair of observers over the tiles: mount inside 300 px, detach beyond 600 px. Two, because a single
   // observer has a single rootMargin and the exit margin is deliberately twice the entrance.
   useLayoutEffect(() => {
     const el = host.current;
-    if (!el) return;
+    if (!el || !armed) return;
     const nodes = [...el.querySelectorAll<HTMLElement>("[data-tile]")].filter((n) => n.dataset.mode !== "reference");
     if (!nodes.length) return;
     const root = scrollerOf(nodes[0]);
@@ -514,7 +547,7 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns }: {
     }, { root, rootMargin: `${EXIT_MARGIN} 0px` });
     nodes.forEach((n) => { enter.observe(n); exit.observe(n); });
     return () => { enter.disconnect(); exit.disconnect(); };
-  }, [pool, rows]);
+  }, [pool, rows, armed]);
 
   return (
     <ul
@@ -528,7 +561,7 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns }: {
     >
       {rows.map((item) =>
         hasDemo(item)
-          ? <DemoTile key={item.id} item={item} pool={pool} colW={colW} bodyH={bodyH} theme={theme} />
+          ? <DemoTile key={item.id} item={item} pool={pool} colW={colW} bodyH={bodyH} theme={theme} frozen={frozen} />
           : <RefCard key={item.id} item={item} bodyH={bodyH} />,
       )}
     </ul>

@@ -242,6 +242,8 @@ function HeroRow() {
         theme={theme}
         cap={HERO_TILES.length}
         columns={narrow ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))"}
+        frozen
+        defer
       />
     </div>
   );
