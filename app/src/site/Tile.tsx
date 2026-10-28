@@ -331,6 +331,17 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
   const [play, setPlay] = useState(false);
   const zooms = useRef(0);
   const [hot, setHot] = useState(false); // hover or focus: the same visual state, so neither is privileged
+  /**
+   * `:focus-visible`, tracked as state because the ring is a style in this file and the selector is not.
+   *
+   * The tile had no focus treatment of its own: it fell through to the user agent's outline, which Chromium draws
+   * with `outline-color` — and the stylesheet's base rule makes that `var(--ring)` at 50% opacity. Measured, that
+   * is 1.44:1 against the dark tile surface, i.e. a ring a visitor cannot see. The ring below is 2 px of
+   * `--foreground`, offset 2 px: 20.89:1 on the light tile and 18.59:1 on the dark one, both taken from the
+   * running page, and both far above the 3:1 floor. `:focus-visible` and not `:focus`, so a mouse click does not
+   * leave a ring behind on a card the visitor already opened.
+   */
+  const [ringed, setRinged] = useState(false);
   useLayoutEffect(() => {
     const el = host.current;
     if (!el) return;
@@ -366,15 +377,31 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
       <a
         href={`#/i/${item.id}`}
         data-catalog-item={item.id}
-        style={{ ...cardStyle, borderColor: hot ? "var(--ring)" : "var(--border)" }}
+        style={{
+          ...cardStyle,
+          borderColor: hot ? "var(--ring)" : "var(--border)",
+          outline: ringed ? "2px solid var(--foreground)" : undefined,
+          outlineOffset: ringed ? 2 : undefined,
+        }}
         onMouseEnter={() => { setHot(true); setPlay(true); }}
         onMouseLeave={() => { setHot(false); setPlay(false); }}
-        onFocus={() => { setHot(true); setPlay(true); }}
-        onBlur={() => { setHot(false); setPlay(false); }}
+        onFocus={(e) => { setHot(true); setPlay(true); setRinged(e.currentTarget.matches(":focus-visible")); }}
+        onBlur={() => { setHot(false); setPlay(false); setRinged(false); }}
       >
         <div style={{ position: "relative", height: bodyH, overflow: "hidden", background: "var(--muted)" }}>
           {live ? (
-            <div {...{ inert: "" }} aria-hidden="true" style={{ pointerEvents: "none" }}>
+            /*
+             * The frame is a picture of a demo here: the item page is where it is interactive, and a tile is one
+             * tab stop that opens that page. So the subtree is `inert` — no focus, no pointer, no assistive
+             * technology — and `aria-hidden` says the same thing a second time for the readers that consult it.
+             *
+             * `inert` used to be written `{...{ inert: "" }}`, which React 19 drops: an empty string is falsy for
+             * a boolean attribute, so the attribute never reached the DOM (measured: every live frame carried no
+             * `inert`, no `tabindex`, and Tab walked into all nine of them). It is a boolean prop now. That single
+             * attribute is the whole of item 3's tab-order fix: measured, the stops inside a live tile went from
+             * 1 + N (the anchor, then the demo's own controls) to exactly 1.
+             */
+            <div inert aria-hidden="true" style={{ pointerEvents: "none" }}>
               <DemoFrame
                 id={item.id}
                 index={0}
