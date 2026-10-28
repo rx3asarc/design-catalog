@@ -7,6 +7,8 @@ import { Demo } from "./demo";
 import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 import { conceptHref } from "./route";
+// the one plain sentence per licence value, defined once in the file that explains licensing
+import { licenceName, licenceSentence } from "./About";
 
 /**
  * One item's page: what it is, whether its source is ours to publish, its demos, how to install it, its files
@@ -91,7 +93,9 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
         <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
           {item.withheld ? "code not shown" : "code shown here"}
         </Badge>
-        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
+        <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge" title={item.licence}>
+          {licenceName(item.licence)}
+        </Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
         {item.variants.length > 0 && (
           <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">
@@ -99,6 +103,17 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           </Badge>
         )}
       </div>
+
+      {/*
+       * The licence in one plain sentence, with the manifest's own string beside it in a code span: the badge
+       * names it, this says what it allows, and the raw value stays on the page so the sentence can be checked
+       * against it. A value with no sentence yet (one this build has not met) prints the raw string alone — a
+       * missing sentence is not a licence to invent one.
+       */}
+      <p className="hint" data-licence="" style={{ margin: "0 0 20px" }}>
+        Licence: <code title={item.licence}>{item.licence}</code>
+        {licenceSentence(item.licence) ? ` — ${licenceSentence(item.licence)}` : null}
+      </p>
 
       {/*
        * The way into a comparison, from the item, where a visitor is already asking "and the others?". One line,
