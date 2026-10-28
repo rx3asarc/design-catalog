@@ -52,6 +52,25 @@ function useStacked() {
   return stacked;
 }
 
+/**
+ * How this set was chosen, said the way a visitor can check it.
+ *
+ * The store's `concept.rule` is the source of truth (`keyword: lower(slug) LIKE '%sidebar%' OR …` for the sets
+ * this page ships), and the build does not publish it yet — `concept.rule` is not in the manifest. A hand-typed
+ * copy of it would be a second copy of the store that silently drifts, so the page does the honest thing
+ * instead: it *checks* the naming rule against the members it was handed. If every member's own name or slug
+ * carries the concept key, the sentence is a fact this page can prove; if one does not, the page will not claim
+ * a rule it cannot see, and says only what it knows (these are the members filed under this key). No internal
+ * build note either way: a visitor is reading this, not a build log.
+ */
+const provenance = (key: string, rows: Item[]) => {
+  const k = key.toLowerCase();
+  const named = rows.filter((r) => r.slug.toLowerCase().includes(k) || (r.name ?? "").toLowerCase().includes(k));
+  if (named.length === rows.length) return `the name is the rule, and every one of them carries “${key}” in its own name or slug`;
+  if (named.length === 0) return `and none of their names contains “${key}”, so they are filed here by something other than a name`;
+  return `and ${named.length} of them carry “${key}” in their name while ${rows.length - named.length} do not, so the name is not what makes this set`;
+};
+
 /** What a dropped column said — the value most of the *measured* rows gave, with the denominator beside it. */
 function saidBy(col: FactCol, rows: Item[]) {
   const answers = rows.filter((r) => col.answered(r)).map((r) => col.text(r));
@@ -145,7 +164,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
 
       {/* One line about the set, in a visitor's terms: which items these are, and why. */}
       <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 6px", color: "var(--muted-foreground)" }}>
-        These are the {rows.length} items this catalogue files under “{conceptKey}”.
+        These are the {rows.length} items this catalogue files under “{conceptKey}” — {provenance(conceptKey, rows)}.
       </p>
       {/* What the columns are, and when they were observed. A fact about a demo is only true of the demo as it
           ran, so the date is the visitor's business: "says it collapses" and "collapsed when we pressed it" are
