@@ -169,7 +169,8 @@ export function ChromePage() {
         two. A row that stays <b>unseen</b> after that is a bug in the tagging, and this page cannot check that
         for you from here: {" "}
         {unseen.length === 0 ? "every row has been seen somewhere this session"
-          : `${unseen.length} row(s) above are still unchecked`}.
+          : `${unseen.length} ${unseen.length === 1 ? "row" : "rows"} above ${
+            unseen.length === 1 ? "is" : "are"} still unchecked`}.
       </p>
 
       <h3 className="section-h">Where the DOM and the manifest disagree</h3>

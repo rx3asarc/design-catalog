@@ -105,7 +105,7 @@ export function About() {
         server.
       </p>
 
-      <div className="section-h">The five sources</div>
+      <div className="section-h">The {c.sources.length} sources</div>
       <ul className="ways">
         {c.sources.map((s) => (
           <li className="way" key={s.name}>
@@ -129,8 +129,8 @@ export function About() {
       </p>
       <div className="verdict">
         <b>Copied here</b> (<code>full</code>) — {c.licenceFull} items. The licence is {FULL_LICENCE}. The source
-        may be copied into your own repository, and the item page shows the file. {c.licenceFullNoFile} of these
-        have no captured file at all, so they are entries as well.
+        may be copied into your own repository, and the item page shows the file when one was captured.{" "}
+        {c.licenceFullNoFile} of these have no captured file at all, so they are entries as well.
       </div>
       <div className="verdict">
         <b>Not copied here</b> (<code>local-only</code>) — {c.withheld} items. The code is not copied here; read
