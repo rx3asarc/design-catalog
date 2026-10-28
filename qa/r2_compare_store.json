@@ -1,0 +1,354 @@
+{
+ "accordion": {
+  "ids": [
+   "shadcn/accordion",
+   "shadcn/accordion-demo",
+   "shadcn/docs-components-accordion",
+   "transitions/accordion"
+  ],
+  "label": "Accordion",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "alert": {
+  "ids": [
+   "beui/alert",
+   "shadcn/alert",
+   "shadcn/alert-demo",
+   "shadcn/docs-components-alert"
+  ],
+  "label": "Alert",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "approval-card": {
+  "ids": [
+   "beautifului/approval-card",
+   "beui/approval-card"
+  ],
+  "label": "Approval card",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "aspect-ratio": {
+  "ids": [
+   "beui/aspect-ratio",
+   "shadcn/aspect-ratio",
+   "shadcn/aspect-ratio-demo",
+   "shadcn/docs-components-aspect-ratio"
+  ],
+  "label": "Aspect ratio",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "bounce-sidebar": {
+  "ids": [
+   "beui/bounce-sidebar",
+   "rareui/bounce-sidebar"
+  ],
+  "label": "Bounce sidebar",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "breadcrumb": {
+  "ids": [
+   "beui/breadcrumb",
+   "shadcn/breadcrumb",
+   "shadcn/breadcrumb-demo",
+   "shadcn/docs-components-breadcrumb"
+  ],
+  "label": "Breadcrumb",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "button": {
+  "ids": [
+   "beui/button",
+   "shadcn/button",
+   "shadcn/button-demo",
+   "shadcn/docs-components-button"
+  ],
+  "label": "Button",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "card": {
+  "ids": [
+   "beui/card",
+   "shadcn/card",
+   "shadcn/card-demo",
+   "shadcn/docs-components-card"
+  ],
+  "label": "Card",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "checkbox": {
+  "ids": [
+   "beui/checkbox",
+   "shadcn/checkbox",
+   "shadcn/checkbox-demo",
+   "shadcn/docs-components-checkbox"
+  ],
+  "label": "Checkbox",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "code-block": {
+  "ids": [
+   "beautifului/code-block",
+   "beui/code-block",
+   "rareui/code-block"
+  ],
+  "label": "Code block",
+  "members": 3,
+  "rule": "slug-normalised",
+  "sources": 3
+ },
+ "collapsible": {
+  "ids": [
+   "beui/collapsible",
+   "shadcn/collapsible",
+   "shadcn/collapsible-demo",
+   "shadcn/docs-components-collapsible"
+  ],
+  "label": "Collapsible",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "combobox": {
+  "ids": [
+   "beui/combobox",
+   "shadcn/combobox",
+   "shadcn/combobox-demo",
+   "shadcn/docs-components-combobox"
+  ],
+  "label": "Combobox",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "context-menu": {
+  "ids": [
+   "beui/context-menu",
+   "shadcn/context-menu",
+   "shadcn/context-menu-demo",
+   "shadcn/docs-components-context-menu"
+  ],
+  "label": "Context menu",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "drawer": {
+  "ids": [
+   "beui/drawer",
+   "shadcn/drawer",
+   "shadcn/drawer-demo",
+   "shadcn/docs-components-drawer"
+  ],
+  "label": "Drawer",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "faq": {
+  "ids": [
+   "rareui/faq",
+   "shadcn/docs-registry-faq"
+  ],
+  "label": "Faq",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "input": {
+  "ids": [
+   "beui/input",
+   "shadcn/input",
+   "shadcn/input-demo",
+   "shadcn/docs-components-input"
+  ],
+  "label": "Input",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "message": {
+  "ids": [
+   "beui/message",
+   "shadcn/message"
+  ],
+  "label": "Message",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "message-scroller": {
+  "ids": [
+   "beui/message-scroller",
+   "shadcn/message-scroller"
+  ],
+  "label": "Message scroller",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "otp-input": {
+  "ids": [
+   "beui/otp-input",
+   "rareui/otp-input"
+  ],
+  "label": "Otp input",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "popover": {
+  "ids": [
+   "beui/popover",
+   "shadcn/popover",
+   "shadcn/popover-demo",
+   "shadcn/docs-components-popover"
+  ],
+  "label": "Popover",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "select": {
+  "ids": [
+   "beui/select",
+   "shadcn/select",
+   "shadcn/select-demo",
+   "shadcn/docs-components-select"
+  ],
+  "label": "Select",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "sidebar": {
+  "ids": [
+   "beautifului/sidebar-nav",
+   "beui/ai-sidebar",
+   "beui/animated-sidebar",
+   "beui/bounce-sidebar",
+   "rareui/bounce-sidebar",
+   "rareui/hook-sidebar",
+   "rareui/proximity-sidebar",
+   "shadcn/sidebar-01",
+   "shadcn/sidebar-02",
+   "shadcn/sidebar-03",
+   "shadcn/sidebar-04",
+   "shadcn/sidebar-05",
+   "shadcn/sidebar-06",
+   "shadcn/sidebar-07",
+   "shadcn/sidebar-08",
+   "shadcn/sidebar-09",
+   "shadcn/sidebar-10",
+   "shadcn/sidebar-11",
+   "shadcn/sidebar-12",
+   "shadcn/sidebar-13",
+   "shadcn/sidebar-14",
+   "shadcn/sidebar-15",
+   "shadcn/sidebar-16",
+   "shadcn/sidebar",
+   "shadcn/docs-components-sidebar"
+  ],
+  "label": "Sidebar",
+  "members": 25,
+  "rule": "keyword: lower(slug) LIKE '%sidebar%' OR lower(name) LIKE '%sidebar%' (any kind)",
+  "sources": 4
+ },
+ "streaming-text": {
+  "ids": [
+   "beautifului/streaming-text",
+   "transitions/streaming-text"
+  ],
+  "label": "Streaming text",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "switch": {
+  "ids": [
+   "beui/switch",
+   "shadcn/switch",
+   "shadcn/switch-demo",
+   "shadcn/docs-components-switch"
+  ],
+  "label": "Switch",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "table": {
+  "ids": [
+   "beui/table",
+   "shadcn/table",
+   "shadcn/table-demo",
+   "shadcn/docs-components-table"
+  ],
+  "label": "Table",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "tabs": {
+  "ids": [
+   "beui/tabs",
+   "shadcn/tabs",
+   "shadcn/tabs-demo",
+   "shadcn/docs-components-tabs"
+  ],
+  "label": "Tabs",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "toggle": {
+  "ids": [
+   "shadcn/toggle",
+   "shadcn/toggle-demo",
+   "shadcn/docs-components-toggle",
+   "transitions/toggle"
+  ],
+  "label": "Toggle",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "tooltip": {
+  "ids": [
+   "beui/tooltip",
+   "shadcn/tooltip",
+   "shadcn/tooltip-demo",
+   "shadcn/docs-components-tooltip"
+  ],
+  "label": "Tooltip",
+  "members": 4,
+  "rule": "slug-normalised",
+  "sources": 2
+ },
+ "utils": {
+  "ids": [
+   "rareui/utils",
+   "shadcn/utils"
+  ],
+  "label": "Utils",
+  "members": 2,
+  "rule": "slug-normalised",
+  "sources": 2
+ }
+}
