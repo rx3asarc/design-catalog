@@ -6,6 +6,7 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
   SidebarMenuSubItem, SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
+import { ThemeSwitch } from "./ThemeSwitch";
 import { label as displayLabel, type Item, type TreeCat, type TreeFamily } from "./lib";
 import { gridHref, type RailSection } from "./route";
 
@@ -288,6 +289,13 @@ export function PhoneRail({ open, onClose, head, rail }: {
           className="menu-veil" onClick={onClose} />
       )}
       <div className={`rail rail-phone${open ? " is-open" : ""}`} id="rail" aria-label="Browse the catalogue">
+        {/* The phone has one surface that is ever above the page, and the theme control belongs on it: the
+            switch used to be a fixed pill in the page's corner, then a reserved lane at the foot of the column,
+            and both were furniture over the catalogue. First row, sticky, so it is under the thumb for as long
+            as the menu is open — and nowhere else, because nowhere else on a phone is above the content. */}
+        <div className="rail-theme rail-theme-phone">
+          <ThemeSwitch />
+        </div>
         {head}
         <div className="rail-list">{rail}</div>
       </div>

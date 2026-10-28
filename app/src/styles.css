@@ -668,8 +668,9 @@ pre { font-family: var(--font-mono); }
    not mine to spend either, so the switch is the rail scroll area's first row: above the 769-row tree and in
    the DOM before it, so Tab reaches it in twelve presses instead of a hundred and twenty-nine, and the head
    stays 230.4px with the list's viewport at 670px (measured, before and after).
-   On a phone the rail is a disclosure (`display: none` until Browse opens), so its first row is not a way in
-   and the switch takes the page's own corner instead — exactly one instance at every width, never two. */
+   On a phone there is one instance too, and it is the first row of the Browse menu itself (`.rail-theme-phone`):
+   the menu is the only surface on a phone that is ever above the page, so the switch lives there instead of in
+   a strip of its own. Exactly one instance at every width, never two — and nothing fixed over the content. */
 .theme-switch {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 4px 4px 4px 10px; border-radius: 999px;
@@ -689,12 +690,9 @@ pre { font-family: var(--font-mono); }
   padding: 8px 12px 8px;
   background: var(--sidebar); border-bottom: 1px solid var(--border);
 }
-/* the float rule. On a phone it is not used — see "the theme switch's phone lane" at the end of this file,
-   which docks the switch in a lane that cannot cover a card. */
-.theme-switch-float {
-  position: fixed; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 30;
-}
-.theme-switch-float .theme-switch { box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
+/* on the phone the switch is the menu's first row, over the tree: it keeps the hairline the float used to have.
+   The desktop rail row is unchanged. */
+.rail-phone .rail-theme .theme-switch { box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
 
 /* QA I: the stage console's three Motion/Width controls were 41-43 px wide — 44 tall was asserted, 44 wide was
    not. A control is only a target if you can hit it in both directions. */
@@ -708,22 +706,19 @@ pre { font-family: var(--font-mono); }
 [data-sidebar="menu-action"] { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
 
 
-/* ═══ the theme switch's phone lane ══════════════════════════════════════════════════════════════
-   It was `position: fixed` in the phone's corner, over the content, with nothing reserved under it, so at
-   390 px the bottom-left of every screenful was a card — measured, at the top, the middle and the end of the
-   gallery: exactly one tile under the pill in each. Every one of those was a tap target it ate, and a fixed
-   control over a full-width scrolling column cannot be fixed with padding: cards keep scrolling under it.
+/* ═══ the phone column: bounded viewport, and the page is the scroller ═══════════════════════════
+   The theme switch used to be docked in a lane at the foot of this column (a 67 px strip reserved outside the
+   scroll area, which is why `.page` — not the window — became the phone's scroller). The lane is gone: the
+   switch is the Browse menu's first row now, and with it went the only reason a strip had to exist at all.
 
-   So the pill is docked in a lane instead. On a phone `.cat` is the viewport and nothing longer than it,
-   `.page` is the scroller *inside* it, and the switch is the last row of that column — outside the scroll
-   area, so no card can ever be under it at any scroll offset. Lane, not overlay: it reserves its own height
-   (54 px pill + 6 px padding, plus the safe area), keeps every control at 44x44, and covers nothing.
-
-   This is why `.page` scrolls on a phone: the window is no longer the scroller, `.page` is (the desktop
-   arrangement, extended below 861). `site/Gallery.tsx` resolves its scroller by walking up for an
-   overflow-y element with scrollHeight > clientHeight, so the mount pool follows the change by itself;
-   `useScrollReset` in site/route.ts scrolls `.page`, which until now was a no-op on a phone — it now resets
-   the page the visitor actually scrolls. */
+   What stays is the shape, because two things depend on it. 1) The menu overlay is anchored to a bounded
+   viewport: `.cat` is exactly 100dvh with `overflow: hidden`, so `calc(100dvh - var(--phone-header))` is the
+   menu's real ceiling and the page cannot scroll the document out from under it. 2) `.page` is the scroller on
+   a phone: `site/Gallery.tsx` resolves its scroller by walking up for an overflow-y element with
+   scrollHeight > clientHeight, so the mount pool follows it, and `useScrollReset` in site/route.ts scrolls it
+   on every route change. Measured before and after removing the lane: `.page` scrolls on a phone (0 tiles,
+   0 demo fields under any fixed box at 375/600/768), the document does not (`scrollHeight == innerHeight`),
+   and the gallery still mounts 2 live frames at 390. */
 @media (max-width: 860px) {
   .cat {
     display: flex; flex-direction: column;
@@ -734,12 +729,6 @@ pre { font-family: var(--font-mono); }
     flex: 1 1 auto; min-height: 0;
     overflow-y: auto; overflow-x: hidden;
     overscroll-behavior-y: contain; /* the page does not rubber-band the document: there is nothing outside it */
-  }
-  .theme-switch-float {
-    position: static; flex: none;
-    display: flex; align-items: center; justify-content: flex-start;
-    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
-    background: var(--card); border-top: 1px solid var(--border);
   }
 }
 
@@ -806,6 +795,7 @@ pre { font-family: var(--font-mono); }
     cursor: default;
     overscroll-behavior: contain;
   }
-  /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls */
-  .rail-phone .rail-theme { background: var(--card); }
+  /* the theme switch is the surface's first row and stays under the thumb while the tree scrolls: `.rail-theme`
+     is already `position: sticky; top: 0` for the desktop rail, and the panel is the scroll container here */
+  .rail-phone .rail-theme { background: var(--card); padding: 10px 12px; }
 }

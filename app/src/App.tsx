@@ -83,13 +83,6 @@ export default function App() {
           : <Home />}
         </PageTurn>
       </SidebarInset>
-      {/* at <=860 the rail is display:none until Browse opens, so its first row is not a way in: the phone
-          keeps one instance of its own in the page's corner. Exactly one per width, never two. */}
-      {phone ? (
-        <div className="theme-switch-float">
-          <ThemeSwitch />
-        </div>
-      ) : null}
       <PaletteTrigger place="float" />
       <Palette />
       <Provenance />
