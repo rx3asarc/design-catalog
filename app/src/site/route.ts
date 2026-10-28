@@ -5,8 +5,9 @@ import { byId, items, type Item, type TreeSection } from "./lib";
  * Where the visitor is, and what the rail and the pager derive from it.
  *
  * One place decides what a hash means. Every surface reads a `Route`; none of them parses `location.hash`
- * itself. `#/g/…` already parses to `{kind:'gallery'}` even though the app still renders the front page for
- * it — the gallery unit replaces exactly one labelled line in `App.tsx` and inherits the route.
+ * itself. `#/g/…` parses to `{kind:'gallery'}` (the shape this unit inherited, still accepted), and an address
+ * nothing resolves — an unknown item id, a path this build does not have — is `{kind:'notfound'}`, carrying what
+ * was asked for. It used to be the front page with a bad address bar, which is a lie the shell told.
  */
 
 /**
@@ -22,6 +23,37 @@ export type GalleryQuery = {
   ref?: boolean; ignored?: string[];
 };
 
+/**
+ * A real item offered to a visitor whose address missed, and the honest reason it is offered.
+ *
+ * There is no similarity score here on purpose: a near-miss is one of a small number of mechanical facts — the
+ * same slug filed under another source, a slug in the asked-for source that continues the one that was typed, or
+ * "the source exists and these are its items". Anything softer is guessing dressed as search.
+ */
+export type Candidate = { item: Item; why: string };
+
+/**
+ * What a visitor asked for and this build does not have, carried whole so the page can say it plainly.
+ *
+ * `asked` is the address bar's own string: a page that says "that page does not exist" without printing what was
+ * typed is asking the reader to remember it for us.
+ */
+export type Miss = {
+  asked: string;
+  /** `item`: a `source/slug` id this build does not have; `path`: a path it does not know at all */
+  what: "item" | "path";
+  /** an item miss, the id as it was asked (before case folding), and its two halves */
+  id?: string;
+  source?: string;
+  slug?: string;
+  /** whether the source is a real one, and how many items it has — the difference between "wrong slug" and
+   *  "wrong library" is the difference between two useful sentences, so both facts are carried */
+  sourceKnown?: boolean;
+  sourceCount?: number;
+  /** nearest real items, each with its reason; empty when nothing honest can be offered */
+  candidates: Candidate[];
+};
+
 export type Route = {
   kind: "home"
 }
@@ -31,7 +63,10 @@ export type Route = {
   // one concept's members, compared: `#/c/<concept-key>`. An unknown key is a route too — the page names the
   // miss, which is what the gallery does, and a route that silently became the front page could not do that.
   | { kind: "concept"; key: string }
-  | { kind: "item"; id: string; item?: Item };
+  | { kind: "item"; id: string; item?: Item }
+  // an address that resolves to nothing. It is a route, not a fallback: the shell used to render the front page
+  // for it while the address bar kept the wrong URL, so a visitor could neither see the mistake nor fix it.
+  | { kind: "notfound"; miss: Miss };
 
 /** The keys this build understands. Any other key in the hash is reported, never obeyed. */
 export const GALLERY_KEYS = ["src", "sec", "cat", "fam", "sub", "kind", "q", "ref"] as const;
@@ -71,23 +106,156 @@ export function gridHref(q: GalleryQuery): string {
  */
 export const conceptHref = (key: string) => `#/c/${key}`;
 
+/** Ids, folded: a shared link can arrive in caps (`#/i/beui/DYNAMIC-ISLAND`) and the id it means is lower. */
+const byFoldedId = new Map(items.map((i) => [i.id.toLowerCase(), i]));
+
+/** Everything but letters and digits, gone — the shape two spellings of one slug share. */
+const fold = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+/** Every source in the build, once. */
+export const SOURCES = [...new Set(items.map((i) => i.source))].sort();
+
 /**
- * The hash, read once. `#/g[?…]` is the gallery with that filter; `#/g/…` is the same query without the `?`,
- * which is the shape this parser was split off with and stays readable. Anything unknown is the front page.
+ * The nearest real items to an id that missed, each with the reason it is here — or nothing.
+ *
+ * Three mechanical rules, in order, deduplicated and capped:
+ *
+ *  1. **the same slug, from another source** — "you asked for beui's `dynamic-island`; shadcn has one" is a
+ *     fact and the reader can act on it. Only an exact fold of the whole slug counts, so `dynamic` never
+ *     claims to be `dynamic-island` here.
+ *  2. **a longer slug in the source that was asked for** — `dynamic` → `dynamic-island` is a prefix the reader
+ *     was in the middle of typing, not a similarity score.
+ *  3. **the source's own items** — the source exists and the slug does not: rather than pretend to know which
+ *     of its 200 items was meant, the page names a few of them and says so. Sorted by id, so the answer is a
+ *     function of the manifest and never of a shuffle.
+ */
+export function missCandidates(source: string, slug: string): Candidate[] {
+  const want = fold(slug);
+  const src = fold(source);
+  const out: Candidate[] = [];
+  const seen = new Set<string>();
+  const add = (item: Item, why: string) => {
+    if (out.length >= 6 || seen.has(item.id)) return;
+    seen.add(item.id);
+    out.push({ item, why });
+  };
+  if (want) {
+    for (const i of items) if (fold(i.slug) === want && fold(i.source) !== src) add(i, `the same name, filed under ${i.source}`);
+    const same = items.filter((i) => fold(i.source) === src);
+    for (const i of same) {
+      const s = fold(i.slug);
+      if (s.length > want.length && s.startsWith(want)) add(i, `a longer name in ${i.source}`);
+    }
+  }
+  const same = items.filter((i) => fold(i.source) === src).sort((a, b) => a.id.localeCompare(b.id));
+  for (const i of same) add(i, `one of ${i.source}'s ${same.length} items`);
+  return out;
+}
+
+/** A miss at an item address: the id as asked, plus everything the page needs to be useful about it. */
+function missItem(asked: string, source: string, slug: string): Route {
+  const same = items.filter((i) => i.source === source).length;
+  return {
+    kind: "notfound",
+    miss: {
+      asked, what: "item", id: `${source}/${slug}`, source, slug,
+      sourceKnown: SOURCES.includes(source), sourceCount: same,
+      candidates: missCandidates(source, slug),
+    },
+  };
+}
+
+/**
+ * A miss at a path this build does not have. `#/zzz` and `#/i/onlyone` both land here.
+ *
+ * There are no candidates: an address that names no source and no slug has no near-miss to compute, and the page
+ * offers the two ways that always work instead of inventing a third.
+ */
+function missPath(asked: string): Route {
+  return { kind: "notfound", miss: { asked, what: "path", candidates: [] } };
+}
+
+/**
+ * The hash, read once.
+ *
+ * `#/g[?…]` is the gallery with that filter; `#/g/…` is the same query without the `?`, which is the shape this
+ * parser was split off with and stays readable. Everything else is normalised before it is judged, because a
+ * shared link picks up spelling the address bar never showed anyone:
+ *
+ *  - a **trailing slash** is not part of any address this build writes, so it is dropped (`#/i/beui/x/` → the
+ *    item). The bar is then corrected by `canonicalHash`, not by a second route.
+ *  - **case** is folded for an item id: `#/i/beui/DYNAMIC-ISLAND` is the manifest's `beui/dynamic-island`.
+ *  - a **third segment** is dropped: `#/i/beui/dynamic-island/x` is still that item, and `#/about/extra` is the
+ *    about page. A stale link one segment too deep is a link to something real, not a miss.
+ *
+ * What is left over is a miss, and it says so (`kind: "notfound"`) rather than falling through to the front
+ * page: an address that renders the home page while the bar keeps the wrong URL teaches the visitor nothing.
  */
 export function parseRoute(hash: string): Route {
-  if (hash === "#/chrome") return { kind: "chrome" };
-  if (hash === "#/about") return { kind: "about" };
-  if (hash === "#/g" || hash.startsWith("#/g?") || hash.startsWith("#/g/")) {
-    const raw = hash.slice(3).replace(/^[/?]/, "");
+  const bare = hash.startsWith("#") ? hash.slice(1) : hash;
+  // the gallery owns everything after `#/g`, `?` included: its query is its own syntax
+  if (bare === "/g" || bare.startsWith("/g?") || bare.startsWith("/g/")) {
+    const raw = bare.slice(2).replace(/^[/?]/, "");
     return { kind: "gallery", filter: raw, query: parseGalleryQuery(raw) };
   }
-  if (hash.startsWith("#/c/")) return { kind: "concept", key: hash.slice(4) };
-  if (hash.startsWith("#/i/")) {
-    const id = hash.slice(4);
-    return { kind: "item", id, item: byId.get(id) };
+  const seg = bare.replace(/\/+$/, "").split("/").filter((s) => s.length > 0);
+  // `#`, `#/` and the empty hash are the front page
+  if (!seg.length) return { kind: "home" };
+  const [head, ...rest] = seg;
+  const page = head.toLowerCase();
+  // a page this build has, with any extra segment dropped (see above)
+  if (page === "about") return { kind: "about" };
+  if (page === "chrome") return { kind: "chrome" };
+  if (page === "c") return { kind: "concept", key: rest.join("/") };
+  if (page === "i") {
+    if (rest.length < 2) return missPath(hash);            // `#/i/beui`: half an id is not an id
+    const [source, slug] = rest;                            // a third segment is spelling, not identity
+    const item = byId.get(`${source}/${slug}`) ?? byFoldedId.get(`${source}/${slug}`.toLowerCase());
+    // the manifest's own id is the route's id: a case-folded match renders and prints the real spelling
+    return item ? { kind: "item", id: item.id, item } : missItem(hash, source, slug);
   }
-  return { kind: "home" };
+  return missPath(hash);
+}
+
+/**
+ * The one spelling of a route's address, or null where the address a visitor typed is already its own answer.
+ *
+ * This is the redirect half of normalising: `parseRoute` decides what a spelling *means*, and this decides what
+ * the address bar should *say*. Only addresses that have exactly one canonical form appear here — a trailing
+ * slash folded away, an id's case put back the way the manifest publishes it, an extra segment dropped.
+ *
+ * The three nulls are deliberate:
+ *  - **notfound** — a miss is its own address. Rewriting `#/i/beui/does-not-exist` to something canonical would
+ *    hide the thing the page is complaining about.
+ *  - **home, gallery, concept** — `""`, `#` and `#/` are all the front page and none of them is wrong; a
+ *    gallery's query is its spelling (including the keys it reports as ignored); a concept key is the store's
+ *    and is printed verbatim.
+ */
+export function canonicalHash(route: Route): string | null {
+  switch (route.kind) {
+    case "about": return "#/about";
+    case "chrome": return "#/chrome";
+    case "item": return `#/i/${route.item?.id ?? route.id}`;
+    case "notfound": return null;
+    case "home": return null;
+    case "gallery": return null;
+    case "concept": return null;
+  }
+}
+
+/**
+ * Correct the address bar to the route's canonical spelling — a redirect, never a page.
+ *
+ * `replaceState`, so Back does not walk through a spelling the visitor never typed, and so the redirect costs no
+ * history entry and no second render: the page the address now names is the page that is already on screen.
+ * `history.state` is passed through untouched, because `useScrollRestore` keeps its history-entry id there.
+ */
+export function useCanonical(route: Route, hash: string) {
+  useEffect(() => {
+    const want = canonicalHash(route);
+    if (!want || want === hash || want === location.hash) return;
+    history.replaceState(history.state, "", location.pathname + location.search + want);
+  }, [route, hash]);
 }
 
 /**

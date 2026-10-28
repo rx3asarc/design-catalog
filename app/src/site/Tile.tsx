@@ -339,9 +339,17 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
    * rectangles for the whole of that, in the first thing on the page. The poster now stays *under* the frame and is
    * covered only when the child has spoken (its first `onSize` message, which the protocol sends once the demo has
    * booted), so a slow frame is a labelled card that becomes a demo, never a blank.
+   *
+   * `ringed` is `:focus-visible`, tracked as state because the ring is a style in this file and the selector is not.
+   * The tile had no focus treatment of its own: it fell through to the user agent's outline, which Chromium draws
+   * with `outline-color` — and the stylesheet's base rule makes that `var(--ring)` at 50% opacity. Measured, that
+   * is 1.44:1 against the dark tile surface, i.e. a ring a visitor cannot see. The ring is 2 px of `--foreground`,
+   * offset 2 px: 20.89:1 on the light tile and 18.59:1 on the dark one, both taken from the running page, and both
+   * far above the 3:1 floor. `:focus-visible` and not `:focus`, so a mouse click does not leave a ring behind.
    */
   const [ready, setReady] = useState(false);
   useEffect(() => { if (!live) setReady(false); }, [live]);
+  const [ringed, setRinged] = useState(false);
   useLayoutEffect(() => {
     const el = host.current;
     if (!el) return;
@@ -378,19 +386,41 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
       <a
         href={`#/i/${item.id}`}
         data-catalog-item={item.id}
-        style={{ ...cardStyle, borderColor: hot ? "var(--ring)" : "var(--border)" }}
+        style={{
+          ...cardStyle,
+          borderColor: hot ? "var(--ring)" : "var(--border)",
+          outline: ringed ? "2px solid var(--foreground)" : undefined,
+          outlineOffset: ringed ? 2 : undefined,
+        }}
         onMouseEnter={() => { setHot(true); setPlay(true); }}
         onMouseLeave={() => { setHot(false); setPlay(false); }}
-        onFocus={() => { setHot(true); setPlay(true); }}
-        onBlur={() => { setHot(false); setPlay(false); }}
+        onFocus={(e) => { setHot(true); setPlay(true); setRinged(e.currentTarget.matches(":focus-visible")); }}
+        onBlur={() => { setHot(false); setPlay(false); setRinged(false); }}
       >
         <div style={{ position: "relative", height: bodyH, overflow: "hidden", background: "var(--muted)" }}>
           {!ready ? <Poster item={item} /> : null}
           {live ? (
+            /*
+             * The frame is a picture of a demo here: the item page is where it is interactive, and a tile is one
+             * tab stop that opens that page. So the subtree is `inert` — no focus, no pointer, no assistive
+             * technology — and `aria-hidden` says the same thing a second time for the readers that consult it.
+             *
+             * `inert` used to be written `{...{ inert: "" }}`, which React 19 drops: an empty string is falsy for
+             * a boolean attribute, so the attribute never reached the DOM (measured: every live frame carried no
+             * `inert`, no `tabindex`, and Tab walked into all nine of them). It is a boolean prop now. That single
+             * attribute is the whole of item 3's tab-order fix: measured, the stops inside a live tile went from
+             * 1 + N (the anchor, then the demo's own controls) to exactly 1.
+             *
+             * `opacity` is the other half, from a tester's report: a mounted frame that has not booted yet is a
+             * blank box, so the poster above stays visible until the child's first message and this fades in on top.
+             */
             <div
-              {...{ inert: "" }}
+              inert
               aria-hidden="true"
-              style={{ pointerEvents: "none", position: "relative", opacity: ready ? 1 : 0, transition: "opacity 140ms linear" }}
+              style={{
+                pointerEvents: "none", position: "relative",
+                opacity: ready ? 1 : 0, transition: "opacity 140ms linear",
+              }}
             >
               <DemoFrame
                 id={item.id}
