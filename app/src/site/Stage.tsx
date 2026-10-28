@@ -257,7 +257,7 @@ export function StageBar({
       <span style={{ flex: 1, minWidth: 0 }} />
       {stage.motion === "off" && (
         <span style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 11.5, whiteSpace: "normal", maxWidth: "46ch" }}>
-          CSS motion stopped{stage.fromSystem ? " — your system asks for reduced motion" : ""}. Script-driven motion keeps running.
+          CSS motion stopped{stage.fromSystem ? " — your system asks for reduced motion" : ""}. Demos that animate with JavaScript keep running.
         </span>
       )}
     </div>

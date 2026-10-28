@@ -267,6 +267,9 @@ pre { margin: 0; padding: 14px 16px; overflow: auto; max-height: 460px; font-siz
   .demo-head button, .demo-head .copied { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; }
   .demo-head { padding: 6px 10px; }
   .tabs button { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; }
+  /* the demo card's file tabs are the registry's own Tabs triggers: 36 px, and the last sub-44 control on the
+     phone (the shell's own classes did not reach them). Same height on the phone, density unchanged on desktop. */
+  [role="tab"] { min-height: 44px; }
   .cmd button { min-height: 44px; }
   .badge, .cmd-label, .rail-group, .crumb { font-size: 12px; }
   .badge { padding: 4px 9px; }
@@ -674,7 +677,7 @@ pre { font-family: var(--font-mono); }
 }
 /* the three items are one fixed width, so the row cannot change shape when the picked one moves across it —
    a segmented control whose segments resize as you use it is the cheapest way to make a toolbar feel wrong */
-.theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 26px; padding: 0 6px; border-radius: 999px; }
+.theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; min-height: 44px; height: 44px; padding: 0 6px; border-radius: 999px; }
 .theme-switch [data-slot="toggle-group-item"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 /* the rail's last rows must be able to scroll clear of a control that floats over them */
 @media (min-width: 861px) { .rail-list { padding-bottom: 64px; } }
@@ -683,5 +686,16 @@ pre { font-family: var(--font-mono); }
      `.page-in` already ends on an 80px pad, which is what keeps it off the last line of prose */
   .theme-switch { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
   .theme-switch .theme-label { display: none; }
-  .theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; height: 32px; }
+  .theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; min-height: 44px; height: 44px; }
 }
+
+/* QA I: the stage console's three Motion/Width controls were 41-43 px wide — 44 tall was asserted, 44 wide was
+   not. A control is only a target if you can hit it in both directions. */
+[data-stage-bar] button, [data-stage-bar] [role="radio"] { min-width: 44px; min-height: 44px; }
+
+/* QA I: the hero's Setup button was 36 px tall. */
+.cmd-wrap > button, [data-catalog-item="shadcn/button"].h-9 { min-height: 44px; }
+
+/* QA I: the rail's grid doors are 24 px, the WCAG 2.5.8 floor — they were 20 px. Not a phone target (the rail is
+   a drawer there), but the only sub-24 px control in the shell. */
+[data-sidebar="menu-action"] { min-width: 28px; min-height: 28px; width: 28px; height: 28px; }
