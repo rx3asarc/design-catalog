@@ -249,7 +249,22 @@ function HeroRow() {
   );
 }
 
-/** The front page is a first-run screen: the thing itself, what it is, the two ways in, then what is in it. */
+/**
+ * The front page is a first-run screen: the thing itself, what it is, the two ways in, then what is in it.
+ *
+ * Every number on this page, and where it comes from — the row added none of its own:
+ *
+ *   "769 items · 5 libraries"      `counts.total`, `counts.sources.length`
+ *   "769 components… from 5"       the same two, in the lede's sentence
+ *   "566 / 110 / 43 / 29 / 21"     `counts.sources[].items`, one per library
+ *   "486 of these run here"        `counts.demos`
+ *   "the first 8 of 25 … sidebar"  counted off the manifest at render time, never typed (`SEARCH_*`)
+ *   the digits inside a tile       the item's own published fields — `file_count`, `bytes`, `dep_count`,
+ *                                  `composition.count`, `used_here` — printed by the card the gallery prints
+ *   "six from the catalogue"       the length of `HERO_TILES`, stated as the row's own rule
+ *
+ * Nothing else is added, and nothing here restates a catalogue total in prose that could drift from `./counts`.
+ */
 export function Home() {
   const c = counts;
   const libraries = useMemo(() => c.sources.length, [c.sources.length]);
