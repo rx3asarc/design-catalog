@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { conceptKeys, conceptMembers, items, label, type Item } from "./lib";
+import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
 
 /**
  * `#/c/<concept-key>` — the members of one concept, compared rather than listed.
@@ -149,6 +150,15 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
   );
   const stacked = useStacked();
   const sources = useMemo(() => [...new Set(rows.map((r) => r.source))], [rows]);
+  // The tiles are the gallery's own — the same `Grid`, so the same pool, the same mount queue, the same
+  // reference card for a member with no demo. A second copy of the tile here would be a second behaviour to
+  // keep in step, and the brief's whole point is that a visitor sees one catalogue, not four renderings of it.
+  // Frozen first frame until pointed at: `Grid`→`DemoTile` passes `static` for the motion it is asked to mount
+  // and starts the demo on hover/focus, which is what the gallery and the front page already do.
+  const narrow = useNarrow();
+  const bodyH = narrow ? 180 : 210;
+  const { colW, host } = useColumnWidth(narrow, rows.length);
+  const theme = useSiteTheme();
   if (!known) {
     return (
       <div className="page-in">
@@ -297,6 +307,23 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           <>Every field the manifest publishes differs inside this set, so every field is a column.</>
         )}
       </p>
+
+      {/*
+       * The tiles, below the table: the same component the gallery and the front page mount, so a member with a
+       * demo shows a live window onto it and a member without one shows the reference card rather than an empty
+       * box. The tile is not interactive (the item page is), so nothing here competes with the table's links for a
+       * tab stop — one tile is one stop, and it opens the item.
+       */}
+      <div className="section-h" style={{ marginTop: 6 }}>
+        The same {rows.length}, as tiles
+      </div>
+      <p style={{ fontSize: 13, color: "var(--muted-foreground)", margin: "0 0 12px" }}>
+        A frozen first frame each, until you point at one or tab to it. Members with no demo show the reference
+        card — the licence, no pretence of a running frame.
+      </p>
+      <div ref={host} data-compare-tiles="" style={{ margin: "0 0 22px" }}>
+        <Grid rows={rows} colW={colW} bodyH={bodyH} narrow={narrow} theme={theme} />
+      </div>
 
       <p style={{ fontSize: 13.5, margin: "0 0 10px", color: "var(--muted-foreground)" }}>
         Filed by source, then slug — a shelf order, not an order of merit.{" "}
