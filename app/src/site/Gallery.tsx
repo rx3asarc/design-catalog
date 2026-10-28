@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { Skeleton } from "@/registry/new-york-v4/ui/skeleton";
 import { label as displayLabel, items, type Item, isMotionItem } from "./lib";
 import { DemoFrame } from "./demo";
 import { buildTree, gridHref, needleHit, type GalleryQuery, type TreeSection } from "./route";
@@ -308,9 +307,35 @@ function useNarrow() {
   return narrow;
 }
 
-/** The site's current theme, read from the document rather than tracked here: the theme is another unit's. */
-const themeOf = (): "light" | "dark" =>
-  typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
+/** The site's current theme, as a subscription — not as a read.
+ *
+ * `<html>` carries the theme as a class: the boot script in `app/index.html` paints it before the first CSS byte
+ * and `site/ThemeSwitch.tsx` calls that same rule. Reading the class once per render (what this replaces) is why
+ * a theme change left a mixed grid: the switch repaints `<html>`, nothing re-renders the gallery, and every frame
+ * already mounted keeps the theme it was mounted with — a dark catalogue full of light demos.
+ *
+ * A `MutationObserver` on the class (and on `data-theme`, which the boot script sets to the *choice*, not the
+ * paint) is the subscription: the class is the answer because it is what the browser has painted, `data-theme`
+ * says only `light`/`dark`/`system`. `prefers-color-scheme` is watched too, because in the "auto" state the boot
+ * script's own `matchMedia` listener is what repaints `<html>` when the OS changes — the observer catches that as
+ * well, and this is the belt to that braces. No context provider, no dependency, and `ThemeSwitch` is untouched:
+ * both read the one rule the boot script already owns.
+ */
+function useSiteTheme(): "light" | "dark" {
+  const read = (): "light" | "dark" =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light";
+  const [theme, setTheme] = useState(read);
+  useEffect(() => {
+    const sync = () => setTheme((prev) => { const next = read(); return next === prev ? prev : next; });
+    const mo = new MutationObserver(sync);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", sync);
+    sync();
+    return () => { mo.disconnect(); mq.removeEventListener("change", sync); };
+  }, []);
+  return theme;
+}
 
 const title = (i: Item) => displayLabel(i);
 
@@ -393,6 +418,12 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
     setNatural(w);
   }, []);
   const zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, colW > 0 ? colW / (natural || REF_WIDTH) : ZOOM_MIN + 0.15));
+  // The tile is a window of a fixed height, so the frame it looks through must be at least that tall **in the
+  // child's own px** (`bodyH / zoom`, rounded up so the product can never land 0.3 px short). `floor` alone
+  // could not do this: it is only what a demo gets *before* it reports, and a demo that honestly reports 60 px
+  // then got 60 px inside a 210 px tile — measured, `beui/marquee` filled 30.4 px of 210 at 1440. `stretch` is
+  // the prop that says "a tile is not a stage": it is absent everywhere else in the catalogue.
+  const stretch = zoom > 0 ? Math.ceil(bodyH / zoom) : 0;
   return (
     <li ref={host} data-tile={key} data-mode={live ? "live" : "parked"} style={{ listStyle: "none", minWidth: 0 }}>
       <a
@@ -412,13 +443,14 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
                 index={0}
                 zoom={zoom}
                 floor={Math.ceil(bodyH / zoom) + 8}
+                stretch={stretch || undefined}
                 addr={{ static: isMotionItem(item), theme }}
                 play={isMotionItem(item) ? play : undefined}
                 onSize={onSize}
               />
             </div>
           ) : (
-            <Placeholder />
+            <Poster item={item} />
           )}
         </div>
         <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
@@ -430,22 +462,50 @@ function DemoTile({ item, pool, colW, bodyH, theme }: {
   );
 }
 
+/* ── the poster: what a parked tile says, before its frame exists ─────────────────────────────────────── */
+
+const POSTER_MONO: React.CSSProperties = {
+  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase",
+  color: "var(--muted-foreground)", whiteSpace: "nowrap",
+};
+
 /**
- * Not mounted is not broken: the tile says a demo exists here, in the box the demo will occupy.
+ * Not mounted is not broken: a parked tile **names the item it will become**, in the exact box the demo will
+ * occupy — title, `source · kind`, and the same facets the card prints below it.
  *
- * The skeleton is deliberately **not** `animate-pulse`. Measured on the 486-tile grid: 954 pulsing skeletons
- * cost the main thread more than the nine live demo frames do — p95 rAF 66.8 ms animated vs **16.7 ms** with the
- * same 954 skeletons in the DOM and the animation off. A parked tile is a still picture of a tile.
+ * Why text and not a picture of the demo: the mount budget is one frame per animation frame and there are 486
+ * tiles, so the tail of this grid is 5–10 seconds of tiles that have not been mounted yet. A skeleton and the
+ * word "demo" say "wait"; the name says *which* item the wait is for, so a visitor can read the grid as a grid
+ * before a single frame exists. Still, deliberately: 954 `animate-pulse` skeletons measured p95 66.8 ms against
+ * **16.7 ms** for the very same DOM with the animation off (the gallery's own measurement, §5.4), so nothing
+ * here pulses, spins or fades. Same reason there is no screenshot still — a still per tile is a payload, a name
+ * is a string that is already in the manifest.
+ *
+ * The label keeps the same slot and casing as `RefCard`'s "no demo", so the two kinds of card stay one family
+ * seen from two sides: this box is a demo that has not been mounted yet, that one is an item with no demo at all.
  */
-function Placeholder() {
+function Poster({ item }: { item: Item }) {
   return (
-    <div style={{ position: "absolute", inset: 0, padding: 12, display: "grid", alignContent: "space-between" }}>
-      <Skeleton data-catalog-item="shadcn/skeleton" className="animate-none" style={{ width: "62%", height: 12 }} />
-      <Skeleton data-catalog-item="shadcn/skeleton" className="animate-none" style={{ width: "86%", height: 42 }} />
-      <span style={{
-        fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-        color: "var(--muted-foreground)",
-      }}>demo</span>
+    <div
+      data-poster={item.id}
+      style={{
+        position: "absolute", inset: 0, padding: "11px 12px 13px", display: "grid",
+        alignContent: "space-between", gap: 10, minWidth: 0,
+      }}
+    >
+      <span style={POSTER_MONO}>demo</span>
+      <span style={{ display: "grid", gap: 3, minWidth: 0 }}>
+        <span style={{
+          fontSize: 15, lineHeight: 1.3, fontWeight: 500, overflowWrap: "anywhere",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>{title(item)}</span>
+        <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis" }}>
+          {item.source} · {item.kind}
+        </span>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, lineHeight: 1.45, color: "var(--muted-foreground)" }}>
+          <Facets item={item} />
+        </span>
+      </span>
     </div>
   );
 }
@@ -570,7 +630,8 @@ export function Gallery({ query }: { query: GalleryQuery }) {
   const bodyH = narrow ? 180 : 210;
   const resolved = useMemo(() => resolve(query), [query]);
   const { colW, host } = useColumnWidth(narrow, resolved.shown.length);
-  const theme = themeOf();
+  // a subscription, so a theme change reaches the frames that are already mounted below (§ the hook's comment)
+  const theme = useSiteTheme();
   const sig = JSON.stringify([query, resolved.shown.length]);
 
   const title = resolved.levels.length

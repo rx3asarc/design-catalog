@@ -204,6 +204,12 @@ export function StageBar({
       style={{
         display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 16px",
         padding: "10px 12px", margin: "0 0 14px",
+        // Two surfaces, two owners. The console is chrome and follows the SITE's palette; the paper the demo is
+        // rendered on is `demo.tsx`'s surface and follows the FRAME's (`FRAME_SURFACE[stage.theme]`) — that split
+        // is the fix for the white-on-white island. This one stays the site's on purpose: a control strip that
+        // turned dark because the *preview* did would be chrome lying about which theme the catalogue is in.
+        // (And it is the only implementable answer anyway: `styles.css` has a `.dark` scope and no `.light` one,
+        // so "the console follows the preview" would work in one direction and silently not in the other.)
         border: "1px solid var(--border)", borderRadius: 10, background: "var(--card)",
       }}
     >
