@@ -659,17 +659,23 @@ pre { font-family: var(--font-mono); }
 .prov-tag .prov-n { font-variant-numeric: tabular-nums; }
 @media (max-width: 860px) { .prov-tag { font-size: 12px; } }
 
-/* ═══ the theme switch: three states, out of flow ═════════════════════════════════════════════════
-   Fixed to the foot of the rail column, exactly like `.rail-reopen` is fixed to its head — so it is
-   never a row in the layout, and flipping it cannot move anything (measured: §"no layout shift" in
-   /root/docs/catalog-redesign/build/catalog-identity.md). It is the shell's own chrome, so it wears the
-   shell's two steps: the group on the label step in mono, the items on the rail step. */
+/* ═══ the theme switch: three states, and the one place it can live ══════════════════════════════
+   The rule itself is the boot script in index.html; this is its one handle, and it says which of the three
+   states it is in ("Theme" + auto/light/dark, one choice of three, each item 44x44 so it clears the shell's
+   floor in both directions).
+
+   WHERE IT GOES, and why not the head: the rail head's brand row is 259px wide and already holds the wordmark
+   (98px) and the collapse trigger (26px), which leaves 135px — three 44px segments need 132px of that before
+   the strip's own label and padding are counted, i.e. nothing left to breathe in. Making the head taller was
+   not mine to spend either, so the switch is the rail scroll area's first row: above the 769-row tree and in
+   the DOM before it, so Tab reaches it in twelve presses instead of a hundred and twenty-nine, and the head
+   stays 230.4px with the list's viewport at 670px (measured, before and after).
+   On a phone the rail is a disclosure (`display: none` until Browse opens), so its first row is not a way in
+   and the switch takes the page's own corner instead — exactly one instance at every width, never two. */
 .theme-switch {
-  position: fixed; left: 14px; bottom: 14px; z-index: 30;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 4px 4px 4px 10px; border-radius: 999px;
   border: 1px solid var(--border); background: var(--card);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
 }
 .theme-switch .theme-label {
   font-family: var(--font-mono); font-size: 10px; line-height: 1; letter-spacing: 0.05em;
@@ -677,17 +683,19 @@ pre { font-family: var(--font-mono); }
 }
 /* the three items are one fixed width, so the row cannot change shape when the picked one moves across it —
    a segmented control whose segments resize as you use it is the cheapest way to make a toolbar feel wrong */
-.theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; min-height: 44px; height: 44px; padding: 0 6px; border-radius: 999px; }
+.theme-switch [data-slot="toggle-group-item"] { width: 44px; min-width: 44px; min-height: 44px; height: 44px; padding: 0 4px; border-radius: 999px; }
 .theme-switch [data-slot="toggle-group-item"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
-/* the rail's last rows must be able to scroll clear of a control that floats over them */
-@media (min-width: 861px) { .rail-list { padding-bottom: 64px; } }
-@media (max-width: 860px) {
-  /* on a phone the rail is a disclosure above the page, so the switch sits in the page's margin;
-     `.page-in` already ends on an 80px pad, which is what keeps it off the last line of prose */
-  .theme-switch { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
-  .theme-switch .theme-label { display: none; }
-  .theme-switch [data-slot="toggle-group-item"] { width: 56px; min-width: 56px; min-height: 44px; height: 44px; }
+/* the first row of the rail's scroll area, pinned there: it stays put while the rows scroll under it */
+.rail-theme {
+  position: sticky; top: 0; z-index: 2;
+  padding: 8px 12px 8px;
+  background: var(--sidebar); border-bottom: 1px solid var(--border);
 }
+/* the phone's corner: out of flow, over `.page-in`'s 80px bottom pad, so it lands on nothing */
+.theme-switch-float {
+  position: fixed; left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+}
+.theme-switch-float .theme-switch { box-shadow: 0 1px 2px oklch(0 0 0 / 0.06); }
 
 /* QA I: the stage console's three Motion/Width controls were 41-43 px wide — 44 tall was asserted, 44 wide was
    not. A control is only a target if you can hit it in both directions. */

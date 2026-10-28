@@ -57,6 +57,13 @@ export default function App() {
         <Sidebar collapsible="offcanvas" variant="sidebar" data-catalog-item="shadcn/sidebar">
           {head}
           <SidebarContent className="rail-list">
+            {/* The switch has to be in the DOM before the 769 rows or Tab can never reach it, and it cannot
+                live in the head: the brand row's 135px of free width is less than the strip's 144px, and a
+                taller head was not ours to spend. So it is the scroll area's first row, pinned. Measured:
+                Tab 129 -> 12, head 230.4px and list viewport 670px unchanged. */}
+            <div className="rail-theme">
+              <ThemeSwitch />
+            </div>
             <SidebarGroup className="rail-groupwrap">
               <SidebarGroupContent>{rail}</SidebarGroupContent>
             </SidebarGroup>
@@ -79,7 +86,13 @@ export default function App() {
           : <Home />}
         </PageTurn>
       </SidebarInset>
-      <ThemeSwitch />
+      {/* at <=860 the rail is display:none until Browse opens, so its first row is not a way in: the phone
+          keeps one instance of its own in the page's corner. Exactly one per width, never two. */}
+      {phone ? (
+        <div className="theme-switch-float">
+          <ThemeSwitch />
+        </div>
+      ) : null}
       <PaletteTrigger place="float" />
       <Palette />
       <Provenance />
