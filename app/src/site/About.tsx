@@ -17,13 +17,13 @@ const CHECKSUMS = `$ grep " data/catalog.json$" CHECKSUMS.txt
 $ sha256sum docs/data/catalog.json
 6198e713f0fc8d9d335ba209fff405b793c798b673c4d37faecbc228b2f089c9  docs/data/catalog.json`;
 
-/** One line per source: its licence, how much of it publishes a file, how much is withheld. */
+/** One line per source: its licence, how much of it publishes a file, how much is not copied here. */
 function detail(s: (typeof counts.sources)[number]): string {
   const parts = [
     s.licences.join(" · "),
     `${s.published} ${s.published === 1 ? "item publishes" : "items publish"} a source file`,
   ];
-  if (s.withheld) parts.push(`${s.withheld} withheld`);
+  if (s.withheld) parts.push(`${s.withheld} not copied here`);
   const noFile = s.items - s.withFile;
   if (noFile) parts.push(`${noFile} have no captured file`);
   return parts.join(" · ");
@@ -67,22 +67,22 @@ export function About() {
         declares. There are two policies:
       </p>
       <div className="verdict">
-        <b>full</b> — {c.licenceFull} items. The licence is {FULL_LICENCE}. The source may be copied into your
-        own repository, and the item page shows the file. {c.licenceFullNoFile} of these have no captured file
-        at all, so they are entries as well.
+        <b>Copied here</b> (<code>full</code>) — {c.licenceFull} items. The licence is {FULL_LICENCE}. The source
+        may be copied into your own repository, and the item page shows the file. {c.licenceFullNoFile} of these
+        have no captured file at all, so they are entries as well.
       </div>
       <div className="verdict">
-        <b>local-only</b> — {c.withheld} items. Read the source in the original and re-implement it; it is not
-        redistributed here. The item page keeps the name, the install command the library publishes, the facts
-        and the licence.
+        <b>Not copied here</b> (<code>local-only</code>) — {c.withheld} items. The code is not copied here; read
+        it on the original site and re-implement it instead. The item page keeps the name, the install command
+        the library publishes, the facts and the licence.
       </div>
       <p>
-        &quot;Source included&quot; is a licence label, not a file count. {c.licenceFull} items sit under a
+        &quot;Code shown here&quot; is a licence label, not a file count. {c.licenceFull} items sit under a
         licence that would allow publication, {c.published} of the {c.total} publish a file, and {c.noFile}{" "}
         have no captured source to publish.
       </p>
 
-      <div className="section-h">The {c.withheld} entries without source</div>
+      <div className="section-h">The {c.withheld} entries whose code is not copied here</div>
       <p>
         {localOnly.map((s) => s.name).join(", ")} — {c.withheld} items between them, and not one of their
         files is republished. Their licences are the reason, in the manifest&apos;s own words:{" "}
@@ -120,7 +120,7 @@ export function About() {
 
       <div className="nav2">
         <a href="#/">← The catalogue</a>
-        <a href="#/chrome">What this site is built from →</a>
+        <a href="#/chrome">Components used to build this site →</a>
       </div>
     </div>
   );

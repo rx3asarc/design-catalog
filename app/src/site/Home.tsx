@@ -161,7 +161,7 @@ const SEARCH_TOTAL = SEARCH_ROWS.length;
  * site (`port_note` keeps it; the shell does not read it).
  */
 function row(i: Item) {
-  const lines = [`${i.name}  [${i.source}/${i.kind}]${i.withheld ? "  source withheld" : ""}`];
+  const lines = [`${i.name}  [${i.source}/${i.kind}]${i.withheld ? "  code not shown (licence)" : ""}`];
   if (i.one_line) lines.push(`  ${i.one_line}`);
   if (i.install) lines.push(`  install: ${i.install}`);
   return lines.join("\n");
@@ -291,8 +291,8 @@ export function Home() {
           <div>
             <div className="way-h">Browse</div>
             <p className="way-p">
-              Four sections in the rail, down to families. Every item opens to its source file, its licence and a
-              live demo where one runs.
+              Use the menu: {RAIL.length} sections, and inside each one the items are grouped by what they are.
+              Every item opens to its source file, its licence and a live demo where one runs.
               {GALLERY_LIVE ? (
                 <>
                   {" "}
@@ -353,7 +353,7 @@ export function Home() {
       </p>
       <p className="hint">
         This site is built out of the catalogue it describes:{" "}
-        <a href="#/chrome">what it is made of, counted from the page</a>.
+        <a href="#/chrome">the components it is made of, counted from the page</a>.
       </p>
     </div>
   );

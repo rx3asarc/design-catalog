@@ -89,7 +89,7 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.one_line && <p className="lede">{item.one_line}</p>}
       <div className="badges">
         <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
-          {item.withheld ? "source withheld" : "source included"}
+          {item.withheld ? "code not shown" : "code shown here"}
         </Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
         <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.files.length} files</Badge>
@@ -128,12 +128,14 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       {item.withheld ? (
         <div className="withheld">
           {/*
-           * Facts only: whose the code is, that we do not republish it, and where their page is. The old sentence
-           * promised "our verdict" alongside the entry — there is no verdict on this site to promise. The way out
-           * is the primary action on the page, not a "↗" afterthought.
+           * Facts only, in the words a visitor already speaks: whether the code is here, why not when it is not,
+           * and where to read it. The old sentence ("The code is theirs. It is not republished here") said the
+           * same thing in two abstractions — "theirs" and "republished" — and named no reason. The licence is
+           * the reason and the badge above still carries its name, so the sentence can stay short and true.
            */}
           <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
-            The code is theirs. It is not republished here; their page has it.
+            Code not shown here because the licence does not allow us to republish it.
+            {host(item.page) ? ` See it on ${host(item.page)}.` : ""}
           </p>
           {host(item.page) && (
             <Button
