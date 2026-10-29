@@ -125,7 +125,10 @@ export const MOTION_NOTE =
 
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)",
-  fontSize: 11,
+  /* 12 px, not 11: the design system's `label` step is 12/16 and this site already ruled that nothing it owns is
+     smaller. These three words (theme, width, motion) were the last 11 px text left on a desktop item page —
+     measured 1440, they were the only three. */
+  fontSize: 12,
   letterSpacing: "0.04em",
   textTransform: "uppercase",
   color: "var(--ink-muted)",
@@ -274,7 +277,7 @@ export function StageBar({
 
       <span style={{ flex: 1, minWidth: 0 }} />
       {stage.motion === "off" && (
-        <span id={noteId} role="status" style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 11.5, whiteSpace: "normal", maxWidth: "46ch" }}>
+        <span id={noteId} role="status" style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 12, whiteSpace: "normal", maxWidth: "46ch" }}>
           CSS motion stopped{stage.fromSystem ? " — your system asks for reduced motion" : ""}. Demos that animate with JavaScript keep running.
         </span>
       )}
