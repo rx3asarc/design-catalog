@@ -825,3 +825,141 @@ pre { font-family: var(--font-mono); }
 
 /* ---- the chrome's focus ring, once: 2px solid focus, offset 2px, keyboard only (design system) ---- */
 .cat :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---- item page (r6) ------------------------------------------------------------------------------
+   The item page is the one surface where the design system publishes a component for nearly every block,
+   so its blocks are now those components: `InstallBlock`, `ApiTable`, `RelatedCards`, and the demo card's
+   view switch as `SegmentedTabs`' segmented control. The components live in `site/InstallBlock.tsx`,
+   `site/ApiTable.tsx`, `site/RelatedCard.tsx` and `site/demo.tsx`; this section only maps each of them onto
+   the tokens, as the design book requires ("never hard-code a value"). Every selector is scoped to a class
+   that only those components emit, so nothing here can reach another surface. */
+
+/* ── InstallBlock: surface-300, a border, radius-md, a head of mono tabs and one copy, one command line ── */
+.install-block {
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface-300); overflow: hidden;
+  margin: 0 0 var(--space-4);
+}
+.install-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.install-pms { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; }
+/* the guideline's "small mono labels"; 44 px rather than the preview's 24 because this shell's floor is a
+   thumb, not a pointer (QA-13), and a control is only a target if it clears 44 px in both directions */
+.install-pm {
+  height: 44px; min-height: 44px; min-width: 44px; padding: 0 var(--space-2);
+  border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-muted); font-family: var(--font-mono); font-size: 12px; line-height: 16px;
+  font-weight: 400; letter-spacing: 0;
+}
+.install-pm:hover { background: var(--surface-200); color: var(--ink); }
+.install-pm[aria-selected="true"] {
+  background: var(--surface-200); border-color: var(--border-strong); color: var(--ink);
+}
+/* the page's ONE accent fill. The design book allows the accent in two places — the active nav bar and one
+   primary control per view — and on an item page the primary thing a visitor came for is the command. */
+.install-copy, .install-copy:hover {
+  margin-left: auto;
+  height: 44px; min-height: 44px;
+  background: var(--accent); color: var(--on-accent); border-color: var(--accent);
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px;
+}
+/* one line, never wrapped: a command that breaks mid-URL reads as two commands. It scrolls sideways instead. */
+.install-cmd {
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto; overscroll-behavior-x: contain;
+  font-family: var(--font-mono); font-size: 13px; line-height: 20px; color: var(--ink);
+}
+.install-cmd code { white-space: nowrap; font-family: var(--font-mono); }
+.install-cmd .prompt { color: var(--ink-subtle); }
+/* "Highlight only the package name, in `accent-ink`. The rest stays in `ink`." */
+.install-cmd .pkg { color: var(--accent-ink); }
+.install-note { margin: 0; padding: 0 var(--space-4) var(--space-3); color: var(--ink-muted); }
+
+/* ── ApiTable: hairline rows, the field's name in the `label` step on `ink-subtle`, the value in `ink` ── */
+.facts {
+  margin: 0 0 var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;
+}
+/* a fact is a word, not a URL: nothing here may need a sideways scroll of its own */
+.facts [data-slot="table-container"] { overflow: visible; }
+.facts table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 20px; }
+.facts tr { border-bottom: 1px solid var(--border); }
+.facts tbody tr:last-child { border-bottom: 0; }
+.facts .fact-label, .facts .fact-value {
+  padding: 10px var(--space-3); text-align: left; vertical-align: baseline;
+}
+.facts .fact-label {
+  width: 36%; height: auto; white-space: normal;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 400;
+  color: var(--ink-subtle);
+}
+.facts .fact-value {
+  white-space: normal;
+  font-family: var(--font-mono); font-size: 13px; line-height: 20px; color: var(--ink);
+}
+/* `null` is not zero: an unmeasured fact reads muted and its `title` says why */
+.facts .fact-value[data-unmeasured] { color: var(--ink-muted); }
+
+/* ── RelatedCard: surface-200, border, radius-lg, the title at the `title` step, one line of context ── */
+.related-pager, .related-row {
+  display: grid; gap: var(--space-3); margin: 0 0 var(--space-4);
+}
+.related-pager { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.related-row { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.page-in .related-card {
+  display: grid; align-content: start; gap: var(--space-1);
+  padding: var(--space-4); min-height: 44px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-200);
+  color: var(--ink); text-decoration: none;
+}
+/* "Hover darkens the border only." */
+.page-in .related-card:hover, .page-in .related-card:focus-visible {
+  border-color: var(--ink-subtle); text-decoration: none;
+}
+.page-in .related-title {
+  display: flex; align-items: baseline; gap: 6px;
+  font-family: var(--font-sans); font-size: 18px; line-height: 28px; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.page-in .related-lead { color: var(--ink-muted); font-weight: 400; }
+.page-in .related-context {
+  font-family: var(--font-sans); font-size: 13px; line-height: 20px; color: var(--ink-muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+@media (max-width: 860px) {
+  .related-pager { grid-template-columns: minmax(0, 1fr); }
+  .page-in .related-title { font-size: 17px; line-height: 24px; }
+}
+
+/* ── SegmentedTabs, the segmented control: `surface-200` inside a `border-strong` track, the selected
+      segment on `surface-300` in `ink`, and never an accent fill ─────────────────────────────────────── */
+.seg {
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--surface-200);
+}
+/* `.seg .seg-item`, not `.seg-item`: the demo card already carries `.demo-head button { background:
+   var(--surface-100); border: 1px solid var(--border-strong) }` from the old disclosure, and an unlayered
+   rule of equal specificity would have let that win on the segment's resting state. */
+.seg .seg-item {
+  height: 44px; min-height: 44px; min-width: 44px; padding: 0 var(--space-3);
+  border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-muted); font-family: var(--font-sans); font-size: 13px; font-weight: 400;
+}
+.seg .seg-item:hover { background: var(--surface-300); color: var(--ink); }
+.seg .seg-item[aria-selected="true"] { background: var(--surface-300); color: var(--ink); font-weight: 600; }
+
+/* The registry paints anything `data-state="on"` with `bg-accent`, and inside the chrome that token is the
+   design system's purple. Three controls use it as a *selected segment*: the stage console's theme / width /
+   motion chips and the rail's theme switch. `SegmentedTabs` is explicit that a selected segment is
+   `surface-300` + `ink` and "never an accent fill", so those are overridden here — which is also what leaves
+   the install block's copy as the single accent-filled control on an item page. The two components
+   themselves are untouched; only the selected segment's two properties change. */
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"],
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"]:hover,
+.theme-switch [data-slot="toggle-group-item"][data-state="on"],
+.theme-switch [data-slot="toggle-group-item"][data-state="on"]:hover {
+  background: var(--surface-300); color: var(--ink);
+}

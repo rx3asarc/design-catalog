@@ -237,7 +237,17 @@ const SCALE_TEXT: React.CSSProperties = {
 export function Demo({ id, index, variant, isBlock, stage }: {
   id: string; index: number; variant: Variant; isBlock: boolean; stage: Stage;
 }) {
-  const [open, setOpen] = useState(false);
+  /**
+   * Which view of the demo card is showing: the running demo, or its source.
+   *
+   * This was a button that said "View code" / "Hide code" — a disclosure, which is neither of the two switch
+   * styles the design system publishes. `SegmentedTabs` is explicit about which one it is: "Use the segmented
+   * control for views of the same item", Preview / Usage / Code, and "never use both styles on one row". A
+   * running demo and its source are two views of one item, so the switch is the segmented control — track on
+   * `surface-200` inside a `border-strong` outline, the selected segment on `surface-300` in `ink` with heavier
+   * weight, never an accent fill. The two words are the two views' own names.
+   */
+  const [view, setView] = useState<"preview" | "code">("preview");
   // `useFit` is not called here: its measured canvas would have to live inside this card, and the demo renders in
   // its own document, so it always returned null and its Fit toggle never appeared (proved on this build: every
   // demo's `fit` is null). The stage's width control is the honest version of what Fit was reaching for, and the
@@ -304,15 +314,38 @@ export function Demo({ id, index, variant, isBlock, stage }: {
             {stage.width === "full" ? "column" : want} → {Math.round(zoom * 100)}%
           </span>
         )}
-        <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="demo-toggle" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-        {open ? "Hide code" : "View code"}
-      </Button>
+        {/*
+          * The segmented control, from `SegmentedTabs`. `role="tablist"` with two `role="tab"` triggers is the
+          * markup the guideline's preview uses; each segment is 44 px in both directions, so a phone thumb hits
+          * it and the phone floor holds without a second rule. It is named with the variant, because an item with
+          * fourteen demos has fourteen of these and "Preview or code" alone names none of them.
+          */}
+        <div className="seg" role="tablist" aria-label={`Preview or code: ${variant.label}`}>
+          {([["preview", "Preview"], ["code", "Code"]] as const).map(([value, word]) => (
+            <Button
+              key={value}
+              data-catalog-item="shadcn/button"
+              role="tab"
+              aria-selected={view === value}
+              variant="ghost"
+              size="sm"
+              className="seg-item"
+              onClick={() => setView(value)}
+            >
+              {word}
+            </Button>
+          ))}
+        </div>
         {/* the demo module's own text — an import of a preview and three lines of wiring, not an install command.
             It is the first Copy on an item page, so it has to say what it is: "Copy demo source", and the
             variant plus the module file in its accessible name, because fourteen demos share this page and one
             "Copy demo source" would be fourteen indistinguishable buttons copying fourteen different files. */}
         {code && <Copy text={code} label="Copy demo source" detail={`${variant.label} · ${variant.module.split("/").pop()}`} />}
       </header>
+      {/* one view at a time, which is what a segmented control means: the frame when Preview is chosen, the
+          demo module's own text when Code is. Both are the same card, and the Copy above is still the demo
+          source whenever the code is on screen. */}
+      {view === "preview" ? (
       <div className="demo-body">
         {/* the site's own phone gutter (`styles.css`: `.demo-body > div { padding: 0 14px }`) lands on this div;
             the lane below it is padding-free, so the width we measure is the width we can actually use */}
@@ -328,7 +361,9 @@ export function Demo({ id, index, variant, isBlock, stage }: {
           </div>
         </div>
       </div>
-      {open && code && <div className="demo-code"><pre>{code}</pre></div>}
+      ) : (
+        <div className="demo-code"><pre>{code ?? "loading…"}</pre></div>
+      )}
     </section>
   );
 }
