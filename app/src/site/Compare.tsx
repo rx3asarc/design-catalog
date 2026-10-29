@@ -1,113 +1,42 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { conceptKeys, conceptMembers, items, label, type Item } from "./lib";
 import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
+import { BEHAVIOUR_COLS, behaviourOf, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
 
 /**
- * `#/c/<concept-key>` — the members of one concept, compared rather than listed.
+ * `#/c/<concept-key>` — the members of one concept, compared on what separates one from another.
  *
  * This page is the one thing a catalogue of four libraries can do that no source site can: each of those sites
  * shows only its own sidebars, so "six sidebars, four libraries, side by side" is not a view any of them has.
- * It is worth a page only if it actually compares, so three rules are enforced in code below, not promised:
+ * It is worth a page only if it actually compares, so the rules below are enforced in code, not promised:
+ *
+ *   * **the columns are behaviour.** A tester read the first version of this table and said the columns were
+ *     licence, kind, files, KB, deps, parts, used-here and live demo, and that none of those helps anyone pick a
+ *     sidebar: *"the page is an inventory with sorting removed."* That was right, and it was a data problem
+ *     before it was a page problem — behaviour was not in the manifest. It is now: a build-time probe loads
+ *     every demo in this site's own frame protocol and measures the six things that actually separate these
+ *     components (see `site/behaviour.ts`). The inventory fields still exist; they live on the item page, where
+ *     a person who wants a licence or a file count is asking about one item, not comparing four.
  *
  *   * **a column that every member answers identically is dropped**, and the bottom of the page names what was
- *     dropped and what it said. A table whose rows differ only in name is a list with lines drawn on it;
- *   * **no verdict and no ranking** — rows are filed by source then slug. A "pick this if…" line is allowed and
- *     wanted (it is a fact about behaviour, not a judgement of quality); what is not allowed is an order of merit,
- *     a winner, or a score — the
- *     manifest holds 0 human picks and publishes 0 verdicts, so there is nothing here to order by merit even if
- *     we wanted to. No sentence about any individual item appears that the manifest could not print itself;
- *   * **the method is quoted, or it is admitted missing.** Where a set came from is the store's `concept.rule`;
- *     the manifest publishes membership but not rules, so this page says the method is unpublished. It does not
- *     invent one, and it never falls back to "everything" for a set it cannot resolve.
+ *     dropped and what it said. "Sorting removed" is exactly the failure this avoids, so the rule is applied to
+ *     the *answered* rows: a column that 20 members answer "yes" and 5 cannot answer at all is a badge with a
+ *     footnote, not a comparison, and is dropped like any other.
+ *
+ *   * **`null` is never `false`.** "Not measured" is a cell, not a dash: a dash reads as "no". Where a member
+ *     has no demo there is nothing to measure, and the cell says so and says why (in its `title`).
+ *
+ *   * **no verdict, no ranking, no score.** Rows are filed by source then slug — a shelf order, not an order of
+ *     merit. A "pick this if…" line is allowed and wanted, because it is derived from that member's own measured
+ *     facts in one template (a fact about behaviour, not a judgement of quality); what is not allowed is a
+ *     winner, a rank, or a score. The manifest holds 0 human picks and publishes 0 verdicts, so there is nothing
+ *     here to order by merit even if this file wanted to. **Do not "restore" the older purism that refused to
+ *     say anything about an individual item** — a measured fact about one member, derived and dated, is the
+ *     thing that makes the page useful; an opinion about one member is the thing that is still forbidden.
+ *
+ *   * **a measurement is dated.** Behaviour changes when a demo changes, so the page says the day the probe ran
+ *     instead of implying an eternal truth.
  */
-
-/**
- * The comparison fields, as the data unit publishes them. A `null` is "this source cannot answer that", which
- * is absence and not zero — the store once shipped 0 bytes for 178 items, so a 0 here is only ever a real 0.
- */
-type Compared = Item & {
-  file_count?: number | null;
-  bytes?: number | null;
-  dep_count?: number | null;
-  composition?: { count: number; lower_bound?: boolean } | null;
-  used_here?: number | null;
-  has_demo?: boolean;
-};
-
-const facts = (i: Item) => i as Compared;
-
-/** Whether a demo runs here: the build's own answer, and only then the variant list it was built from. */
-const hasDemo = (i: Item) => facts(i).has_demo ?? i.variants.length > 0;
-
-/** The one glyph for "not known", and the sentence behind it, so no column can quietly print a fake 0. */
-const UNKNOWN = "—";
-const WHY_UNKNOWN = "not a fact this source can answer — absence, not zero";
-
-type Col = {
-  key: string;
-  head: string;
-  /** What the cell prints. */
-  text: (i: Item) => string;
-  /** The exact value behind the printed text, for `title`: the table rounds, the tooltip does not. */
-  exact?: (i: Item) => string;
-};
-
-const count = (n: number | null | undefined, one: string, many: string) =>
-  typeof n === "number" ? `${n} ${n === 1 ? one : many}` : WHY_UNKNOWN;
-
-/**
- * The columns the brief allows: the fields that actually differ between members of a set. Nothing else is here
- * — a column the data cannot support is not a column, and a per-item opinion is not a field at all.
- */
-const COLS: Col[] = [
-  { key: "source", head: "source", text: (i) => i.source },
-  { key: "licence", head: "licence", text: (i) => i.licence },
-  { key: "kind", head: "kind", text: (i) => i.kind },
-  {
-    key: "files", head: "files",
-    text: (i) => { const n = facts(i).file_count; return typeof n === "number" ? String(n) : UNKNOWN; },
-    exact: (i) => count(facts(i).file_count, "file", "files") + " in the published snapshot",
-  },
-  {
-    key: "size", head: "size",
-    text: (i) => {
-      const b = facts(i).bytes;
-      if (typeof b !== "number") return UNKNOWN;
-      return b >= 1024 ? `${Math.round(b / 1024)} KB` : `${b} B`;
-    },
-    exact: (i) => { const b = facts(i).bytes; return typeof b === "number" ? `${b} bytes, exactly` : WHY_UNKNOWN; },
-  },
-  {
-    key: "deps", head: "deps",
-    text: (i) => { const n = facts(i).dep_count; return typeof n === "number" ? String(n) : UNKNOWN; },
-    exact: (i) => count(facts(i).dep_count, "external dependency", "external dependencies"),
-  },
-  {
-    key: "parts", head: "parts",
-    text: (i) => {
-      const c = facts(i).composition;
-      if (!c || typeof c.count !== "number") return UNKNOWN;
-      return `${c.lower_bound ? "≥" : ""}${c.count}`;
-    },
-    exact: (i) => {
-      const c = facts(i).composition;
-      if (!c || typeof c.count !== "number") return WHY_UNKNOWN;
-      return c.lower_bound
-        ? `${c.count} and possibly more: 820 of the store's internal edges name a target that is not a catalogue row, so composition under-reports by construction`
-        : `${c.count} catalogue primitives`;
-    },
-  },
-  {
-    key: "used", head: "used here",
-    text: (i) => { const n = facts(i).used_here; return typeof n === "number" ? String(n) : UNKNOWN; },
-    exact: (i) => count(facts(i).used_here, "place in this shell", "places in this shell"),
-  },
-  {
-    key: "demo", head: "live demo",
-    text: (i) => (hasDemo(i) ? "yes" : "no"),
-    exact: (i) => (hasDemo(i) ? "a demo runs on this site" : "reference-only: there is no demo to run"),
-  },
-];
 
 /** The stack breakpoint: a table of these columns stops fitting well before the 640 a one-column grid uses. */
 const STACK = "(max-width: 860px)";
@@ -124,24 +53,32 @@ function useStacked() {
 }
 
 /**
- * Which concept rules this build knows. Empty, and empty on purpose.
+ * How this set was chosen, said the way a visitor can check it.
  *
- * The store answers it in one call — `python3 /root/design-catalog/query.py compare sidebar` returns
- * `"rule": "keyword: lower(slug) LIKE '%sidebar%' OR …"`, and 28 of the 29 sets answer `slug-normalised`.
- * That text is a store field, and the site's build publishes `concepts` per item but not `concept.rule`, so
- * there is no field to read and nothing here to quote. A hand-typed copy of 29 store rows would be a second
- * copy of the data that silently drifts from the first — the defect this catalogue spends its comments
- * avoiding — so it is not done. Publish the field upstream and `rule` is one line of render below.
+ * The store's `concept.rule` is the source of truth (`keyword: lower(slug) LIKE '%sidebar%' OR …` for the sets
+ * this page ships), and the build does not publish it yet — `concept.rule` is not in the manifest. A hand-typed
+ * copy of it would be a second copy of the store that silently drifts, so the page does the honest thing
+ * instead: it *checks* the naming rule against the members it was handed. If every member's own name or slug
+ * carries the concept key, the sentence is a fact this page can prove; if one does not, the page will not claim
+ * a rule it cannot see, and says only what it knows (these are the members filed under this key). No internal
+ * build note either way: a visitor is reading this, not a build log.
  */
-const RULES: Record<string, string> = {};
-
-const howEarned = (rule: string) => {
-  // a keyword match is a different kind of set from a slug match, and the page says which one it is looking at
-  if (/^keyword:/i.test(rule)) return `a keyword match, not a naming rule — the store's rule is “${rule}”`;
-  if (rule === "slug-normalised") return "slug-normalised: every member's own slug normalises to this concept's key";
-  if (rule === "human") return "chosen by a human, not by a rule";
-  return `the store's rule is “${rule}”`;
+const provenance = (key: string, rows: Item[]) => {
+  const k = key.toLowerCase();
+  const named = rows.filter((r) => r.slug.toLowerCase().includes(k) || (r.name ?? "").toLowerCase().includes(k));
+  if (named.length === rows.length) return `the name is the rule, and every one of them carries “${key}” in its own name or slug`;
+  if (named.length === 0) return `and none of their names contains “${key}”, so they are filed here by something other than a name`;
+  return `and ${named.length} of them carry “${key}” in their name while ${rows.length - named.length} do not, so the name is not what makes this set`;
 };
+
+/** What a dropped column said — the value most of the *measured* rows gave, with the denominator beside it. */
+function saidBy(col: FactCol, rows: Item[]) {
+  const answers = rows.filter((r) => col.answered(r)).map((r) => col.text(r));
+  const seen = new Map<string, number>();
+  for (const a of answers) seen.set(a, (seen.get(a) ?? 0) + 1);
+  const top = [...seen.entries()].sort((a, b) => b[1] - a[1])[0];
+  return top ? { text: top[0], of: answers.length, all: seen.size > 1 } : { text: NOT_MEASURED, of: 0, all: false };
+}
 
 export function Compare({ conceptKey }: { conceptKey: string }) {
   const known = useMemo(() => conceptKeys.includes(conceptKey), [conceptKey]);
@@ -155,8 +92,6 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
   // The tiles are the gallery's own — the same `Grid`, so the same pool, the same mount queue, the same
   // reference card for a member with no demo. A second copy of the tile here would be a second behaviour to
   // keep in step, and the brief's whole point is that a visitor sees one catalogue, not four renderings of it.
-  // Frozen first frame until pointed at: `Grid`→`DemoTile` passes `static` for the motion it is asked to mount
-  // and starts the demo on hover/focus, which is what the gallery and the front page already do.
   const narrow = useNarrow();
   const bodyH = narrow ? 180 : 210;
   const { colW, host } = useColumnWidth(narrow, rows.length);
@@ -186,18 +121,30 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
     );
   }
 
-  // a column survives only if it distinguishes: the set of printed answers has to have more than one member
-  const differing = COLS.filter((c) => new Set(rows.map((r) => c.text(r))).size > 1);
+  // The comparison is the six behaviour facts and nothing else. `source` is identity, not a measurement: it is
+  // printed beside every name (a row must be attributable to a library) but it is not a column, so it can never be
+  // "dropped" for not separating anything — it is not trying to separate anything.
+  const COLS: FactCol[] = BEHAVIOUR_COLS;
+  const differing = COLS.filter((c) => separates(c, rows));
   const dropped = COLS.filter((c) => !differing.includes(c));
-  const rule = RULES[conceptKey];
+
+  // one date for the set: the records are written by one probe run, and the newest is the honest one to show
+  const latest = rows
+    .map((r) => behaviourOf(r))
+    .filter((b): b is NonNullable<typeof b> => !!b)
+    .sort((a, b) => String(a.at).localeCompare(String(b.at)))
+    .pop() ?? null;
+  const lastRun = measuredOn(latest);
+  const probeVersion = rows.map((r) => behaviourOf(r)?.probe).find(Boolean) ?? null;
+  const measured = rows.filter((r) => behaviourOf(r)).length;
 
   return (
     <div className="page-in" style={{ maxWidth: 1560, margin: "0 auto" }}>
       <div className="crumb">concept</div>
       <h2 className="title" data-compare-concept={conceptKey}>{conceptKey}</h2>
       <p className="lede" style={{ marginBottom: 12 }}>
-        {rows.length} members from {sources.length} {sources.length === 1 ? "library" : "libraries"}, compared on the
-        fields that differ between them. Both numbers are the data's, not a count kept by hand.
+        {rows.length} members from {sources.length} {sources.length === 1 ? "library" : "libraries"}, compared on how
+        they behave. Both numbers are the data's, not a count kept by hand.
       </p>
 
       <div style={{ margin: "0 0 16px", paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
@@ -205,24 +152,31 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           data-compare-counts=""
           data-compare-members={rows.length}
           data-compare-sources={sources.length}
+          data-compare-measured={measured}
           data-compare-dropped={dropped.map((c) => c.key).join(",")}
           data-compare-shown={differing.map((c) => c.key).join(",")}
           style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--muted-foreground)" }}
         >
           {rows.length} members · {sources.length} {sources.length === 1 ? "source" : "sources"} ·{" "}
-          {differing.length} of {COLS.length} fields differ
+          {differing.length} of {COLS.length} columns differ · {measured} measured
         </span>
       </div>
 
-      {/*
-       * One line about the set, in the visitor's terms. The previous version explained our build pipeline on a
-       * public page ("not published in this build", "the store's rule is not exported"), which a tester read as an
-       * internal note and was right to. What a reader needs is only: these are the members, and here is the way
-       * back out. The rule is still quoted verbatim when the build carries it — never paraphrased into something
-       * that sounds better than the data.
-       */}
-      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 18px", color: "var(--muted-foreground)" }}>
-        {rule ? <>These {rows.length} share the name — {howEarned(rule)}.</> : <>{rows.length} items, filed by library.</>}
+      {/* One line about the set, in a visitor's terms: which items these are, and why. */}
+      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 6px", color: "var(--muted-foreground)" }}>
+        These are the {rows.length} items this catalogue files under “{conceptKey}” — {provenance(conceptKey, rows)}.
+      </p>
+      {/* What the columns are, and when they were observed. A fact about a demo is only true of the demo as it
+          ran, so the date is the visitor's business: "says it collapses" and "collapsed when we pressed it" are
+          different claims, and only the second one is on this page. */}
+      <p data-compare-measured-note="" style={{ fontSize: 13, margin: "0 0 18px", color: "var(--muted-foreground)" }}>
+        The columns are measured, not claimed: each demo was loaded in this site's own frame at 1440 px and again at
+        390 px and driven in a real browser{lastRun ? <>, most recently on {lastRun}</> : null}
+        {probeVersion ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}> ({probeVersion})</span> : null}.
+        {measured < rows.length ? (
+          <> {rows.length - measured} of these {rows.length} carry no measured behaviour, so their cells say
+            “{NOT_MEASURED}” — which is not “no”.</>
+        ) : null}
       </p>
 
       {differing.length ? (
@@ -230,74 +184,130 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           data-compare-table=""
           style={{
             width: "100%", display: stacked ? "block" : "table",
-            borderCollapse: "collapse", margin: "0 0 14px",
+            borderCollapse: "collapse", margin: "0 0 14px", tableLayout: "auto",
           }}
         >
           <thead style={{ display: stacked ? "none" : "table-header-group" }}>
             <tr>
               <th scope="col" style={HEAD}>item</th>
-              {differing.map((c) => <th key={c.key} scope="col" style={{ ...HEAD, textAlign: "right" }}>{c.head}</th>)}
+              {differing.map((c) => (
+                <th key={c.key} scope="col" style={{ ...HEAD, textAlign: "right" }}>{c.head}</th>
+              ))}
             </tr>
           </thead>
           <tbody style={{ display: stacked ? "block" : "table-row-group" }}>
-            {rows.map((item) => (
-              <tr
-                key={item.id}
-                data-compare-row={item.id}
-                style={stacked
-                  ? { display: "block", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px", margin: "0 0 10px" }
-                  : { borderTop: "1px solid var(--border)" }}
-              >
-                <th scope="row" style={stacked ? { ...NAME, display: "block", padding: "0 0 6px" } : NAME}>
-                  <a href={`#/i/${item.id}`} style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-                    {label(item)}
-                  </a>
-                </th>
-                {differing.map((c) => (
-                  <td
-                    key={c.key}
-                    data-col={c.key}
-                    style={stacked
-                      ? { display: "flex", gap: 10, justifyContent: "space-between", alignItems: "baseline", padding: "3px 0", border: 0 }
-                      : { ...CELL }}
-                  >
-                    {stacked && <span style={{ ...MONO_LABEL }}>{c.head}</span>}
-                    <span title={c.exact?.(item)} style={{ fontVariantNumeric: "tabular-nums", overflowWrap: "anywhere" }}>
-                      {c.text(item)}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {rows.map((item) => {
+              const pick = pickLine(item, rows);
+              // At 1440 the sentence gets its own full-width row under the member: in the name cell it cost ~5
+              // wrapped lines per member (a measured 153 px row), and a comparison table that is mostly sentence
+              // stops being scannable. On a 390 px frame it is the same two rows, styled as one card.
+              const card = stacked
+                ? { display: "block", border: "1px solid var(--border)", borderBottom: pick ? "0" : "1px solid var(--border)",
+                    borderRadius: pick ? "10px 10px 0 0" : 10, padding: "10px 12px", margin: pick ? 0 : "0 0 10px" }
+                : { borderTop: "1px solid var(--border)" };
+              const pickRow = stacked
+                ? { display: "block", border: "1px solid var(--border)", borderTop: 0, borderRadius: "0 0 10px 10px",
+                    padding: "0 12px 10px", margin: "0 0 10px" }
+                : { border: 0 };
+              return (
+                <Fragment key={item.id}>
+                  <tr data-compare-row={item.id} style={card}>
+                    <th scope="row" style={stacked ? { ...NAME, display: "block", padding: "0 0 6px" } : NAME}>
+                      <span style={{ ...MONO_LABEL, display: "block", marginBottom: 1 }}>{item.source}</span>
+                      <a href={`#/i/${item.id}`} style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+                        {label(item)}
+                      </a>
+                    </th>
+                    {differing.map((c) => {
+                      const text = c.text(item);
+                      const unknown = text === NOT_MEASURED;
+                      return (
+                        <td
+                          key={c.key}
+                          data-col={c.key}
+                          data-col-measured={!unknown}
+                          style={stacked
+                            ? { display: "flex", gap: 10, justifyContent: "space-between", alignItems: "baseline", padding: "3px 0", border: 0 }
+                            : { ...CELL }}
+                        >
+                          {stacked && <span style={{ ...MONO_LABEL }}>{c.head}</span>}
+                          <span
+                            title={c.exact(item)}
+                            style={{
+                              fontVariantNumeric: "tabular-nums", overflowWrap: "anywhere",
+                              // "not measured" must never look like an answer: muted and italic, and never a dash
+                              color: unknown ? "var(--muted-foreground)" : "var(--foreground)",
+                              fontStyle: unknown ? "italic" : "normal",
+                            }}
+                          >
+                            {text}
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  {pick ? (
+                    <tr data-compare-pick-row={item.id} style={pickRow}>
+                      {/* Derived from this member's own facts, in one template for every member: a fact about
+                          behaviour, not a verdict. Absent when the facts do not support a line. */}
+                      <td
+                        colSpan={differing.length + 1}
+                        data-compare-pick={item.id}
+                        style={{ padding: stacked ? 0 : "0 10px 10px 0", fontSize: 12.5, lineHeight: 1.5, color: "var(--muted-foreground)" }}
+                      >
+                        {pick}
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       ) : (
         <div className="withheld" style={{ margin: "0 0 14px" }}>
-          These {rows.length} items answer every published field the same way — {dropped.length} of {COLS.length}{" "}
-          fields are identical across the set, and the rest is the name. A table here would be a list with lines
-          drawn on it, so there is not one.
+          {/* Two different reasons for no table, and they must not be conflated: a set whose members agree is a
+              comparison with nothing to compare; a set nobody measured is not a comparison at all. Saying the
+              first when the second is true would read as "they behave the same", which is a claim nobody made. */}
+          {measured === 0 ? (
+            <>Nobody has measured how the {rows.length} members of “{conceptKey}” behave, so there is nothing to
+              compare here: {rows.length} {rows.length === 1 ? "item" : "items"} and no measurement between them. A
+              table would be a list with lines drawn on it, so there is not one.</>
+          ) : (
+            <>These {rows.length} items answer every measured behaviour the same way — {dropped.length} of {COLS.length}{" "}
+              columns are identical or unanswered across the set, and the rest is the name. A table here would be a
+              list with lines drawn on it, so there is not one.</>
+          )}
         </div>
       )}
 
       {/*
        * The dropped columns are named, with what they said, because "we only show what differs" is otherwise a
-       * claim a reader cannot check: the licence that is the same for all six members is still a fact about the
-       * set, and the reason it is not a column is that it does not compare.
+       * claim a reader cannot check. A dropped behaviour column is still a measured fact about the set — it is
+       * simply not a fact that separates two members, and a column that cannot separate two members cannot help
+       * anyone choose between them.
        */}
       <p data-compare-dropped-note="" style={{ fontSize: 13.5, color: "var(--muted-foreground)", margin: "0 0 22px" }}>
-        {dropped.length ? (
+        {measured === 0 ? (
+          <>Dropped, because none of them could be answered for “{conceptKey}”: no member of this set has a measured
+            behaviour, so all {COLS.length} columns read “{NOT_MEASURED}”.</>
+        ) : dropped.length ? (
           <>
-            Dropped, because every member of “{conceptKey}” answers them identically:{" "}
-            {dropped.map((c, i) => (
-              <span key={c.key}>
-                {i > 0 && " · "}
-                <code>{c.head}</code> = <span style={{ fontVariantNumeric: "tabular-nums" }}>{c.text(rows[0])}</span>
-              </span>
-            ))}
-            . A field that cannot separate two members cannot help anyone choose between them.
+            Dropped, because they do not separate the members of “{conceptKey}”:{" "}
+            {dropped.map((c, i) => {
+              const s = saidBy(c as FactCol, rows);
+              return (
+                <span key={c.key}>
+                  {i > 0 && " · "}
+                  <code>{c.head}</code> = <span style={{ fontVariantNumeric: "tabular-nums" }}>{s.text}</span>
+                  {s.of && s.of < rows.length ? ` (${s.of} of ${rows.length} answered)` : s.of ? ` (all ${s.of})` : " (nobody could answer)"}
+                </span>
+              );
+            })}
+            .
           </>
         ) : (
-          <>Every field the manifest publishes differs inside this set, so every field is a column.</>
+          <>Every column differs inside this set, so every column is on the table.</>
         )}
       </p>
 
@@ -319,7 +329,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       </div>
 
       <p style={{ fontSize: 13.5, margin: "0 0 10px", color: "var(--muted-foreground)" }}>
-        Filed by library, then name. Nothing here is ranked; the columns are the facts that separate them.{" "}
+        Filed by library, then name. Nothing here is in an order of merit; the columns are the behaviour that separates them.{" "}
         <a href="#/g" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
           All {items.length} items
         </a>
@@ -339,10 +349,13 @@ const HEAD: React.CSSProperties = {
 };
 
 const NAME: React.CSSProperties = {
-  textAlign: "left", fontSize: 14.5, fontWeight: 500, padding: "8px 10px 8px 0", whiteSpace: "nowrap",
+  textAlign: "left", fontSize: 14.5, fontWeight: 500, padding: "8px 10px 8px 0",
+  // the name cell carries the "pick this if…" line, so it wraps now — a nowrap row would push the
+  // behaviour columns off a 1440 px page the moment one member's sentence ran long
+  whiteSpace: "normal", verticalAlign: "top",
 };
 
 const CELL: React.CSSProperties = {
   textAlign: "right", padding: "8px 10px", fontSize: 13, fontFamily: "var(--font-mono)",
-  color: "var(--foreground)",
+  color: "var(--foreground)", verticalAlign: "top",
 };

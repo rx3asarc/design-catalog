@@ -529,6 +529,41 @@ def main() -> int:
         e["reference_only"] = not e["has_demo"]
         e["used_here"] = usage.get(e["id"], 0)
 
+    # ---- behaviour facts, as a browser measured them (app/probe_behaviour.mjs) --------------------
+    # The one additive block this file gains for behaviour. Nothing here measures anything: the probe did
+    # that, and `behaviour.json` is its record. An item the probe did not reach simply has no `behaviour`
+    # key — absent, which is not the same as six nulls and not the same as `false`. Inside a fact, `None`
+    # means "the probe could not tell", and it must reach the page as that: a build that turned it into
+    # False would publish a measurement nobody made. The probe's own version and date ride along, because
+    # a behaviour fact is a measurement of a moment, not an eternal truth.
+    measured = APP / "behaviour.json"
+    if measured.exists():
+        record = json.loads(measured.read_text())
+        FACTS = ("collapses", "sheet", "nests", "animates", "keyboard", "shape")
+        DETAIL = ("collapseKind", "nestDepth", "arrows", "animatedNodes", "interactiveNodes",
+                  "changeFrames", "maxDurationMs", "subMarkers", "focusStops", "firstStopAt",
+                  "collapseDetail", "shapeDetail", "sheetHow", "nestsHow", "keyboardHow",
+                  "regionHow", "variant", "reason")
+        attached = 0
+        for e in manifest:
+            m = (record.get("items") or {}).get(e["id"])
+            if not m:
+                continue
+            b = {}
+            for k in FACTS:
+                v = m.get(k)
+                if v is not None and not isinstance(v, bool):
+                    raise SystemExit(f"behaviour: {e['id']}.{k} is {v!r} — a fact is true, false or null")
+                b[k] = v
+            for k in DETAIL:
+                if k in m:
+                    b[k] = m[k]
+            b["probe"] = record.get("version")
+            b["at"] = record.get("probed_at")
+            e["behaviour"] = b
+            attached += 1
+        print(f"behaviour {record.get('version')} ({record.get('probed_at')}): attached to {attached} item(s)")
+
     assert_manifest_honest(manifest, items, withheld)
     (APP / "manifest.json").write_text(json.dumps(manifest, separators=(",", ":")))
     print(f"dropped {dropped} demo(s) whose imports do not resolve")
