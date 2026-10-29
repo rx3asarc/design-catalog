@@ -9,12 +9,18 @@ echo "== building"
 (cd app && npx vite build >/dev/null && echo "   built")
 echo "== copying the build into docs/"
 mkdir -p docs
-# do NOT wipe the old assets: GitHub Pages caches html for ten minutes, so somebody mid-visit
-# after a deploy will still be asking for the previous build's chunks. Keeping them makes that
-# harmless; pruning by age keeps the repo bounded.
+# Do NOT wipe the old assets: GitHub Pages caches html for ten minutes, so somebody mid-visit after a deploy is
+# still asking for the previous build's chunks. Keeping them makes that harmless; the prune at the end of this
+# script is what keeps the repo bounded, and it prunes by *reachability* rather than by age.
 mkdir -p docs/assets
 cp -r app/dist/* docs/
-find docs/assets -type f -mtime +7 -delete 2>/dev/null || true
 echo "== exporting data, package and checksums"
 python3 "$(dirname "$0")/scripts/publish_export.py"
+# …and only now, when the export exists, delete what nothing reaches. (Before the export, `data/` and CHECKSUMS.txt
+# are last publish's files; after it they are this one's, and the crawl sees the real references.)
+# `scripts/prune_docs.py` crawls from the entry documents through every asset name a reachable script or stylesheet
+# mentions, and deletes only what that crawl never reaches. Fonts and `avatars/` are kept unconditionally: a font is
+# named by `url()` in CSS and an avatar by a data string inside a demo module, and a pruner that cannot see a
+# reference must not call it dead (it deleted `avatars/shadcn.jpg` once and left a demo frame logging a 404).
+python3 scripts/prune_docs.py --apply
 echo "== done"

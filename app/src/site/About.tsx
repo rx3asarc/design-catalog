@@ -175,7 +175,7 @@ export function About() {
 
       <div className="section-h">Check a file you downloaded</div>
       <p>
-        <a href={`${REPO}/blob/master/CHECKSUMS.txt`}>CHECKSUMS.txt</a> lists the sha256 of every published
+        <a href={`${REPO}/blob/master/CHECKSUMS.txt`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>CHECKSUMS.txt</a> lists the sha256 of every published
         file, one per line, paths relative to the repository root. Compare a file you downloaded against the
         line for it:
       </p>

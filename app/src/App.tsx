@@ -133,10 +133,35 @@ function openPalette() {
  * Every surface lives in `./site/` — one module per surface — so a later unit can own one without touching
  * this file. What a visitor sees is decided by the switch at the bottom; everything above it is furniture.
  */
+/**
+ * The rail's filter, kept for the tab it was typed in.
+ *
+ * The gallery's filters already survive a reload because they are in the hash (`#/g?src=beui`): a filter you can
+ * link to is a filter you can come back to. The rail's own search box and source select were the exception — type
+ * "side", open an item, press reload, and the rail was showing all 769 again while the page still said the item you
+ * came from. So the two are written to `sessionStorage` and read back on mount.
+ *
+ * `sessionStorage`, not `localStorage`: a filter is a thing you did a moment ago in this tab, not a setting. A
+ * stored filter that outlived the tab would open tomorrow's visit showing 12 rows with no memory of why, which is
+ * the same bug in the other direction.
+ */
+const FILTER_KEY = "catalog-rail-filter";
+
+function readFilter(): { q: string; from: string } {
+  try {
+    const raw = sessionStorage.getItem(FILTER_KEY);
+    if (!raw) return { q: "", from: "" };
+    const v = JSON.parse(raw) as { q?: unknown; from?: unknown };
+    return { q: typeof v.q === "string" ? v.q : "", from: typeof v.from === "string" ? v.from : "" };
+  } catch {
+    return { q: "", from: "" };  // private mode, a quota, a corpus from an older build: an empty rail, not a crash
+  }
+}
+
 export default function App() {
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(() => readFilter().q);
   const [menu, setMenu] = useState(false);
-  const [from, setFrom] = useState<string>("");
+  const [from, setFrom] = useState<string>(() => readFilter().from);
   const phone = usePhone();
   // the phone drawer closes on every route change, exactly as the hash listener used to do it
   const { route, hash } = useRoute(() => setMenu(false));
@@ -146,6 +171,16 @@ export default function App() {
   useScrollRestore(hash);
   // …and the address bar is corrected to the route's one spelling, when it has one (`#/about/extra` → `#/about`)
   useCanonical(route, hash);
+
+  // …and written back on every change, including the first render (which stores what was just read, harmless)
+  React.useEffect(() => {
+    try {
+      if (!q && !from) sessionStorage.removeItem(FILTER_KEY);
+      else sessionStorage.setItem(FILTER_KEY, JSON.stringify({ q, from }));
+    } catch {
+      /* a filter that cannot be stored is still a filter that works */
+    }
+  }, [q, from]);
 
   const tree = useTree(q, from);
   const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);

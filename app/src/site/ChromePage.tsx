@@ -90,7 +90,7 @@ function StateTag({ state }: { state: State }) {
   if (state === "live") return null;
   if (state === "elsewhere") {
     return (
-      <Badge variant="outline" className="ml-2 text-[10px] font-normal text-muted-foreground"
+      <Badge variant="outline" className="ml-2 text-[12px] font-normal text-muted-foreground"
         title="the tag renders — just not on the page you are looking at">
         not this view
       </Badge>
@@ -98,7 +98,7 @@ function StateTag({ state }: { state: State }) {
   }
   // not a verdict, a statement: nobody has looked yet. The row is a link precisely so the reader can settle it.
   return (
-    <Badge variant="outline" className="ml-2 text-[10px] font-normal text-muted-foreground"
+    <Badge variant="outline" className="ml-2 text-[12px] font-normal text-muted-foreground"
       title="no view in this session has mounted it yet — open this row's page to find out whether the tag is real">
       unseen
     </Badge>

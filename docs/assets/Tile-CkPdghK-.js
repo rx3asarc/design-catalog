@@ -270,15 +270,25 @@ const title = (i: Item) => displayLabel(i);
  * The facets a card shows, from the fields the data unit publishes. Known keys only; a \`null\` is "not known"
  * and prints nothing (the store shipped 0 bytes for 178 items once, which is what this guards against).
  */
-export function Facets({ item }: { item: Item }) {
+/**
+ * The manifest's facts about an item, as words.
+ *
+ * Two readers, two sets. A card in a grid of 486 prints the two facts that describe what the item *is* — how many
+ * files it is and how big it is — plus how many parts it is made of. Printing \`deps\` and \`used here\` on all 486 as
+ * well was the tester's noise complaint exactly ("the same four facts on every card, said again and again"): four
+ * of the five facts are the same shape of number on almost every item, and a grid where everything says
+ * \`3 files · 14 KB · ≥8 parts\` stops being a grid you can scan. The item page is where a reader has decided to look
+ * at one thing, so it gets all five, and nothing is lost — \`mode="all"\` is that page.
+ */
+export function Facets({ item, mode = "card" }: { item: Item; mode?: "card" | "all" }) {
   const f = faceted(item);
   const out: string[] = [];
   if (typeof f.file_count === "number") out.push(\`\${f.file_count} file\${f.file_count === 1 ? "" : "s"}\`);
   if (typeof f.bytes === "number") out.push(f.bytes >= 1024 ? \`\${Math.round(f.bytes / 1024)} KB\` : \`\${f.bytes} B\`);
-  if (typeof f.dep_count === "number") out.push(\`\${f.dep_count} dep\${f.dep_count === 1 ? "" : "s"}\`);
+  if (mode === "all" && typeof f.dep_count === "number") out.push(\`\${f.dep_count} dep\${f.dep_count === 1 ? "" : "s"}\`);
   if (f.composition && typeof f.composition.count === "number" && f.composition.count > 0)
     out.push(\`\${f.composition.lower_bound ? "≥" : ""}\${f.composition.count} part\${f.composition.count === 1 ? "" : "s"}\`);
-  if (typeof f.used_here === "number" && f.used_here > 0) out.push(\`used here ×\${f.used_here}\`);
+  if (mode === "all" && typeof f.used_here === "number" && f.used_here > 0) out.push(\`used here ×\${f.used_here}\`);
   if (!out.length) return null;
   return (
     <span data-catalog-facets="" style={{ display: "inline-flex", flexWrap: "wrap", gap: "2px 8px" }}>
@@ -447,7 +457,9 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
 /* ── the poster: what a parked tile says, before its frame exists ─────────────────────────────────────── */
 
 const POSTER_MONO: React.CSSProperties = {
-  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase",
+  // 12 px is the floor: a poster's kicker and its \`source · kind\` line are the only words a visitor reads on a
+  // phone before a demo loads, and at 11 px they measured as the smallest text on the site.
+  fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
   color: "var(--muted-foreground)", whiteSpace: "nowrap",
 };
 
@@ -481,10 +493,10 @@ export function Poster({ item }: { item: Item }) {
           fontSize: 15, lineHeight: 1.3, fontWeight: 500, overflowWrap: "anywhere",
           display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
         }}>{title(item)}</span>
-        <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", fontSize: 11.5, overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", overflow: "hidden", textOverflow: "ellipsis" }}>
           {item.source} · {item.kind}
         </span>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, lineHeight: 1.45, color: "var(--muted-foreground)" }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--muted-foreground)" }}>
           <Facets item={item} />
         </span>
       </span>

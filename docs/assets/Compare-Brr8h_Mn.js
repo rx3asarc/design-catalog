@@ -172,7 +172,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       <p data-compare-measured-note="" style={{ fontSize: 13, margin: "0 0 18px", color: "var(--muted-foreground)" }}>
         The columns are measured, not claimed: each demo was loaded in this site's own frame at 1440 px and again at
         390 px and driven in a real browser{lastRun ? <>, most recently on {lastRun}</> : null}
-        {probeVersion ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 11 }}> ({probeVersion})</span> : null}.
+        {probeVersion ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}> ({probeVersion})</span> : null}.
         {measured < rows.length ? (
           <> {rows.length - measured} of these {rows.length} carry no measured behaviour, so their cells say
             “{NOT_MEASURED}” — which is not “no”.</>
@@ -339,12 +339,12 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
 }
 
 const MONO_LABEL: React.CSSProperties = {
-  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase",
+  fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase",
   color: "var(--muted-foreground)",
 };
 
 const HEAD: React.CSSProperties = {
-  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase",
+  fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
   color: "var(--muted-foreground)", fontWeight: 500, padding: "0 10px 6px", textAlign: "left", whiteSpace: "nowrap",
 };
 

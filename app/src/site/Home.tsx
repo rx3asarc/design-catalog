@@ -319,7 +319,8 @@ export function Home() {
               {GALLERY_LIVE ? (
                 <>
                   {" "}
-                  <a href="#/g">The gallery</a> shows every one of them at once.
+                  <a href="#/g" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>The gallery</a>{" "}
+                  shows every one of them at once.
                 </>
               ) : null}
             </p>
@@ -372,11 +373,15 @@ export function Home() {
        */}
       <p className="tally-note">{c.demos} of these run here as a live demo.</p>
       <p className="hint">
-        <a href="#/about">The five sources, what their licences allow, and how to check a file you download.</a>
+        <a href="#/about" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+          The five sources, what their licences allow, and how to check a file you download.
+        </a>
       </p>
       <p className="hint">
         This site is built out of the catalogue it describes:{" "}
-        <a href="#/chrome">the components it is made of, counted from the page</a>.
+        <a href="#/chrome" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
+          the components it is made of, counted from the page
+        </a>.
       </p>
     </div>
   );

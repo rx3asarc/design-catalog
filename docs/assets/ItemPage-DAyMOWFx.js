@@ -4,6 +4,7 @@ import { Button } from "@/registry/new-york-v4/ui/button";
 import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, type Item } from "./lib";
 import { Copy, Files } from "./Code";
 import { Demo } from "./demo";
+import { Facets } from "./Tile";
 import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 import { conceptHref } from "./route";
@@ -112,6 +113,15 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
        * against it. A value with no sentence yet (one this build has not met) prints the raw string alone — a
        * missing sentence is not a licence to invent one.
        */}
+      {/*
+       * The whole of what the manifest knows about the item in numbers, in one line, on the page where a reader has
+       * decided to look at this one item. The cards in a grid print only files/size/parts now (see \`Facets\`); deps
+       * and "used here" live here, so the grid stops repeating four facts 486 times and no fact goes unpublished.
+       */}
+      <p className="hint" data-facts="" style={{ margin: "0 0 8px" }}>
+        <Facets item={item} mode="all" />
+      </p>
+
       <p className="hint" data-licence="" style={{ margin: "0 0 20px" }}>
         Licence: <code title={item.licence}>{item.licence}</code>
         {licenceSentence(item.licence) ? \` — \${licenceSentence(item.licence)}\` : null}
@@ -128,7 +138,7 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
           {comparable.map((c, i) => (
             <span key={c.key}>
               {i > 0 && " · "}
-              <a href={conceptHref(c.key)}>
+              <a href={conceptHref(c.key)} style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
                 Compare with the {c.others} other{c.others === 1 ? "" : "s"} in <strong>{c.key}</strong>
               </a>
             </span>
