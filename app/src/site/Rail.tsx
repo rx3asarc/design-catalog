@@ -20,12 +20,28 @@ import { gridHref, type RailSection } from "./route";
  * Every level of the rail is the catalogue's own Collapsible, mounted on the catalogue's own SidebarMenuItem —
  * the trigger is a SidebarMenuButton, the row below it is a SidebarMenuSub. Nothing here is a <details>.
  */
-export function Level({ lvl, label, count, defaultOpen, href, title, children }: {
+export function Level({ lvl, label, count, defaultOpen, href, title, children, resetKey }: {
   lvl: "rail-sec" | "rail-cat" | "rail-sub" | "rail-sub2";
   label: React.ReactNode; count?: number; defaultOpen?: boolean; href?: string; title?: string;
   children: React.ReactNode;
+  /**
+   * What the open/closed state belongs to. When the rail's filter changes, the tree is a different tree — the rows
+   * on screen are now the matches, not the rows the reader was looking at when they collapsed a family — so every
+   * level goes back to its own default rather than keeping a state that was chosen about other rows.
+   *
+   * Found by the gate: typing "side" left the rail showing 2 rows while a reload with the same filter showed 9.
+   * The filter was right in both cases; the *expansion* was stale, so most of the matches were behind a family the
+   * reader had collapsed before typing. A filter that hides its own matches is a broken filter.
+   */
+  resetKey?: string;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
+  const first = useRef(resetKey);
+  useEffect(() => {
+    if (first.current === resetKey) return;   // the first render's state is what `defaultOpen` already set
+    first.current = resetKey;
+    setOpen(!!defaultOpen);
+  }, [resetKey, defaultOpen]);
   return (
     <Collapsible asChild open={open} onOpenChange={setOpen} data-catalog-item="shadcn/collapsible">
       <SidebarMenuItem className={`${lvl}${open ? " is-open" : ""}`}>
@@ -116,11 +132,17 @@ export function familyLabel(key: string): string {
 /** Four sections, their categories, families inside those, and one more level where a family is big. */
 export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: string }) {
   const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
+  /**
+   * A signature of the tree's shape, used as `resetKey` by every level: the counts move when the filter moves, and
+   * they are already in hand (they are what the rows print). No second copy of the filter state, and no prop drilled
+   * from `App.tsx` that could disagree with the tree the rail is actually rendering.
+   */
+  const sig = tree.map((s) => `${s.label}:${s.count}`).join("|");
 
   /** The sub-family level: a family too big for one list, rendered inside its family row. */
   const subLevels = (f: TreeFamily, sec: RailSection, cat: TreeCat, lvl: "rail-sub" | "rail-sub2") =>
     f.subs.map((g2) => (
-      <Level key={g2.key} lvl={lvl} count={g2.rows.length}
+      <Level key={g2.key} lvl={lvl} count={g2.rows.length} resetKey={sig}
         href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key, sub: g2.key })}
         title={g2.key.replace(/-/g, " ")}
         label={g2.key.replace(/-/g, " ")}>
@@ -132,7 +154,7 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
   const family = (f: TreeFamily, sec: RailSection, cat: TreeCat) => {
     if (f.rows.length === 1) return leaf(f.rows[0]);
     return (
-      <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4}
+      <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4} resetKey={sig}
         href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key })} title={f.key.replace(/-/g, " ")}
         label={familyLabel(f.key)}>
         {f.subs.length > 1 ? subLevels(f, sec, cat, "rail-sub2") : f.rows.map(leaf)}
@@ -143,7 +165,7 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
   return (
     <SidebarMenu className="rail-menu">
       {tree.map((sec) => (
-        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen
+        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen resetKey={sig}
           href={gridHref({ sec: sec.label })} title={sec.label}
           label={<span className="sec-n">{sec.label}</span>}>
           {sec.cats.map((cat) => {
@@ -164,7 +186,7 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
               return <React.Fragment key={cat.key}>{cat.families.map((f) => family(f, sec, cat))}</React.Fragment>;
             }
             return (
-              <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length}
+              <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length} resetKey={sig}
                 href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
                 defaultOpen={sec.cats.length <= 2}>
                 {cat.families.map((f) => family(f, sec, cat))}
