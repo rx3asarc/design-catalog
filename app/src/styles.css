@@ -823,11 +823,20 @@ pre { font-family: var(--font-mono); }
   .rail-phone .theme-switch [data-slot="toggle-group-item"] { font-size: 12px; }
 }
 
+/* ---- the 12 px floor is not a phone rule (r6) ------------------------------------------------------------------
+   Measured at 1440 after the design system landed: 54 text nodes under 12 px, every one of them a label — the theme
+   switch's word and its three segments at 10–11 px, and the rail's "no demo" mark at 10 px. The book's `label` step
+   is 12/16 and the site has already ruled that nothing it owns is smaller (§ round 5, item 13); that rule was
+   written inside `@media (max-width: 860px)`, which is where the desktop kept its 10 px labels. Nothing here is a
+   size the reader meets only on a phone. */
+.theme-switch .theme-label,
+.theme-switch [data-slot="toggle-group-item"],
+.rail-item .nodemo,
+.rail-legend { font-size: 12px; line-height: 16px; }
+
 /* ---- the chrome's focus ring, once: 2px solid focus, offset 2px, keyboard only (design system) ---- */
 .cat :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 /* ---- the rail's type, set by the design system (r6) ------------------------------------------------------------
    Measured on the live build before this block: the group labels ("Blocks and pages", "Components") were Instrument
    Sans, sentence case, 12 px, ink — the book asks for the `label` step in JetBrains Mono, uppercase, ink-subtle —
@@ -854,7 +863,6 @@ pre { font-family: var(--font-mono); }
 .rail-item { font-family: var(--font-sans); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
 .rail-item:hover { color: var(--ink); }
 .rail-item[aria-current="page"] { color: var(--ink); }
-=======
 /* ═══ TopBar (r6) ═══════════════════════════════════════════════════════════════════════════════
    The design system's TopBar, and the phone bar it replaced nothing of.
 
@@ -956,8 +964,6 @@ pre { font-family: var(--font-mono); }
      section links and its 240 px field are simply not part of it. */
   .topbar-links, .topbar-search { display: none; }
 }
->>>>>>> f7fbab1c
-=======
 /* ---- item page (r6) ------------------------------------------------------------------------------
    The item page is the one surface where the design system publishes a component for nearly every block,
    so its blocks are now those components: `InstallBlock`, `ApiTable`, `RelatedCards`, and the demo card's
@@ -1095,4 +1101,3 @@ pre { font-family: var(--font-mono); }
 .theme-switch [data-slot="toggle-group-item"][data-state="on"]:hover {
   background: var(--surface-300); color: var(--ink);
 }
->>>>>>> 0e4bd53b
