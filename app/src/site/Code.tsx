@@ -53,7 +53,7 @@ function words(state: CopyState, label: string) {
  * type errors today and cannot be written afresh — but a page that is already built still shows a word instead
  * of an empty button until the lead wires them (see the r3-copy report for the labels to use).
  */
-export function Copy({ text, label, detail }: { text: string; label: string; detail?: string }) {
+export function Copy({ text, label, detail, className }: { text: string; label: string; detail?: string; className?: string }) {
   const [state, setState] = useState<CopyState>("idle");
   const hold = useRef<number | null>(null);
   useEffect(() => () => { if (hold.current) window.clearTimeout(hold.current); }, []);
@@ -77,7 +77,10 @@ export function Copy({ text, label, detail }: { text: string; label: string; det
         data-copy-state={state}
         variant="outline"
         size="sm"
-        className="h-8"
+        // `className` is the install block's (r6): the one accent-filled primary on an item page is its copy
+        // control, and the fill is a token rule in `styles.css` rather than a variant, so nothing about any
+        // other Copy button changes.
+        className={className ? `h-8 ${className}` : "h-8"}
         aria-label={name}
         title={name}
         onClick={async () => {

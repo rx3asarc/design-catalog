@@ -1,29 +1,29 @@
-import { useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, type Item } from "./lib";
-import { Copy, Files } from "./Code";
+import { Files } from "./Code";
+import { ApiTable, type Fact } from "./ApiTable";
+import { InstallBlock } from "./InstallBlock";
+import { RelatedCard } from "./RelatedCard";
 import { Demo } from "./demo";
-import { Facets } from "./Tile";
+import { faceted } from "./Tile";
 import { StageBar, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 import { conceptHref } from "./route";
+// `NOT_MEASURED` is the one word for a fact nobody measured; it is defined where the rule is written down
+import { NOT_MEASURED } from "./behaviour";
 // the one plain sentence per licence value, defined once in the file that explains licensing
 import { licenceName, licenceSentence } from "./About";
 
 /**
  * One item's page: what it is, whether its source is ours to publish, its demos, how to install it, its files
  * and a way to walk to the items that are actually related to it.
+ *
+ * Every block on this page is the design system's own component (see `tokens.css`'s header): the install command
+ * is `InstallBlock`, the facts are `ApiTable`, both "where next" rows are `RelatedCards`, and the demo card's
+ * view switch is `SegmentedTabs`' segmented control (`demo.tsx`). The page has no hero slot, so it takes no
+ * `Cover` — a cover invented for a 30 px title would be a picture nobody asked for.
  */
-
-const MANAGERS = ["pnpm", "npm", "yarn", "bun"] as const;
-export function command(pm: string, install: string) {
-  const tail = install.replace(/^npx\s+/, "");
-  if (pm === "pnpm") return `pnpm dlx ${tail}`;
-  if (pm === "npm") return `npx ${tail}`;
-  if (pm === "yarn") return `yarn dlx ${tail}`;
-  return `bunx --bun ${tail}`;
-}
 
 /** Where an outbound link goes, in the words of the link: "View on beui.dev →", not "↗". */
 function host(url: string | null): string | null {
@@ -35,39 +35,94 @@ function host(url: string | null): string | null {
   }
 }
 
-export function Install({ install }: { install: string }) {
-  const [pm, setPm] = useState<string>("pnpm");
-  const text = command(pm, install);
-  return (
-    <>
-      <div className="section-h">Installation</div>
-      <div className="tabs" role="tablist">
-        {MANAGERS.map((m) => (
-          <Button key={m} role="tab" data-catalog-item="shadcn/button" variant={pm === m ? "default" : "outline"} size="sm"
-            aria-selected={pm === m} className="h-8" onClick={() => setPm(m)}>{m}</Button>
-        ))}
-      </div>
-      <div className="cmd">
-        <code>{text}</code>
-        <Copy text={text} label="Copy install command" />
-      </div>
-    </>
+/** "14 KB" / "512 B" — the manifest's byte count in the size a reader compares, never a rounded lie. */
+function size(bytes: number): string {
+  return bytes >= 1024 ? `${Math.round(bytes / 1024)} KB` : `${bytes} B`;
+}
+
+/**
+ * The facts the manifest publishes about one item, as rows for the `ApiTable`.
+ *
+ * This is the line that used to be a run of numbers ("3 files · 14 KB · 8 parts · 1 dep · used here ×4"): the
+ * same values, the same order, each one now under the name of the field it came from. `source` and `kind` are not
+ * rows — they are the breadcrumb above the title, and printing them twice would be one fact too many.
+ *
+ * A field with no measurement is a row that says so. The old line simply dropped it, which read as "this item has
+ * no dependencies" when the manifest had published no count at all; `null` is not zero, and a visitor is entitled
+ * to see the difference.
+ */
+function facts(item: Item): Fact[] {
+  const f = faceted(item);
+  const rows: Fact[] = [{ label: "Licence", value: item.licence, title: item.licence }];
+
+  const files = typeof f.file_count === "number" ? f.file_count : item.files.length;
+  rows.push({ label: "Files", value: String(files) });
+
+  rows.push(
+    typeof f.bytes === "number"
+      ? { label: "Size", value: size(f.bytes) }
+      : {
+          label: "Size",
+          value: NOT_MEASURED,
+          title: "not measured: the manifest carries no byte count for this item",
+          unmeasured: true,
+        },
   );
+
+  const parts = f.composition?.count;
+  rows.push(
+    typeof parts === "number" && parts > 0
+      ? { label: "Parts", value: `${f.composition?.lower_bound ? "≥" : ""}${parts}` }
+      : {
+          label: "Parts",
+          value: NOT_MEASURED,
+          title: "not measured: the manifest counts no composed parts for this item",
+          unmeasured: true,
+        },
+  );
+
+  rows.push(
+    typeof f.dep_count === "number"
+      ? { label: "Dependencies", value: String(f.dep_count) }
+      : {
+          label: "Dependencies",
+          value: NOT_MEASURED,
+          title: "not measured: the manifest carries no dependency count for this item",
+          unmeasured: true,
+        },
+  );
+
+  rows.push(
+    typeof f.used_here === "number"
+      ? { label: "Used here", value: `×${f.used_here}` }
+      : {
+          label: "Used here",
+          value: NOT_MEASURED,
+          title: "not measured: the manifest carries no usage count for this item",
+          unmeasured: true,
+        },
+  );
+
+  return rows;
 }
 
 /** One neighbour of the pager: the item, and the relation that put it there. Both pagers render it the same way. */
-function PagerLink({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
+function PagerCard({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
   const text = label(n.item);
+  const word = dir === "prev" ? "Previous" : "Next";
   return (
-    <a
+    <RelatedCard
       href={`#/i/${n.item.id}`}
-      aria-label={`${dir === "prev" ? "Previous" : "Next"}: ${text} — ${n.relation}`}
-      title={`${dir === "prev" ? "Previous" : "Next"}: ${text} — ${n.relation}`}
-    >
-      {dir === "prev" && <span className="dir">←</span>} {text}{" "}
-      <span className="dir">{n.relation}</span>
-      {dir === "next" && <> <span className="dir">→</span></>}
-    </a>
+      ariaLabel={`${word}: ${text} — ${n.relation}`}
+      lead={dir === "prev" ? "←" : undefined}
+      title={text}
+      context={
+        <>
+          {n.relation}
+          {dir === "next" ? " →" : ""}
+        </>
+      }
+    />
   );
 }
 
@@ -80,12 +135,20 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
   const comparable = conceptsOf(item)
     .map((key) => ({ key, others: conceptMembers(key).length - 1 }))
     .filter((c) => c.others >= 1);
+  const sentence = licenceSentence(item.licence);
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
-      <div className="pager">
-        {prev ? <PagerLink n={prev} dir="prev" /> : <span className="off" />}
-        {next ? <PagerLink n={next} dir="next" /> : <span className="off" />}
-      </div>
+      {/*
+       * The pager, as `RelatedCards`. It was a strip of two 36 px pills with the item's name and the relation
+       * run together; a card gives the name the `title` step and the relation a line of its own, which is the
+       * shape the design system publishes for "a link to a neighbouring component". It is no longer `sticky`:
+       * two cards are ~90 px tall, and a 90 px bar pinned over the column is the "a strip covers the content"
+       * complaint this page has already answered once.
+       */}
+      <nav className="related-pager" aria-label="Neighbouring items">
+        {prev ? <PagerCard n={prev} dir="prev" /> : <span />}
+        {next ? <PagerCard n={next} dir="next" /> : <span />}
+      </nav>
 
       <div className="crumb">{item.source} · {item.kind}</div>
       <h2 className="title">{name}</h2>
@@ -108,42 +171,42 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
       </div>
 
       {/*
-       * The licence in one plain sentence, with the manifest's own string beside it in a code span: the badge
-       * names it, this says what it allows, and the raw value stays on the page so the sentence can be checked
-       * against it. A value with no sentence yet (one this build has not met) prints the raw string alone — a
-       * missing sentence is not a licence to invent one.
+       * The whole of what the manifest knows about this item in numbers, as the design system's table: one
+       * hairline row per field, the field's name in the `label` step on the left and its value in `ink` on the
+       * right. `source`/`kind` stay in the breadcrumb; nothing here is a number without a name.
        */}
-      {/*
-       * The whole of what the manifest knows about the item in numbers, in one line, on the page where a reader has
-       * decided to look at this one item. The cards in a grid print only files/size/parts now (see `Facets`); deps
-       * and "used here" live here, so the grid stops repeating four facts 486 times and no fact goes unpublished.
-       */}
-      <p className="hint" data-facts="" style={{ margin: "0 0 8px" }}>
-        <Facets item={item} mode="all" />
-      </p>
-
-      <p className="hint" data-licence="" style={{ margin: "0 0 20px" }}>
-        Licence: <code title={item.licence}>{item.licence}</code>
-        {licenceSentence(item.licence) ? ` — ${licenceSentence(item.licence)}` : null}
-      </p>
+      <ApiTable rows={facts(item)} data-facts="" />
 
       {/*
-       * The way into a comparison, from the item, where a visitor is already asking "and the others?". One line,
-       * and only for a set that can actually be compared: a concept of one is not a comparison, and the count is
-       * the data's, so a set that grows or shrinks changes the sentence instead of contradicting it. An item can
-       * sit in two sets (beui/bounce-sidebar is in `bounce-sidebar` and in `sidebar`), so the line names each.
+       * The licence in one plain sentence. The manifest's own string is the table's `Licence` row — the badge
+       * above says what a reader calls it, the row says what the data says, and this says what it allows. A
+       * value with no sentence yet prints no sentence: the raw string is still on the page, and a missing
+       * sentence is not a licence to invent one.
+       */}
+      {sentence ? (
+        <p className="hint" data-licence="">
+          {sentence}
+        </p>
+      ) : null}
+
+      {/*
+       * The way into a comparison, from the item, where a visitor is already asking "and the others?". One card
+       * per set, and only for a set that can actually be compared: a concept of one is not a comparison, and the
+       * count is the data's, so a set that grows or shrinks changes the sentence instead of contradicting it. An
+       * item can sit in two sets (beui/bounce-sidebar is in `bounce-sidebar` and in `sidebar`), so the row names
+       * each.
        */}
       {comparable.length > 0 && (
-        <p data-compare-links="" style={{ fontSize: 14, margin: "0 0 20px" }}>
-          {comparable.map((c, i) => (
-            <span key={c.key}>
-              {i > 0 && " · "}
-              <a href={conceptHref(c.key)} style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-                Compare with the {c.others} other{c.others === 1 ? "" : "s"} in <strong>{c.key}</strong>
-              </a>
-            </span>
+        <div className="related-row" data-compare-links="">
+          {comparable.map((c) => (
+            <RelatedCard
+              key={c.key}
+              href={conceptHref(c.key)}
+              title={`Compare with the ${c.others} other${c.others === 1 ? "" : "s"}`}
+              context={c.key}
+            />
           ))}
-        </p>
+        </div>
       )}
 
       {/*
@@ -158,7 +221,7 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
            * Facts only, in the words a visitor already speaks: whether the code is here, why not when it is not,
            * and where to read it. The old sentence ("The code is theirs. It is not republished here") said the
            * same thing in two abstractions — "theirs" and "republished" — and named no reason. The licence is
-           * the reason and the badge above still carries its name, so the sentence can stay short and true.
+           * the reason and the table above still carries it, so the sentence can stay short and true.
            */}
           <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
             Code not shown here because the licence does not allow us to republish it.
@@ -184,9 +247,15 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
            * The install command comes before the demos, because it is the thing a visitor came for and because the
            * tester's report was exact: "the first visible Copy on an item page copies a preview wrapper". Measured
            * before this change on `#/i/beui/animated-sidebar`, the first Copy was the demo's source; after it, the
-           * first Copy in document order is the install command, labelled for what it puts on the clipboard.
+           * first Copy in document order is the install command, labelled for what it puts on the clipboard, and
+           * it is the one accent-filled control on the page.
            */}
-          {item.install && <Install install={item.install} />}
+          {item.install && (
+            <>
+              <div className="section-h">Installation</div>
+              <InstallBlock install={item.install} />
+            </>
+          )}
           <div className="stage" data-stage={item.id}>
             <StageBar item={item} api={api} canReplay={canReplay} />
             {item.variants.map((v, i) => (
@@ -227,9 +296,9 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
         <Files files={item.files} main={mainFile(item)} />
       )}
 
-      <nav className="nav2">
-        {prev ? <PagerLink n={prev} dir="prev" /> : <span />}
-        {next ? <PagerLink n={next} dir="next" /> : <span />}
+      <nav className="related-pager" aria-label="The items either side of this one">
+        {prev ? <PagerCard n={prev} dir="prev" /> : <span />}
+        {next ? <PagerCard n={next} dir="next" /> : <span />}
       </nav>
     </div>
   );
