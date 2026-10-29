@@ -26,9 +26,35 @@ function catalogCounts() {
   };
 }
 
+/**
+ * THE STYLESHEET, WITHOUT THE FIRST-PAINT TAX.
+ *
+ * A render-blocking `<link rel=stylesheet>` stops the browser painting *anything*, including the inline shell in
+ * `index.html`, until 46 KB (gzipped) of CSS has arrived. Measured at 400 kbit/s with 400 ms RTT on the live
+ * build, first paint was 8.3 s — the shell was in the document the whole time and the browser would not draw it.
+ *
+ * So the link is emitted as a preload that becomes the stylesheet on load. The shell carries its own ~2 KB inline
+ * CSS and needs nothing else to be legible; by the time React mounts, the real stylesheet has long since applied.
+ * `<noscript>` keeps the no-JavaScript case exactly as it was. This is a build-time transformation of one tag, not
+ * a change to the CSS or to any surface.
+ */
+function cssWithoutThePaintTax() {
+  return {
+    name: "css-without-the-paint-tax",
+    enforce: "post" as const,
+    transformIndexHtml: (html: string) =>
+      html.replace(
+        /<link rel="stylesheet"([^>]*)href="([^"]+\.css)"([^>]*)>/g,
+        (_m, a: string, href: string, b: string) =>
+          `<link rel="preload" as="style"${a}href="${href}"${b} onload="this.rel='stylesheet'">` +
+          `<noscript><link rel="stylesheet" href="${href}"></noscript>`,
+      ),
+  };
+}
+
 export default defineConfig({
   base: "/design-catalog/",
-  plugins: [react(), tailwindcss(), catalogCounts()],
+  plugins: [react(), tailwindcss(), catalogCounts(), cssWithoutThePaintTax()],
   build: {
     manifest: true,
     rollupOptions: {

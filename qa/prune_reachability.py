@@ -73,8 +73,12 @@ def main():
                 if f.endswith((".json", ".js")):
                     for m in NAME.finditer(read(os.path.join(base, f))):
                         take(m.group(0), rel)
+    # fonts, and the demo frames' own images: neither is named by an asset-name regex. A font is referenced from
+    # CSS by `url()` and by family name; `avatars/shadcn.jpg` is referenced from a *data string* inside a demo
+    # module (`avatar: "/avatars/shadcn.jpg"`), which no crawl of href/src can see. The prune deleted it once and
+    # the demo frame logged a 404 it had not caused — a pruner that cannot see a reference must not call it dead.
     for f in have:
-        if f.startswith("fonts/") or f.endswith((".woff2", ".woff")):
+        if f.startswith(("fonts/", "avatars/")) or f.endswith((".woff2", ".woff")):
             keep.add(f)
 
     # every relative link an HTML document makes is a file a visitor can click; those stay regardless of kind
