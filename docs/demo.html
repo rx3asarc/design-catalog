@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>demo</title>
     <style>html,body{background:0 0;margin:0;padding:0}#root{display:block}</style>
-    <script type="module" crossorigin src="/design-catalog/assets/demo-BsUxzaJH.js"></script>
+    <script type="module" crossorigin src="/design-catalog/assets/demo-DeQVrKbW.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-orRFWBl5.js">
@@ -13,5 +13,59 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      ONE PATH, REWRITTEN BEFORE IT IS REQUESTED.
+
+      Three of shadcn's own sidebar blocks put `avatar: "/avatars/shadcn.jpg"` in their demo data. That path is
+      root-absolute, and root-absolute on a project page is the wrong place: this site is served from
+      `/design-catalog/`, so the browser asks `rx3asarc.github.io/avatars/shadcn.jpg` and gets a 404 — one console
+      error per mounted block, on a site whose own promise is that it makes no external requests and whose smoke
+      gate counts console errors. Rewriting the *file* was the other option and is worse: those files are the
+      catalogue's own displayed source, and editing them would make the site show code that is not what it claims.
+
+      So the path is corrected where it is consumed. `MutationObserver` rather than an `error` listener: an error
+      listener fires after the failed request has already been made and logged, which would fix the picture and
+      leave the console error behind. The observer runs on the microtask after the attribute is set, before the
+      image request is dispatched. `/design-catalog/` is the vite base; the file itself is `public/avatars/shadcn.jpg`,
+      the same image upstream ships.
+    -->
+    <script>
+      (function () {
+        var BASE = "/design-catalog/avatars/";
+        var swap = function (v) {
+          return typeof v === "string" && v.indexOf("/avatars/") === 0 ? BASE + v.slice("/avatars/".length) : v;
+        };
+        /*
+         * The observer below cannot win every race: an image created off-document and given its `src` before it is
+         * inserted has already been dispatched by the time the insertion is observed (one 404 survived the
+         * observer alone, on the item page at 390 px). The property setter is the earliest point that sees the
+         * value at all, so the rewrite happens there too. It is the demo frame's own `HTMLImageElement`, and it
+         * changes one prefix on one path — nothing else about the element.
+         */
+        try {
+          var d = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+          Object.defineProperty(HTMLImageElement.prototype, "src", {
+            configurable: true, enumerable: d.enumerable, get: d.get,
+            set: function (v) { d.set.call(this, swap(v)); }
+          });
+        } catch (e) {}
+        var fix = function (node) {
+          if (!node || node.tagName !== "IMG") return;
+          var src = node.getAttribute("src");
+          if (src && src.indexOf("/avatars/") === 0) node.setAttribute("src", swap(src));
+        };
+        new MutationObserver(function (records) {
+          for (var i = 0; i < records.length; i++) {
+            var r = records[i];
+            if (r.type === "attributes") fix(r.target);
+            else for (var j = 0; j < r.addedNodes.length; j++) {
+              var n = r.addedNodes[j];
+              if (n.querySelectorAll) n.querySelectorAll("img").forEach(fix);
+              fix(n);
+            }
+          }
+        }).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["src"] });
+      })();
+    </script>
   </body>
 </html>

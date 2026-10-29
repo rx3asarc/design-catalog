@@ -30,6 +30,7 @@ export default defineConfig({
   base: "/design-catalog/",
   plugins: [react(), tailwindcss(), catalogCounts()],
   build: {
+    manifest: true,
     rollupOptions: {
       input: {
         main: fileURLToPath(new URL("./index.html", import.meta.url)),

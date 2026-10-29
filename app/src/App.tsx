@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { Suspense, lazy, useMemo, useState } from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Provenance } from "./provenance";
 import {
@@ -9,13 +9,38 @@ import { items } from "./site/lib";
 import { SOURCES, neighbours, useCanonical, useRoute, useScrollReset, useTree, type Miss } from "./site/route";
 import { PhoneRail, RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
-import { Gallery } from "./site/Gallery";
-import { About } from "./site/About";
-import { ItemPage } from "./site/ItemPage";
-import { Compare } from "./site/Compare";
-import { ChromePage } from "./site/ChromePage";
 import { ThemeSwitch } from "./site/ThemeSwitch";
 import { Palette, PaletteTrigger } from "./site/CommandPalette";
+
+/**
+ * Everything except the front page is fetched when it is first opened, not before.
+ *
+ * Measured on the live build at 400 kbit/s: 1,407 KB of JavaScript reached the browser before the page said
+ * anything, first paint at 7.8 s and the first line of content at 10.8 s. The front page cannot draw without the
+ * shell, the rail and the tiles, so those stay in the entry; the gallery, an item page, a comparison, the chrome
+ * page and about were all in there too, whether or not the visitor ever opened one. They are `lazy` now: the
+ * entry ships one surface, and the other five arrive on the click that asks for them (Vite emits a chunk each).
+ */
+const Gallery = lazy(() => import("./site/Gallery").then((m) => ({ default: m.Gallery })));
+const About = lazy(() => import("./site/About").then((m) => ({ default: m.About })));
+const ItemPage = lazy(() => import("./site/ItemPage").then((m) => ({ default: m.ItemPage })));
+const Compare = lazy(() => import("./site/Compare").then((m) => ({ default: m.Compare })));
+const ChromePage = lazy(() => import("./site/ChromePage").then((m) => ({ default: m.ChromePage })));
+
+/**
+ * What a route shows for the ~100 ms its own chunk is in flight.
+ *
+ * Deliberately dull: one line of text, no spinner and no skeleton cards, because a skeleton card that turns into
+ * different content is a lie about what is coming. It is the same sentence the crumb would carry.
+ */
+function SurfaceWait({ what }: { what: string }) {
+  return (
+    <div className="page-in" data-surface-wait="">
+      <div className="crumb">{what}</div>
+      <p role="status" style={{ fontSize: 14, color: "var(--muted-foreground)", margin: 0 }}>Fetching {what}…</p>
+    </div>
+  );
+}
 import { PageTurn } from "./site/PageTurn";
 import { useScrollRestore } from "./site/useScrollRestore";
 
@@ -162,6 +187,7 @@ export default function App() {
       {phone ? null : <RailReopen />}
       <SidebarInset className="page" data-route={route.kind}>
         <PageTurn hash={hash}>
+        <Suspense fallback={<SurfaceWait what={route.kind} />}>
         {route.kind === "chrome" ? <ChromePage /> : null}
         {route.kind === "chrome" ? null
           // GALLERY SEAM — the gallery unit owns this line: `#/g[?filter]` parses in site/route.ts and renders
@@ -175,6 +201,7 @@ export default function App() {
           // page, which is why a bad link looked like a working site with a bad address bar.
           : route.kind === "notfound" ? <NotFound miss={route.miss} />
           : <Home />}
+        </Suspense>
         </PageTurn>
       </SidebarInset>
       <PaletteTrigger place="float" />

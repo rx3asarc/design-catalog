@@ -6,6 +6,44 @@
     <title>design catalog</title>
     <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
     <meta name="description" content="%CATALOG_COUNT% entries from five reference libraries — %CATALOG_RENDERED% rendered here, with their source." />
+    <!--
+      THE FIRST PAINT, BEFORE ANY JAVASCRIPT.
+
+      Measured on the live build at 400 kbit/s: first paint at 7.8 s and the first line of content at 10.8 s, because
+      the browser had 1,407 KB of JavaScript to get through before React could say anything. A visitor on a train saw
+      a white rectangle for eight seconds. This is what they see instead: the shell's own words — the real counts,
+      already substituted at build time — in the real type, drawn from ~2 KB of inline CSS that needs no network
+      round-trip. `#root` is where React mounts, and `createRoot().render()` replaces these children, so the shell
+      lives exactly as long as it is needed and disappears when the app is ready. If the bundle never arrives, the
+      shell stays and tells the truth rather than leaving a blank page.
+    -->
+    <style>
+      :root { --boot-fg: #09090b; --boot-bg: #ffffff; --boot-mut: #71717a; --boot-line: #e4e4e7; --boot-soft: #f4f4f5; }
+      html.dark { --boot-fg: #fafafa; --boot-bg: #09090b; --boot-mut: #a1a1aa; --boot-line: #27272a; --boot-soft: #18181b; }
+      html, body { margin: 0; background: var(--boot-bg); color: var(--boot-fg);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+      .boot-top { display: flex; align-items: center; gap: 12px; height: 65px; padding: 0 18px;
+        border-bottom: 1px solid var(--boot-line); }
+      .boot-brand { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+      .boot-count { color: var(--boot-mut); font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; }
+      .boot-body { display: flex; align-items: flex-start; gap: 0; max-width: 1560px; }
+      .boot-rail { width: 288px; flex: none; padding: 18px 16px; border-right: 1px solid var(--boot-line);
+        min-height: calc(100vh - 66px); }
+      .boot-railrow { font-size: 13px; padding: 7px 0; color: var(--boot-mut); }
+      .boot-main { flex: 1; min-width: 0; padding: 26px 26px 0; }
+      .boot-crumb { color: var(--boot-mut); font-size: 12px; letter-spacing: 0.02em; margin-bottom: 6px; }
+      .boot-h { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; }
+      .boot-p { margin: 0 0 14px; font-size: 15px; max-width: 62ch; }
+      .boot-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+      .boot-tile { height: 210px; border: 1px solid var(--boot-line); border-radius: 10px; background: var(--boot-soft);
+        display: flex; align-items: center; justify-content: center; color: var(--boot-mut); font-size: 12px; }
+      @media (max-width: 860px) {
+        .boot-rail { display: none; }
+        .boot-main { padding: 18px 16px 0; }
+        .boot-tiles { display: flex; gap: 10px; overflow: hidden; }
+        .boot-tile { flex: none; width: 78vw; height: 132px; }
+      }
+    </style>
     <!-- the phone's chrome colour; the boot script keeps it on the theme that actually won -->
     <meta name="theme-color" content="#ffffff" />
     <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
@@ -54,7 +92,46 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      The shell, not the app: real words and real counts, no invented content. React replaces it on mount.
+      `aria-hidden` because a screen reader should wait for the page rather than read a skeleton out loud; the
+      `role="status"` line says what is happening for anyone who gets here early.
+    -->
+    <div id="root">
+      <div class="boot">
+        <div class="boot-top">
+          <span class="boot-brand">design catalog</span>
+          <span class="boot-count">%CATALOG_COUNT% items · %CATALOG_RENDERED% rendered here</span>
+        </div>
+        <div class="boot-body">
+          <div class="boot-rail" aria-hidden="true">
+            <div class="boot-railrow">Blocks and pages</div>
+            <div class="boot-railrow">Components</div>
+            <div class="boot-railrow">Motion and effects</div>
+            <div class="boot-railrow">Docs</div>
+          </div>
+          <div class="boot-main">
+            <div class="boot-crumb">%CATALOG_COUNT% items · 5 libraries · browser, CLI, MCP</div>
+            <h2 class="boot-h">design catalog</h2>
+            <p class="boot-p">
+              Browse it, or ask your agent. %CATALOG_COUNT% components, blocks, effects and doc pages from 5
+              reference libraries, collected in one place.
+            </p>
+            <p class="boot-p" role="status" style="color: var(--boot-mut); font-size: 13px">
+              Six things from the catalogue. Tap any of them to open its page.
+            </p>
+            <div class="boot-tiles" aria-hidden="true">
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

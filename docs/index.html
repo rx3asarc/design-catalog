@@ -6,6 +6,18 @@
     <title>design catalog</title>
     <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
     <meta name="description" content="769 entries from five reference libraries — 486 rendered here, with their source." />
+    <!--
+      THE FIRST PAINT, BEFORE ANY JAVASCRIPT.
+
+      Measured on the live build at 400 kbit/s: first paint at 7.8 s and the first line of content at 10.8 s, because
+      the browser had 1,407 KB of JavaScript to get through before React could say anything. A visitor on a train saw
+      a white rectangle for eight seconds. This is what they see instead: the shell's own words — the real counts,
+      already substituted at build time — in the real type, drawn from ~2 KB of inline CSS that needs no network
+      round-trip. `#root` is where React mounts, and `createRoot().render()` replaces these children, so the shell
+      lives exactly as long as it is needed and disappears when the app is ready. If the bundle never arrives, the
+      shell stays and tells the truth rather than leaving a blank page.
+    -->
+    <style>:root{--boot-fg:#09090b;--boot-bg:#fff;--boot-mut:#71717a;--boot-line:#e4e4e7;--boot-soft:#f4f4f5}html.dark{--boot-fg:#fafafa;--boot-bg:#09090b;--boot-mut:#a1a1aa;--boot-line:#27272a;--boot-soft:#18181b}html,body{background:var(--boot-bg);color:var(--boot-fg);margin:0;font-family:Instrument Sans,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}.boot-top{border-bottom:1px solid var(--boot-line);align-items:center;gap:12px;height:65px;padding:0 18px;display:flex}.boot-brand{letter-spacing:-.01em;font-size:15px;font-weight:600}.boot-count{color:var(--boot-mut);font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px}.boot-body{align-items:flex-start;gap:0;max-width:1560px;display:flex}.boot-rail{border-right:1px solid var(--boot-line);flex:none;width:288px;min-height:calc(100vh - 66px);padding:18px 16px}.boot-railrow{color:var(--boot-mut);padding:7px 0;font-size:13px}.boot-main{flex:1;min-width:0;padding:26px 26px 0}.boot-crumb{color:var(--boot-mut);letter-spacing:.02em;margin-bottom:6px;font-size:12px}.boot-h{letter-spacing:-.02em;margin:0 0 10px;font-size:30px;font-weight:600}.boot-p{max-width:62ch;margin:0 0 14px;font-size:15px}.boot-tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;display:grid}.boot-tile{border:1px solid var(--boot-line);background:var(--boot-soft);height:210px;color:var(--boot-mut);border-radius:10px;justify-content:center;align-items:center;font-size:12px;display:flex}@media (width<=860px){.boot-rail{display:none}.boot-main{padding:18px 16px 0}.boot-tiles{gap:10px;display:flex;overflow:hidden}.boot-tile{flex:none;width:78vw;height:132px}}</style>
     <!-- the phone's chrome colour; the boot script keeps it on the theme that actually won -->
     <meta name="theme-color" content="#ffffff" />
     <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
@@ -52,7 +64,7 @@
         paint(read());
       })();
     </script>
-    <script type="module" crossorigin src="/design-catalog/assets/main-Ho4FOx0u.js"></script>
+    <script type="module" crossorigin src="/design-catalog/assets/main-BZfFy1HH.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-orRFWBl5.js">
@@ -84,6 +96,7 @@
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-Ce6G0cQ3.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-DC7mffCU.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/button-Ce2Do0lH.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/lib-CYMQr87N.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/createLucideIcon-D9y8R4Uu.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/x-CvPCzChs.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/input-tqgSFUZc.js">
@@ -99,7 +112,6 @@
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BRrIpq-y.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-kZfyX72Y.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/badge-CC76XeoY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/table-BwxuhHBZ.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/kbd-BHGc2fm9.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/search-CRDMuLPk.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-C5k8pLTS.js">
@@ -107,6 +119,45 @@
     <link rel="stylesheet" crossorigin href="/design-catalog/assets/styles-DP2pcc-l.css">
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      The shell, not the app: real words and real counts, no invented content. React replaces it on mount.
+      `aria-hidden` because a screen reader should wait for the page rather than read a skeleton out loud; the
+      `role="status"` line says what is happening for anyone who gets here early.
+    -->
+    <div id="root">
+      <div class="boot">
+        <div class="boot-top">
+          <span class="boot-brand">design catalog</span>
+          <span class="boot-count">769 items · 486 rendered here</span>
+        </div>
+        <div class="boot-body">
+          <div class="boot-rail" aria-hidden="true">
+            <div class="boot-railrow">Blocks and pages</div>
+            <div class="boot-railrow">Components</div>
+            <div class="boot-railrow">Motion and effects</div>
+            <div class="boot-railrow">Docs</div>
+          </div>
+          <div class="boot-main">
+            <div class="boot-crumb">769 items · 5 libraries · browser, CLI, MCP</div>
+            <h2 class="boot-h">design catalog</h2>
+            <p class="boot-p">
+              Browse it, or ask your agent. 769 components, blocks, effects and doc pages from 5
+              reference libraries, collected in one place.
+            </p>
+            <p class="boot-p" role="status" style="color: var(--boot-mut); font-size: 13px">
+              Six things from the catalogue. Tap any of them to open its page.
+            </p>
+            <div class="boot-tiles" aria-hidden="true">
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+              <div class="boot-tile">loading demo…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
