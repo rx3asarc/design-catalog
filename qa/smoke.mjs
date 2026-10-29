@@ -1,6 +1,7 @@
 // Slice smoke test: every publish runs this against docs/ served as a static site.
 // usage: node smoke.mjs [baseUrl]
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { settle } from "./settle.mjs";
 
 const BASE = process.argv[2] || "http://localhost:8830/design-catalog/";
 const ROUTES = [
@@ -13,6 +14,7 @@ const browser = await chromium.launch({ executablePath: "/usr/local/bin/google-c
 for (const vp of VIEWPORTS) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
   const page = await ctx.newPage();
+  settle(page);
   const errors = [], failed = [];
   page.on("console", (m) => { if (m.type() === "error" && !/favicon/.test(m.location()?.url || "")) errors.push((m.text() || "(no text)") + " @ " + (m.location()?.url || "?")); });
   page.on("requestfailed", (r) => { const why = (r.failure()?.errorText || "?"); if (!/ERR_ABORTED/.test(why)) failed.push(`${why} ${r.url().slice(-50)}`); });

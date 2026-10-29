@@ -9,6 +9,7 @@
  */
 import { readFileSync } from "node:fs";
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { settle } from "./settle.mjs";
 
 const BASE = (process.argv[2] ?? "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
 const MANIFEST = JSON.parse(readFileSync("/root/design-catalog-site/app/manifest.json", "utf8"));
@@ -30,6 +31,7 @@ const errors = [];
 async function page(vp) {
   const ctx = await browser.newContext({ viewport: vp });
   const p = await ctx.newPage();
+  settle(p);
   p.on("pageerror", (e) => errors.push(String(e)));
   p.on("console", (m) => {
     // Chromium logs a bare "Failed to load resource" for the favicon it asks for on its own account;
@@ -39,7 +41,7 @@ async function page(vp) {
     if (/Failed to load resource/.test(t) && !/design-catalog\/assets/.test(t)) return;
     errors.push(t);
   });
-  return p;
+  return settle(p);
 }
 
 /* ── A. the hero no longer prints a verdict wall (review: "the home page has a wall of 'rejected'") ── */
@@ -257,6 +259,31 @@ async function page(vp) {
     }
     await p.context().close();
   }
+}
+
+/* ── I0. the hero is written twice (build-time HTML, and Home.tsx at runtime) — do the two agree? ───────────── */
+{
+  /*
+   * The shell in `index.html` draws the six cards before a byte of JavaScript is fetched, and it draws them from a
+   * copy of the rule that lives in `vite.config.ts`; the running app draws them from `site/Home.tsx`. Two copies of
+   * one rule is a drift waiting to happen, so this check is the drift alarm: the ids in the raw HTML must be the
+   * ids the mounted row carries. If this fails, `vite.config.ts` is out of date with `Home.tsx` — fix that copy,
+   * never the other way round.
+   */
+  const raw = await (await fetch(BASE + "index.html")).text();
+  const declared = (raw.match(/data-boot-hero-ids="([^"]*)"/)?.[1] ?? "").split(" ").filter(Boolean);
+  const p = await page({ width: 1440, height: 900 });
+  await p.goto(BASE + "#/", { waitUntil: "load" });
+  // the row is React's, so it appears after the entry chunk runs: wait for the host, never for a fixed delay
+  // (a fixed 1200 ms compared 6 declared ids against 0 mounted ones on a cold page and failed two checks in a row)
+  await p.waitForFunction(() => !!document.querySelector("[data-hero-tiles]"), null, { timeout: 15000 }).catch(() => {});
+  await p.waitForTimeout(400);
+  const mounted = await p.evaluate(() =>
+    (document.querySelector("[data-hero-tiles]")?.getAttribute("data-hero-ids") ?? "").split(" ").filter(Boolean));
+  ok("hero: the build-time cards are the row the app draws", declared.length === 6 && declared.join(" ") === mounted.join(" "),
+    `static ${declared.length} · mounted ${mounted.length}${declared.join(" ") === mounted.join(" ") ? "" : ` · static=[${declared}] mounted=[${mounted}]`}`);
+  const cards = (raw.match(/data-boot-tile="/g) ?? []).length;
+  ok("hero: the shell draws six real cards, not six placeholders", cards === 6, `${cards} boot cards`);
 }
 
 /* ── I. the hero row: it runs, it is legible, and it is where it claims to be ─────────────────────────────── */
