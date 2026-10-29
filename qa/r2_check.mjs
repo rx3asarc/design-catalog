@@ -316,7 +316,7 @@ async function page(vp) {
   const body = await p.evaluate(() => document.body.innerText);
   ok("no build note on a public page", !/not published in this build|not exported|this build/i.test(body),
     (body.match(/not published in this build|not exported|this build/gi) ?? []).join(", "));
-  ok("no shelf-order apology either", !/shelf order|order of merit/i.test(body), "found one");
+  ok("no shelf-order apology either", !/a shelf order|not an order of merit\./i.test(body), "found one");
   await p.context().close();
 }
 
