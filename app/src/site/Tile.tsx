@@ -302,7 +302,7 @@ export function CardMeta({ item }: { item: Item }) {
   return (
     <div style={{
       display: "flex", flexWrap: "wrap", alignItems: "center", gap: "4px 8px", minWidth: 0,
-      fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--muted-foreground)",
+      fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--ink-muted)",
     }}>
       <span style={{ textTransform: "uppercase", letterSpacing: "0.04em" }}>{item.source}</span>
       <Badge data-catalog-item="shadcn/badge" variant="outline" className="badge">{item.licence}</Badge>
@@ -313,7 +313,7 @@ export function CardMeta({ item }: { item: Item }) {
 
 export const cardStyle: React.CSSProperties = {
   border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden",
-  background: "var(--card)", color: "inherit", textDecoration: "none", display: "block", minWidth: 0,
+  background: "var(--surface-300)", color: "inherit", textDecoration: "none", display: "block", minWidth: 0,
 };
 
 /**
@@ -323,8 +323,16 @@ export const cardStyle: React.CSSProperties = {
  * (a demo is not an app here; the item page is where it is interactive) and the whole tile is one tab stop that
  * opens on Enter. Hover and focus both start a motion demo, so the affordance is not hover-only.
  */
-export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
+export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "block" }: {
   item: Item; pool: Pool; colW: number; bodyH: number; theme: "light" | "dark";
+  /**
+   * Where the item's name goes. `block` is the grid's card: canvas, hairline, title and facets under it — a reader
+   * is comparing rows there. `bar` is the hero row's: the name is a strip across the canvas's own foot, so the tile
+   * is exactly `bodyH` tall and the front page's first screen is the same height in the boot shell, in React, and
+   * after the frames mount. (Measured before: the shell drew 164×210 text cards and the page replaced them with
+   * 164×317 cards — a 107 px shove down the page at the moment React took over.)
+   */
+  caption?: "block" | "bar";
   /**
    * Load the frame as a **frozen first frame** and let only the hovered/focused tile play. Absent is the grid's
    * own rule: a motion item (`isMotionItem`) loads frozen, everything else loads as it is. A surface whose frames
@@ -352,7 +360,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
    *
    * `ringed` is `:focus-visible`, tracked as state because the ring is a style in this file and the selector is not.
    * The tile had no focus treatment of its own: it fell through to the user agent's outline, which Chromium draws
-   * with `outline-color` — and the stylesheet's base rule makes that `var(--ring)` at 50% opacity. Measured, that
+   * with `outline-color` — and the stylesheet's base rule makes that `var(--focus)` at 50% opacity. Measured, that
    * is 1.44:1 against the dark tile surface, i.e. a ring a visitor cannot see. The ring is 2 px of `--foreground`,
    * offset 2 px: 20.89:1 on the light tile and 18.59:1 on the dark one, both taken from the running page, and both
    * far above the 3:1 floor. `:focus-visible` and not `:focus`, so a mouse click does not leave a ring behind.
@@ -398,8 +406,8 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
         data-catalog-item={item.id}
         style={{
           ...cardStyle,
-          borderColor: hot ? "var(--ring)" : "var(--border)",
-          outline: ringed ? "2px solid var(--foreground)" : undefined,
+          borderColor: hot ? "var(--focus)" : "var(--border)",
+          outline: ringed ? "2px solid var(--ink)" : undefined,
           outlineOffset: ringed ? 2 : undefined,
         }}
         onMouseEnter={() => { setHot(true); setPlay(true); }}
@@ -407,7 +415,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
         onFocus={(e) => { setHot(true); setPlay(true); setRinged(e.currentTarget.matches(":focus-visible")); }}
         onBlur={() => { setHot(false); setPlay(false); setRinged(false); }}
       >
-        <div style={{ position: "relative", height: bodyH, overflow: "hidden", background: "var(--muted)" }}>
+        <div style={{ position: "relative", height: bodyH, overflow: "hidden", background: "var(--surface-300)" }}>
           {!ready ? <Poster item={item} /> : null}
           {live ? (
             /*
@@ -445,10 +453,24 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen }: {
             </div>
           ) : null}
         </div>
-        <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
-          <span style={{ fontSize: 14, lineHeight: 1.35, fontWeight: 500, overflowWrap: "anywhere" }}>{title(item)}</span>
-          <CardMeta item={item} />
-        </div>
+        {caption === "bar" ? (
+          <div
+            data-tile-bar=""
+            style={{
+              position: "absolute", left: 0, right: 0, bottom: 0, padding: "6px 10px",
+              background: "var(--surface-200)", borderTop: "1px solid var(--border)",
+              fontSize: 13, lineHeight: "20px", fontWeight: 500, color: "var(--ink)",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}
+          >
+            {title(item)}
+          </div>
+        ) : (
+          <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
+            <span style={{ fontSize: 14, lineHeight: 1.35, fontWeight: 500, overflowWrap: "anywhere" }}>{title(item)}</span>
+            <CardMeta item={item} />
+          </div>
+        )}
       </a>
     </li>
   );
@@ -460,7 +482,7 @@ const POSTER_MONO: React.CSSProperties = {
   // 12 px is the floor: a poster's kicker and its `source · kind` line are the only words a visitor reads on a
   // phone before a demo loads, and at 11 px they measured as the smallest text on the site.
   fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-  color: "var(--muted-foreground)", whiteSpace: "nowrap",
+  color: "var(--ink-muted)", whiteSpace: "nowrap",
 };
 
 /**
@@ -496,7 +518,7 @@ export function Poster({ item }: { item: Item }) {
         <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", overflow: "hidden", textOverflow: "ellipsis" }}>
           {item.source} · {item.kind}
         </span>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--muted-foreground)" }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--ink-muted)" }}>
           <Facets item={item} />
         </span>
       </span>
@@ -519,9 +541,9 @@ export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
         }}>
           <span style={{
             fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-            color: "var(--muted-foreground)",
+            color: "var(--ink-muted)",
           }}>no demo</span>
-          <span style={{ fontSize: 13, color: "var(--muted-foreground)" }}>{item.kind}</span>
+          <span style={{ fontSize: 13, color: "var(--ink-muted)" }}>{item.kind}</span>
         </div>
         <div style={{ padding: "8px 10px", display: "grid", gap: 4 }}>
           <a href={`#/i/${item.id}`} data-catalog-item={item.id}
@@ -546,7 +568,7 @@ export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
 
 /* ── the grid, and the observers that decide what is mounted ────────────────────────────────────────────── */
 
-export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, defer }: {
+export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, defer, caption = "block" }: {
   rows: Item[]; colW: number; bodyH: number; narrow: boolean; theme: "light" | "dark";
   /**
    * How many frames may run at once. Absent is the grid's own budget — 9 wide, 2 on a phone, both measured — and
@@ -569,6 +591,8 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, d
    * frames will occupy, so this costs the row no layout shift — it only decides when the frames begin.
    */
   defer?: boolean;
+  /** see `DemoTile`: a hero row names its tiles across the canvas's foot to keep the row one canvas tall */
+  caption?: "block" | "bar";
 }) {
   const host = useRef<HTMLUListElement>(null);
   const limit = cap ?? (narrow ? PHONE_CAP : LIVE_CAP);
@@ -618,7 +642,7 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, d
     >
       {rows.map((item) =>
         hasDemo(item)
-          ? <DemoTile key={item.id} item={item} pool={pool} colW={colW} bodyH={bodyH} theme={theme} frozen={frozen} />
+          ? <DemoTile key={item.id} item={item} pool={pool} colW={colW} bodyH={bodyH} theme={theme} frozen={frozen} caption={caption} />
           : <RefCard key={item.id} item={item} bodyH={bodyH} />,
       )}
     </ul>

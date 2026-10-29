@@ -17,9 +17,9 @@
       lives exactly as long as it is needed and disappears when the app is ready. If the bundle never arrives, the
       shell stays and tells the truth rather than leaving a blank page.
     -->
-    <style>:root{--boot-fg:#09090b;--boot-bg:#fff;--boot-mut:#71717a;--boot-line:#e4e4e7;--boot-soft:#f4f4f5}html.dark{--boot-fg:#fafafa;--boot-bg:#09090b;--boot-mut:#a1a1aa;--boot-line:#27272a;--boot-soft:#18181b}html,body{background:var(--boot-bg);color:var(--boot-fg);margin:0;font-family:Instrument Sans,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}.boot-top{border-bottom:1px solid var(--boot-line);align-items:center;gap:12px;height:65px;padding:0 18px;display:flex}.boot-brand{letter-spacing:-.01em;font-size:15px;font-weight:600}.boot-count{color:var(--boot-mut);font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px}.boot-body{align-items:flex-start;gap:0;max-width:1560px;display:flex}.boot-rail{border-right:1px solid var(--boot-line);flex:none;width:288px;min-height:calc(100vh - 66px);padding:18px 16px}.boot-railrow{color:var(--boot-mut);padding:7px 0;font-size:13px}.boot-main{flex:1;min-width:0;padding:26px 26px 0}.boot-crumb{color:var(--boot-mut);letter-spacing:.02em;margin-bottom:6px;font-size:12px}.boot-h{letter-spacing:-.02em;margin:0 0 10px;font-size:30px;font-weight:600}.boot-p{max-width:62ch;margin:0 0 14px;font-size:15px}.boot-tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;display:grid}.boot-tile{border:1px solid var(--boot-line);background:var(--boot-soft);border-radius:10px;align-content:space-between;gap:10px;min-width:0;height:210px;padding:11px 12px 13px;display:grid}.boot-tile-kicker{letter-spacing:.06em;text-transform:uppercase;color:var(--boot-mut);font-family:ui-monospace,JetBrains Mono,monospace;font-size:11px}.boot-tile-body{gap:3px;min-width:0;display:grid}.boot-tile-title{overflow-wrap:anywhere;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:15px;font-weight:500;line-height:1.3;display:-webkit-box;overflow:hidden}.boot-tile-meta{letter-spacing:.02em;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,JetBrains Mono,monospace;font-size:11.5px;overflow:hidden}.boot-tile-facets{color:var(--boot-mut);font-variant-numeric:tabular-nums;font-family:ui-monospace,JetBrains Mono,monospace;font-size:11.5px;line-height:1.45}@media (width<=860px){.boot-rail{display:none}.boot-main{padding:18px 16px 0}.boot-tiles{gap:10px;display:flex;overflow:hidden}.boot-tile{flex:none;width:78vw;height:132px}}</style>
+    <style>:root{--boot-fg:#fafafa;--boot-bg:#09090b;--boot-mut:#a1a1aa;--boot-line:#27272a;--boot-soft:#18181b}html:not(.dark){--boot-fg:#09090b;--boot-bg:#fff;--boot-mut:#52525b;--boot-line:#e4e4e7;--boot-soft:#f4f4f5}html,body{background:var(--boot-bg);color:var(--boot-fg);margin:0;font-family:Instrument Sans,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}.boot-top{border-bottom:1px solid var(--boot-line);align-items:center;gap:12px;height:65px;padding:0 18px;display:flex}.boot-brand{letter-spacing:-.01em;font-size:15px;font-weight:600}.boot-count{color:var(--boot-mut);font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px}.boot-body{align-items:flex-start;gap:0;max-width:1560px;display:flex}.boot-rail{border-right:1px solid var(--boot-line);flex:none;width:288px;min-height:calc(100vh - 66px);padding:18px 16px}.boot-railrow{color:var(--boot-mut);padding:7px 0;font-size:13px}.boot-main{flex:1;min-width:0;max-width:1100px;padding:32px 32px 0}.boot-crumb{color:var(--boot-mut);letter-spacing:.02em;margin-bottom:6px;font-size:13px}.boot-h{letter-spacing:-.02em;margin:0 0 10px;font-size:30px;font-weight:600}.boot-p{max-width:62ch;margin:0 0 14px;font-size:15px}.boot-tiles{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;display:grid}.boot-tile{border:1px solid var(--boot-line);background:var(--boot-soft);border-radius:10px;align-content:space-between;gap:10px;min-width:0;height:210px;padding:11px 12px 13px;display:grid}.boot-tile-kicker{letter-spacing:.06em;text-transform:uppercase;color:var(--boot-mut);font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px}.boot-tile-body{gap:3px;min-width:0;display:grid}.boot-tile-title{overflow-wrap:anywhere;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:15px;font-weight:500;line-height:1.3;display:-webkit-box;overflow:hidden}.boot-tile-meta{letter-spacing:.02em;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px;overflow:hidden}.boot-tile-facets{color:var(--boot-mut);font-variant-numeric:tabular-nums;font-family:ui-monospace,JetBrains Mono,monospace;font-size:12px;line-height:1.45}@media (width<=860px){.boot-rail{display:none}.boot-h{font-size:26px;line-height:32px}.boot-main{padding:18px 16px 0}.boot-tiles{gap:10px;display:flex;overflow:hidden}.boot-tile{flex:none;width:78vw;height:132px}}</style>
     <!-- the phone's chrome colour; the boot script keeps it on the theme that actually won -->
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#09090b" />
     <!-- the two faces, self-hosted and preloaded: the site promises no third-party requests, so no CDN font -->
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/design-catalog/fonts/instrument-sans-latin-var.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/design-catalog/fonts/jetbrains-mono-latin-var.woff2" />
@@ -40,17 +40,22 @@
             return "system";
           }
         }
+        /* The design system's first rule is "dark is the default theme". A visitor who has never chosen gets dark
+           whatever their OS says; `system` is still there in the switch, and still remembered once picked. */
+        function resolved(mode) {
+          return mode === "system" ? "dark" : mode;
+        }
         function paint(mode) {
-          var dark = mode === "dark" || (mode === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          var dark = resolved(mode) === "dark";
           root.classList.toggle("dark", dark);
           root.setAttribute("data-theme", mode);
+          root.setAttribute("data-theme-resolved", dark ? "dark" : "light");
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute("content", dark ? "#09090b" : "#ffffff");
           return mode;
         }
-        var mq = matchMedia("(prefers-color-scheme: dark)");
-        var follow = function () { if (read() === "system") paint("system"); };
-        if (mq.addEventListener) mq.addEventListener("change", follow); else mq.addListener(follow);
+        /* nothing to follow any more: `system` resolves to dark by the brand book, so the OS cannot change the
+           painted theme behind the visitor's back. The listener is gone on purpose, not by omission. */
         window.catalogTheme = {
           read: read,
           /* choose: persist the explicit choice (or forget it, for system) and repaint */
@@ -64,13 +69,13 @@
         paint(read());
       })();
     </script>
-    <script type="module" crossorigin src="/design-catalog/assets/main-1Ekt-twv.js"></script>
+    <script type="module" crossorigin src="/design-catalog/assets/main-T_ycB5ps.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-orRFWBl5.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-BaO6dgCL.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/utils-D0T3A-kS.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CrmmMB6Z.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-B0jfnd1P.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DnsLam5y.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-v2fiQHm_.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-8Hn8bRnR.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DYP7iJt8.js">
@@ -78,45 +83,45 @@
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DkVxz1RS.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-LZsJZJ7J.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bu2gY_uY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-h1ZSafJU.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-yP6D0V7j.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-LnGLexhp.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D6S-KKW8.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/es2015-CT9qBaO1.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-sy2Cky8E.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.dom-BZqiDFn-.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.react-dom-jjcJMtco.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D_eqVBpt.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-BkRCk3c7.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.react-dom-E7YvieTK.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BX9hKXw1.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-Bm2_tn7E.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-ChPFJK-A.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D8Wfxh48.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-BFNiQINa.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-Ckp32beN.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-NilkmuZg.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DsJlRuxZ.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D8Ze1A6d.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-B1xO4AiV.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-Ce6G0cQ3.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-DC7mffCU.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-vgDX6U-E.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-DOEq2GRb.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-DlwIbr6D.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-B0WAsFkP.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/button-Ce2Do0lH.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/lib-BTvN-rTK.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/lib-CRDd3Hvk.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/createLucideIcon-D9y8R4Uu.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/x-CvPCzChs.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/input-tqgSFUZc.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-CO95ZYof.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-B82py-5v.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tooltip-41dvApOa.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-cWk8Ulnx.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-dni3Z33n.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tooltip-BJscP4H7.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/panel-left-BzwMTzWJ.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/use-mobile-B_fF2G8h.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-kva81ipd.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-dhRZvCHe.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-C-WUhVfI.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-BgVm4hVj.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/skeleton-BN0VueHu.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-CfC3WNBD.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BRrIpq-y.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-kZfyX72Y.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-DJI7__7G.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Cp9mwbE2.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-iMLV7Kk0.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/badge-CC76XeoY.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/kbd-BHGc2fm9.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/search-CRDMuLPk.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-C5k8pLTS.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/command-DAANKKRm.js">
-    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-DP2pcc-l.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-DP2pcc-l.css"></noscript>
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-FKGpxank.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/command-BCx-Zut5.js">
+    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-CHaqtVHb.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-CHaqtVHb.css"></noscript>
   </head>
   <body>
     <!--

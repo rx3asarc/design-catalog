@@ -128,7 +128,7 @@ const mono: React.CSSProperties = {
   fontSize: 11,
   letterSpacing: "0.04em",
   textTransform: "uppercase",
-  color: "var(--muted-foreground)",
+  color: "var(--ink-muted)",
   whiteSpace: "nowrap",
 };
 
@@ -221,7 +221,7 @@ export function StageBar({
         // turned dark because the *preview* did would be chrome lying about which theme the catalogue is in.
         // (And it is the only implementable answer anyway: `styles.css` has a `.dark` scope and no `.light` one,
         // so "the console follows the preview" would work in one direction and silently not in the other.)
-        border: "1px solid var(--border)", borderRadius: 10, background: "var(--card)",
+        border: "1px solid var(--border)", borderRadius: 10, background: "var(--surface-200)",
       }}
     >
       <Cluster label={word("theme")} hint="The demo only. The catalogue keeps its own theme.">

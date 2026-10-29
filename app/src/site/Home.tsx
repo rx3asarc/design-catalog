@@ -267,6 +267,7 @@ function HeroRow() {
         columns={narrow ? "repeat(6, 78vw)" : "repeat(6, minmax(0, 1fr))"}
         frozen
         defer
+        caption="bar"
       />
     </div>
   );
@@ -293,7 +294,7 @@ export function Home() {
   const libraries = useMemo(() => c.sources.length, [c.sources.length]);
   const [setup, setSetup] = useState(false);
   return (
-    <div className="page-in">
+    <div className="page-in wide">
       <div className="crumb">
         {c.total} items · {libraries} libraries · browser, CLI, MCP
       </div>

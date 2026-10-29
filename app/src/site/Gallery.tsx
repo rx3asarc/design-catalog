@@ -142,10 +142,10 @@ export function Gallery({ query }: { query: GalleryQuery }) {
        */}
       {COMPARABLE.length > 0 && (
         <p data-compare-links="" style={{ fontSize: 13, margin: "0 0 10px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
-          <span style={{ color: "var(--muted-foreground)" }}>Compare side by side:</span>
+          <span style={{ color: "var(--ink-muted)" }}>Compare side by side:</span>
           {COMPARABLE.map((c) => (
             <a key={c.key} href={`#/c/${c.key}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, minWidth: 44, paddingInline: 6 }}>
-              {c.key} <span style={{ color: "var(--muted-foreground)", marginLeft: 4 }}>{c.n}</span>
+              {c.key} <span style={{ color: "var(--ink-muted)", marginLeft: 4 }}>{c.n}</span>
             </a>
           ))}
         </p>
@@ -159,7 +159,7 @@ export function Gallery({ query }: { query: GalleryQuery }) {
           data-gallery-shown={resolved.shown.length}
           data-gallery-hidden={query.ref ? 0 : resolved.refOnly.length}
           data-gallery-total={resolved.rows.length}
-          style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--muted-foreground)" }}
+          style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--ink-muted)" }}
         >{counted}</span>
         <span style={{ flex: 1 }} />
         <Button

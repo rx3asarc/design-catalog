@@ -155,7 +155,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
           data-compare-measured={measured}
           data-compare-dropped={dropped.map((c) => c.key).join(",")}
           data-compare-shown={differing.map((c) => c.key).join(",")}
-          style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--muted-foreground)" }}
+          style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--ink-muted)" }}
         >
           {rows.length} members · {sources.length} {sources.length === 1 ? "source" : "sources"} ·{" "}
           {differing.length} of {COLS.length} columns differ · {measured} measured
@@ -163,13 +163,13 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       </div>
 
       {/* One line about the set, in a visitor's terms: which items these are, and why. */}
-      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 6px", color: "var(--muted-foreground)" }}>
+      <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 6px", color: "var(--ink-muted)" }}>
         These are the {rows.length} items this catalogue files under “{conceptKey}” — {provenance(conceptKey, rows)}.
       </p>
       {/* What the columns are, and when they were observed. A fact about a demo is only true of the demo as it
           ran, so the date is the visitor's business: "says it collapses" and "collapsed when we pressed it" are
           different claims, and only the second one is on this page. */}
-      <p data-compare-measured-note="" style={{ fontSize: 13, margin: "0 0 18px", color: "var(--muted-foreground)" }}>
+      <p data-compare-measured-note="" style={{ fontSize: 13, margin: "0 0 18px", color: "var(--ink-muted)" }}>
         The columns are measured, not claimed: each demo was loaded in this site's own frame at 1440 px and again at
         390 px and driven in a real browser{lastRun ? <>, most recently on {lastRun}</> : null}
         {probeVersion ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}> ({probeVersion})</span> : null}.
@@ -236,7 +236,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
                             style={{
                               fontVariantNumeric: "tabular-nums", overflowWrap: "anywhere",
                               // "not measured" must never look like an answer: muted and italic, and never a dash
-                              color: unknown ? "var(--muted-foreground)" : "var(--foreground)",
+                              color: unknown ? "var(--ink-muted)" : "var(--ink)",
                               fontStyle: unknown ? "italic" : "normal",
                             }}
                           >
@@ -253,7 +253,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
                       <td
                         colSpan={differing.length + 1}
                         data-compare-pick={item.id}
-                        style={{ padding: stacked ? 0 : "0 10px 10px 0", fontSize: 12.5, lineHeight: 1.5, color: "var(--muted-foreground)" }}
+                        style={{ padding: stacked ? 0 : "0 10px 10px 0", fontSize: 12.5, lineHeight: 1.5, color: "var(--ink-muted)" }}
                       >
                         {pick}
                       </td>
@@ -287,7 +287,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
        * simply not a fact that separates two members, and a column that cannot separate two members cannot help
        * anyone choose between them.
        */}
-      <p data-compare-dropped-note="" style={{ fontSize: 13.5, color: "var(--muted-foreground)", margin: "0 0 22px" }}>
+      <p data-compare-dropped-note="" style={{ fontSize: 13.5, color: "var(--ink-muted)", margin: "0 0 22px" }}>
         {measured === 0 ? (
           <>Dropped, because none of them could be answered for “{conceptKey}”: no member of this set has a measured
             behaviour, so all {COLS.length} columns read “{NOT_MEASURED}”.</>
@@ -320,7 +320,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
       <div className="section-h" style={{ marginTop: 6 }}>
         The same {rows.length}, as tiles
       </div>
-      <p style={{ fontSize: 13, color: "var(--muted-foreground)", margin: "0 0 12px" }}>
+      <p style={{ fontSize: 13, color: "var(--ink-muted)", margin: "0 0 12px" }}>
         A frozen first frame each, until you point at one or tab to it. Members with no demo show the reference
         card — the licence, no pretence of a running frame.
       </p>
@@ -328,7 +328,7 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
         <Grid rows={rows} colW={colW} bodyH={bodyH} narrow={narrow} theme={theme} />
       </div>
 
-      <p style={{ fontSize: 13.5, margin: "0 0 10px", color: "var(--muted-foreground)" }}>
+      <p style={{ fontSize: 13.5, margin: "0 0 10px", color: "var(--ink-muted)" }}>
         Filed by library, then name. Nothing here is in an order of merit; the columns are the behaviour that separates them.{" "}
         <a href="#/g" style={{ display: "inline-flex", alignItems: "center", minHeight: 44 }}>
           All {items.length} items
@@ -340,12 +340,12 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
 
 const MONO_LABEL: React.CSSProperties = {
   fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase",
-  color: "var(--muted-foreground)",
+  color: "var(--ink-muted)",
 };
 
 const HEAD: React.CSSProperties = {
   fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-  color: "var(--muted-foreground)", fontWeight: 500, padding: "0 10px 6px", textAlign: "left", whiteSpace: "nowrap",
+  color: "var(--ink-muted)", fontWeight: 500, padding: "0 10px 6px", textAlign: "left", whiteSpace: "nowrap",
 };
 
 const NAME: React.CSSProperties = {
@@ -357,5 +357,5 @@ const NAME: React.CSSProperties = {
 
 const CELL: React.CSSProperties = {
   textAlign: "right", padding: "8px 10px", fontSize: 13, fontFamily: "var(--font-mono)",
-  color: "var(--foreground)", verticalAlign: "top",
+  color: "var(--ink)", verticalAlign: "top",
 };

@@ -221,7 +221,10 @@ export function RailHead({ q, setQ, from, setFrom, total, rendered }: {
       <div className="rail-filter">
         {SOURCES.map((s) => (
           <Button key={s || "all"} data-catalog-item="shadcn/button" size="sm" variant={from === s ? "default" : "outline"}
-            className="h-8 rounded-full px-3 text-xs" onClick={() => setFrom(s)}>
+            className="h-8 px-3 text-xs"
+            /* a chip is radius-sm (design system), and the component's own `rounded-full` is the thing being
+               overridden — inline, because the utility that wins is whichever the registry ordered last */
+            style={{ borderRadius: "var(--radius-sm)" }} onClick={() => setFrom(s)}>
             {s || "all sources"}
           </Button>
         ))}

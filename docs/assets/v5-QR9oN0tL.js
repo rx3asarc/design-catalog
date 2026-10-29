@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./slider-DIbFDQMd.js";var n=e();function r(){return(0,n.jsx)(t,{defaultValue:[50],max:100,step:1,disabled:!0,className:`mx-auto w-full max-w-xs`})}function i(){return(0,n.jsx)(r,{})}export{r as SliderDisabled,i as default};

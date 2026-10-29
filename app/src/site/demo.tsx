@@ -230,7 +230,7 @@ const SCALE_TEXT: React.CSSProperties = {
   // 11 px was the last sub-12 px text this unit owns; the readout is a number a visitor has to read
   fontSize: 12,
   letterSpacing: "0.02em",
-  color: "var(--muted-foreground)",
+  color: "var(--ink-muted)",
   whiteSpace: "nowrap",
 };
 
