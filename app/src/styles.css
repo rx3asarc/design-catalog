@@ -825,3 +825,30 @@ pre { font-family: var(--font-mono); }
 
 /* ---- the chrome's focus ring, once: 2px solid focus, offset 2px, keyboard only (design system) ---- */
 .cat :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---- the rail's type, set by the design system (r6) ------------------------------------------------------------
+   Measured on the live build before this block: the group labels ("Blocks and pages", "Components") were Instrument
+   Sans, sentence case, 12 px, ink — the book asks for the `label` step in JetBrains Mono, uppercase, ink-subtle —
+   and the counts beside them were sans too. The sizes were reaching the elements from the scale block; the family,
+   the case and the colour were being won by the sidebar's own classes, so they are stated here together, last. */
+.disc-trigger,
+.rail-sec > .disc-trigger,
+.rail-cat > .disc-trigger,
+.rail-sub > .disc-trigger,
+.rail-sub2 > .disc-trigger {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-subtle);
+}
+/* a count is a number the reader compares down a column: mono, tabular, muted */
+.sub-c, .rail-count, .rail-item .n {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--ink-subtle);
+}
+/* an item is `small`, in ink-muted until it is the current page */
+.rail-item { font-family: var(--font-sans); font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+.rail-item:hover { color: var(--ink); }
+.rail-item[aria-current="page"] { color: var(--ink); }
