@@ -286,3 +286,24 @@ The five rows that were left after round 4 are done and gated; full detail in
 Frozen decisions added this round: the rule for the hero exists twice and the parity gate (not trust) is
 what keeps the two copies honest; a gate that navigates must wait for its surface (`qa/settle.mjs`); a
 pruner is never trusted to judge its own work (`qa/assets_check.mjs`).
+
+## Round 6 — the design system, adopted (29 Oct 2026)
+
+Maestro handed over a design system built for this site. It is vendored (`app/src/tokens.css`, three documented
+differences) and binding: dark is the default, no shadows, `border-strong` on controls, one accent fill per view,
+mono `label` at 12/16, radii 6/8/10.
+
+| Item | Change | Gate |
+| --- | --- | --- |
+| the reload jump | the front page's column is the content's width (1100), not the reading column (640); hero tiles name themselves across the canvas's foot, one canvas tall | `r2_check` (box parity at 1440 and 390) |
+| no desktop TopBar | `site/TopBar.tsx`: 56 px, section links at 13, 240 px palette field with ⌘K, 0 accent fills | `smoke`, `tap_check`, `slice3_check` |
+| item page approximated the components | `InstallBlock`, `ApiTable`, `RelatedCard`; the install copy is the page's one accent fill | `stage_check`, `tap_check` |
+| chips were pills, labels were sans, counts were sans | `radius-sm`, mono uppercase `label`, tabular counts | `contrast_check`, `mobile_state_check` |
+| 103 text nodes under 12 px at 1440 | one rule at both widths | `mobile_state_check` extended |
+| the accent was on the theme switch | `surface-300` + `ink` (SegmentedTabs), accent reserved for the one primary control | `contrast_check` |
+
+Frozen decisions: tokens are vendored, not fetched (R6-D1); the palette is scoped to `.cat` (R6-D2); the two
+`@font-face` blocks are dropped as byte-identical duplicates (R6-D3); the type classes are `.dc-*` (R6-D4); dark
+is the default with no OS follow (R6-D5).
+
+Report: `build/r6-design-system.md`.
