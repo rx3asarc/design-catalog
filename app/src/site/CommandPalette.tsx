@@ -266,7 +266,18 @@ if (typeof window !== "undefined") {
 }
 
 /** ⌘ on a Mac, Ctrl everywhere else — the label has to be the key the visitor actually presses. */
-const MOD = typeof navigator !== "undefined" && /mac|iphone|ipad/i.test(navigator.platform ?? "") ? "⌘" : "Ctrl";
+export const MOD = typeof navigator !== "undefined" && /mac|iphone|ipad/i.test(navigator.platform ?? "") ? "⌘" : "Ctrl";
+
+/**
+ * The palette's own door, for the surfaces that are not its triggers (the TopBar's search field, the miss page).
+ *
+ * It listens for ⌘K/Ctrl+K on the window and that listener is its public entry point — the open state is
+ * module-private here. Dispatching the keystroke uses the documented path instead of reaching into that state,
+ * so a button and a key are the same door and there is still exactly one palette.
+ */
+export function openPalette() {
+  dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
+}
 
 /**
  * The visible way in. `place="bar"` sits in the phone topbar (44 px tall, the shell's own tap-target floor);
