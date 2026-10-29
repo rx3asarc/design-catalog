@@ -36,7 +36,16 @@
       .boot-p { margin: 0 0 14px; font-size: 15px; max-width: 62ch; }
       .boot-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
       .boot-tile { height: 210px; border: 1px solid var(--boot-line); border-radius: 10px; background: var(--boot-soft);
-        display: flex; align-items: center; justify-content: center; color: var(--boot-mut); font-size: 12px; }
+        padding: 11px 12px 13px; display: grid; align-content: space-between; gap: 10px; min-width: 0; }
+      .boot-tile-kicker { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 11px;
+        letter-spacing: 0.06em; text-transform: uppercase; color: var(--boot-mut); }
+      .boot-tile-body { display: grid; gap: 3px; min-width: 0; }
+      .boot-tile-title { font-size: 15px; line-height: 1.3; font-weight: 500; overflow-wrap: anywhere;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .boot-tile-meta { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 11.5px;
+        letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .boot-tile-facets { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 11.5px;
+        line-height: 1.45; color: var(--boot-mut); font-variant-numeric: tabular-nums; }
       @media (max-width: 860px) {
         .boot-rail { display: none; }
         .boot-main { padding: 18px 16px 0; }
@@ -120,14 +129,8 @@
             <p class="boot-p" role="status" style="color: var(--boot-mut); font-size: 13px">
               Six things from the catalogue. Tap any of them to open its page.
             </p>
-            <div class="boot-tiles" aria-hidden="true">
-              <div class="boot-tile">loading demo…</div>
-              <div class="boot-tile">loading demo…</div>
-              <div class="boot-tile">loading demo…</div>
-              <div class="boot-tile">loading demo…</div>
-              <div class="boot-tile">loading demo…</div>
-              <div class="boot-tile">loading demo…</div>
-            </div>
+            <!-- replaced at build time by `staticHero` in vite.config.ts with the six real hero cards -->
+            <div class="boot-tiles" aria-hidden="true"></div>
           </div>
         </div>
       </div>
