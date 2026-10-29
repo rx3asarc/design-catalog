@@ -825,3 +825,105 @@ pre { font-family: var(--font-mono); }
 
 /* ---- the chrome's focus ring, once: 2px solid focus, offset 2px, keyboard only (design system) ---- */
 .cat :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ═══ TopBar (r6) ═══════════════════════════════════════════════════════════════════════════════
+   The design system's TopBar, and the phone bar it replaced nothing of.
+
+   Until this section the bar was `display: none` above 860 px (`styles.css`, the base `.topbar` rule): a desktop
+   visitor had no top bar at all, no section links anywhere, and the palette's only door was the floating button
+   in the bottom-right corner. What follows is the vendor component's own rule, from
+   `design-catalog-design-system/components/TopBar`: 56 px tall, one 1 px `border` hairline under it,
+   `surface-100`; brand at the left, section links at 13 px `ink-muted` with the current one in `ink` at weight
+   500, a 240 px field on `surface-200` with a `border-strong` outline and the shortcut in mono at its right,
+   and controls outlined in `border-strong` — none of them accent-filled (see `site/TopBar.tsx` for why the
+   accent is spent on the item page's install copy instead).
+
+   STICKY, BUILT AS `fixed`, and the reason is the scroller. The bar is a child of `.cat`; the thing that scrolls
+   is `.page`, a *sibling*. A `position: sticky` element sticks inside its own scrolling ancestor, and `.cat` is
+   `overflow: hidden` on desktop — so a sticky bar here would scroll away with the document, which is the one
+   thing a top bar must not do. `fixed` at `top: 0` is the same result done by the box that can do it, and it is
+   not a "fixed strip over the content" in the sense the review objected to: content passes *under* a header at
+   the top edge, which is what a header is (`qa/r2_check.mjs` draws the same line — it counts a fixed box only
+   when `top > 8`).
+
+   The three things the bar's arrival moves, and nothing else:
+     1. `.cat` reserves the 56 px above its own row, so the rail and the page both start below the bar.
+     2. the registry's desktop rail is `position: fixed; inset-y: 0` — it does not know about `.cat`'s padding, so
+        its top and height are restated here. It keeps its own 288 px column and everything in it.
+     3. `.rail-reopen` (the way back when the rail is collapsed) sat at `top: 10px; left: 10px`, which is now on
+        top of the brand. It moves down by the bar's height plus its own inset.
+   ───────────────────────────────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 861px) {
+  .cat { padding-top: 56px; }
+
+  .topbar {
+    display: flex; align-items: center; gap: var(--space-5);
+    position: fixed; top: 0; left: 0; right: 0; height: 56px; z-index: 20;
+    margin: 0; padding: 0 var(--space-4);
+    background: var(--surface-100);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* the brand: 13 px, semibold, tight. The rail no longer repeats it (see below), so it is the only one. */
+  .topbar .brand {
+    flex: none; display: inline-flex; align-items: center; min-height: 44px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: -.01em;
+    color: var(--ink); text-decoration: none;
+  }
+
+  .topbar-links { display: flex; align-items: center; gap: var(--space-4); font-size: 13px; }
+  .topbar-links a {
+    display: inline-flex; align-items: center; min-height: 44px;
+    color: var(--ink-muted); text-decoration: none;
+    transition: color 150ms ease;
+  }
+  .topbar-links a:hover { color: var(--ink); }
+  /* the current section, and only the current one: ink, weight 500 */
+  .topbar-links a[aria-current="page"] { color: var(--ink); font-weight: 500; }
+
+  /* the field: 240 px of `surface-200` behind a `border-strong` outline, radius-md, placeholder in ink-subtle.
+     It is a button, so it is a door — see `site/TopBar.tsx`. 32 px is the vendor's own field height, and the
+     field is not a control a thumb has to hit up here: the desktop has no thumbs. */
+  .topbar-search {
+    margin-left: auto; display: inline-flex; align-items: center; gap: var(--space-2);
+    width: 240px; height: 32px; padding: 0 var(--space-3);
+    font-family: var(--font-sans); font-size: 13px; line-height: 1; text-align: left;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    background: var(--surface-200); color: var(--ink-subtle);
+    cursor: pointer; transition: color 150ms ease, background-color 150ms ease;
+  }
+  .topbar-search:hover { color: var(--ink-muted); background: var(--surface-300); }
+  .topbar-search-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar-kbd {
+    flex: none; margin-left: auto; padding: 1px 5px;
+    font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  }
+
+  /* the phone's two controls are not on a desktop: the rail is already open there and the field above is the
+     palette's door. Both stay in the DOM (the Browse control is the menu's `aria-expanded` owner) and neither
+     can be reached, hovered or tabbed to while it is `display: none`. */
+  .topbar-phone, .topbar-menu { display: none; }
+
+  /* the rail's head keeps its counts, filter and source pills; its wordmark is the duplicate of the bar's now,
+     so the rail — the second surface — drops it and the collapse trigger moves to the right edge where the
+     wordmark's row put it. `site/Rail.tsx` is not touched: the same head is the phone menu's first block, where
+     the wordmark is still the only one on screen. */
+  .rail-brand { justify-content: flex-end; }
+  .rail-brand h1 { display: none; }
+
+  /* the registry's desktop rail is `fixed; inset-y: 0; h-svh`, which is the viewport, not the column under the
+     bar. Restated against the bar so the rail's head is not hidden behind it. */
+  .cat [data-slot="sidebar-container"] {
+    top: 56px; bottom: auto;
+    height: calc(100dvh - 56px);
+  }
+  /* the way back to a collapsed rail waits directly under the bar instead of on top of its brand */
+  .rail-reopen { top: calc(56px + 10px); }
+}
+
+@media (max-width: 860px) {
+  /* the phone bar is unchanged: brand, the palette's button, one 44 px Browse/Close control. The desktop's
+     section links and its 240 px field are simply not part of it. */
+  .topbar-links, .topbar-search { display: none; }
+}

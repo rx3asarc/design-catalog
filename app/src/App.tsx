@@ -10,7 +10,8 @@ import { SOURCES, neighbours, useCanonical, useRoute, useScrollReset, useTree, t
 import { PhoneRail, RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ThemeSwitch } from "./site/ThemeSwitch";
-import { Palette, PaletteTrigger } from "./site/CommandPalette";
+import { openPalette, Palette, PaletteTrigger } from "./site/CommandPalette";
+import { TopBar } from "./site/TopBar";
 
 /**
  * Everything except the front page is fetched when it is first opened, not before.
@@ -120,18 +121,11 @@ function NotFound({ miss }: { miss: Miss }) {
 }
 
 /**
- * The palette's own door: it listens for ⌘K/Ctrl+K on the window, and that listener is its public entry point —
- * the open state is module-private in `CommandPalette.tsx`, a file this unit does not own. Dispatching the
- * keystroke uses the documented path instead of reaching into that module's state.
- */
-function openPalette() {
-  dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
-}
-
-/**
- * The shell, and nothing else: the frame, the rail's two mounts, the render switch and the provenance layer.
- * Every surface lives in `./site/` — one module per surface — so a later unit can own one without touching
- * this file. What a visitor sees is decided by the switch at the bottom; everything above it is furniture.
+ * The shell, and nothing else: the frame, the bar, the rail's two mounts, the render switch and the provenance
+ * layer. Every surface lives in `./site/` — one module per surface — so a later unit can own one without
+ * touching this file. What a visitor sees is decided by the switch at the bottom; everything above it is
+ * furniture. The bar is one of those modules now (`site/TopBar.tsx`): it is the design system's TopBar on a
+ * desktop and the phone bar it always was below 861 px.
  */
 /**
  * The rail's filter, kept for the tab it was typed in.
@@ -192,13 +186,7 @@ export default function App() {
   return (
     <SidebarProvider className={`cat${menu ? " menu-open" : ""}`}
       style={{ "--sidebar-width": "288px" } as React.CSSProperties}>
-      <div className="topbar">
-        <a className="brand" href="#/">design catalog</a>
-        <PaletteTrigger place="bar" />
-        <Button data-catalog-item="shadcn/button" variant="outline" size="sm" className="menu-btn h-11" onClick={() => setMenu((v) => !v)} aria-expanded={menu} aria-controls="rail">
-          {menu ? "Close" : `Browse ${items.length}`}
-        </Button>
-      </div>
+      <TopBar route={route} menu={menu} onToggleMenu={() => setMenu((v) => !v)} />
       {phone ? (
         <PhoneRail open={menu} onClose={() => setMenu(false)} head={head} rail={rail} />
       ) : (
