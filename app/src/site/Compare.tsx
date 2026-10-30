@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { conceptKeys, conceptMembers, items, label, useDetail, type Item } from "./lib";
+import { asWords, conceptKeys, conceptMembers, items, label, useDetail, type Item } from "./lib";
 import { DetailWait } from "./DetailWait";
 import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
 import { BEHAVIOUR_COLS, behaviourOf, hasFacts, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
@@ -215,7 +215,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
                     <th scope="row" style={stacked ? { ...NAME, display: "block", padding: "0 0 6px" } : NAME}>
                       <span style={{ ...MONO_LABEL, display: "block", marginBottom: 1 }}>{item.source}</span>
                       <a href={`#/i/${item.id}`} style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-                        {label(item)}
+                        {asWords(label(item))}
                       </a>
                     </th>
                     {differing.map((c) => {
@@ -279,7 +279,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
           <ul className="also-list" data-compare-also={conceptKey}>
             {also.map((item) => (
               <li key={item.id}>
-                <a href={`#/i/${item.id}`}>{label(item)}</a>
+                <a href={`#/i/${item.id}`}>{asWords(label(item))}</a>
                 <span className="also-meta">{item.source} · {item.licence}</span>
                 {item.one_line ? <span className="also-line">{item.one_line}</span> : null}
               </li>

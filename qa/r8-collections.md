@@ -54,9 +54,9 @@ gates and the rail prints — so the page and the sidebar cannot disagree about 
   now carries its members' ids and the strip is filtered to sets that have at least one member **in this grid**.
   `#/g?q=sidebar` offers 1 of 20 sets and not `#/c/checkbox`; the unfiltered gallery still offers all 20.
 - **"`sidebar-01`…`-16` are hard to tell apart by name"** → a variant is never a row: it is an option in its
-  parent's row picker (`shadcn/sidebar` → 16 demos), labelled `Sidebar 01` by a reader that turns a slug into words,
-  and the chosen variant's own `one_line` is printed under the window. The type page's strip lists this section's
-  other types only, never another section's.
+  parent's row picker (`shadcn/sidebar` → 16 demos), labelled `Sidebar 01` by `asWords` (one reading of a name in
+  `site/lib.ts`, shared by both collection surfaces), and the chosen variant's own `one_line` is printed under the
+  window. The type page's strip lists this section's other types only, never another section's.
 
 ---
 
@@ -128,7 +128,7 @@ gate ignores resource 4xx for that reason (console *errors* still fail it).
 ## Files touched
 
 `app/src/site/typeIndex.ts` (new), `app/src/site/TypePage.tsx` (new), `qa/type_page_check.mjs` (new),
-`app/src/site/route.ts`, `app/src/site/behaviour.ts`, `app/src/site/Compare.tsx`, `app/src/site/Gallery.tsx`,
+`app/src/site/route.ts`, `app/src/site/behaviour.ts`, `app/src/site/lib.ts`, `app/src/site/Compare.tsx`, `app/src/site/Gallery.tsx`,
 `app/src/App.tsx`, `app/src/styles.css`.
 
 Not touched, per the brief: `app/gen.py`, `app/manifest.json`, `app/src/tokens.css`, `docs/**`, `publish.sh`,

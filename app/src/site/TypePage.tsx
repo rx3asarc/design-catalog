@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { label, useDetail, type Item } from "./lib";
+import { asWords, label, useDetail, type Item } from "./lib";
 import { DetailWait } from "./DetailWait";
 import { BEHAVIOUR_COLS, behaviourOf, hasFacts, measuredOn, NOT_MEASURED, pickLine, type Measured } from "./behaviour";
 import { variantsOf, type TypeEntry } from "./taxonomy";
@@ -44,18 +44,8 @@ import { hasDemo, Pool, scrollerOf, useSiteTheme } from "./Tile";
 
 /* ── names, as words ────────────────────────────────────────────────────────────────────────────────────── */
 
-/**
- * A name as a person reads it. `sidebar-01` is a slug, and the review could not tell sixteen of them apart, so a
- * name that is nothing but lowercase words and hyphens prints as words: `Sidebar 01`, `Docs Components Sidebar`.
- * A name the data already wrote as a title (`AI Sidebar`, `Input OTP`, `components.json`) is left exactly as it
- * is — this is a reading of the data's own string, never a re-naming of the item.
- */
-const asWords = (s: string) =>
-  /^[a-z0-9]+(-[a-z0-9]+)*$/.test(s)
-    ? s.split("-").map((w) => (/^\d+$/.test(w) ? w : w[0].toUpperCase() + w.slice(1))).join(" ")
-    : s;
-
-/** The data's own label (`displayName ?? name`), read as words. The row's label and every link use this one. */
+/** The data's own label (`displayName ?? name`), read as words — `asWords` is in `site/lib.ts`, shared with the
+ *  concept page, so one review complaint about names has one reading behind it. */
 const rowLabel = (i: Item) => asWords(label(i));
 
 const nameOrder = (a: Item, b: Item) => rowLabel(a).localeCompare(rowLabel(b)) || a.id.localeCompare(b.id);

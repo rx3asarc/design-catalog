@@ -110,6 +110,19 @@ export function useDetailItem(i: Item): ItemFull | null {
 export const label = (i: Item) => i.displayName ?? i.name;
 
 /**
+ * A name as a person reads it.
+ *
+ * `sidebar-01` is a slug, and sixteen of them in a column are sixteen strings a reader cannot tell apart. A name
+ * that is nothing but lowercase words and hyphens prints as words — `Sidebar 01`, `Docs Components Sidebar` — and a
+ * name the data already wrote as a title (`AI Sidebar`, `Input OTP`, `components.json`) is left exactly as it is.
+ * This reads the data's own string; it never re-names an item, and it never invents a description.
+ */
+export const asWords = (s: string) =>
+  /^[a-z0-9]+(-[a-z0-9]+)*$/.test(s)
+    ? s.split("-").map((w) => (/^\d+$/.test(w) ? w : w[0].toUpperCase() + w.slice(1))).join(" ")
+    : s;
+
+/**
  * Concept membership, exactly as the manifest publishes it — the only input a comparison page has.
  *
  * What the manifest does **not** publish is the store's `concept.rule`: how each set was chosen
