@@ -102,12 +102,20 @@ export function resolve(query: GalleryQuery): Resolved {
  * The concept sets worth a door of their own: four or more members, so the comparison is a comparison and not a pair.
  * Computed from the manifest's per-item `concepts` — the same field `#/c/<key>` reads, so a link here cannot point
  * at a set the page does not know.
+ *
+ * Each entry carries its members' ids, because the strip below is **scoped to what the grid is showing**: the review
+ * of the collections found the strip listing all twenty sets in every section, which put checkbox, switches and
+ * tables on a navigation page. A set is offered here only when at least one of its members is in this filter.
  */
 const COMPARABLE = (() => {
-  const n = new Map<string, number>();
-  for (const i of items) for (const k of (i as Item & { concepts?: string[] }).concepts ?? []) n.set(k, (n.get(k) ?? 0) + 1);
-  return [...n.entries()].filter(([, c]) => c >= 4).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([key, count]) => ({ key, n: count }));
+  const members = new Map<string, Set<string>>();
+  for (const i of items) for (const k of (i as Item & { concepts?: string[] }).concepts ?? []) {
+    if (!members.has(k)) members.set(k, new Set());
+    members.get(k)!.add(i.id);
+  }
+  return [...members.entries()].filter(([, ids]) => ids.size >= 4)
+    .sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]))
+    .map(([key, ids]) => ({ key, n: ids.size, ids }));
 })();
 
 export function Gallery({ query }: { query: GalleryQuery }) {
@@ -118,6 +126,11 @@ export function Gallery({ query }: { query: GalleryQuery }) {
   // a subscription, so a theme change reaches the frames that are already mounted below (§ the hook's comment)
   const theme = useSiteTheme();
   const sig = JSON.stringify([query, resolved.shown.length]);
+  /* the sets this filter actually touches — see COMPARABLE: never another section's sets on this section's page */
+  const comparable = useMemo(() => {
+    const here = new Set(resolved.rows.map((i) => i.id));
+    return COMPARABLE.filter((c) => [...c.ids].some((id) => here.has(id)));
+  }, [resolved.rows]);
 
   const title = resolved.levels.length
     ? resolved.levels.join(" · ")
@@ -140,10 +153,10 @@ export function Gallery({ query }: { query: GalleryQuery }) {
        * These are the sets big enough to be worth comparing (four or more members), named by the concept's own
        * key — the same key the store uses, so `#/c/sidebar` here and `compare sidebar` on the CLI are one set.
        */}
-      {COMPARABLE.length > 0 && (
+      {comparable.length > 0 && (
         <p data-compare-links="" style={{ fontSize: 13, margin: "0 0 10px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
           <span style={{ color: "var(--ink-muted)" }}>Compare side by side:</span>
-          {COMPARABLE.map((c) => (
+          {comparable.map((c) => (
             <a key={c.key} href={`#/c/${c.key}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, minWidth: 44, paddingInline: 6 }}>
               {c.key} <span style={{ color: "var(--ink-muted)", marginLeft: 4 }}>{c.n}</span>
             </a>

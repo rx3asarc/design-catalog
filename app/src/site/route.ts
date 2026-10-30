@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { byId, items, type Item, type TreeSection } from "./lib";
+import type { TypeEntry } from "./taxonomy";
+import { typeAt, typeHref } from "./typeIndex";
 
 /**
  * Where the visitor is, and what the rail and the pager derive from it.
@@ -63,6 +65,9 @@ export type Route = {
   // one concept's members, compared: `#/c/<concept-key>`. An unknown key is a route too — the page names the
   // miss, which is what the gallery does, and a route that silently became the front page could not do that.
   | { kind: "concept"; key: string }
+  // one type's members: `#/t/<section-slug>/<type-slug>`, the collection the taxonomy already describes. The
+  // entry is carried, not re-derived, so the page and the address are the same entry by construction.
+  | { kind: "type"; entry: TypeEntry }
   | { kind: "item"; id: string; item?: Item }
   // an address that resolves to nothing. It is a route, not a fallback: the shell used to render the front page
   // for it while the address bar kept the wrong URL, so a visitor could neither see the mistake nor fix it.
@@ -207,6 +212,13 @@ export function parseRoute(hash: string): Route {
   if (page === "about") return { kind: "about" };
   if (page === "chrome") return { kind: "chrome" };
   if (page === "c") return { kind: "concept", key: rest.join("/") };
+  if (page === "t") {
+    // half a type address is not a type address: `#/t/components` names a section, and no page here is a section
+    if (rest.length < 2) return missPath(hash);
+    const [section, type] = rest;                            // a third segment is spelling, not identity
+    const entry = typeAt(section, type);
+    return entry ? { kind: "type", entry } : missPath(hash);  // a pair the taxonomy does not have is a miss
+  }
   if (page === "i") {
     if (rest.length < 2) return missPath(hash);            // `#/i/beui`: half an id is not an id
     const [source, slug] = rest;                            // a third segment is spelling, not identity
@@ -236,6 +248,8 @@ export function canonicalHash(route: Route): string | null {
     case "about": return "#/about";
     case "chrome": return "#/chrome";
     case "item": return `#/i/${route.item?.id ?? route.id}`;
+    // the taxonomy's own names are the canonical spelling: `#/t/Components/Button` → `#/t/components/button`
+    case "type": return typeHref(route.entry);
     case "notfound": return null;
     case "home": return null;
     case "gallery": return null;

@@ -1193,3 +1193,158 @@ pre { font-family: var(--font-mono); }
    the source at 11 px, the item's kind at 10 px and the key hints at 10.5 px. 12 px is the smallest size this site
    owns (§ round 5, r6), so all three are 12 — set in `site/CommandPalette.tsx` where the rows are written, because
    a `text-[10px]` utility beats a stylesheet rule of equal weight and the honest fix is at the call site. */
+
+/* ---- collections (r8) ------------------------------------------------------------------------------------
+   THE TYPE PAGE (`#/t/<section>/<type>`, `site/TypePage.tsx`): one collection per entry in the taxonomy — a
+   sortable table of the members somebody measured, "Also in this set" below it for the members nobody did, a
+   live demo per row, and a strip of the other types in this section.
+
+   Two things this block is careful about, because the design system is binding and the review was about truth:
+
+   1. **Nothing here is under 12 px and nothing here has a shadow.** The fact column is 13 px mono with tabular
+      figures (a column of numbers that shifts is a column a reader cannot compare); every label is the system's
+      12/16 mono; the sort header is 12/16 mono uppercase. Controls are `border-strong`, and the page uses no
+      accent fill at all — one is allowed, zero is not a loss.
+   2. **The row is a real table at 1440 and a card at 390.** `display: block` below 860 px turns each row into
+      the same two facts in the same order — name, demo under it, then one label/value line per behaviour column
+      (`::before` prints the column's own head, from `data-head`). Nothing is hidden at 390; it is re-flowed.
+   ---------------------------------------------------------------------------------------------------------- */
+
+.type-page .crumb a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+.type-page .crumb a:hover { color: var(--ink); text-decoration: underline; }
+
+/* the page's one statement of the set, and the one place the probe run is dated */
+.type-facts {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.02em;
+  color: var(--ink-muted); margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.type-facts .type-probe { color: var(--ink-subtle); }
+
+/* a wide table may scroll inside its own box; it never widens the document */
+.type-table-wrap { overflow-x: auto; margin: 0 0 4px; }
+.type-table { width: 100%; border-collapse: collapse; }
+
+.type-table thead th {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-muted); font-weight: 500; text-align: left; white-space: nowrap;
+  padding: 0 10px 4px 0; border-bottom: 1px solid var(--border);
+}
+.type-table thead th.type-th-fact { text-align: right; }
+.type-table thead th.type-th-demo { width: 300px; }
+
+/* the header is the control: a 44 px button inside the cell, so a thumb and a Tab both reach it */
+.type-sort {
+  font: inherit; color: inherit; background: none; border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0;
+  text-transform: inherit; letter-spacing: inherit;
+}
+.type-sort:hover, .type-sort:focus-visible { color: var(--ink); text-decoration: underline; }
+.type-table thead th.type-th-fact .type-sort { justify-content: flex-end; }
+
+.type-table tbody th, .type-table tbody td {
+  border-top: 1px solid var(--border); padding: 10px 10px 12px 0; vertical-align: top;
+}
+.type-row-name { text-align: left; font-weight: 400; min-width: 190px; }
+.type-row-name > a {
+  font-size: 15px; line-height: 22px; font-weight: 500; color: var(--ink); text-decoration: none;
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+.type-row-name > a:hover { text-decoration: underline; }
+.type-row-meta {
+  display: block; font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+.type-row-line { display: block; font-size: 13px; line-height: 1.45; color: var(--ink-muted); margin-top: 4px; max-width: 36ch; }
+.type-row-pick { display: block; font-size: 12.5px; line-height: 1.5; color: var(--ink-subtle); margin-top: 6px; max-width: 40ch; }
+
+.type-demo-cell-td { width: 300px; }
+.type-demo-cell { display: grid; gap: 6px; justify-items: stretch; }
+.type-demo-window {
+  height: 170px; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-300); display: flex; align-items: center; justify-content: center;
+}
+.type-demo-parked {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-subtle);
+}
+.type-demo-line { font-size: 12.5px; line-height: 1.45; color: var(--ink-muted); }
+.type-no-demo { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+.type-demo-pick {
+  min-height: 44px; width: 100%; font-family: var(--font-sans); font-size: 12.5px; padding: 0 8px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--surface-100); color: var(--ink);
+}
+
+.type-fact {
+  text-align: right; font-family: var(--font-mono); font-size: 13px; line-height: 20px;
+  font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; overflow-wrap: normal;
+}
+/* "not measured" must never look like an answer: muted, italic, and never a dash */
+.type-fact[data-col-measured="false"] { color: var(--ink-muted); font-style: italic; }
+
+/* the members nobody measured: one line each, a link, and the data's own one-line description */
+/* a member nobody measured still has a demo: the entry is a thumbnail and a line, not a bare link */
+.also-list { list-style: none; margin: 0 0 20px; padding: 0; display: grid; gap: 0; }
+.also-list li {
+  display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 4px 14px; align-items: start;
+  border-top: 1px solid var(--border); padding: 10px 0;
+}
+.also-text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; }
+.also-list a {
+  font-size: 14px; line-height: 20px; color: var(--ink); text-decoration: none;
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+.also-list a:hover { text-decoration: underline; }
+.also-meta {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-subtle);
+}
+.also-line { font-size: 13px; line-height: 1.45; color: var(--ink-muted); flex: 1 1 26ch; min-width: 0; }
+.also-no-demo { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle); }
+.also-list .type-demo-cell { width: 168px; }
+.also-list .type-demo-pick { font-size: 12px; }
+
+/* the section's other types — and never another section's */
+.type-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin: 8px 0 0; padding: 14px 0 0; border-top: 1px solid var(--border);
+}
+.type-strip-label {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-muted); margin-right: 6px;
+}
+.type-strip a {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  font-size: 13px; color: var(--ink); text-decoration: none;
+}
+.type-strip a:hover { background: var(--surface-300); }
+.type-strip a span { font-family: var(--font-mono); font-size: 12px; color: var(--ink-muted); }
+
+/* 860 px: the table stops fitting before the one-column grid does, so the row becomes the same facts as a card */
+@media (max-width: 860px) {
+  .type-table-wrap { overflow-x: visible; }
+  .type-table, .type-table tbody, .type-table tr { display: block; }
+  .type-table thead { display: none; }
+  .type-table tbody th, .type-table tbody td { display: block; border: 0; padding: 0; }
+  .type-table tbody tr[data-type-row] {
+    border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px 12px; margin: 0 0 10px;
+  }
+  .type-row-name { min-width: 0; }
+  .type-row-line, .type-row-pick { max-width: none; }
+  .type-demo-cell-td, .type-table thead th.type-th-demo { width: auto; }
+  .type-demo-cell { margin: 8px 0 10px; }
+  /* each behaviour column is a label/value line: the label is the column's own head, printed from the cell */
+  .type-fact {
+    display: flex; gap: 12px; justify-content: space-between; align-items: baseline;
+    text-align: left; white-space: normal; padding: 3px 0; border-top: 1px solid var(--border);
+  }
+  .type-fact::before {
+    content: attr(data-head); font-family: var(--font-mono); font-size: 12px; line-height: 16px;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-muted);
+  }
+  .also-list li { grid-template-columns: 132px minmax(0, 1fr); gap: 4px 12px; }
+  .also-list .type-demo-cell { width: 132px; }
+  .also-line { flex-basis: 100%; }
+}
