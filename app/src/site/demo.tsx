@@ -298,7 +298,17 @@ export function Demo({ id, index, variant, isBlock, stage }: {
     background: paint.ink,
     // form controls and scrollbars inside the surface follow the same theme the demo is in
     colorScheme: stage.theme,
-    boxShadow: `0 0 0 1px ${paint.rule}, 0 1px 2px rgba(0,0,0,0.05)`,
+    /*
+     * The ring around the frame is a hairline, so it is drawn as an outline.
+     *
+     * It was `box-shadow: 0 0 0 1px <rule>, 0 1px 2px rgba(0,0,0,.05)` — a 1 px ring plus a 1 px drop shadow, which
+     * is the one place the chrome was still faking depth after the design system said there are no shadows. The
+     * measured sweep (r7) counted 128 of these across 116 views. An `outline` draws the same 1 px line inside the
+     * surface's edge without touching layout (the box is `overflow: hidden`, so `outline-offset: -1` keeps it exactly
+     * where the ring was) and without a blur the book does not allow.
+     */
+    outline: `1px solid ${paint.rule}`,
+    outlineOffset: -1,
   };
 
   const Lazy = useMemo(() => React.lazy(DEMOS[key(variant.module)] as any), [variant.module]);

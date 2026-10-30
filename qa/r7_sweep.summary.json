@@ -1,0 +1,199 @@
+{
+ "base": "https://rx3asarc.github.io/design-catalog/",
+ "at": "2026-10-30T19:17:00.589Z",
+ "loadavg": "6.03 19.32 44.45 15/2014 2045141",
+ "coverage": {
+  "views": 116,
+  "routes": 7,
+  "themes": [
+   "dark",
+   "light"
+  ],
+  "viewports": [
+   "1440x900",
+   "390x844"
+  ],
+  "route_labels": {
+   "home": "home",
+   "gallery": "gallery: a bare word where a query goes",
+   "chrome": "chrome",
+   "about": "about",
+   "item": "item: text (shadcn, no demo)",
+   "concept": "concept: table",
+   "notfound": "miss: unknown path"
+  }
+ },
+ "totals_live": {
+  "typeFloor": 0,
+  "accent": 24,
+  "shadows": 832,
+  "radii": 196,
+  "contrast": 34,
+  "overflow": 374,
+  "dead": 0
+ },
+ "totals_after": {
+  "typeFloor": 0,
+  "accent": 24,
+  "shadows": 0,
+  "radii": 0,
+  "contrast": 0,
+  "overflow": 375,
+  "dead": 0
+ },
+ "findings_after": {
+  "typeFloor": [],
+  "accent": [
+   {
+    "shape": "button | Copy install command | 170x44 | False",
+    "views": 24
+   }
+  ],
+  "shadows": [],
+  "radii": [],
+  "contrast": [],
+  "overflow": [
+   {
+    "shape": "v-clipped | page | div |  | False",
+    "views": 253
+   },
+   {
+    "shape": "v-clipped | chrome:rail | span | sr-only | False",
+    "views": 58
+   },
+   {
+    "shape": "h-scroll | page | div |  | False",
+    "views": 36
+   },
+   {
+    "shape": "h-scroll | page | div | stage | False",
+    "views": 12
+   },
+   {
+    "shape": "v-clipped | page | div | group/tabs-list inline-flex items-center text-muted-foreground group-d | False",
+    "views": 8
+   },
+   {
+    "shape": "h-scroll | page | span | path truncate | False",
+    "views": 6
+   },
+   {
+    "shape": "h-scroll | page | ul |  | False",
+    "views": 2
+   }
+  ],
+  "dead": []
+ },
+ "findings_live": {
+  "shadows": [
+   {
+    "shape": "chrome:rail | button | inline-flex shrink-0 items-center justify-center font-medium whitespac | False",
+    "views": 290
+   },
+   {
+    "shape": "page | button | inline-flex shrink-0 items-center justify-center text-sm font-medium w | True",
+    "views": 132
+   },
+   {
+    "shape": "page | div |  | True",
+    "views": 128
+   },
+   {
+    "shape": "page | button | inline-flex shrink-0 items-center justify-center text-sm font-medium w | False",
+    "views": 60
+   },
+   {
+    "shape": "chrome:rail | input | w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 | False",
+    "views": 58
+   },
+   {
+    "shape": "chrome:topbar | button | inline-flex items-center justify-center rounded-md font-medium whitesp | False",
+    "views": 58
+   },
+   {
+    "shape": "chrome:topbar | button | inline-flex shrink-0 items-center justify-center text-sm font-medium w | False",
+    "views": 58
+   },
+   {
+    "shape": "page | button | inline-flex shrink-0 items-center justify-center gap-2 rounded-md font | False",
+    "views": 28
+   },
+   {
+    "shape": "page | button | inline-flex shrink-0 items-center justify-center font-medium whitespac | False",
+    "views": 12
+   },
+   {
+    "shape": "page | button | relative inline-flex h-[calc(100%-1px)] items-center justify-center ga | False",
+    "views": 8
+   }
+  ],
+  "radii": [
+   {
+    "shape": "chrome:rail | button | inline-flex items-center justify-center gap-2 rounded-md font-medium w | 999 | auto",
+    "views": 58
+   },
+   {
+    "shape": "chrome:rail | button | inline-flex items-center justify-center gap-2 rounded-md font-medium w | 999 | light",
+    "views": 58
+   },
+   {
+    "shape": "chrome:rail | button | inline-flex items-center justify-center gap-2 rounded-md font-medium w | 999 | dark",
+    "views": 58
+   },
+   {
+    "shape": "page | span | inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow- | 33554400 | unseen",
+    "views": 22
+   }
+  ],
+  "contrast": [
+   {
+    "shape": "span | inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow- | border | 3.26 | code shown here | 12",
+    "views": 14
+   },
+   {
+    "shape": "span | inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow- | surface-300 | 4.16 | code shown here | 12",
+    "views": 14
+   },
+   {
+    "shape": "span | inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow- | surface-100 | 4.03 | code not shown | 12",
+    "views": 6
+   }
+  ],
+  "overflow": [
+   {
+    "shape": "v-clipped | page | div |  | False",
+    "views": 252
+   },
+   {
+    "shape": "v-clipped | chrome:rail | span | sr-only | False",
+    "views": 58
+   },
+   {
+    "shape": "h-scroll | page | div |  | False",
+    "views": 36
+   },
+   {
+    "shape": "h-scroll | page | div | stage | False",
+    "views": 12
+   },
+   {
+    "shape": "v-clipped | page | div | group/tabs-list inline-flex items-center text-muted-foreground group-d | False",
+    "views": 8
+   },
+   {
+    "shape": "h-scroll | page | span | path truncate | False",
+    "views": 6
+   },
+   {
+    "shape": "h-scroll | page | ul |  | False",
+    "views": 2
+   }
+  ],
+  "accent": [
+   {
+    "shape": "button | Copy install command | 170x44",
+    "views": 24
+   }
+  ]
+ }
+}

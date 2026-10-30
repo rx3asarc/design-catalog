@@ -77,7 +77,7 @@ export function ThemeSwitch() {
             // the registry's ToggleGroup renders every item tabindex="-1" and puts no stop back, so the switch
             // was unreachable by keyboard from the page. The checked item carries the one stop.
             tabIndex={mode === m.mode ? 0 : -1}
-            className="font-mono text-[11px] uppercase tracking-[0.04em]"
+            className="font-mono text-[12px] uppercase tracking-[0.04em]"
           >
             {m.word}
           </ToggleGroupItem>

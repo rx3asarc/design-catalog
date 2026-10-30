@@ -1115,3 +1115,81 @@ pre { font-family: var(--font-mono); }
   color: var(--ink-muted);
   max-width: 62ch;
 }
+
+/* ---- r7: the sweep ----------------------------------------------------------------------------------------------
+   Every route on the live build was measured at 1440x900 and 390x844, in both themes — 29 routes x 2 widths x 2
+   palettes = 116 views (qa/r7_sweep_measure.mjs, findings in docs/catalog-redesign/build/r7-sweep.md). Five things
+   the design system still missed are fixed here; each rule names its measurement. Three of the seven things the
+   book asks about came back clean and are not mentioned again: the 12 px floor (0 nodes under it, in every view),
+   the accent budget (0 fills per view, and exactly 1 on the item pages that have an install command), and dead
+   ends (0 empty content columns, 0 `href="#"`, all 620 hash links in the sweep resolve against the manifest's 769
+   ids and 29 concept keys, 15 of 15 external links answer 200).
+
+   What is NOT here, on purpose: the demo iframes keep shadcn's shadows and radii entirely — they are the exhibits,
+   and every rule below is scoped so it cannot reach them (an iframe is a separate document; nothing in this file
+   crosses it). `.page-in` is the site's own column, `.demo` is the site's own card *around* a demo. */
+
+/* 1. NO SHADOWS, ON ANYTHING THE SITE OWNS -----------------------------------------------------------------------
+   Measured: 704 painted `box-shadow`s across the 116 views, every one of them on a control the chrome renders —
+   the registry's `Button` / `Input` / `Badge` / `ToggleGroupItem` carry Tailwind v4's `shadow-xs`
+   (`0 1px 2px rgb(0 0 0 / .05)`) and a `ring` slot, and the chrome mounts those components on every surface:
+   240 in the page column (pager, segmented tabs, install block, the phone menu's own rows), 348 in the rail, 116
+   in the top bar. The 128 that are not controls are the demo card's frame ring, fixed in `site/demo.tsx` instead. The book's rule is not "few shadows", it is "no shadows. Depth is
+   surface-100/200/300 plus hairlines", so the control's border-strong outline is what draws its edge. Focus is an
+   `outline` (see the focus ring rule above), so nothing about keyboard affordance depends on the shadow that goes. */
+.cat :is(button, input, select, textarea, [data-slot="badge"], [data-slot="toggle-group"],
+         [data-slot="toggle-group-item"]) { box-shadow: none; }
+/* …and the three divs the stylesheet itself gave a 1–2 px drop shadow: the provenance tag (`0 1px 2px`), the
+   phone menu's panel (`0 -1px 2px`) and the phone's theme switch (`0 1px 2px oklch(0 0 0 / .06)`). A tag that
+   hangs over the page and a panel that slides under the bar are both explained by their own hairline. */
+.prov-tag { box-shadow: none; }
+.rail-phone .rail-list { box-shadow: none; }
+.rail-phone .rail-theme .theme-switch { box-shadow: none; }
+
+/* …and the two surfaces the chrome *portals* to <body>, which `.cat` cannot reach at all: the command palette
+   (Radix `DialogContent`, measured still carrying `0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px` on the
+   built site) and the provenance popover. Both already draw a 1 px border, which is the depth the book allows, so
+   the shadow is the only thing that goes. Their paint is unchanged and verified: the dialog's background and ink
+   resolve to `surface-100` `rgb(9,9,11)` and `ink` `rgb(250,250,250)` on `#/` in dark, i.e. the same colours the
+   `.cat` scope would have given them. */
+[data-slot="dialog-content"], [data-slot="dialog-close"],
+[data-slot="popover-content"] { box-shadow: none; }
+
+/* 2. RADIUS-FULL IS FOR DOTS -------------------------------------------------------------------------------------
+   Measured: 174 controls at `border-radius: 999px` and 22 at Tailwind's `rounded-full` (`3.3554432e7` px), in both
+   cases on something that is not a dot: the rail's theme switch (3 segments x 58 views) and the chrome page's
+   status badges. The book says `radius-sm` 6 for "nav items, chips and segmented tracks", `radius-md` 8 on inputs
+   and buttons, and `radius-full` "only on the dots" — and the dot is a real element here (`.rail-item .dot`), so
+   nothing loses its roundness. The switch's own track is a segmented track, so it is `radius-md`. */
+.theme-switch { border-radius: var(--radius-md); }
+.theme-switch [data-slot="toggle-group-item"] { border-radius: var(--radius-sm); }
+.cat [data-slot="badge"] { border-radius: var(--radius-sm); }
+
+/* 3. STATUS INK THAT READS: the hue moves to the border and the dot -----------------------------------------------
+   Measured from painted colours (composited in a canvas, not parsed from the token table): the item page's status
+   badge was 3.26:1 in dark and 4.16:1 in light, and the withheld badge 4.03:1 — under the 4.5:1 floor, at 12 px,
+   where it is normal-size text. The colours were `oklch(.55 .14 150)` green and `oklch(.55 .14 80)` amber picked
+   against a mid-tone surface; the design system's own ink steps clear 4.5:1 on all three surfaces in both themes
+   (`qa/contrast_check.mjs` gates 32/32), so the words use them and the meaning is carried by a 6 px dot plus the
+   hairline, which are graphics and have no contrast floor. The badge loses its `secondary` fill at the same time:
+   on `surface-100` there is nothing for a fill to say that the hairline and the dot do not. */
+.badge { --badge-hue: var(--border-strong); }
+.badge.ok { --badge-hue: oklch(0.65 0.16 150); }
+.badge.warn { --badge-hue: oklch(0.72 0.15 80); }
+.badge.bad { --badge-hue: oklch(0.62 0.18 25); }
+.page-in .badge { background: transparent; }
+.badge.ok, .badge.warn, .badge.bad {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--ink-muted);
+  border-color: color-mix(in oklab, var(--badge-hue) 45%, var(--border-strong));
+}
+.badge.ok::before, .badge.warn::before, .badge.bad::before {
+  content: ""; width: 6px; height: 6px; border-radius: var(--radius-full);
+  background: var(--badge-hue); flex: none;
+}
+
+/* 4. THE PALETTE'S RESULT ROWS ARE READ, NOT GLANCED AT ----------------------------------------------------------
+   The palette is the one chrome surface with no route, so the route sweep never opened it: its result rows printed
+   the source at 11 px, the item's kind at 10 px and the key hints at 10.5 px. 12 px is the smallest size this site
+   owns (§ round 5, r6), so all three are 12 — set in `site/CommandPalette.tsx` where the rows are written, because
+   a `text-[10px]` utility beats a stylesheet rule of equal weight and the honest fix is at the call site. */
