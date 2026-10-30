@@ -1,0 +1,1075 @@
+{
+"sections": {
+"Components": {
+"Accordion": [
+"shadcn/accordion",
+"beui/bouncy-accordion",
+"beui/collapsible",
+"shadcn/collapsible"
+],
+"Alert": [
+"beui/alert",
+"shadcn/alert",
+"shadcn/alert-dialog"
+],
+"Aspect ratio": [
+"beui/aspect-ratio",
+"shadcn/aspect-ratio"
+],
+"Attachment": [
+"shadcn/attachment"
+],
+"Avatar": [
+"shadcn/avatar",
+"shadcn/empty-avatar",
+"shadcn/empty-avatar-group",
+"shadcn/item-avatar"
+],
+"Badge": [
+"beui/animated-badge",
+"shadcn/badge"
+],
+"Breadcrumb": [
+"beui/breadcrumb",
+"shadcn/breadcrumb",
+"shadcn/breadcrumb-ellipsis",
+"shadcn/breadcrumb-responsive",
+"shadcn/breadcrumb-separator"
+],
+"Button": [
+"beui/action-swap",
+"beui/button",
+"shadcn/button",
+"shadcn/button-as-child",
+"shadcn/button-group",
+"shadcn/button-group-input",
+"shadcn/button-group-input-group",
+"shadcn/button-group-nested",
+"shadcn/button-group-orientation",
+"shadcn/button-group-select",
+"shadcn/button-group-separator",
+"shadcn/button-group-split",
+"rareui/delete-button",
+"shadcn/dialog-close-button",
+"beui/expanding-arrow-button",
+"shadcn/input-group-button",
+"shadcn/input-group-button-group",
+"shadcn/input-with-button",
+"shadcn/kbd-button",
+"shadcn/spinner-button",
+"shadcn/textarea-with-button"
+],
+"Calendar": [
+"shadcn/calendar",
+"shadcn/calendar-hijri"
+],
+"Card": [
+"beui/card",
+"shadcn/card",
+"shadcn/card-with-form",
+"shadcn/field-choice-card",
+"beui/tilt-card"
+],
+"Carousel": [
+"shadcn/carousel",
+"shadcn/carousel-api",
+"shadcn/carousel-orientation",
+"shadcn/carousel-plugin",
+"shadcn/carousel-spacing",
+"beui/cylinder-carousel",
+"beui/marquee"
+],
+"Checkbox": [
+"beui/checkbox",
+"shadcn/checkbox",
+"shadcn/field-checkbox",
+"shadcn/form-formisch-checkbox",
+"shadcn/form-rhf-checkbox",
+"shadcn/form-tanstack-checkbox"
+],
+"Code block": [
+"beautifului/code-block",
+"beui/code-block",
+"rareui/code-block"
+],
+"Combobox": [
+"beui/combobox",
+"shadcn/combobox",
+"shadcn/combobox-dropdown-menu",
+"shadcn/combobox-responsive"
+],
+"Command": [
+"shadcn/command",
+"shadcn/command-dialog"
+],
+"Context menu": [
+"beui/context-menu",
+"shadcn/context-menu"
+],
+"Dialog": [
+"beui/center-morph-modal",
+"shadcn/dialog",
+"shadcn/drawer-dialog",
+"shadcn/dropdown-menu-dialog",
+"beui/morphing-modal"
+],
+"Disclosure": [
+"beui/expandable-control",
+"rareui/faq"
+],
+"Dock": [
+"beui/dock"
+],
+"Drawer and sheet": [
+"beui/bottom-sheet",
+"beui/drawer",
+"shadcn/drawer",
+"rareui/family-drawer",
+"shadcn/sheet",
+"shadcn/sheet-side"
+],
+"Dropdown menu": [
+"shadcn/dropdown-menu",
+"shadcn/dropdown-menu-checkboxes",
+"shadcn/dropdown-menu-radio-group",
+"shadcn/navigation-menu"
+],
+"Empty": [
+"shadcn/empty",
+"shadcn/empty-background",
+"shadcn/empty-input-group"
+],
+"Field and form": [
+"shadcn/field",
+"shadcn/field-fieldset",
+"shadcn/field-group",
+"shadcn/field-input",
+"shadcn/field-radio",
+"shadcn/field-responsive",
+"shadcn/field-select",
+"shadcn/field-slider",
+"shadcn/field-switch",
+"shadcn/field-textarea",
+"shadcn/form",
+"shadcn/form-formisch-array",
+"shadcn/form-formisch-complex",
+"shadcn/form-formisch-demo",
+"shadcn/form-formisch-input",
+"shadcn/form-formisch-radiogroup",
+"shadcn/form-formisch-select",
+"shadcn/form-formisch-switch",
+"shadcn/form-formisch-textarea",
+"shadcn/form-next-complex",
+"shadcn/form-next-demo",
+"shadcn/form-rhf-array",
+"shadcn/form-rhf-complex",
+"shadcn/form-rhf-demo",
+"shadcn/form-rhf-input",
+"shadcn/form-rhf-password",
+"shadcn/form-rhf-radiogroup",
+"shadcn/form-rhf-select",
+"shadcn/form-rhf-switch",
+"shadcn/form-rhf-textarea",
+"shadcn/form-tanstack-array",
+"shadcn/form-tanstack-complex",
+"shadcn/form-tanstack-demo",
+"shadcn/form-tanstack-input",
+"shadcn/form-tanstack-radiogroup",
+"shadcn/form-tanstack-select",
+"shadcn/form-tanstack-switch",
+"shadcn/form-tanstack-textarea",
+"shadcn/input-group-label",
+"shadcn/input-with-label",
+"shadcn/label",
+"shadcn/textarea-with-label"
+],
+"File tree": [
+"beui/file-tree",
+"rareui/folder-component",
+"shadcn/input-file"
+],
+"Image": [
+"beui/image-generation",
+"beui/image-viewer",
+"shadcn/item-image"
+],
+"Input": [
+"beui/input",
+"shadcn/input",
+"shadcn/input-group",
+"shadcn/input-group-custom",
+"shadcn/input-group-spinner",
+"shadcn/input-group-textarea",
+"shadcn/input-otp",
+"shadcn/input-otp-controlled",
+"shadcn/input-otp-pattern",
+"shadcn/input-otp-separator",
+"shadcn/kbd-input-group",
+"rareui/otp-input",
+"rareui/password-input",
+"shadcn/spinner-input-group",
+"shadcn/textarea"
+],
+"Item and list": [
+"shadcn/item",
+"shadcn/item-group",
+"shadcn/item-header",
+"shadcn/item-variant",
+"beui/sortable-stack",
+"shadcn/spinner-item",
+"beui/todo-list"
+],
+"Kbd": [
+"shadcn/kbd",
+"shadcn/kbd-group"
+],
+"Loader and skeleton": [
+"beui/loader",
+"shadcn/progress",
+"beui/pull-to-refresh",
+"rareui/scroll-progress",
+"shadcn/skeleton",
+"shadcn/spinner",
+"shadcn/spinner-basic",
+"shadcn/spinner-color",
+"shadcn/spinner-custom"
+],
+"Marker": [
+"shadcn/marker"
+],
+"Menubar": [
+"shadcn/menubar"
+],
+"Navigation": [
+"rareui/gooey-nav",
+"rareui/rail-toc",
+"beautifului/sidebar-nav"
+],
+"Orbs and backgrounds": [
+"rareui/fluid-orb",
+"rareui/grid-reveal",
+"rareui/matrix-orb",
+"beui/shader-background",
+"beui/shared-layout-bg",
+"beui/voice-orb"
+],
+"Pagination": [
+"shadcn/pagination"
+],
+"Pickers": [
+"beui/arc-picker",
+"beui/color-picker",
+"beui/color-selector",
+"shadcn/date-picker-demo",
+"shadcn/date-picker-with-presets",
+"shadcn/date-picker-with-range",
+"beui/date-range-picker",
+"rareui/duration-picker",
+"beui/multi-select",
+"shadcn/native-select",
+"shadcn/native-select-groups",
+"shadcn/native-select-invalid",
+"beui/select",
+"shadcn/select",
+"shadcn/select-scrollable",
+"beui/wheel-picker"
+],
+"Popover": [
+"shadcn/hover-card",
+"beui/popover",
+"shadcn/popover"
+],
+"Preview rail": [
+"beui/preview-rail"
+],
+"Radio group": [
+"beui/radio",
+"shadcn/radio-group"
+],
+"Resizable and scroll": [
+"shadcn/resizable",
+"shadcn/resizable-demo-with-handle",
+"shadcn/resizable-handle",
+"beui/scroll-animation",
+"shadcn/scroll-area"
+],
+"Search": [
+"beautifului/search"
+],
+"Separator": [
+"shadcn/separator"
+],
+"Sidebar": [
+"beui/ai-sidebar",
+"beui/animated-sidebar",
+"beui/bounce-sidebar",
+"rareui/bounce-sidebar",
+"rareui/hook-sidebar",
+"rareui/proximity-sidebar",
+"shadcn/sidebar"
+],
+"Slider": [
+"beui/range-slider",
+"shadcn/slider"
+],
+"Status bar": [
+"beui/status-bar"
+],
+"Stepper": [
+"beui/adaptive-stepper",
+"rareui/step-player"
+],
+"Switch": [
+"beui/switch",
+"shadcn/switch"
+],
+"Table": [
+"shadcn/data-table-demo",
+"beui/table",
+"shadcn/table"
+],
+"Tabs": [
+"beui/tabs",
+"shadcn/tabs"
+],
+"Text animation": [
+"rareui/animated-counter",
+"rareui/gravity-letters",
+"beui/number",
+"beui/text-animation"
+],
+"Timeline": [
+"beui/timeline"
+],
+"Toast and notification": [
+"beui/animated-toast-stack",
+"rareui/notification-bell",
+"shadcn/sonner",
+"shadcn/sonner-types"
+],
+"Toggle": [
+"shadcn/mode-toggle",
+"shadcn/toggle",
+"shadcn/toggle-group",
+"shadcn/toggle-group-spacing"
+],
+"Tooltip": [
+"beui/tooltip",
+"shadcn/tooltip"
+]
+},
+"Blocks": {
+"App shells and navigation": [
+"beui/bloom-menu",
+"beui/dynamic-island",
+"beui/expandable-action-bar",
+"beui/expandable-tabs",
+"beui/morphing-search",
+"beui/morphing-tabs"
+],
+"Auth and onboarding": [
+"shadcn/login-01",
+"shadcn/login-02",
+"shadcn/login-03",
+"shadcn/login-04",
+"shadcn/login-05",
+"beui/not-found",
+"beui/otp-input",
+"shadcn/signup-01",
+"shadcn/signup-02",
+"shadcn/signup-03",
+"shadcn/signup-04",
+"shadcn/signup-05",
+"beui/signup-form"
+],
+"Dashboards": [
+"shadcn/dashboard-01"
+],
+"Data tables": [
+"beui/availability-scheduler",
+"beautifului/filter-table",
+"beui/infinite-masonry",
+"beui/knockout-bracket",
+"beautifului/records-table",
+"beui/swipeable-list"
+],
+"Files and folders": [
+"beui/card-folder",
+"beui/file-upload",
+"beui/project-folder"
+],
+"Showcase blocks": [
+"beui/card-dealer",
+"beui/command-palette",
+"beui/feedback-widget",
+"beui/notification-stack",
+"beui/overflow-actions",
+"beui/prediction-market",
+"beui/swap",
+"beui/wallet-card"
+]
+},
+"Charts": {
+"Chart demonstrations": [
+"shadcn/chart"
+],
+"Financial": [
+"beui/candlestick-chart",
+"beui/liquidity-heatmap",
+"beui/order-book",
+"beui/price-target-fan",
+"beui/volume-profile"
+],
+"Flow and hierarchy": [
+"beui/bump-chart",
+"beui/composition-chart",
+"beautifului/flowchart",
+"beui/funnel-chart",
+"beui/sankey-chart",
+"beui/treemap"
+],
+"Heatmaps and calendars": [
+"beui/heat-calendar",
+"beui/returns-calendar"
+],
+"Pie and donut": [
+"beui/donut-chart"
+]
+},
+"Agent UI": {
+"Agent activity": [
+"beui/agent-activity",
+"beautifului/agent-screen",
+"rareui/ai-status",
+"beui/citations",
+"rareui/github-activity",
+"rareui/task-list",
+"beautifului/task-rows"
+],
+"Artifacts and diffs": [
+"beautifului/context-cards",
+"beautifului/diff-table",
+"beui/file-diff",
+"beautifului/fine-tune-card",
+"beautifului/insight-cards",
+"beautifului/recommendation-card"
+],
+"Chat and messages": [
+"shadcn/bubble",
+"beui/chat-app",
+"beautifului/chat-composer",
+"rareui/emoji-reaction",
+"beui/message",
+"shadcn/message",
+"beui/message-bubble",
+"beui/message-scroller",
+"shadcn/message-scroller"
+],
+"Prompting": [
+"beautifului/prompt-bar",
+"beui/prompt-input",
+"rareui/web-search"
+],
+"Streaming and thinking": [
+"beautifului/loading-state",
+"beui/loading-states",
+"beui/streaming-response",
+"beautifului/streaming-text",
+"beautifului/thinking-state"
+],
+"Tool calls and approvals": [
+"beautifului/approval-card",
+"beui/approval-card",
+"beautifului/selection-actions",
+"beui/tool-approval",
+"beautifului/tool-chips",
+"beui/tool-result"
+],
+"Voice": [
+"rareui/voice-note"
+]
+},
+"Effects": {
+"Cards": [
+"transitions/card-resize",
+"transitions/card-stack-hover"
+],
+"Inputs and toggles": [
+"transitions/checkbox-check",
+"transitions/drag-drop-with-physics",
+"transitions/error-state-shake",
+"transitions/get-pro-button",
+"transitions/input-clear-with-dissolve",
+"transitions/like-button",
+"transitions/success-check",
+"transitions/toggle"
+],
+"Loaders": [
+"transitions/confetti-burst",
+"transitions/image-generation-placeholder",
+"transitions/matrix-dot-loader",
+"transitions/skeleton-loader-and-reveal",
+"transitions/spinner-to-check-morph"
+],
+"Media": [
+"transitions/3d-tilt",
+"transitions/avatar-group-hover",
+"transitions/image-open-tilt"
+],
+"Menus and tabs": [
+"transitions/accordion",
+"transitions/banner-stacking",
+"transitions/dropdown-menu-morph",
+"transitions/gooey-plus-menu",
+"transitions/menu-dropdown",
+"transitions/page-side-by-side",
+"transitions/panel-reveal",
+"transitions/tabs-sliding"
+],
+"Motion": [
+"transitions/delete-with-smoky-dissolve",
+"transitions/icon-swap",
+"transitions/learn-more-hover",
+"transitions/reasoning-stream",
+"transitions/thinking-states"
+],
+"Overlays": [
+"transitions/modal-open-close",
+"transitions/notification-badge",
+"transitions/toast-open-close",
+"transitions/tooltip-open-close"
+],
+"Text": [
+"transitions/number-pop-in",
+"transitions/organic-shimmer",
+"transitions/pro-gradient-text",
+"transitions/shimmer-text",
+"transitions/spinning-counter",
+"transitions/streaming-text",
+"transitions/text-states-swap",
+"transitions/texts-reveal"
+]
+},
+"Foundations": {
+"Fonts": [
+"shadcn/font-dm-sans",
+"shadcn/font-eb-garamond",
+"shadcn/font-figtree",
+"shadcn/font-geist",
+"shadcn/font-geist-mono",
+"shadcn/font-heading-dm-sans",
+"shadcn/font-heading-eb-garamond",
+"shadcn/font-heading-figtree",
+"shadcn/font-heading-geist",
+"shadcn/font-heading-geist-mono",
+"shadcn/font-heading-ibm-plex-sans",
+"shadcn/font-heading-instrument-sans",
+"shadcn/font-heading-instrument-serif",
+"shadcn/font-heading-inter",
+"shadcn/font-heading-jetbrains-mono",
+"shadcn/font-heading-lora",
+"shadcn/font-heading-manrope",
+"shadcn/font-heading-merriweather",
+"shadcn/font-heading-montserrat",
+"shadcn/font-heading-noto-sans",
+"shadcn/font-heading-noto-serif",
+"shadcn/font-heading-nunito-sans",
+"shadcn/font-heading-outfit",
+"shadcn/font-heading-oxanium",
+"shadcn/font-heading-playfair-display",
+"shadcn/font-heading-public-sans",
+"shadcn/font-heading-raleway",
+"shadcn/font-heading-roboto",
+"shadcn/font-heading-roboto-slab",
+"shadcn/font-heading-source-sans-3",
+"shadcn/font-heading-space-grotesk",
+"shadcn/font-ibm-plex-sans",
+"shadcn/font-instrument-sans",
+"shadcn/font-instrument-serif",
+"shadcn/font-inter",
+"shadcn/font-jetbrains-mono",
+"shadcn/font-lora",
+"shadcn/font-manrope",
+"shadcn/font-merriweather",
+"shadcn/font-montserrat",
+"shadcn/font-noto-sans",
+"shadcn/font-noto-serif",
+"shadcn/font-nunito-sans",
+"shadcn/font-outfit",
+"shadcn/font-oxanium",
+"shadcn/font-playfair-display",
+"shadcn/font-public-sans",
+"shadcn/font-raleway",
+"shadcn/font-roboto",
+"shadcn/font-roboto-slab",
+"shadcn/font-source-sans-3",
+"shadcn/font-space-grotesk"
+],
+"Themes": [
+"shadcn/theme-gray",
+"shadcn/theme-neutral",
+"rareui/theme-selector",
+"shadcn/theme-slate",
+"shadcn/theme-stone",
+"beui/theme-toggle",
+"shadcn/theme-zinc"
+],
+"Typography": [
+"shadcn/docs-components-typography",
+"shadcn/typography-blockquote",
+"shadcn/typography-demo",
+"shadcn/typography-h1",
+"shadcn/typography-h2",
+"shadcn/typography-h3",
+"shadcn/typography-h4",
+"shadcn/typography-inline-code",
+"shadcn/typography-large",
+"shadcn/typography-lead",
+"shadcn/typography-list",
+"shadcn/typography-muted",
+"shadcn/typography-p",
+"shadcn/typography-small",
+"shadcn/typography-table"
+]
+},
+"Docs": {
+"Changelog": [
+"shadcn/docs-changelog"
+],
+"Component docs": [
+"shadcn/docs-components-accordion",
+"shadcn/docs-components-alert",
+"shadcn/docs-components-alert-dialog",
+"shadcn/docs-components-aspect-ratio",
+"shadcn/docs-components-avatar",
+"shadcn/docs-components-badge",
+"shadcn/docs-components-breadcrumb",
+"shadcn/docs-components-button",
+"shadcn/docs-components-button-group",
+"shadcn/docs-components-calendar",
+"shadcn/docs-components-card",
+"shadcn/docs-components-carousel",
+"shadcn/docs-components-chart",
+"shadcn/docs-components-checkbox",
+"shadcn/docs-components-collapsible",
+"shadcn/docs-components-combobox",
+"shadcn/docs-components-command",
+"shadcn/docs-components-context-menu",
+"shadcn/docs-components-data-table",
+"shadcn/docs-components-date-picker",
+"shadcn/docs-components-dialog",
+"shadcn/docs-components-direction",
+"shadcn/docs-components-drawer",
+"shadcn/docs-components-dropdown-menu",
+"shadcn/docs-components-empty",
+"shadcn/docs-components-field",
+"shadcn/docs-components-hover-card",
+"shadcn/docs-components-input",
+"shadcn/docs-components-input-group",
+"shadcn/docs-components-input-otp",
+"shadcn/docs-components-item",
+"shadcn/docs-components-json",
+"shadcn/docs-components-kbd",
+"shadcn/docs-components-label",
+"shadcn/docs-components-menubar",
+"shadcn/docs-components-native-select",
+"shadcn/docs-components-navigation-menu",
+"shadcn/docs-components-pagination",
+"shadcn/docs-components-popover",
+"shadcn/docs-components-progress",
+"shadcn/docs-components-radio-group",
+"shadcn/docs-components-resizable",
+"shadcn/docs-components-scroll-area",
+"shadcn/docs-components-select",
+"shadcn/docs-components-separator",
+"shadcn/docs-components-sheet",
+"shadcn/docs-components-sidebar",
+"shadcn/docs-components-skeleton",
+"shadcn/docs-components-slider",
+"shadcn/docs-components-sonner",
+"shadcn/docs-components-spinner",
+"shadcn/docs-components-switch",
+"shadcn/docs-components-table",
+"shadcn/docs-components-tabs",
+"shadcn/docs-components-textarea",
+"shadcn/docs-components-toast",
+"shadcn/docs-components-toggle",
+"shadcn/docs-components-toggle-group",
+"shadcn/docs-components-tooltip"
+],
+"Frameworks and installation": [
+"shadcn/docs-forms-next",
+"shadcn/docs-installation-astro",
+"shadcn/docs-installation-gatsby",
+"shadcn/docs-installation-laravel",
+"shadcn/docs-installation-manual",
+"shadcn/docs-installation-next",
+"shadcn/docs-installation-react-router",
+"shadcn/docs-installation-remix",
+"shadcn/docs-installation-tanstack",
+"shadcn/docs-installation-tanstack-router",
+"shadcn/docs-installation-vite",
+"shadcn/docs-javascript",
+"shadcn/docs-rtl",
+"shadcn/docs-rtl-next",
+"shadcn/docs-rtl-start",
+"shadcn/docs-rtl-vite"
+],
+"Guides": [
+"shadcn/docs-figma",
+"shadcn/docs-forms"
+],
+"Helpers and hooks": [
+"shadcn/direction",
+"shadcn/docs-forms-formisch",
+"shadcn/docs-forms-react-hook-form",
+"shadcn/docs-forms-tanstack-form",
+"shadcn/docs-index",
+"shadcn/docs-react-19",
+"shadcn/docs-tailwind-v4",
+"shadcn/docs-typeset",
+"shadcn/index",
+"shadcn/style",
+"shadcn/use-mobile",
+"rareui/utils",
+"shadcn/utils"
+],
+"Registry, CLI and MCP": [
+"shadcn/docs-cli",
+"shadcn/docs-directory",
+"shadcn/docs-mcp",
+"shadcn/docs-monorepo",
+"shadcn/docs-registry",
+"shadcn/docs-registry-authentication",
+"shadcn/docs-registry-examples",
+"shadcn/docs-registry-faq",
+"shadcn/docs-registry-getting-started",
+"shadcn/docs-registry-mcp",
+"shadcn/docs-registry-namespace",
+"shadcn/docs-registry-open-in-v0",
+"shadcn/docs-registry-registry-index",
+"shadcn/docs-registry-registry-item-json",
+"shadcn/docs-registry-registry-json",
+"shadcn/docs-skills"
+],
+"Theming and dark mode": [
+"shadcn/docs-dark-mode",
+"shadcn/docs-dark-mode-astro",
+"shadcn/docs-dark-mode-next",
+"shadcn/docs-dark-mode-remix",
+"shadcn/docs-dark-mode-vite",
+"shadcn/docs-theming"
+]
+}
+},
+"variants": {
+"shadcn/accordion": [
+"shadcn/accordion-demo"
+],
+"shadcn/alert": [
+"shadcn/alert-demo",
+"shadcn/alert-destructive"
+],
+"shadcn/alert-dialog": [
+"shadcn/alert-dialog-demo"
+],
+"shadcn/aspect-ratio": [
+"shadcn/aspect-ratio-demo"
+],
+"shadcn/avatar": [
+"shadcn/avatar-demo"
+],
+"shadcn/badge": [
+"shadcn/badge-demo",
+"shadcn/badge-destructive",
+"shadcn/badge-outline",
+"shadcn/badge-secondary"
+],
+"shadcn/breadcrumb": [
+"shadcn/breadcrumb-demo",
+"shadcn/breadcrumb-dropdown",
+"shadcn/breadcrumb-link"
+],
+"shadcn/button": [
+"shadcn/button-default",
+"shadcn/button-demo",
+"shadcn/button-destructive",
+"shadcn/button-ghost",
+"shadcn/button-icon",
+"shadcn/button-link",
+"shadcn/button-loading",
+"shadcn/button-outline",
+"shadcn/button-rounded",
+"shadcn/button-secondary",
+"shadcn/button-size",
+"shadcn/button-with-icon"
+],
+"shadcn/button-group": [
+"shadcn/button-group-demo",
+"shadcn/button-group-dropdown",
+"shadcn/button-group-popover",
+"shadcn/button-group-size"
+],
+"shadcn/calendar": [
+"shadcn/calendar-demo"
+],
+"shadcn/card": [
+"shadcn/card-demo"
+],
+"shadcn/carousel": [
+"shadcn/carousel-demo",
+"shadcn/carousel-size"
+],
+"shadcn/chart": [
+"shadcn/chart-area-axes",
+"shadcn/chart-area-default",
+"shadcn/chart-area-gradient",
+"shadcn/chart-area-icons",
+"shadcn/chart-area-interactive",
+"shadcn/chart-area-legend",
+"shadcn/chart-area-linear",
+"shadcn/chart-area-stacked",
+"shadcn/chart-area-stacked-expand",
+"shadcn/chart-area-step",
+"shadcn/chart-bar-active",
+"shadcn/chart-bar-default",
+"shadcn/chart-bar-demo",
+"shadcn/chart-bar-demo-axis",
+"shadcn/chart-bar-demo-grid",
+"shadcn/chart-bar-demo-legend",
+"shadcn/chart-bar-demo-tooltip",
+"shadcn/chart-bar-horizontal",
+"shadcn/chart-bar-interactive",
+"shadcn/chart-bar-label",
+"shadcn/chart-bar-label-custom",
+"shadcn/chart-bar-mixed",
+"shadcn/chart-bar-multiple",
+"shadcn/chart-bar-negative",
+"shadcn/chart-bar-stacked",
+"shadcn/chart-line-default",
+"shadcn/chart-line-dots",
+"shadcn/chart-line-dots-colors",
+"shadcn/chart-line-dots-custom",
+"shadcn/chart-line-interactive",
+"shadcn/chart-line-label",
+"shadcn/chart-line-label-custom",
+"shadcn/chart-line-linear",
+"shadcn/chart-line-multiple",
+"shadcn/chart-line-step",
+"shadcn/chart-pie-donut",
+"shadcn/chart-pie-donut-active",
+"shadcn/chart-pie-donut-text",
+"shadcn/chart-pie-interactive",
+"shadcn/chart-pie-label",
+"shadcn/chart-pie-label-custom",
+"shadcn/chart-pie-label-list",
+"shadcn/chart-pie-legend",
+"shadcn/chart-pie-separator-none",
+"shadcn/chart-pie-simple",
+"shadcn/chart-pie-stacked",
+"shadcn/chart-radar-default",
+"shadcn/chart-radar-dots",
+"shadcn/chart-radar-grid-circle",
+"shadcn/chart-radar-grid-circle-fill",
+"shadcn/chart-radar-grid-circle-no-lines",
+"shadcn/chart-radar-grid-custom",
+"shadcn/chart-radar-grid-fill",
+"shadcn/chart-radar-grid-none",
+"shadcn/chart-radar-icons",
+"shadcn/chart-radar-label-custom",
+"shadcn/chart-radar-legend",
+"shadcn/chart-radar-lines-only",
+"shadcn/chart-radar-multiple",
+"shadcn/chart-radar-radius",
+"shadcn/chart-radial-grid",
+"shadcn/chart-radial-label",
+"shadcn/chart-radial-shape",
+"shadcn/chart-radial-simple",
+"shadcn/chart-radial-stacked",
+"shadcn/chart-radial-text",
+"shadcn/chart-tooltip-advanced",
+"shadcn/chart-tooltip-default",
+"shadcn/chart-tooltip-demo",
+"shadcn/chart-tooltip-formatter",
+"shadcn/chart-tooltip-icons",
+"shadcn/chart-tooltip-indicator-line",
+"shadcn/chart-tooltip-indicator-none",
+"shadcn/chart-tooltip-label-custom",
+"shadcn/chart-tooltip-label-formatter",
+"shadcn/chart-tooltip-label-none"
+],
+"shadcn/checkbox": [
+"shadcn/checkbox-demo",
+"shadcn/checkbox-disabled",
+"shadcn/checkbox-with-text"
+],
+"shadcn/collapsible": [
+"shadcn/collapsible-demo"
+],
+"shadcn/combobox": [
+"shadcn/combobox-demo",
+"shadcn/combobox-popover"
+],
+"shadcn/command": [
+"shadcn/command-demo"
+],
+"shadcn/context-menu": [
+"shadcn/context-menu-demo"
+],
+"shadcn/dialog": [
+"shadcn/dialog-demo"
+],
+"shadcn/drawer": [
+"shadcn/drawer-demo"
+],
+"shadcn/dropdown-menu": [
+"shadcn/dropdown-menu-demo"
+],
+"shadcn/empty": [
+"shadcn/empty-demo",
+"shadcn/empty-icon",
+"shadcn/empty-outline"
+],
+"shadcn/field": [
+"shadcn/field-demo"
+],
+"shadcn/hover-card": [
+"shadcn/hover-card-demo"
+],
+"shadcn/input": [
+"shadcn/input-demo",
+"shadcn/input-disabled",
+"shadcn/input-with-text"
+],
+"shadcn/input-group": [
+"shadcn/input-group-demo",
+"shadcn/input-group-dropdown",
+"shadcn/input-group-icon",
+"shadcn/input-group-text",
+"shadcn/input-group-tooltip"
+],
+"shadcn/input-otp": [
+"shadcn/input-otp-demo"
+],
+"shadcn/item": [
+"shadcn/item-demo",
+"shadcn/item-dropdown",
+"shadcn/item-icon",
+"shadcn/item-link",
+"shadcn/item-size"
+],
+"shadcn/kbd": [
+"shadcn/kbd-demo",
+"shadcn/kbd-tooltip"
+],
+"shadcn/label": [
+"shadcn/label-demo"
+],
+"shadcn/menubar": [
+"shadcn/menubar-demo"
+],
+"shadcn/native-select": [
+"shadcn/native-select-demo",
+"shadcn/native-select-disabled"
+],
+"shadcn/navigation-menu": [
+"shadcn/navigation-menu-demo"
+],
+"shadcn/pagination": [
+"shadcn/pagination-demo"
+],
+"shadcn/popover": [
+"shadcn/popover-demo"
+],
+"shadcn/progress": [
+"shadcn/progress-demo"
+],
+"shadcn/radio-group": [
+"shadcn/radio-group-demo"
+],
+"shadcn/resizable": [
+"shadcn/resizable-demo",
+"shadcn/resizable-vertical"
+],
+"shadcn/scroll-area": [
+"shadcn/scroll-area-demo",
+"shadcn/scroll-area-horizontal-demo"
+],
+"shadcn/select": [
+"shadcn/select-demo"
+],
+"shadcn/separator": [
+"shadcn/separator-demo"
+],
+"shadcn/sheet": [
+"shadcn/sheet-demo"
+],
+"shadcn/sidebar": [
+"shadcn/sidebar-01",
+"shadcn/sidebar-02",
+"shadcn/sidebar-03",
+"shadcn/sidebar-04",
+"shadcn/sidebar-05",
+"shadcn/sidebar-06",
+"shadcn/sidebar-07",
+"shadcn/sidebar-08",
+"shadcn/sidebar-09",
+"shadcn/sidebar-10",
+"shadcn/sidebar-11",
+"shadcn/sidebar-12",
+"shadcn/sidebar-13",
+"shadcn/sidebar-14",
+"shadcn/sidebar-15",
+"shadcn/sidebar-16"
+],
+"shadcn/skeleton": [
+"shadcn/skeleton-card",
+"shadcn/skeleton-demo"
+],
+"shadcn/slider": [
+"shadcn/slider-demo"
+],
+"shadcn/sonner": [
+"shadcn/sonner-demo"
+],
+"shadcn/spinner": [
+"shadcn/spinner-badge",
+"shadcn/spinner-demo",
+"shadcn/spinner-empty",
+"shadcn/spinner-size"
+],
+"shadcn/switch": [
+"shadcn/switch-demo"
+],
+"shadcn/table": [
+"shadcn/table-demo"
+],
+"shadcn/tabs": [
+"shadcn/tabs-demo"
+],
+"shadcn/textarea": [
+"shadcn/textarea-demo",
+"shadcn/textarea-disabled",
+"shadcn/textarea-with-text"
+],
+"shadcn/toggle": [
+"shadcn/toggle-demo",
+"shadcn/toggle-disabled",
+"shadcn/toggle-lg",
+"shadcn/toggle-outline",
+"shadcn/toggle-sm",
+"shadcn/toggle-with-text"
+],
+"shadcn/toggle-group": [
+"shadcn/toggle-group-demo",
+"shadcn/toggle-group-disabled",
+"shadcn/toggle-group-lg",
+"shadcn/toggle-group-outline",
+"shadcn/toggle-group-single",
+"shadcn/toggle-group-sm"
+],
+"shadcn/tooltip": [
+"shadcn/tooltip-demo"
+]
+}
+}
