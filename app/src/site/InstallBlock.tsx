@@ -24,8 +24,10 @@ import { Copy } from "./Code";
  *
  * The copy button is the page's **one accent-filled primary**: the design book allows the accent in two places
  * — the active nav bar and one primary control per view — and on an item page the primary thing a visitor is
- * here for is the command. It stays the first Copy in document order, which is gated: the install block comes
- * before the demos and before the source pane.
+ * here for is the command. Since r8 the block follows the preview instead of preceding it (title → preview →
+ * install → the rest), so it is no longer the first Copy in document order — the demo card's "Copy demo source"
+ * is, and that is the order the review asked for. What is gated is the other half of the rule: this Copy is the
+ * page's only element whose painted background is `--accent` (`qa/stage_check.mjs` counts it).
  */
 
 const MANAGERS = ["pnpm", "npm", "yarn", "bun"] as const;

@@ -12,9 +12,15 @@
  *      opinion about quality, and the manifest publishes 0 picks and 0 verdicts to rank by (`behaviour.ts`,
  *      rule 3). This is the assertion that stops the line quietly becoming editorial.
  *   4. **it did not steal the page's first Copy, and it did not push the install block away.** The install
- *      command is the page's one accent-filled primary and its Copy must stay first in document order (the
- *      intent recorded in `site/InstallBlock.tsx`); the measured line prints *after* it, and the block it prints
- *      after is still a box on the page rather than something covered or clipped.
+ *      command is the page's one accent-filled primary and its Copy must still be the first Copy control *after
+ *      the preview* (the intent recorded in `site/InstallBlock.tsx`); the measured line prints *after* it, and
+ *      the block it prints after is still a box on the page rather than something covered or clipped.
+ *
+ *      r8 changed what "first" means, and this gate says so out loud rather than being relaxed: the item page
+ *      now runs title → **preview** → install → the rest, so the demo card's "Copy demo source" comes first in
+ *      document order and the install command's Copy is the first one after `.stage`. That is the order the r8
+ *      review asked for, and the property that still matters is the one this assertion keeps: nothing between the
+ *      preview and the install command takes that Copy's place, and the measured line never becomes a Copy.
  *
  * The sample is 13 ids: ten measured (the two the r7 brief names plus eight more) and three unmeasured. The
  * three measured ids that render *no* demo (`beautifului/sidebar-nav`, `rareui/hook-sidebar`,
@@ -84,6 +90,9 @@ async function readPage(p, id) {
     const copies = [...document.querySelectorAll("button, a[href], [role='button']")]
       .filter((e) => /copy/i.test((e.getAttribute("aria-label") || "") + " " + (e.textContent || "")))
       .filter((e) => e.getClientRects().length);
+    // the first Copy control that is not part of the preview: since r8 the install command follows the stage, so
+    // "the install Copy is not pre-empted" is a statement about the controls after the canvas, not before it
+    const afterStage = copies.filter((e) => !e.closest(".stage"));
     const ir = box(install), pr = box(pick);
     // the page scrolls inside its own column, not the document: measure "off the page" against that container
     const scroller = (() => {
@@ -94,9 +103,20 @@ async function readPage(p, id) {
       return document.documentElement;
     })();
     const sr = scroller.getBoundingClientRect();
+    /*
+     * The hit test happens at the block's own centre, so the block has to be on screen first. Since r8 the install
+     * command follows the preview, which on a tall item puts it below the fold: the old test clamped the sample
+     * point to `innerHeight - 1`, which is where the *next* card is, and reported "covered" for a block nothing
+     * was covering. Scrolling it into view first measures what the assertion is about — is a sticky strip lying
+     * over the command — rather than where the column happens to be scrolled to. Measured after the scroll, so
+     * every number above it is the un-scrolled reading.
+     */
+    const scrollTopBefore = scroller.scrollTop;
+    install?.scrollIntoView({ block: "center", behavior: "instant" });
+    const ir2 = install ? install.getBoundingClientRect() : null;
     const covered = (() => {
-      if (!install || !ir || !ir.width || !ir.height) return null;
-      const el = document.elementFromPoint(ir.left + ir.width / 2, Math.min(ir.top + ir.height / 2, innerHeight - 1));
+      if (!install || !ir2 || !ir2.width || !ir2.height) return null;
+      const el = document.elementFromPoint(ir2.left + ir2.width / 2, ir2.top + ir2.height / 2);
       return install.contains(el) || el === install;
     })();
     return {
@@ -106,10 +126,12 @@ async function readPage(p, id) {
       endsWithStop: text ? text.endsWith(".") : false,
       saysMeasured: text ? text.includes("measured in this demo") : false,
       verdictWord: text ? (text.match(VERDICT) ?? [null])[0] : null,
-      // DOM order: is the pick line after the first Copy control?
-      afterFirstCopy: !!(pick && copies.length && (copies[0].compareDocumentPosition(pick) & Node.DOCUMENT_POSITION_FOLLOWING)),
-      firstCopyLabel: copies.length ? (copies[0].getAttribute("aria-label") || copies[0].textContent || "").replace(/\s+/g, " ").trim().slice(0, 40) : null,
+      // DOM order: is the pick line after the first Copy control following the preview?
+      afterFirstCopy: !!(pick && afterStage.length && (afterStage[0].compareDocumentPosition(pick) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      firstCopyLabel: afterStage.length ? (afterStage[0].getAttribute("aria-label") || afterStage[0].textContent || "").replace(/\s+/g, " ").trim().slice(0, 40) : null,
       copyCount: copies.length,
+      copiesInPreview: copies.length - afterStage.length,
+      pickIsCopy: !!(pick && /copy/i.test((pick.getAttribute("aria-label") || "") + " " + (pick.textContent || ""))),
       // the install block: present, a real box, above the line, inside the document, not covered
       installPresent: !!install,
       installTop: ir ? Math.round(ir.top + scrollY) : null,
@@ -117,7 +139,7 @@ async function readPage(p, id) {
       installHeight: ir ? Math.round(ir.height) : null,
       pickTop: pr ? Math.round(pr.top + scrollY) : null,
       // bottom edge of the install block inside the scrolling column it lives in
-      installBottomInColumn: ir ? Math.round(ir.bottom - sr.top + scroller.scrollTop) : null,
+      installBottomInColumn: ir ? Math.round(ir.bottom - sr.top + scrollTopBefore) : null,
       columnScrollHeight: Math.round(scroller.scrollHeight),
       column: scroller.tagName.toLowerCase() + (scroller.className ? "." + String(scroller.className).split(" ")[0] : ""),
       covered,
@@ -145,10 +167,10 @@ for (const id of MEASURED) {
   if (m.verdictWord === null) ok(`${tag}: no rank/winner/score/best`, `0 verdict words`);
   else bad(`${tag}: no rank/winner/score/best`, `found "${m.verdictWord}"`);
 
-  if (m.firstCopyLabel && /copy install command/i.test(m.firstCopyLabel) && m.afterFirstCopy) {
-    ok(`${tag}: not the first Copy`, `first Copy = "${m.firstCopyLabel}", ${m.copyCount} copy controls, line after it`);
+  if (m.firstCopyLabel && /copy install command/i.test(m.firstCopyLabel) && m.afterFirstCopy && !m.pickIsCopy) {
+    ok(`${tag}: not the first Copy`, `first Copy after the preview = "${m.firstCopyLabel}", ${m.copyCount} copy controls (${m.copiesInPreview} in the preview), line after it`);
   } else {
-    bad(`${tag}: not the first Copy`, `first Copy = ${JSON.stringify(m.firstCopyLabel)}, line after first Copy = ${m.afterFirstCopy}`);
+    bad(`${tag}: not the first Copy`, `first Copy after the preview = ${JSON.stringify(m.firstCopyLabel)}, line after it = ${m.afterFirstCopy}, pick line is a copy = ${m.pickIsCopy}`);
   }
 
   const installFine = m.installPresent && m.installHeight > 0 && m.installTop < m.pickTop &&

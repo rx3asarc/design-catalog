@@ -150,7 +150,13 @@ const HIT = 44;
 const tabStop = (on: boolean) => (on ? 0 : -1);
 
 const itemStyle: React.CSSProperties = { height: HIT, padding: "0 12px", fontSize: 12.5 };
-const groupStyle: React.CSSProperties = { border: "1px solid var(--border)", borderRadius: 8 };
+/* The track of a segment group: `surface-200` inside a `border-strong` hairline, `radius-sm` — the same rules
+   `SegmentedTabs` publishes for a segmented control. The selected segment is painted by the r8 block at the foot
+   of `styles.css` (`surface-300` fill, `ink` text, weight 600, never an accent fill), so nothing about the
+   selection is stated twice here. */
+const groupStyle: React.CSSProperties = {
+  border: "1px solid var(--border-strong)", borderRadius: "var(--radius-sm)", background: "var(--surface-200)",
+};
 
 /**
  * One cluster: a visible word, then the control. Below 640 px the word is dropped and the control's own
@@ -215,17 +221,7 @@ export function StageBar({
       data-stage-bar={item.id}
       role="group"
       aria-label={`Stage for ${item.name}`}
-      style={{
-        display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px 16px",
-        padding: "10px 12px", margin: "0 0 14px",
-        // Two surfaces, two owners. The console is chrome and follows the SITE's palette; the paper the demo is
-        // rendered on is `demo.tsx`'s surface and follows the FRAME's (`FRAME_SURFACE[stage.theme]`) — that split
-        // is the fix for the white-on-white island. This one stays the site's on purpose: a control strip that
-        // turned dark because the *preview* did would be chrome lying about which theme the catalogue is in.
-        // (And it is the only implementable answer anyway: `styles.css` has a `.dark` scope and no `.light` one,
-        // so "the console follows the preview" would work in one direction and silently not in the other.)
-        border: "1px solid var(--border)", borderRadius: 10, background: "var(--surface-200)",
-      }}
+      className="stage-console-bar"
     >
       <Cluster label={word("theme")} hint="The demo only. The catalogue keeps its own theme.">
         <ToggleGroup
@@ -275,7 +271,11 @@ export function StageBar({
         </Button>
       )}
 
-      <span style={{ flex: 1, minWidth: 0 }} />
+      {/* No growing spacer here. The old strip put one between the controls and the motion-off note so the note sat
+          at the far right of a left-to-right bar; in the canvas console the whole row is right-aligned by CSS
+          (`justify-content: flex-end`, styles.css), and a `flex: 1` child defeats that on every wrapped line: it
+          absorbs the line's slack, so `flex-end` has nothing left to distribute and the line starts at the left
+          edge. Measured at 390 px before this change: line 1 right-aligned at 112, line 2 stuck at 23. */}
       {stage.motion === "off" && (
         <span id={noteId} role="status" style={{ ...mono, textTransform: "none", letterSpacing: 0, fontSize: 12, whiteSpace: "normal", maxWidth: "46ch" }}>
           CSS motion stopped{stage.fromSystem ? " — your system asks for reduced motion" : ""}. Demos that animate with JavaScript keep running.

@@ -134,7 +134,21 @@ const TAB: React.CSSProperties = { height: 44, minHeight: 44, flex: "none" };
  * derived from the item's own `files` on every render, so a route change can never leave another item's file
  * selected: `chosen` is only honoured while it is still a member of this item's list.
  */
-export function Files({ files, main }: { files: string[]; main?: string }) {
+export function Files(
+  /*
+   * `heading` exists because a pane's title is a section title on the page it is mounted on, and one page in this
+   * shell publishes a heading outline while the others do not. The item page (r8) is the one that does — it is the
+   * page where a visitor decides, its title is the `<h1>`, and "Installation" and "Source files" are the two
+   * sections under it — so it passes `"h2"`. The type and comparison pages are unchanged: they still get the
+   * `div` this pane has always rendered, because r8 did not take on their outlines and a silent site-wide heading
+   * change is not something to slip in behind an item-page review.
+   */
+  { files, main, heading = "div" }: {
+    files: string[];
+    main?: string;
+    heading?: "div" | "h2";
+  },
+) {
   const [chosen, setChosen] = useState<string | null>(null);
   const first = main && files.includes(main) ? main : files[0] ?? null;
   const sel = chosen && files.includes(chosen) ? chosen : first;
@@ -142,7 +156,13 @@ export function Files({ files, main }: { files: string[]; main?: string }) {
   if (!files.length) return null;
   return (
     <>
-      <div className="section-h">Source files ({files.length})</div>
+      {/* two lines rather than a dynamic tag: the pane is a shared component and a `React.ElementType` in JSX would
+          need a cast this file does not otherwise own. The text is one string so the two branches cannot drift. */}
+      {heading === "h2" ? (
+        <h2 className="section-h">Source files ({files.length})</h2>
+      ) : (
+        <div className="section-h">Source files ({files.length})</div>
+      )}
       {files.length > 1 && (
         <Tabs data-catalog-item="shadcn/tabs" value={sel ?? ""} onValueChange={setChosen} className="file-tabs">
           <TabsList
