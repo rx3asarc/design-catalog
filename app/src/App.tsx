@@ -179,7 +179,7 @@ export default function App() {
   const tree = useTree(q, from);
   const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);
 
-  const rendered = items.filter((i) => i.variants.length).length;
+  const rendered = items.filter((i) => i.has_demo === true).length;
   const rail = <RailTree tree={tree} activeId={route.kind === "item" ? route.id : undefined} />;
   const head = <RailHead q={q} setQ={setQ} from={from} setFrom={setFrom} total={items.length} rendered={rendered} />;
 

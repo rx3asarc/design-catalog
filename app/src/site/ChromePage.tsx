@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import manifest from "../../manifest.json";
+import { items } from "./lib";
 import { useUsage } from "../provenance";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import {
@@ -24,8 +24,8 @@ import {
  * that check, and it scans every module in `src/site/` as well as the root ones, so the claim is true.
  */
 
-type M = { id: string; used_here: number };
-const MANIFEST = manifest as unknown as M[];
+type M = { id: string; used_here?: number };
+const MANIFEST = items as unknown as M[];
 const IN_CATALOGUE = new Map(MANIFEST.map((i) => [i.id, i]));
 
 /** A row's link clears the 44 px tap floor on a phone (`styles.css` sets that floor for the shell's controls). */

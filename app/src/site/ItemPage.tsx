@@ -1,6 +1,7 @@
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, type Item } from "./lib";
+import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, useDetail, type Item, type ItemFull } from "./lib";
+import { DetailWait } from "./DetailWait";
 import { Files } from "./Code";
 import { ApiTable, type Fact } from "./ApiTable";
 import { InstallBlock } from "./InstallBlock";
@@ -52,7 +53,7 @@ function size(bytes: number): string {
  * no dependencies" when the manifest had published no count at all; `null` is not zero, and a visitor is entitled
  * to see the difference.
  */
-function facts(item: Item): Fact[] {
+function facts(item: ItemFull): Fact[] {
   const f = faceted(item);
   const rows: Fact[] = [{ label: "Licence", value: item.licence, title: item.licence }];
 
@@ -128,6 +129,19 @@ function PagerCard({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
 }
 
 export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; next?: Neighbour }) {
+  /*
+   * The page's own fields arrive separately from the shell's (see `site/lib.ts`): `files`, `variants`,
+   * `behaviour` and `renderNote` are fetched once, the first time an item page or a comparison is opened, and
+   * merged into this same item object. The gate is a component boundary rather than an early `return` inside the
+   * body because every hook below has to run in the same order on every render, and a page that returns before
+   * `useStage()` would change that order the moment the detail landed.
+   */
+  const { ready, failed } = useDetail();
+  if (!ready) return <DetailWait what="item" item={item} failed={failed} />;
+  return <ItemBody item={item as ItemFull} prev={prev} next={next} />;
+}
+
+function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next?: Neighbour }) {
   const name = label(item);
   // the stage: one console for every demo on the page, so a 15-variant item does not grow 15 theme switches
   const api = useStage();

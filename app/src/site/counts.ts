@@ -12,8 +12,8 @@ import { items, type Item } from "./lib";
  * `published` and `withFile` are **file counts** (the file was captured; the item page shows it).
  */
 
-const hasFile = (i: Item) => (i.files ?? []).length > 0;
-const runs = (i: Item) => i.variants.length > 0;
+const hasFile = (i: Item) => (i.file_count ?? 0) > 0;
+const runs = (i: Item) => i.has_demo === true;
 const held = (i: Item) => i.withheld === true;
 
 /**

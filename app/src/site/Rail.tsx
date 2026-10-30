@@ -80,7 +80,7 @@ export function Row({ item, active }: { item: Item; active: boolean }) {
       <SidebarMenuButton asChild isActive={active} className="rail-item">
         <a href={`#/i/${item.id}`} aria-current={active ? "page" : undefined}>
           <span className="t">{displayLabel(item)}</span>
-          {!item.variants.length && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
+          {!item.has_demo && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
         </a>
       </SidebarMenuButton>
     </SidebarMenuSubItem>

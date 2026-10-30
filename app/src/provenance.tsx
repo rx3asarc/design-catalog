@@ -1,5 +1,5 @@
 import * as React from "react";
-import manifest from "../manifest.json";
+import { byId } from "./site/lib";
 import { Popover, PopoverAnchor, PopoverContent } from "@/registry/new-york-v4/ui/popover";
 import { useRoute } from "./site/route";
 
@@ -26,7 +26,7 @@ import { useRoute } from "./site/route";
 const ATTR = "data-catalog-item";
 
 /** Catalogue ids that have a page to link to. A tagged sub-part (a table row, say) has none, and says so. */
-const PAGES = new Set((manifest as { id: string }[]).map((i) => i.id));
+const PAGES = new Set(byId.keys());
 
 function read(): Record<string, number> {
   const out: Record<string, number> = {};
