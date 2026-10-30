@@ -307,3 +307,14 @@ Frozen decisions: tokens are vendored, not fetched (R6-D1); the palette is scope
 is the default with no OS follow (R6-D5).
 
 Report: `build/r6-design-system.md`.
+
+### Round 6 addendum — the three items it left open, closed (`23d8b824`)
+
+- **phone menu**: 103 rows / 779 px panel / 4,894 px scroll → **4 rows / 539 px / 538 px** at 390 (sections closed
+  below 861 px, desktop rail unchanged).
+- **floating palette button**: removed; the bar's field (desktop) and the phone bar's 44 px Search are the doors,
+  ⌘K/Ctrl+K everywhere.
+- **`pick`**: the measured line now prints on the item page as well as the comparison pages, derived by
+  `behaviour.ts` from the probe's six facts; unmeasured items print nothing; the human `pick` table stays at 0.
+
+Live-verified: eight gates green, `assets/main-BltL8WrW.js`.

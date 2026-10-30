@@ -141,14 +141,20 @@ Eight gates green, three consecutive runs, local and live: `smoke`, `r2_check`, 
 | `0099658c` | the 12 px floor is not a phone rule; the segmented control is not an accent fill |
 | `731af786` | the last three 11 px words on a desktop item page |
 
-## 8. What is still open
+## 8. What was open here, and is now closed (`23d8b824`)
 
-- **The phone rail's density.** The vision pass called it "significantly more complex than the shell". The shell
-  shows four section names; the rail shows the whole tree. That is a decision, not a defect — but the collapsed
-  default is worth revisiting.
-- **The floating palette button.** With the bar's field in place, the bottom-right trigger is a second door to the
-  same room. Removing it is a one-line change once the bar is trusted on a phone.
-- **Pre-rendering the front page's whole first screen**, or splitting the 572 KB manifest per section. The
-  remaining ~8 s to interactive is 399 KB at 50 KB/s.
-- **`pick` is still empty for all 769 items.** It is the one field no agent may invent; 3–5 sentences of "what it
-  is good for" per item, written by a human, is the only thing that fills it.
+| Open item | What it was | Closed by |
+| --- | --- | --- |
+| the phone menu's density | measured at 390 with the menu open: **103 rows**, a 779 px panel, 4,894 px of scroll — every group pre-expanded | sections default closed below 861 px: **4 rows, panel 539, scroll 538** — the same four names the front page prints. The desktop rail keeps its tree; there the tree is the page's index |
+| the floating palette button | a 134×36 `fixed` control at the bottom-right, over the content, a second door to the room the bar's field already opens | removed. Bar field on desktop, the phone bar's own 44 px Search, ⌘K everywhere. Measured: the only fixed elements left at 1440 are the bar and the sidebar container |
+| `pick` is empty | 0 rows in the human curation table | the *measured* line is now on the item page too: "Pick this if you want a component that collapses to an icon rail, nests its menu two levels deep and comes back as a sheet on a 390 px frame — measured in this demo on 28 October 2026." Derived by `behaviour.ts` from the probe's six facts, no rank, no score; an unmeasured item prints nothing. The table stays at 0: it carries an author, and it is for writing nobody measured |
+
+Live-verified after the deploy (`assets/main-BltL8WrW.js`): eight gates green, 4 rail rows at 390, no float at
+either width, the pick line present on measured item pages and absent on `shadcn/button` and `beui/loading-state`.
+
+## 9. What is still open
+
+- **Pre-rendering the front page's whole first screen**, or splitting the manifest per section. The remaining
+  ~8 s to interactive is the wire, not the paint. `r7-firstpaint` is on it.
+- **Gates for the three fixes above.** A behaviour without a gate regresses silently. `r7-gates` is on it.
+- **A route-by-route audit against the book.** `r7-sweep` is on it.
