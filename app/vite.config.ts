@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 
@@ -158,9 +159,86 @@ function staticHero(items: MItem[]) {
   };
 }
 
+/* ── THE MANIFEST, SPLIT BY WHAT A SURFACE ACTUALLY READS ──────────────────────────────────────────────────
+ *
+ * `site/lib.ts` used to `import manifest from "../../manifest.json"`, which put all 583 KB of it inside the
+ * entry's own chunk — and the entry cannot run until that chunk has arrived, so *no* surface could draw until
+ * the whole catalogue had crossed the wire. Measured at 400 kbit/s (50 KB/s), `#/` was 13.2 s to the first
+ * click that did anything, and ~390 KB gzipped of that was the page.
+ *
+ * The front page does not read `files`, `variants`, `behaviour` or `renderNote` for anything. Neither does the
+ * rail, the palette, the counts, the tiles or the boot shell. Those four fields are 14 KB gzipped of per-item
+ * detail that only an item page (`site/ItemPage.tsx`) and a comparison (`site/Compare.tsx`) ever print, and both
+ * of those are already `lazy` surfaces with their own chunk. So the split is drawn exactly there:
+ *
+ *   CORE    every field the shell, the front page, the rail, the palette and the counts read. Bundled into the
+ *           entry (it arrives with the JavaScript that needs it; no extra round trip), built here from
+ *           `manifest.json` so there is still one file on disk and one ingest.
+ *   DETAIL  `files`, `variants`, `behaviour`, `renderNote`, one row per item in manifest order, emitted as a
+ *           content-hashed JSON asset and fetched once by `site/lib.ts` when an item page or a comparison opens.
+ *
+ * Two fields in CORE are *counts of* arrays that now live in DETAIL — `has_demo` (is `variants` non-empty) and
+ * `file_count` (length of `files`). Four places in the source used the arrays to answer those two questions:
+ * `site/counts.ts` (twice), `site/App.tsx`, `site/Rail.tsx`, `site/Tile.tsx`. They read the published counts now,
+ * and the two invariants that makes them the *same* answer are asserted below: if a future ingest ever publishes
+ * a `has_demo` or a `file_count` that disagrees with its array, this build stops rather than shipping two
+ * spellings of one fact.
+ *
+ * `manifest.json` itself is untouched and stays the source the build reads and the QA gates read from disk.
+ */
+const DETAIL_FIELDS = ["files", "variants", "behaviour", "renderNote"] as const;
+
+function coreAndDetail(items: MItem[]) {
+  const core: Record<string, unknown>[] = [];
+  const rows: Record<string, unknown>[] = [];
+  for (const item of items) {
+    const it = item as MItem & { has_demo?: boolean; files?: unknown[]; variants?: unknown[]; withheld?: boolean; reference_only?: boolean };
+    const variants = (it.variants ?? []).length;
+    const files = (it.files ?? []).length;
+    if (Boolean(it.has_demo) !== (variants > 0)) {
+      throw new Error(`catalog-split: ${it.id} publishes has_demo=${String(it.has_demo)} with ${variants} variants; the shell reads has_demo off CORE, so the two must agree`);
+    }
+    if ((it.file_count ?? 0) !== files) {
+      throw new Error(`catalog-split: ${it.id} publishes file_count=${String(it.file_count)} with ${files} files in the manifest; counts read file_count off CORE, so the two must agree`);
+    }
+    const flat = it as unknown as Record<string, unknown>;
+    const c: Record<string, unknown> = {};
+    for (const k of Object.keys(flat)) if (!(DETAIL_FIELDS as readonly string[]).includes(k)) c[k] = flat[k];
+    core.push(c);
+    const d: Record<string, unknown> = {};
+    for (const k of DETAIL_FIELDS) if (k in flat) d[k] = flat[k];
+    rows.push(d);
+  }
+  /* rows are aligned to core by manifest order, not by id: `id` is 4 KB gzipped and the order is the manifest's.
+     `site/lib.ts` refuses a payload whose length is not the core's, so a drift cannot be silently mis-merged. */
+  return { core, detail: JSON.stringify({ v: 1, n: items.length, rows }) };
+}
+
+function catalogSplit(items: MItem[]) {
+  const { core, detail } = coreAndDetail(items);
+  const hash = createHash("sha256").update(detail).digest("hex").slice(0, 10);
+  const fileName = `manifest/detail-${hash}.json`;
+  const CORE = "\0virtual:catalog-core";
+  const URL_ID = "\0virtual:catalog-detail-url";
+  return {
+    name: "catalog-split",
+    resolveId(id: string) {
+      if (id === "virtual:catalog-core") return CORE;
+      if (id === "virtual:catalog-detail-url") return URL_ID;
+    },
+    load(id: string) {
+      if (id === CORE) return `export default ${JSON.stringify(core)};`;
+      if (id === URL_ID) return `export default import.meta.env.BASE_URL + ${JSON.stringify(fileName)};`;
+    },
+    generateBundle(this: { emitFile: (f: { type: "asset"; fileName: string; source: string }) => string }) {
+      this.emitFile({ type: "asset", fileName, source: detail });
+    },
+  };
+}
+
 export default defineConfig({
   base: "/design-catalog/",
-  plugins: [react(), tailwindcss(), catalogCounts(), cssWithoutThePaintTax(), staticHero(manifest as MItem[])],
+  plugins: [react(), tailwindcss(), catalogCounts(), cssWithoutThePaintTax(), staticHero(manifest as MItem[]), catalogSplit(manifest as MItem[])],
   build: {
     manifest: true,
     rollupOptions: {

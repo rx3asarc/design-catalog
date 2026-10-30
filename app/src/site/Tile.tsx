@@ -36,7 +36,7 @@ export type Faceted = Item & {
 export const faceted = (i: Item) => i as Faceted;
 
 /** The published flag when the data has one; otherwise the fact the build already carries. */
-export const hasDemo = (i: Item) => faceted(i).has_demo ?? i.variants.length > 0;
+export const hasDemo = (i: Item) => faceted(i).has_demo ?? false;
 
 /* ── the mount pool: one iframe per frame, nine live, the rest detached ─────────────────────────────────── */
 

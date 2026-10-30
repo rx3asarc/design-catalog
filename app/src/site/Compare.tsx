@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { conceptKeys, conceptMembers, items, label, type Item } from "./lib";
+import { conceptKeys, conceptMembers, items, label, useDetail, type Item } from "./lib";
+import { DetailWait } from "./DetailWait";
 import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
 import { BEHAVIOUR_COLS, behaviourOf, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
 
@@ -81,6 +82,17 @@ function saidBy(col: FactCol, rows: Item[]) {
 }
 
 export function Compare({ conceptKey }: { conceptKey: string }) {
+  /*
+   * The behaviour columns are per-item detail (`site/lib.ts` fetches them once), so the comparison cannot draw
+   * until they are here — and it must not draw "not measured" for a set whose records are simply late. The gate
+   * is a component boundary because the hooks below have to run in the same order on every render.
+   */
+  const { ready, failed } = useDetail();
+  if (!ready) return <DetailWait what="concept" failed={failed} />;
+  return <CompareBody conceptKey={conceptKey} />;
+}
+
+function CompareBody({ conceptKey }: { conceptKey: string }) {
   const known = useMemo(() => conceptKeys.includes(conceptKey), [conceptKey]);
   // filed by source, then slug: the order a shelf is in, not an order of merit
   const rows = useMemo(

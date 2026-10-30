@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import manifest from "../../manifest.json";
+import core from "virtual:catalog-core";
+import detailUrl from "virtual:catalog-detail-url";
 
 /**
  * The data the whole shell reads, and the one loader both the demo pane and the source pane use.
@@ -7,6 +8,21 @@ import manifest from "../../manifest.json";
  * `site/` is the shell's own directory: everything the chrome is made of lives here, one file per surface.
  * This module holds only what two or more of those surfaces need — the item type, the manifest, the label a
  * visitor reads, and the raw-source loader. It imports no other shell module, so nothing here can cycle.
+ *
+ * WHAT ARRIVES FIRST, AND WHAT DOES NOT.
+ *
+ * `virtual:catalog-core` is `manifest.json` minus four per-item fields — `files`, `variants`, `behaviour`,
+ * `renderNote` — projected at build time by `catalogSplit()` in `vite.config.ts`. Everything the shell, the front
+ * page, the rail, the palette and the counts read is in it, so the first screen draws as soon as the entry chunk
+ * runs, without waiting for the catalogue's per-item detail. That detail is a content-hashed JSON asset now
+ * (`detailUrl`), fetched **once** the first time a surface that prints it is opened — an item page, a comparison —
+ * by `loadDetail()`, which merges it into these same `items` objects in place. So there is still one array, one
+ * identity per item, and no second copy of the data to drift: `items` simply gets its last four fields a little
+ * later than the rest.
+ *
+ * `Item` therefore types those four fields as optional. That is the point: the compiler names every place that
+ * needs detail, and `useDetailItem()` is the one door those places go through. The alternative — typing them as
+ * present and hoping — is how a page prints "0 files" for an item whose files simply have not arrived.
  */
 
 export type Variant = { label: string; module: string };
@@ -19,7 +35,13 @@ export type Item = {
   /** The rail's category. Present on every ingested item today; the rail treats a missing one as "Actions and controls". */
   category?: string;
   one_line: string | null; url: string | null; licence: string; page: string | null;
-  install: string | null; files: string[]; variants: Variant[]; withheld?: boolean;
+  install: string | null;
+  /*
+   * The four fields that arrive with the detail payload, not with the entry chunk. Optional on purpose — see the
+   * header — and present on every item once `loadDetail()` has resolved.
+   */
+  files?: string[]; variants?: Variant[]; behaviour?: unknown; renderNote?: string | null;
+  withheld?: boolean;
   /**
    * The concept sets this item belongs to, by the store's own key. Published by the data unit; absent means
    * "in none" and never "not known" — 118 of the 769 items carry one or more, across 29 sets.
@@ -27,8 +49,62 @@ export type Item = {
   concepts?: string[] | null;
 };
 
-export const items = manifest as unknown as Item[];
+export const items = core as unknown as Item[];
 export const byId = new Map(items.map((i) => [i.id, i]));
+
+/**
+ * The detail payload, once, per page load.
+ *
+ * `loadDetail()` is the only fetcher: a module-scoped promise, so two item pages opened in one session (or a
+ * comparison and an item page) share one request. Returns `true` when the rows landed and were merged, `false`
+ * when they did not — an offline visitor, a stale cache asking for a chunk this deploy replaced. A `false` is not
+ * an error page: the surfaces that need detail say so in their own words rather than printing zeroes.
+ *
+ * The merge is a `Object.assign` onto the core row at the same index. Rows are aligned by manifest order, so the
+ * payload carries no ids (4 KB gzipped that the browser already has); the length check below is what makes that
+ * assumption safe — a payload from a *different* build has a different length or, if it did not, a different
+ * hash in its filename, so a mis-merge cannot happen quietly.
+ */
+let detailPromise: Promise<boolean> | null = null;
+export function loadDetail(): Promise<boolean> {
+  if (!detailPromise) {
+    detailPromise = fetch(detailUrl, { credentials: "same-origin" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`detail ${r.status}`))))
+      .then((d: { n?: number; rows?: Record<string, unknown>[] }) => {
+        if (!Array.isArray(d?.rows) || d.rows.length !== items.length) throw new Error("detail shape");
+        d.rows.forEach((row, i) => Object.assign(items[i], row));
+        return true;
+      })
+      .catch(() => false);
+  }
+  return detailPromise;
+}
+
+/**
+ * An item, with the detail fields the caller is about to print — or `null` while they are still on the wire.
+ *
+ * This is `Item` with `files` and `variants` narrowed from optional to required, so a surface cannot read them
+ * without having asked. Both callers (`site/ItemPage.tsx`, `site/Compare.tsx`) are `lazy` surfaces already, so
+ * their chunk and this payload travel together and the visitor sees the shell's own "Fetching …" line, not a
+ * spinner this module invented.
+ */
+export type ItemFull = Item & { files: string[]; variants: Variant[] };
+
+export function useDetail(): { ready: boolean; failed: boolean } {
+  const [state, setState] = useState<{ ready: boolean; failed: boolean }>({ ready: false, failed: false });
+  useEffect(() => {
+    let live = true;
+    loadDetail().then((ok) => live && setState({ ready: ok, failed: !ok }));
+    return () => { live = false; };
+  }, []);
+  return state;
+}
+
+/** The item with its detail fields, or `null` until they have landed. */
+export function useDetailItem(i: Item): ItemFull | null {
+  const { ready } = useDetail();
+  return ready ? (i as ItemFull) : null;
+}
 
 /** What a visitor reads. Never a casing rule invented here: the data says the name, or the slug is the name. */
 export const label = (i: Item) => i.displayName ?? i.name;
