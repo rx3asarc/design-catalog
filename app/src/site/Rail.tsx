@@ -1,39 +1,88 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
 import {
-  SidebarHeader, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
+  SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub,
   SidebarMenuSubItem, SidebarTrigger, useSidebar,
 } from "@/registry/new-york-v4/ui/sidebar";
 import { ThemeSwitch } from "./ThemeSwitch";
-import { label as displayLabel, type Item, type TreeCat, type TreeFamily } from "./lib";
-import { gridHref, type RailSection } from "./route";
+import { byId } from "./lib";
+import { SECTION_ORDER, TYPES, typeOfItem, type SectionName, type TypeEntry } from "./taxonomy";
 
 /**
- * The rail: four sections, their categories, the families inside those, and one more level where a family is
- * big. Every level is the catalogue's own Collapsible mounted on its own SidebarMenuItem; a leaf is a real
- * link inside a SidebarMenuButton. Nothing here is a `<details>`, and the guard enforces that.
+ * THE RAIL: SEVEN SECTIONS, THE TYPES INSIDE THEM, AND NOTHING ELSE.
+ *
+ * What it was, and what the round-4 review said about it: "the groups are made by cutting item names into words
+ * and adding an 's' … with everything expanded the sidebar has about 990 rows". The groups were a rule over
+ * slugs (`i.slug.split("-")[0]` + a plural), so the rail listed *items* under *invented* families: `Natives`,
+ * `Hovers`, `Otps`, `Kbds`, `Loadings`, sixteen groups named `01` … `16`. Two levels of taxonomy now replace
+ * that, and the taxonomy is a written list (`site/taxonomy.json`), not a rule over names:
+ *
+ *   level 1  the seven sections, uppercase, in the book's own order — `SECTION_ORDER`
+ *   level 2  the component types inside a section, A–Z — `TYPES`, 89 of them
+ *
+ * An *item* is never a row here. 769 items fold into 569 members of 89 types, and another 200 are variants that
+ * live as demos on their parent's page. A type's row is a link to its collection, `#/t/<section>/<type>`, which is
+ * the surface that compares the type's members — so the rail is an index of the catalogue's *shape*, and the
+ * items are one click away in the collection or in the grid.
+ *
+ * The disclosures are the catalogue's own `Collapsible` (never a `<details>`), mounted on its own
+ * `SidebarMenuItem`, and the prefixes the design system's round-6 rules are written against are kept:
+ * `.rail-sec` for a section, `.rail-item` for a type, `.disc-trigger` for a trigger, `.rail-count` for a count.
+ * Those rules give the section rows the mono `label` step in uppercase and the type rows `small` in `ink-muted`;
+ * nothing here restates them.
  */
 
-/**
- * Every level of the rail is the catalogue's own Collapsible, mounted on the catalogue's own SidebarMenuItem —
- * the trigger is a SidebarMenuButton, the row below it is a SidebarMenuSub. Nothing here is a <details>.
+/* ── the addresses ────────────────────────────────────────────────────────────────────────────────────────────
+ * A section slug and a type slug are the same rule (lowercase, spaces → `-`), and the route is the one
+ * `r8-collections` builds its pages on. Both directions are here so the rail cannot spell an address the
+ * collection cannot resolve: `typeHref` writes it, `typeKeyAt` reads the one the address bar is carrying.
  */
-export function Level({ lvl, label, count, defaultOpen, href, title, children, resetKey }: {
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+/** A type's collection address: `#/t/components/button`, `#/t/agent-ui/chat-and-messages`. */
+export const typeHref = (t: { section: string; type: string }) => `#/t/${slug(t.section)}/${slug(t.type)}`;
+
+/**
+ * The type key (`Components/Button`) an address names, or `null`.
+ *
+ * Read from the hash rather than from `Route`: the rail must be able to mark its own row current on the day the
+ * collections unit lands its route, and this spelling is fixed by both briefs. A route the parser has not learned
+ * yet renders the not-found page *with the rail around it*, so the row still has to know the address is its own.
+ */
+export function typeKeyAt(hash: string): string | null {
+  const seg = hash.replace(/^#/, "").replace(/\/+$/, "").split("/").filter(Boolean);
+  if (seg.length < 3 || seg[0].toLowerCase() !== "t") return null;
+  const wantSec = seg[1].toLowerCase(), wantType = seg[2].toLowerCase();
+  const hit = TYPES.find((t) => slug(t.section) === wantSec && slug(t.type) === wantType);
+  return hit ? hit.key : null;
+}
+
+/**
+ * The section a route is *in* — its type's section on a type route, its item's section on an item page — or
+ * `null` on every other surface. This is what "only the current section is open" is decided by.
+ */
+export function sectionAt(hash: string): SectionName | null {
+  const key = typeKeyAt(hash);
+  if (key) return TYPES.find((t) => t.key === key)?.section ?? null;
+  const m = /^#\/i\/([^/]+)\/([^/?#]+)/.exec(hash);
+  const item = m ? byId.get(`${m[1]}/${m[2]}`) : undefined;
+  return item ? typeOfItem(item)?.section ?? null : null;
+}
+
+/**
+ * One level of the rail: a section, its types underneath. The catalogue's own `Collapsible`, mounted on the
+ * catalogue's own `SidebarMenuItem` — nothing here is a `<details>`, and the guard enforces that.
+ *
+ * `resetKey` is what the open/closed state belongs to. When the filter changes, the rows on screen are a
+ * different set, so a state chosen about the old ones is not about these; every level goes back to its own
+ * default. (Round 7 found this the hard way: typing "side" left 2 rows while a reload with the same filter showed
+ * 9, because most matches were behind a family the reader had collapsed before typing.)
+ */
+export function Level({ lvl, label, count, defaultOpen, children, resetKey }: {
   lvl: "rail-sec" | "rail-cat" | "rail-sub" | "rail-sub2";
-  label: React.ReactNode; count?: number; defaultOpen?: boolean; href?: string; title?: string;
-  children: React.ReactNode;
-  /**
-   * What the open/closed state belongs to. When the rail's filter changes, the tree is a different tree — the rows
-   * on screen are now the matches, not the rows the reader was looking at when they collapsed a family — so every
-   * level goes back to its own default rather than keeping a state that was chosen about other rows.
-   *
-   * Found by the gate: typing "side" left the rail showing 2 rows while a reload with the same filter showed 9.
-   * The filter was right in both cases; the *expansion* was stale, so most of the matches were behind a family the
-   * reader had collapsed before typing. A filter that hides its own matches is a broken filter.
-   */
-  resetKey?: string;
+  label: React.ReactNode; count?: number; defaultOpen?: boolean;
+  children: React.ReactNode; resetKey?: string;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
   const first = useRef(resetKey);
@@ -48,23 +97,9 @@ export function Level({ lvl, label, count, defaultOpen, href, title, children, r
         <CollapsibleTrigger asChild>
           <SidebarMenuButton className="disc-trigger">
             <span className="sub-n">{label}</span>
-            {count !== undefined && <span className="sub-c">{count}</span>}
+            {count !== undefined && <span className="rail-count">{count}</span>}
           </SidebarMenuButton>
         </CollapsibleTrigger>
-        {/* the count is the door: the same tree that counted these rows spells the grid's address */}
-        {href && (
-          <SidebarMenuAction asChild>
-            <a href={href} title={`Open the grid: ${title ?? ""} (${count ?? 0})`}
-              aria-label={`Open the grid for ${title ?? "this level"} — ${count ?? 0} items`}>
-              <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="2" y="2" width="5" height="5" rx="1" />
-                <rect x="9" y="2" width="5" height="5" rx="1" />
-                <rect x="2" y="9" width="5" height="5" rx="1" />
-                <rect x="9" y="9" width="5" height="5" rx="1" />
-              </svg>
-            </a>
-          </SidebarMenuAction>
-        )}
         <CollapsibleContent>
           <SidebarMenuSub className="rail-kids">{children}</SidebarMenuSub>
         </CollapsibleContent>
@@ -73,14 +108,14 @@ export function Level({ lvl, label, count, defaultOpen, href, title, children, r
   );
 }
 
-/** A leaf is a SidebarMenuButton wrapping a real link, so the rail's rows are links and the sidebar's rows are theirs. */
-export function Row({ item, active }: { item: Item; active: boolean }) {
+/** A type's row: its name, how many members it has, and a link to the collection that compares them. */
+export function TypeRow({ t, current }: { t: TypeEntry; current: boolean }) {
   return (
     <SidebarMenuSubItem>
-      <SidebarMenuButton asChild isActive={active} className="rail-item">
-        <a href={`#/i/${item.id}`} aria-current={active ? "page" : undefined}>
-          <span className="t">{displayLabel(item)}</span>
-          {!item.has_demo && <span className="nodemo" title="This one has no demo on the page">no demo</span>}
+      <SidebarMenuButton asChild isActive={current} className="rail-item">
+        <a href={typeHref(t)} aria-current={current ? "page" : undefined}>
+          <span className="t">{t.type}</span>
+          <span className="rail-count">{t.members.length}</span>
         </a>
       </SidebarMenuButton>
     </SidebarMenuSubItem>
@@ -88,154 +123,99 @@ export function Row({ item, active }: { item: Item; active: boolean }) {
 }
 
 /**
- * A family key, pluralised for the rail.
+ * The tree, and only the tree.
  *
- * The key is a slug token (`i.slug.split("-")[0]`), not an English noun, so the old `${key}${key.endsWith("s")
- * ? "" : "s"}` produced "Matrixs", "checkboxs", "switchs", "typographys" — measured, 7 wrong labels out of
- * the 101 the rail renders. The mapping is a table plus three suffix rules, in this order:
+ * OPEN/CLOSED. A section opens when it is the one the current route is in; on a surface that is in no section
+ * (the front page, the grid, about, chrome) `Components` is the one open section, because it is where a reader
+ * who came to see a component starts. Everything else is closed, so at 1440 the rail is an index of the
+ * catalogue's shape — 7 sections and the 53 Components types, 60 rows — instead of a wall of 769 items with 990
+ * rows when every group is expanded.
  *
- *   1. `FAMILY_IRREGULAR` — the keys no rule can derive (matrix → matrices, index → indices) plus box and
- *      switch, which the rules would get right anyway; they are here so the intended outcome is readable in
- *      one place instead of being an argument about suffix rules.
- *   2. `FAMILY_INVARIANT` — keys that are already plural (records, returns, texts, tabs, docs, utils,
- *      citations) or non-count (progress). Never pluralised: "recordses" is worse than "records".
- *   3. the English suffix rules — -s/-x/-z/-ch/-sh take `es`, a consonant + `y` takes `ies`, otherwise `s`.
+ * With a filter typed, every section that still has a match is open: a filter that hides its own matches behind a
+ * disclosure the reader cannot see is a broken filter. Sections with no match are not rendered at all.
  *
- * The noun is the **last** token of the key, so a compound pluralises its head, not its qualifier:
- * `ai-status` → "ai statuses", `3d-tilt` → "3d tilts". Capitalisation is the rail's own: every key is
- * lowercase and the label stays lowercase. Unit-checked against every family key in the manifest (191 keys,
- * `build/r2-shell-small-measure.mjs`), and against the labels the rail actually renders.
+ * On a phone the rail is a sheet over the page, and a sheet opens on the seven section names: nothing is
+ * pre-expanded there, because the same tree that is an index at 1440 is a drawer at 390.
  */
-const FAMILY_IRREGULAR: Record<string, string> = {
-  matrix: "matrices",
-  index: "indices",
-  box: "boxes",
-  switch: "switches",
-};
-const FAMILY_INVARIANT = new Set([
-  "records", "returns", "texts", "tabs", "docs", "utils", "citations", // already plural
-  "progress", // non-count
-]);
-
-/** The rail's label for a family key. `matrix` → "matrices", `switch` → "switches", `icon` → "icons". */
-export function familyLabel(key: string): string {
-  const plain = key.replace(/-/g, " ");
-  const head = key.slice(key.lastIndexOf("-") + 1);
-  const irregular = FAMILY_IRREGULAR[head];
-  if (irregular) return plain.slice(0, plain.length - head.length) + irregular;
-  if (FAMILY_INVARIANT.has(key) || FAMILY_INVARIANT.has(head)) return plain;
-  if (/(s|x|z|ch|sh)$/.test(head)) return `${plain}es`;
-  if (/[^aeiou]y$/.test(head)) return `${plain.slice(0, -1)}ies`;
-  return `${plain}s`;
-}
-
-/** Four sections, their categories, families inside those, and one more level where a family is big. */
-export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: string }) {
-  const leaf = (i: Item) => <Row key={i.id} item={i} active={activeId === i.id} />;
-  /**
-   * A signature of the tree's shape, used as `resetKey` by every level: the counts move when the filter moves, and
-   * they are already in hand (they are what the rows print). No second copy of the filter state, and no prop drilled
-   * from `App.tsx` that could disagree with the tree the rail is actually rendering.
-   */
-  const sig = tree.map((s) => `${s.label}:${s.count}`).join("|");
-
-  /**
-   * On a phone the menu is a sheet, and a sheet that opens on 103 rows is the whole catalogue in a drawer.
-   * Measured at 390 with the menu open: 103 rows, a 779 px panel, 4,894 px of scroll — every group already
-   * expanded, which is what a *sidebar* wants and what a thumb does not. The front page's own first screen names
-   * four sections; the menu now opens on the same four names and their counts, and a section unfolds when it is
-   * asked. The desktop rail keeps every level open, because there the tree is the page's index, not a drawer.
-   */
+export function RailTree({ q, hash }: { q: string; hash: string }) {
   const phone = usePhone();
+  const needle = q.trim().toLowerCase();
+  const here = sectionAt(hash);
+  const currentKey = typeKeyAt(hash);
+  const sections = SECTION_ORDER.map((section) => {
+    const all = TYPES.filter((t) => t.section === section);
+    const types = needle ? all.filter((t) => t.type.toLowerCase().includes(needle)) : all;
+    return { section, types, count: types.reduce((n, t) => n + t.members.length, 0) };
+  }).filter((s) => s.types.length > 0);
 
-  /** The sub-family level: a family too big for one list, rendered inside its family row. */
-  const subLevels = (f: TreeFamily, sec: RailSection, cat: TreeCat, lvl: "rail-sub" | "rail-sub2") =>
-    f.subs.map((g2) => (
-      <Level key={g2.key} lvl={lvl} count={g2.rows.length} resetKey={sig}
-        href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key, sub: g2.key })}
-        title={g2.key.replace(/-/g, " ")}
-        label={g2.key.replace(/-/g, " ")}>
-        {g2.rows.map(leaf)}
-      </Level>
-    ));
-
-  /** The family level: one row per family, or the item itself when the family is a single item. */
-  const family = (f: TreeFamily, sec: RailSection, cat: TreeCat) => {
-    if (f.rows.length === 1) return leaf(f.rows[0]);
-    return (
-      <Level key={f.key} lvl="rail-sub" count={f.rows.length} defaultOpen={f.rows.length <= 4} resetKey={sig}
-        href={gridHref({ sec: sec.label, cat: cat.key, fam: f.key })} title={f.key.replace(/-/g, " ")}
-        label={familyLabel(f.key)}>
-        {f.subs.length > 1 ? subLevels(f, sec, cat, "rail-sub2") : f.rows.map(leaf)}
-      </Level>
-    );
-  };
+  /* the filter, the counts it produced, the frame and where the reader is: everything the open/closed state was
+     chosen about. Any of them moving means these are different rows. */
+  const sig = [needle, phone ? "phone" : "rail", here ?? "", ...sections.map((s) => `${s.section}:${s.count}`)].join("|");
 
   return (
     <SidebarMenu className="rail-menu">
-      {tree.map((sec) => (
-        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen={!phone} resetKey={sig}
-          href={gridHref({ sec: sec.label })} title={sec.label}
-          label={<span className="sec-n">{sec.label}</span>}>
-          {sec.cats.map((cat) => {
-            // `buildTree` collapsed this section onto its own category (and, for Docs, onto that category's
-            // single same-named family): the rows hang one level shallower and nothing here re-derives that.
-            // The hrefs keep the full sec/cat/fam spelling, so every #/g link the rail emits resolves through
-            // the same tree the grid resolves through.
-            if (sec.flatten === "family" && cat.families.length === 1) {
-              const only = cat.families[0];
-              if (only.rows.length === 1) return <React.Fragment key={cat.key}>{leaf(only.rows[0])}</React.Fragment>;
-              return (
-                <React.Fragment key={cat.key}>
-                  {only.subs.length > 1 ? subLevels(only, sec, cat, "rail-sub") : only.rows.map(leaf)}
-                </React.Fragment>
-              );
-            }
-            if (sec.flatten === "cat") {
-              return <React.Fragment key={cat.key}>{cat.families.map((f) => family(f, sec, cat))}</React.Fragment>;
-            }
-            return (
-              <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length} resetKey={sig}
-                href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
-                defaultOpen={!phone && sec.cats.length <= 2}>
-                {cat.families.map((f) => family(f, sec, cat))}
-              </Level>
-            );
-          })}
+      {sections.map((s) => (
+        <Level key={s.section} lvl="rail-sec" count={s.count} resetKey={sig}
+          defaultOpen={needle ? true : phone ? false : s.section === (here ?? "Components")}
+          label={<span className="sec-n">{s.section}</span>}>
+          {s.types.map((t) => <TypeRow key={t.key} t={t} current={t.key === currentKey} />)}
         </Level>
       ))}
     </SidebarMenu>
   );
 }
 
-export const SOURCES = ["", "shadcn", "beui", "rareui", "beautifului", "transitions"];
+/**
+ * The sources, in the order the rail has always printed them. A chip is a *gallery filter* now, not a rail
+ * filter: `site/Gallery.tsx` already reads `src` out of `#/g?src=…`, so a chip is navigation to the grid the
+ * chip describes, which is a surface a reader can link to, keep and go Back from.
+ */
+export const RAIL_SOURCES = ["shadcn", "beui", "rareui", "beautifului", "transitions"];
 
-/** The head of the rail: name, counts, the filter, the source pills. The same head in either frame. */
-export function RailHead({ q, setQ, from, setFrom, total, rendered }: {
-  q: string; setQ: (v: string) => void; from: string; setFrom: (v: string) => void;
-  total: number; rendered: number;
+/** Which source the grid is filtered to, if the address bar names one. */
+function gallerySource(hash: string): string {
+  const m = /^#\/g[?/]/.exec(hash);
+  if (!m) return "";
+  return new URLSearchParams(hash.slice(3).replace(/^\//, "")).get("src") ?? "";
+}
+
+/**
+ * The head of the rail: the wordmark (desktop hides it — the top bar carries it), the counts, the filter, the
+ * source chips. The same head is the phone menu's first block.
+ *
+ * What is NOT here any more, and why:
+ *  - **the theme switch.** It is the top bar's control now (`site/TopBar.tsx`), where a switch that changes the
+ *    whole window belongs, instead of the first row of a scrolling list.
+ *  - **the help sentence.** "Counts are how many are inside" taught a rule the counts themselves now state.
+ *  - **the grid doors.** One 28 px icon sat at the right edge of every group row, over the group's count, and
+ *    there were 39 of them: a door to a filtered grid for a reader who was one click from the collection page the
+ *    row now links to. Their counts are visible text on the section and type rows instead.
+ */
+export function RailHead({ q, setQ, hash, total, rendered }: {
+  q: string; setQ: (v: string) => void; hash: string; total: number; rendered: number;
 }) {
+  const src = gallerySource(hash);
   return (
     <SidebarHeader className="rail-top">
       <div className="rail-brand">
         <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
         <SidebarTrigger data-catalog-item="shadcn/button" className="rail-trigger" />
       </div>
-      <div className="meta">{total} items · {rendered} rendered</div>
+      <div className="meta">{total} items · {TYPES.length} types · {rendered} rendered</div>
       <Input data-catalog-item="shadcn/input" value={q} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
-        placeholder="Filter components…" aria-label="Filter components" className="h-9" />
-      <div className="rail-legend">
-        Counts are how many are inside. <a href="#/chrome">What this site is made of</a>
-      </div>
-      <div className="rail-filter">
-        {SOURCES.map((s) => (
-          <Button key={s || "all"} data-catalog-item="shadcn/button" size="sm" variant={from === s ? "default" : "outline"}
-            className="h-8 px-3 text-xs"
-            /* a chip is radius-sm (design system), and the component's own `rounded-full` is the thing being
-               overridden — inline, because the utility that wins is whichever the registry ordered last */
-            style={{ borderRadius: "var(--radius-sm)" }} onClick={() => setFrom(s)}>
-            {s || "all sources"}
-          </Button>
+        placeholder="Filter types…" aria-label="Filter types" className="h-9" />
+      <div className="rail-filter" role="navigation" aria-label="Sources in the grid">
+        {/* "every library", not "all sources": `qa/r2_check.mjs` (B) finds a withheld page's outbound action by
+            taking the first link whose text says source/original/view on, and a chip with that word in it is a
+            30 px navigation link in the rail's head, not the page's control. The label says the same thing. */}
+        <a href="#/g" aria-current={hash === "#/g" && !src ? "page" : undefined} title="The grid, with no library filter">
+          every library
+        </a>
+        {RAIL_SOURCES.map((s) => (
+          <a key={s} href={`#/g?src=${encodeURIComponent(s)}`} aria-current={src === s ? "page" : undefined}
+            title={`The grid, filtered to ${s}`}>
+            {s}
+          </a>
         ))}
       </div>
     </SidebarHeader>
@@ -319,14 +299,15 @@ export function PhoneRail({ open, onClose, head, rail }: {
           dialog and the trigger already closes it), and it exists as much to keep taps off the page as to be
           one of the ways out. */}
       {open && (
-        <Button type="button" variant="ghost" tabIndex={-1} aria-label="Close the menu"
+        <button type="button" tabIndex={-1} aria-label="Close the menu"
           className="menu-veil" onClick={onClose} />
       )}
       <div className={`rail rail-phone${open ? " is-open" : ""}`} id="rail" aria-label="Browse the catalogue">
         {/* The phone has one surface that is ever above the page, and the theme control belongs on it: the
-            switch used to be a fixed pill in the page's corner, then a reserved lane at the foot of the column,
-            and both were furniture over the catalogue. First row, sticky, so it is under the thumb for as long
-            as the menu is open — and nowhere else, because nowhere else on a phone is above the content. */}
+            window's top bar is a phone bar here (brand, search, Browse) and has no room for a three-segment
+            switch without becoming a different bar. First row, sticky, so it is under the thumb for as long as
+            the menu is open — and nowhere else, because nowhere else on a phone is above the content. Exactly
+            one instance at every width: this one below 861 px, the top bar's above it. */}
         <div className="rail-theme rail-theme-phone">
           <ThemeSwitch />
         </div>

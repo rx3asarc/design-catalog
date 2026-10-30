@@ -73,8 +73,12 @@ const browser = await chromium.launch({ executablePath: "/usr/local/bin/google-c
   const back = await frameWidth();
   ok("#6 stage full restores the column", back === full && !!full, `${back} px, was ${full} px`);
 
-  // #2 — the filter survives a reload, and the restored state equals retyping it
-  const rows = () => page.evaluate(() => [...document.querySelectorAll('[data-slot=sidebar] a[href^="#/i/"]')].map((a) => a.getAttribute("href")).sort());
+  // #2 — the filter survives a reload, and the restored state equals retyping it.
+  // The rail lists the taxonomy's **types** since round 8 (`site/Rail.tsx`), so the rows this compares are the
+  // type rows — `#/t/<section>/<type>` — not item leaves: the same assertion ("what comes back is what was
+  // typed"), on the rows the rail actually has. Against `#/i/` it was comparing 0 rows to 0 rows, which passes
+  // while measuring nothing.
+  const rows = () => page.evaluate(() => [...document.querySelectorAll('[data-slot=sidebar] .rail-item')].map((a) => a.getAttribute("href")).sort());
   await page.goto(BASE + "#/", { waitUntil: "load" });
   const box = page.locator('input[placeholder^="Filter"]').first();
   await box.waitFor({ timeout: 20000 });

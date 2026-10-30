@@ -2,6 +2,8 @@ import React from "react";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { items } from "./lib";
 import { MOD, openPalette, PaletteTrigger } from "./CommandPalette";
+import { ThemeSwitch } from "./ThemeSwitch";
+import { usePhone } from "./Rail";
 import type { Route } from "./route";
 
 /**
@@ -34,12 +36,24 @@ import type { Route } from "./route";
  * the count of accent-filled controls in it is 0 on every route.
  *
  * THE PHONE HALF IS THE OLD BAR, NOT A SHRUNK ONE. Below 861 px the bar keeps exactly what it had: the brand, the
- * palette button, one 44 px Browse/Close control. The section links and the 240 px field are desktop-only, and
- * the palette keeps its own key on a keyboard and its own button on a phone — a phone has no keys to press.
+ * palette button, one 44 px Browse/Close control. The section links, the 240 px field and the theme switch are
+ * desktop-only, and the palette keeps its own key on a keyboard and its own button on a phone — a phone has no
+ * keys to press. The one theme control a phone gets is the Browse menu's own first row (`site/Rail.tsx`,
+ * `PhoneRail`): three 44 px segments are 132 px of a 390 px bar that already carries a brand, a search door and a
+ * Browse control, and a bar that grows a fourth control is a different bar. Exactly one switch at every width.
+ *
+ * THE THEME SWITCH IS HERE NOW (r8). It used to be the first row of the rail's scroll area, on the argument that
+ * the head had no room for it — true of the head, and the wrong place anyway: a control that repaints the whole
+ * window belongs on the window's bar, not in a list that scrolls under it. It keeps its 44 px segments and its
+ * 12 px label step; the bar is 56 px, so it sits in it without growing it.
  */
 export function TopBar({ route, menu, onToggleMenu }: {
   route: Route; menu: boolean; onToggleMenu: () => void;
 }) {
+  /* which frame this bar is in. The switch is *rendered* on a desktop and not on a phone, rather than rendered
+     and hidden: a `display: none` copy is still three radios in the DOM, and the sites' own gates count the
+     switch's items where they find them. One instance at every width, and the phone's is the menu's. */
+  const phone = usePhone();
   /**
    * The bar's sections, spelled as `site/route.ts` parses them. `kind` is the route kind that lights the link;
    * the label is the word the surface itself prints, in sentence case.
@@ -84,6 +98,15 @@ export function TopBar({ route, menu, onToggleMenu }: {
       <span className="topbar-phone">
         <PaletteTrigger place="bar" />
       </span>
+
+      {/* the window's theme: three states, at the right end of the bar, next to the search field. Desktop only —
+          see the header: a 390 px bar cannot hold a fourth control, and the phone's switch is the menu's first
+          row. Exactly one instance at every width, never two. */}
+      {phone ? null : (
+        <div className="topbar-theme">
+          <ThemeSwitch />
+        </div>
+      )}
 
       {/* `aria-controls="rail"` + `aria-expanded` are the phone menu's pair (site/Rail.tsx finds the panel by
           that attribute), and `data-catalog-item` is the catalogue's own count of what this shell is made of —

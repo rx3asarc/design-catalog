@@ -28,35 +28,57 @@ const push = (name, ok, detail) => { if (!ok) bad++; rows.push(`${ok ? "ok  " : 
   await ctx.close();
 }
 
-// 2. theme: three states, survives reload, dark is decided before paint
-for (const scheme of ["light", "dark"]) {
+// 2. theme: dark is the default (the design system's first rule), a choice is honoured before paint, and the
+//    first frame is already the right one — for both themes, whatever the OS says
+const cls = (c) => (c.includes("dark") ? "dark" : "light");
+for (const [chosen, scheme, want] of [
+  [null, "light", "dark"],      // nothing stored, light OS: the brand book wins
+  [null, "dark", "dark"],       // nothing stored, dark OS: same answer
+  ["light", "light", "light"],  // the visitor chose light: paint light, on a light OS
+  ["light", "dark", "light"],   // …and still light on a dark OS, because a choice beats the OS
+]) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: scheme });
   const page = await ctx.newPage();
   settle(page);
-  await page.goto(BASE + "#/", { waitUntil: "commit" });
+  if (chosen) {
+    await page.goto(BASE + "#/", { waitUntil: "domcontentloaded" });
+    await page.evaluate((v) => localStorage.setItem("catalog-theme", v), chosen);
+    // a *reload*, not another goto: the same URL is a same-document navigation, so the head script would never
+    // re-run and the stored choice would appear to be ignored (it was ignored by the gate, not by the site)
+    await page.reload({ waitUntil: "commit" });
+  } else {
+    await page.goto(BASE + "#/", { waitUntil: "commit" });
+  }
   const first = await page.evaluate(() => document.documentElement.className + "|" + getComputedStyle(document.body).backgroundColor);
   await page.waitForTimeout(800);
   const settled = await page.evaluate(() => document.documentElement.className);
-  const cls = (c) => (c.includes("dark") ? "dark" : "light");
-  push(`first paint ${scheme}`, cls(first) === scheme && cls(settled) === scheme, `at commit="${first.slice(0, 40)}" settled="${settled}"`);
+  push(`first paint ${want} (chosen=${chosen ?? "none"}, os=${scheme})`, cls(first) === want && cls(settled) === want,
+    `at commit="${first.slice(0, 40)}" settled="${settled}"`);
   await ctx.close();
 }
 {
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: "light" });
+  // dark is the default now, so the interesting move is *away* from it: light, then back to dark, and each
+  // choice survives a reload. (The old check clicked the third item — "dark" — while already dark and passed
+  // by accident; a check that cannot fail is not a check.)
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: "dark" });
   const page = await ctx.newPage();
   settle(page);
-  await page.goto(BASE + "#/", { waitUntil: "load" }); await page.waitForTimeout(700);
-  const before = await page.evaluate(() => document.documentElement.className);
-  const toggle = page.locator('[data-theme-switch], .theme-switch').first();
-  const boxes = await toggle.count();
-  if (boxes) {
-    await toggle.locator('[data-slot="toggle-group-item"], button, a').nth(2).click({ force: true }).catch(() => {});
-    await page.waitForTimeout(400);
-  }
-  const after = await page.evaluate(() => document.documentElement.className);
-  await page.reload({ waitUntil: "load" }); await page.waitForTimeout(600);
-  const persisted = await page.evaluate(() => document.documentElement.className);
-  push("theme toggle", before !== after || /dark/.test(after), `before="${before}" after="${after}" reload="${persisted}" switches=${boxes}`);
+  await page.goto(BASE + "#/", { waitUntil: "load" }); await page.waitForTimeout(1200);
+  const cls = () => page.evaluate(() => document.documentElement.className);
+  const items = page.locator('[data-theme-switch], .theme-switch').first().locator('[data-slot="toggle-group-item"], button, a');
+  const before = await cls();
+  await items.nth(1).click({ force: true }).catch(() => {});           // light
+  await page.waitForTimeout(400);
+  const after = await cls();
+  await page.reload({ waitUntil: "load" }); await page.waitForTimeout(700);
+  const persisted = await cls();
+  await items.nth(2).click({ force: true }).catch(() => {});           // back to dark
+  await page.waitForTimeout(400);
+  const back = await cls();
+  const isDark = (c) => c.includes("dark");
+  push("theme toggle light", isDark(before) && !isDark(after) && !isDark(persisted),
+    `dark → (${after || "light"}) → reload ${persisted || "light"}`);
+  push("theme toggle back to dark", isDark(back), `→ (${back})`);
   await ctx.close();
 }
 
