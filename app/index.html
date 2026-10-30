@@ -33,10 +33,28 @@
       .boot-rail { width: 288px; flex: none; padding: 18px 16px; border-right: 1px solid var(--boot-line);
         min-height: calc(100vh - 66px); }
       .boot-railrow { font-size: 13px; padding: 7px 0; color: var(--boot-mut); }
-      .boot-main { flex: 1; min-width: 0; max-width: 1100px; padding: 32px 32px 0; }
-      .boot-crumb { color: var(--boot-mut); font-size: 13px; letter-spacing: 0.02em; margin-bottom: 6px; }
-      .boot-h { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; }
-      .boot-p { margin: 0 0 14px; font-size: 15px; max-width: 62ch; }
+      /* the shell's column, spaced with the app's own numbers: `.page-in` padding 32, `.crumb` margin-bottom 16,
+         `.lede` 15/24 with 24 under it, `.home-actions` 16 over and 24 under. Measured against the mounted page:
+         with the old values (6 px under the crumb, 14 under the lede, 8/16 around the field) the field sat 14 px
+         high and the row 60 px high, and the visitor watched them drop when React took over. */
+      .boot-main { flex: 1; min-width: 0; max-width: 1100px; padding: 23px 32px 0; }
+      .boot-crumb { color: var(--boot-mut); font-size: 13px; line-height: 20px; letter-spacing: 0.02em; margin-bottom: 16px; }
+      .boot-h { font-size: 30px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 6px; max-width: 30ch; }
+      .boot-p { margin: 0 0 24px; font-size: 15px; line-height: 24px; max-width: 62ch; }
+      /* the page's own search field and its control row: drawn in the shell in the same box, so nothing jumps when
+         React mounts (a 44 px field, a hairline in border-strong, a mono hint on the right) */
+      .boot-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin: 16px 0 24px; }
+      .boot-search { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px;
+        border: 1px solid var(--boot-line-strong, #6b6b75); border-radius: 8px; background: var(--boot-soft);
+        color: var(--boot-mut); font-size: 14px; }
+      .boot-search-ph { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .boot-kbd { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; color: var(--boot-mut);
+        border: 1px solid var(--boot-line-strong, #6b6b75); border-radius: 6px; padding: 2px 6px; }
+      .boot-ctl { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px;
+        border: 1px solid var(--boot-line-strong, #6b6b75); border-radius: 8px; color: var(--boot-fg); font-size: 13px; }
+      /* the note above the row is the app's `.home-hero-note`: mono 12/16, so the row's top edge cannot move */
+      .boot-note { font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 12px; line-height: 16px;
+        color: var(--boot-subtle, var(--boot-mut)); margin: 0 0 16px; }
       .boot-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
       .boot-tile { height: 210px; border: 1px solid var(--boot-line); border-radius: 10px; background: var(--boot-soft);
         padding: 11px 12px 13px; display: grid; align-content: space-between; gap: 10px; min-width: 0; }
@@ -55,6 +73,7 @@
            that jumps when React takes over (measured at 390: 30px/45px tall vs the app's 26px/32px) */
         .boot-h { font-size: 26px; line-height: 32px; }
         .boot-main { padding: 18px 16px 0; }
+        .boot-actions { grid-template-columns: minmax(0, 1fr); }
         .boot-tiles { display: flex; gap: 10px; overflow: hidden; }
         .boot-tile { flex: none; width: 78vw; height: 132px; }
       }
@@ -132,20 +151,36 @@
           </div>
           <div class="boot-main">
             <div class="boot-crumb">%CATALOG_COUNT% items · 5 libraries · browser, CLI, MCP</div>
-            <h2 class="boot-h">design catalog</h2>
+            <h1 class="boot-h">Interface parts from five reference libraries, with their source.</h1>
             <p class="boot-p">
-              Browse it, or ask your agent. %CATALOG_COUNT% components, blocks, effects and doc pages from 5
-              reference libraries, collected in one place.
+              %CATALOG_COUNT% components, blocks, charts, agent interfaces, effects, fonts and doc pages.
+              %CATALOG_RENDERED% of them run here as a live demo; every one carries its licence and the library it
+              came from.
             </p>
-            <p class="boot-p" role="status" style="color: var(--boot-mut); font-size: 13px">
-              Six things from the catalogue. Tap any of them to open its page.
-            </p>
+            <div class="boot-actions" aria-hidden="true">
+              <div class="boot-search">
+                <span class="boot-search-ph">Search %CATALOG_COUNT% items — name, slug or concept</span>
+                <span class="boot-kbd">Ctrl K</span>
+              </div>
+              <span class="boot-ctl">All %CATALOG_COUNT% items</span>
+            </div>
+            <p class="boot-note" role="status">Six from the catalogue, no two the same type. Open any of them to read the source.</p>
             <!-- replaced at build time by `staticHero` in vite.config.ts with the six real hero cards -->
             <div class="boot-tiles" aria-hidden="true"></div>
           </div>
         </div>
       </div>
     </div>
+    <script>
+      /* the ⌘K hint, in the shell. The app reads `MOD` off `navigator.platform`; this is the same decision, taken
+         before the bundle arrives, so the chip never flips its word once React mounts. Text only — no layout. */
+      (function () {
+        var mac = /mac|iphone|ipad/i.test(navigator.platform || "");
+        if (!mac) return;
+        var k = document.querySelector(".boot-kbd");
+        if (k) k.textContent = "⌘ K";
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

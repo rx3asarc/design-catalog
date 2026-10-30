@@ -64,60 +64,105 @@ function cssWithoutThePaintTax() {
  *
  * THE RULE IS WRITTEN TWICE, AND THAT IS A KNOWN COST, SO IT IS GATED:
  *   - here, in Node, at build time, before a byte of JavaScript has been requested;
- *   - in `site/Home.tsx`, which is what the running app uses and the authority on what the row is.
+ *   - in `site/Featured.tsx`, which is what the running app uses and the authority on what the row is.
  * The two are compared on every publish by `qa/r2_check.mjs` (it reads `data-boot-hero-ids` out of the raw
  * `index.html` and `data-hero-ids` off the mounted row and fails if they differ). If they ever diverge, the
- * publish stops; the fix is to bring this copy back into line with `Home.tsx`, never the other way round.
+ * publish stops; the fix is to bring this copy back into line with `Featured.tsx`, never the other way round.
  *
- * Section membership is copied from `SECTIONS` in `site/route.ts` — the categories are declared there and the
- * rail reads them; the same gate covers a divergence.
+ * Both copies read the SAME inputs — `src/site/taxonomy.json` for membership and `src/site/hero-ink.json` for how
+ * legible each candidate's demo is as a tile — so neither the sections nor the measurements can drift; only the
+ * ordering code is written twice, and the outcome is compared.
+ *
+ * The rule, in one sentence: a candidate is a composition (three or more parts) that runs and measures at or above
+ * the ink floor, no two tiles share a type, one tile per section first and at most two per section, and inside a
+ * section the order is most distinct primitives, most parts, fewest files, id. `site/Featured.tsx` carries the
+ * reasons and the measured table.
  */
-const SECTIONS: [string, string[]][] = [
-  ["Blocks and pages", ["Pages and blocks"]],
-  ["Components", ["Navigation", "Forms and input", "Overlays and dialogs", "Actions and controls",
-    "Feedback and status", "Layout and structure", "Content and text", "Charts and data", "Conversation and agent UI"]],
-  ["Motion and effects", ["Motion and effects"]],
-  ["Docs", ["Docs and guides"]],
-];
+const TAXONOMY = JSON.parse(
+  readFileSync(fileURLToPath(new URL("./src/site/taxonomy.json", import.meta.url)), "utf8"),
+) as { sections: Record<string, Record<string, string[]>> };
+const HERO_INK = JSON.parse(
+  readFileSync(fileURLToPath(new URL("./src/site/hero-ink.json", import.meta.url)), "utf8"),
+) as { floor: number; ink: Record<string, number> };
+const SECTION_ORDER = ["Components", "Blocks", "Charts", "Agent UI", "Effects", "Foundations", "Docs"];
+const MAX_PER_SECTION = 2;
 
 type MItem = {
   id: string; source: string; slug: string; kind: string; name: string; displayName?: string;
   category?: string; variants?: unknown[]; file_count?: number | null; bytes?: number | null;
   dep_count?: number | null; used_here?: number | null; has_demo?: boolean;
-  composition?: { count?: number; lower_bound?: boolean } | null;
+  composition?: { count?: number; lower_bound?: boolean; primitives?: string[] } | null;
 };
 
 const text = (v: unknown) => String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+type Cand = { item: MItem; section: string; type: string; prims: number; comp: number; files: number; ink: number };
+
 function heroSix(items: MItem[]): MItem[] {
-  const runs = (i: MItem) => i.has_demo ?? (i.variants?.length ?? 0) > 0;
-  const legible = (i: MItem) => (i.composition?.count ?? 0) >= 2;
-  const rank = (i: MItem) => ({
-    comp: i.composition?.count ?? 0,
-    used: i.used_here ?? 0,
-    files: typeof i.file_count === "number" ? i.file_count : null,
+  const idOf = (i: MItem) => `${i.source}/${i.slug}`;
+  const sectionOf = new Map<string, { section: string; type: string }>();
+  for (const section of SECTION_ORDER)
+    for (const [type, ids] of Object.entries(TAXONOMY.sections[section] ?? {}))
+      for (const id of ids) sectionOf.set(id, { section, type });
+
+  const candidates: Cand[] = items
+    .map((item): Cand | null => {
+      const at = sectionOf.get(idOf(item));
+      if (!at) return null;
+      const comp = item.composition?.count ?? 0;
+      const ink = HERO_INK.ink[idOf(item)] ?? -1;
+      const runs = item.has_demo ?? (item.variants?.length ?? 0) > 0;
+      if (comp < 3 || !runs || ink < HERO_INK.floor) return null;
+      return {
+        item, section: at.section, type: at.type,
+        prims: item.composition?.primitives?.length ?? 0,
+        comp,
+        files: typeof item.file_count === "number" ? item.file_count : Number.POSITIVE_INFINITY,
+        ink,
+      };
+    })
+    .filter((c): c is Cand => !!c)
+    .sort((a, b) => b.prims - a.prims || b.comp - a.comp || a.files - b.files || a.item.id.localeCompare(b.item.id));
+
+  // staleness, said out loud at build time instead of guessed at run time: a candidate the rule could reach but
+  // which has no measurement is not ranked (and cannot win), so a manifest update cannot quietly promote a demo
+  // nobody has looked at. `node …/r8-home-candidates.mjs --write` refreshes the table.
+  const unmeasured = items.filter((i) => {
+    const at = sectionOf.get(idOf(i));
+    return !!at && (i.composition?.count ?? 0) >= 3 && (i.has_demo ?? (i.variants?.length ?? 0) > 0) && HERO_INK.ink[idOf(i)] === undefined;
   });
-  const by = (lead: "comp" | "used") => (a: MItem, b: MItem) => {
-    const x = rank(a), y = rank(b);
-    for (const k of (lead === "used" ? ["used", "comp", "files"] : ["comp", "used", "files"]) as const) {
-      if (k === "files") {
-        const ax = x.files ?? Number.POSITIVE_INFINITY, bx = y.files ?? Number.POSITIVE_INFINITY;
-        if (ax !== bx) return ax - bx;
-      } else if (x[k] !== y[k]) return y[k] - x[k];
-    }
-    return a.id.localeCompare(b.id);
+  if (unmeasured.length) console.warn(`[hero] ${unmeasured.length} candidate(s) have no entry in src/site/hero-ink.json: ${unmeasured.slice(0, 6).map(idOf).join(", ")}${unmeasured.length > 6 ? ", …" : ""}`);
+
+  const sections = SECTION_ORDER.filter((s) => candidates.some((c) => c.section === s));
+  const usedTypes = new Set<string>();
+  const perSection = new Map<string, number>(sections.map((s) => [s, 0]));
+  const chosen: Cand[] = [];
+  const next = (s: string) =>
+    (perSection.get(s) ?? 0) >= MAX_PER_SECTION
+      ? null
+      : candidates.find((c) => c.section === s && !usedTypes.has(c.type)) ?? null;
+  const take = (s: string) => {
+    const c = next(s);
+    if (!c || chosen.length >= 6) return false;
+    chosen.push(c);
+    usedTypes.add(c.type);
+    perSection.set(s, (perSection.get(s) ?? 0) + 1);
+    return true;
   };
-  const taken = new Set<string>();
-  const pick = (label: string, n: number) => {
-    const cats = SECTIONS.find((s) => s[0] === label)?.[1] ?? [];
-    const rows = items.filter((i) => cats.includes(i.category ?? "Actions and controls")).filter((i) => runs(i) && legible(i));
-    const chosen = rows.filter((i) => !taken.has(i.id)).sort(by("comp")).slice(0, n);
-    chosen.forEach((i) => taken.add(i.id));
-    return chosen;
-  };
-  const six = [...pick("Blocks and pages", 2), ...pick("Components", 2), ...pick("Motion and effects", 2)];
-  const topUp = items.filter((i) => runs(i) && legible(i) && !taken.has(i.id)).sort(by("comp")).slice(0, 6 - taken.size);
-  return [...six, ...topUp];
+  for (const s of sections) take(s);
+  while (chosen.length < 6) {
+    const pick = sections
+      .map((s) => ({
+        s,
+        left: (perSection.get(s) ?? 0) >= MAX_PER_SECTION
+          ? 0
+          : candidates.filter((c) => c.section === s && !usedTypes.has(c.type)).length,
+      }))
+      .sort((a, b) => b.left - a.left || sections.indexOf(a.s) - sections.indexOf(b.s))[0];
+    if (!pick || pick.left === 0) break;
+    if (!take(pick.s)) break;
+  }
+  return chosen.map((c) => c.item);
 }
 
 /** The facet line `Poster` prints under the title, from the same manifest fields and in the same order. */
