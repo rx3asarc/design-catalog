@@ -1101,3 +1101,17 @@ pre { font-family: var(--font-mono); }
 .theme-switch [data-slot="toggle-group-item"][data-state="on"]:hover {
   background: var(--surface-300); color: var(--ink);
 }
+/* ---- the measured line on an item page (r6) ---------------------------------------------------------------------
+   The sentence `behaviour.ts` derives from the probe's six facts, printed where the visitor decides. It is `small`
+   in `ink-muted`, on `surface-200` with a hairline, and it is not a card: a card would give a measurement the same
+   weight as the install command. */
+.pick-line {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-200);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px; line-height: 20px;
+  color: var(--ink-muted);
+  max-width: 62ch;
+}

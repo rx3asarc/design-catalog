@@ -139,6 +139,15 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
    */
   const sig = tree.map((s) => `${s.label}:${s.count}`).join("|");
 
+  /**
+   * On a phone the menu is a sheet, and a sheet that opens on 103 rows is the whole catalogue in a drawer.
+   * Measured at 390 with the menu open: 103 rows, a 779 px panel, 4,894 px of scroll — every group already
+   * expanded, which is what a *sidebar* wants and what a thumb does not. The front page's own first screen names
+   * four sections; the menu now opens on the same four names and their counts, and a section unfolds when it is
+   * asked. The desktop rail keeps every level open, because there the tree is the page's index, not a drawer.
+   */
+  const phone = usePhone();
+
   /** The sub-family level: a family too big for one list, rendered inside its family row. */
   const subLevels = (f: TreeFamily, sec: RailSection, cat: TreeCat, lvl: "rail-sub" | "rail-sub2") =>
     f.subs.map((g2) => (
@@ -165,7 +174,7 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
   return (
     <SidebarMenu className="rail-menu">
       {tree.map((sec) => (
-        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen resetKey={sig}
+        <Level key={sec.label} lvl="rail-sec" count={sec.count} defaultOpen={!phone} resetKey={sig}
           href={gridHref({ sec: sec.label })} title={sec.label}
           label={<span className="sec-n">{sec.label}</span>}>
           {sec.cats.map((cat) => {
@@ -188,7 +197,7 @@ export function RailTree({ tree, activeId }: { tree: RailSection[]; activeId?: s
             return (
               <Level key={cat.key} lvl="rail-cat" label={cat.label} count={cat.rows.length} resetKey={sig}
                 href={gridHref({ sec: sec.label, cat: cat.key })} title={`${sec.label} · ${cat.label}`}
-                defaultOpen={sec.cats.length <= 2}>
+                defaultOpen={!phone && sec.cats.length <= 2}>
                 {cat.families.map((f) => family(f, sec, cat))}
               </Level>
             );

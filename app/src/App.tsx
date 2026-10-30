@@ -10,7 +10,7 @@ import { SOURCES, neighbours, useCanonical, useRoute, useScrollReset, useTree, t
 import { PhoneRail, RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
 import { ThemeSwitch } from "./site/ThemeSwitch";
-import { openPalette, Palette, PaletteTrigger } from "./site/CommandPalette";
+import { openPalette, Palette } from "./site/CommandPalette";
 import { TopBar } from "./site/TopBar";
 
 /**
@@ -227,7 +227,12 @@ export default function App() {
         </Suspense>
         </PageTurn>
       </SidebarInset>
-      <PaletteTrigger place="float" />
+      {/* The palette has three doors and had four. The floating bottom-right trigger is gone: the bar's own
+          240 px field is on every desktop route (site/TopBar.tsx) and the phone bar carries its own 44 px
+          Search control, so the float was a second button for the same room — and it sat at 36 px, over the
+          content, at the one corner a reader's thumb crosses. ⌘K/Ctrl+K still opens the palette from anywhere.
+          `place="float"` stays in CommandPalette.tsx because the stylesheet still knows that shape; nothing
+          renders it. */}
       <Palette />
       <Provenance />
     </SidebarProvider>

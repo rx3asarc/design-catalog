@@ -266,7 +266,7 @@ const AND = (parts: string[]) =>
  * If the record answered nothing, there is no line: an absent sentence is the honest output for an absent
  * measurement.
  */
-export function pickLine(item: Item, peers: Item[] = []): string | null {
+export function pickLine(item: Item, peers: Item[] = [], subject = "a sidebar"): string | null {
   const b = behaviourOf(item);
   if (!b) return null;
 
@@ -308,5 +308,7 @@ export function pickLine(item: Item, peers: Item[] = []): string | null {
     .slice(0, 3)
     .map((c) => c.text);
   const day = measuredOn(b);
-  return `Pick this if you want a sidebar that ${AND(chosen)} — measured in this demo${day ? ` on ${day}` : ""}.`;
+  /* The subject is the caller's, because the same sentence is printed on a comparison set and on one item's own
+     page; "a sidebar" was the only set that existed when this was written. */
+  return `Pick this if you want ${subject} that ${AND(chosen)} — measured in this demo${day ? ` on ${day}` : ""}.`;
 }

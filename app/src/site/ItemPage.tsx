@@ -4,6 +4,7 @@ import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, type Item } 
 import { Files } from "./Code";
 import { ApiTable, type Fact } from "./ApiTable";
 import { InstallBlock } from "./InstallBlock";
+import { pickLine } from "./behaviour";
 import { RelatedCard } from "./RelatedCard";
 import { Demo } from "./demo";
 import { faceted } from "./Tile";
@@ -136,6 +137,10 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
     .map((key) => ({ key, others: conceptMembers(key).length - 1 }))
     .filter((c) => c.others >= 1);
   const sentence = licenceSentence(item.licence);
+  /* The measured line, subject-stated: "Pick this if you want a component that collapses to an icon rail…".
+     `null` when the probe has no facts for this item, and `null` prints nothing — never a dash, never "not
+     measured" in the place a recommendation would go. */
+  const pickNote = pickLine(item, [], `a ${item.kind === "block" ? "block" : "component"}`);
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       {/*
@@ -256,6 +261,16 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
               <InstallBlock install={item.install} />
             </>
           )}
+          {/*
+           * The measured line, on the item's own page too. The comparison pages have printed "pick this if…" since
+           * round 4, derived from the six behaviour facts the probe measured (`behaviour.ts`); the item page — the
+           * one place a visitor decides — did not. It is the same derivation, with this item as the subject, so it
+           * cannot say anything the probe did not measure; an item with no measured facts gets no line at all.
+           *
+           * This is not the `pick` table: that is the human curation slot (0 rows, and it stays whoever fills it,
+           * by their own name). What ships here is a measurement, printed in a sentence.
+           */}
+          {pickNote && <p className="pick-line" data-pick>{pickNote}</p>}
           <div className="stage" data-stage={item.id}>
             <StageBar item={item} api={api} canReplay={canReplay} />
             {item.variants.map((v, i) => (
