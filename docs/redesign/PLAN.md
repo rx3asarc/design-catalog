@@ -318,3 +318,27 @@ Report: `build/r6-design-system.md`.
   `behaviour.ts` from the probe's six facts; unmeasured items print nothing; the human `pick` table stays at 0.
 
 Live-verified: eight gates green, `assets/main-BltL8WrW.js`.
+
+## Round 7 — gates for what round 6 closed, the wire, and every route (30 Oct 2026)
+
+Three units, all merged (`0b08c144`), eleven gates green local and live (`main-BeV_SNHD.js`).
+
+| Unit | Result |
+| --- | --- |
+| `r7-gates` | `qa/pick_line_check.mjs`, `qa/rail_density_check.mjs`, `qa/float_check.mjs` — each proven to **fail** on `3541e345` (51 / 4 / 3 failures) and green now. `float_check` states the rule as a property of the set ("no fixed element outside the bar and the sidebar container"), so the next corner pill fails it too. |
+| `r7-firstpaint` | the manifest is projected at build time into **CORE** 39.4 KB (in the entry) and **DETAIL** 14.6 KB (content-hashed, fetched once by the two surfaces that print it); the build fails if any item's `has_demo`/`file_count` disagrees with the array it counts. **Honest result:** 389 → 374 KB gz, first interactive **did not move** (−130 ms inside a ±300 ms spread) — 62 requests at 400 ms RTT and react-dom dominate. |
+| `r7-sweep` | 29 routes × 2 widths × 2 palettes = **116 views**, live first. Five real deviations fixed: painted shadows **832 → 0**, `radius-full` on non-dots **196 → 0**, text under 4.5:1 **34 → 0**, sub-12 px in the open palette **44 → 0**, and the demo card's ring drawn as an outline instead of a shadow. Left in place, with reasons: the item page's one accent fill, the demos' own shadows, the tile as a window, the hero band's sideways scroll, the fit-to-width stage box. |
+
+**Findings worth keeping:**
+- **F1 (`r7-gates`)** — the measured pick line lives inside the demo branch, so a measured item with no demo prints
+  nothing. That is not a bug to fix by moving it: the sentence says "measured in this demo", and a page with no
+  demo makes that false. The gate pins the carve-out (20 of 25 measured ids print it).
+- **F2** — `beui/loading-state` does not exist; the brief named it, the sweep found the real ids (`loading-states`,
+  `beautifului/loading-state`), both demo-less, so the unmeasured sample is `shadcn/button`, `shadcn/accordion`,
+  `beui/bloom-menu`.
+- **F3 (`r7-sweep`)** — a probe that parses digits out of an `oklch()` string reports black text and invents
+  contrast failures. Both sweep passes read sRGB from a 1×1 canvas instead.
+- **The next lever on first interactive is request count, not bytes** — 62 requests on HTTP/1.1 at 400 ms RTT is
+  most of the 10.4 s. Cutting bytes further buys noise.
+
+Reports: `build/r7-gates.md`, `build/r7-firstpaint.md`, `build/r7-sweep.md`.
