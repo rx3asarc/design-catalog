@@ -332,8 +332,8 @@ function HitRow({ hit, onSelect }: { hit: Hit; onSelect: (id: string) => void })
       // provenance layer reads the same filter box through the Command wrapper's tag
     >
       <span className="min-w-0 flex-1 truncate">{label(item)}</span>
-      <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{item.source}</span>
-      <Badge variant="outline" className="shrink-0 text-[10px] text-muted-foreground">{item.kind}</Badge>
+      <span className="shrink-0 font-mono text-[12px] text-muted-foreground">{item.source}</span>
+      <Badge variant="outline" className="shrink-0 text-[12px] text-muted-foreground">{item.kind}</Badge>
       {item.reference_only ? <CommandShortcut className="shrink-0">no demo</CommandShortcut> : null}
       {/* a dot, not the catalogue's Badge: tagging it `shadcn/badge` would inflate that item's count */}
       <span className="size-2 shrink-0 rounded-full" style={{ background: tone }} aria-hidden="true" />
@@ -462,7 +462,7 @@ export function Palette() {
                 <span>Close</span>
               </Button>
             </DialogClose>
-            <div className="ml-auto hidden items-center gap-3 pr-1 font-mono text-[10.5px] text-muted-foreground max-[860px]:hidden min-[861px]:flex">
+            <div className="ml-auto hidden items-center gap-3 pr-1 font-mono text-[12px] text-muted-foreground max-[860px]:hidden min-[861px]:flex">
               <span>↑↓ move</span>
               <span>↵ open</span>
               <span>esc close</span>
