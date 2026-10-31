@@ -164,6 +164,11 @@ export default function App() {
   // the phone drawer closes on every route change, exactly as the hash listener used to do it
   const { route, hash } = useRoute(() => setMenu(false));
   useScrollReset(hash);
+  // …and the same reset on the box that now actually scrolls (r9). `useScrollReset` puts `.page`'s scrollTop at
+  // zero, which is a no-op since the window scrolls the page: a forward navigation out of a grid scrolled 3,000 px
+  // down would otherwise land 3,000 px down the item page. Declared *between* the two hooks, because the order is
+  // the mechanism: reset first, and a traversal's restore overwrites it in the same frame, before the paint.
+  React.useLayoutEffect(() => { window.scrollTo(0, 0); }, [hash]);
   // …and Back puts it back where it was. Order matters and is deliberate: the reset above runs first (a forward
   // navigation starts at the top) and the restore immediately overwrites it for a traversal, in the same frame.
   useScrollRestore(hash);

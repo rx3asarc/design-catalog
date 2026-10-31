@@ -1896,3 +1896,105 @@ a.spec-name:hover { text-decoration: underline; }
   .spec-meta { text-align: left; white-space: normal; }
   .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- the page is the window's, and it says it is dark (r9) -----------------------------------------------------
+   The review's §Scrollbars, §Light theme and the theme-switch half of §Smaller things, in one place. Three
+   faults, one cause: the shell was built as a fixed-height column that scrolled itself, and nothing ever told
+   the browser which way the page was painted.
+
+   ONE. `color-scheme`. The page has been dark by default since r3 and never said so, so a Windows browser drew
+   its *light* scrollbars — on the rail, on the page column and inside every code block — against a #09090b
+   surface. It is declared on `<html>` because that is the root the theme is resolved on: the boot script in
+   `app/index.html` puts `class="dark"` and `data-theme-resolved="dark|light"` there before the first byte of CSS
+   is parsed, and `site/ThemeSwitch.tsx` calls that same script's `choose()`. Both spellings are named, and the
+   resolved one wins by order: a first frame with neither attribute is dark, which is the brand book's default.
+
+   TWO. The window scrolls the page. `.page` was `overflow: auto` inside a `height: 100dvh` `.cat`, so the
+   *document* was always exactly one viewport tall and the scrollbar belonged to a box 56 px down the screen,
+   under the fixed bar. Everything about that is a second scrollbar: the address bar never collapses on a phone,
+   the page's own length cue is a bar inside the page, and — the review's actual complaint — Back had to be
+   re-implemented by hand (`site/useScrollRestore.ts`) because the browser's own restoration works on the window.
+   The window is the scroller now, everywhere: `.cat` is a minimum-height row instead of a fixed-height box, and
+   `.page` is a normal block. The bar was already `fixed` (r6) and stays where it is; the rail's container is
+   already `fixed` at `top: 56px` with `height: calc(100dvh - 56px)` and keeps its own scroll — the sidebar did
+   not need to change at all, only the column beside it. On a phone the same two lines undo the same fixed-height
+   column (`.cat { height: 100dvh; overflow: hidden }` at `max-width: 860px`), and the Browse menu is already a
+   `position: fixed` sheet, so it does not care what the document does underneath it.
+
+   What this *moves*: `useScrollReset` (`site/route.ts`, not this unit's file) resets `.page`'s scrollTop on a
+   route change, and `.page` no longer scrolls. The same reset is made on the window in `App.tsx`, declared
+   between that hook and `useScrollRestore` so the order the shell already relies on still holds — reset first,
+   a traversal's restore overwriting it in the same frame. `site/useScrollRestore.ts` needed no edit: its
+   `scroller()` resolves "is `.page` a scroller" by measuring, and now measures `false`.
+
+   THREE. The painted scrollbars themselves. The rail's is hidden (a 769-row tree needs no length cue; its rows
+   are the cue). The page's, code blocks' and the phone menu's are thin and coloured from the surface they sit
+   on — the review is explicit that hiding the page's only "how long is this" cue is worse than a thin dark bar.
+   `scrollbar-color` is the standard property (Firefox, and Chrome 121+); the `::-webkit-scrollbar` pair is kept
+   beside it because the code blocks already had one and a half-styled bar is worse than either. */
+
+html { color-scheme: dark; }
+html:not(.dark) { color-scheme: light; }
+html[data-theme-resolved="dark"] { color-scheme: dark; }
+html[data-theme-resolved="light"] { color-scheme: light; }
+
+/* the window scrolls the page: no fixed-height column, no inner page scroller */
+@media (min-width: 861px) {
+  .cat { height: auto; min-height: 100dvh; overflow: visible; align-items: stretch; }
+  .page { flex: 1 1 auto; min-width: 0; min-height: 0; overflow: visible; }
+}
+@media (max-width: 860px) {
+  /* the phone's own copy of the fixed-height column, undone the same way (the bar above it is `sticky`) */
+  .cat { height: auto; min-height: 100dvh; overflow: visible; }
+  .page { flex: 0 0 auto; min-height: 0; overflow: visible; }
+}
+
+/* the rail: no scrollbar of its own (the rows are the cue), on the desktop and in the phone menu alike */
+.rail-list { scrollbar-width: none; }
+.rail-list::-webkit-scrollbar { display: none; }
+.menu-open .rail-phone { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+
+/* code blocks and the page: thin, and coloured from the surface under them */
+.page, .menu-open .rail-phone {
+  scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+}
+pre, .demo-code pre, .cmd, .type-table-wrap {
+  scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+}
+.page::-webkit-scrollbar, pre::-webkit-scrollbar, .demo-code pre::-webkit-scrollbar,
+.cmd::-webkit-scrollbar, .type-table-wrap::-webkit-scrollbar { width: 8px; height: 8px; }
+.page::-webkit-scrollbar-track, pre::-webkit-scrollbar-track, .demo-code pre::-webkit-scrollbar-track,
+.cmd::-webkit-scrollbar-track, .type-table-wrap::-webkit-scrollbar-track { background: transparent; }
+.page::-webkit-scrollbar-thumb, pre::-webkit-scrollbar-thumb, .demo-code pre::-webkit-scrollbar-thumb,
+.cmd::-webkit-scrollbar-thumb, .type-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--border-strong); border-radius: 99px;
+}
+
+/* ── the theme switch: the bar's padding on both sides, and a selected state you can see ───────────────────────
+   Two review items, one control. (a) The track insets its segments 8 px on the left and *none* on the right
+   (measured: last segment's right edge 1 px inside the track's border — the track's own hairline was the only
+   gap), so the three segments read as jammed against the bar's right padding. The track takes the same 8 px on
+   both sides; the control still stands at the bar's own 16 px from the window edge. (b) The picked one was
+   `surface-300` on a transparent track over `surface-100` — #18181b on #09090b in the dark theme, #f4f4f5 on
+   #ffffff in the light one: measured 1.06:1 and 1.04:1 of fill contrast, which is why "LIGHT" only looked a
+   little bolder than the other two. Now the *track* is `surface-300` and the picked segment is `surface-100`
+   plus a `border-strong` hairline — the design system's own two parts, no new colour, no accent, and no fill
+   pairing that collides with the light theme (where surface-100 is white on the grey track). An `outline` at
+   `-1px` draws that hairline without moving a box, so the 44 px segments stay 44 px. */
+.topbar-theme .theme-switch,
+.rail-phone .theme-switch, .rail-theme .theme-switch {
+  padding: 0 8px;
+  background: var(--surface-300);
+  border-color: var(--border);
+}
+.theme-switch [data-slot="toggle-group-item"] {
+  color: var(--ink-muted);
+  background: transparent;
+}
+.theme-switch [data-slot="toggle-group-item"][data-state="on"] {
+  color: var(--ink);
+  background: var(--surface-100);
+  outline: 1px solid var(--border-strong);
+  outline-offset: -1px;
+  font-weight: 600;
+}
