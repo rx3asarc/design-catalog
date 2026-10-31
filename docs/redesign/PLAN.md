@@ -430,3 +430,21 @@ members.
 
 Reports: `build/r8-rail.md`, `build/r8-collections.md`, `build/r8-home.md`, `build/r8-itempage.md`,
 `build/r8-cards.md`, `build/r8-probe.md` (all also at `/design-catalog/redesign/`).
+
+## Round 9 — the round-5 review, taken in the reviewer's own order (31 Oct 2026)
+
+The review is kept verbatim at `briefs/r5-review.md` so no unit can paraphrase a complaint away. Five units, split by
+**who owns the file**, not by who owns the complaint — the review's 40-odd items collapse into five surfaces, and the
+crossing ones (fonts, the gallery strip, `#/c/`) were assigned to whoever already edits that file.
+
+| Unit | Port | Owns | The review items it answers |
+| --- | --- | --- | --- |
+| `r9-stage` | 8891 | `Stage.tsx`, `ItemPage.tsx`, `demo.html`, `demo-main.tsx` | the black/white slab (transparent frame, centred demo), the 1,231 px canvas (cap ~560, scroll inside), two bars → one row at 32 px with 8/16–24 px gaps, invisible selected segments, one stage with the 14 variants as tabs, slug titles → readable names + lede, "← Previous: X"/"Next: Y →" within the type, "compare with the 3 others" → the type page, the phone stage (one compact row, hide wide presets, drop the doubled "Preview") |
+| `r9-scroll` | 8892 | `App.tsx` (scroll container), `TopBar.tsx`, CSS | `color-scheme` so Windows stops painting light scrollbars on a dark page, the window as the scroller (kills the second bar under the top bar, restores scroll on back), sidebar scrollbar hidden, code blocks thin and surface-coloured, the theme switch's 17 px gap and its invisible selected state, the off-system green "code shown here" badge, and the README-vs-tokens contradiction settled |
+| `r9-home` | 8893 | `Home.tsx`, `Featured.tsx`, `Tile.tsx`, `Gallery.tsx`, `CompareShowcase.tsx`, `Rail.tsx`, `specimens.tsx` | the captions that escape their tiles (missing `position: relative` on the anchor), ten-second blank tiles, the comparison preview's boring columns, the wordy provenance prose, the "8 rows / 25 matched" contradiction, the 20-link compare strip filling the first screen, fonts as real specimens on Google Fonts with heading cuts merged (26 rows), and the phone rows: two-per-row tiles, search placeholder + hidden Ctrl-K, full-height menu with the duplicated title dropped |
+| `r9-taxonomy` | 8894 | `taxonomy.json/ts`, `scripts/taxonomy.py`, `TypePage.tsx`, two gates | membership by name (Button owns other components' buttons; Button Group becomes a type), **per-type columns** instead of the sidebar's six facts everywhere, lead with the grid and drop the one-row tables, real thumbnails with the `surface-300` canvas + border, "1 item · 11 variants" counts, merge the 15 single-item types, split Field and form, one rule for the Effects-vs-Components overlap |
+| `r9-search` | 8895 | `CommandPalette.tsx`, `route.tsx`, `Compare.tsx`, the route table | **retire `#/c/`** and redirect every concept key to its type page (not a sample — every key in the manifest), delete the old compare surface, folded variants folded in search, type pages in search, "see all N" instead of "20 of 40", and a dot that means one thing |
+
+Merge order follows the reviewer's suggested order: **stage → scroll → home → taxonomy → search**. The last two are the
+ones whose data changes under the others, so they land last; `typeIndex.ts`'s exported names are the contract between
+them and stay stable.
