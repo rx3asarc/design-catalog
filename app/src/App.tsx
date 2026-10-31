@@ -26,6 +26,7 @@ const Gallery = lazy(() => import("./site/Gallery").then((m) => ({ default: m.Ga
 const About = lazy(() => import("./site/About").then((m) => ({ default: m.About })));
 const ItemPage = lazy(() => import("./site/ItemPage").then((m) => ({ default: m.ItemPage })));
 const Compare = lazy(() => import("./site/Compare").then((m) => ({ default: m.Compare })));
+const TypePage = lazy(() => import("./site/TypePage").then((m) => ({ default: m.TypePage })));
 const ChromePage = lazy(() => import("./site/ChromePage").then((m) => ({ default: m.ChromePage })));
 
 /**
@@ -78,7 +79,8 @@ function NotFound({ miss }: { miss: Miss }) {
             </>
           )
         ) : (
-          <>No page in this catalogue has that address. It is not a filter, an item, or one of the six pages.</>
+          <>No page in this catalogue has that address. It is not a filter, an item, a type, or one of this
+            catalogue's own pages.</>
         )}
       </p>
       {miss.candidates.length > 0 && (
@@ -218,6 +220,9 @@ export default function App() {
           : route.kind === "gallery" ? <Gallery query={route.query} />
           // COMPARISON SEAM — `#/c/<concept>` parses in site/route.ts; one arm, one surface (site/Compare.tsx).
           : route.kind === "concept" ? <Compare conceptKey={route.key} />
+          // TYPE SEAM — `#/t/<section>/<type>` is one collection per entry in the taxonomy; the route carries the
+          // entry it resolved, so the page renders the taxonomy's own membership rather than re-deriving it.
+          : route.kind === "type" ? <TypePage entry={route.entry} />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
           : route.kind === "about" ? <About />
           // an address that resolves to nothing is a page that says so. It used to fall through to the front

@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { conceptKeys, conceptMembers, items, label, useDetail, type Item } from "./lib";
+import { asWords, conceptKeys, conceptMembers, items, label, useDetail, type Item } from "./lib";
 import { DetailWait } from "./DetailWait";
 import { Grid, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
-import { BEHAVIOUR_COLS, behaviourOf, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
+import { BEHAVIOUR_COLS, behaviourOf, hasFacts, measuredOn, NOT_MEASURED, pickLine, separates, type FactCol } from "./behaviour";
 
 /**
  * `#/c/<concept-key>` — the members of one concept, compared on what separates one from another.
@@ -72,15 +72,6 @@ const provenance = (key: string, rows: Item[]) => {
   return `and ${named.length} of them carry “${key}” in their name while ${rows.length - named.length} do not, so the name is not what makes this set`;
 };
 
-/** What a dropped column said — the value most of the *measured* rows gave, with the denominator beside it. */
-function saidBy(col: FactCol, rows: Item[]) {
-  const answers = rows.filter((r) => col.answered(r)).map((r) => col.text(r));
-  const seen = new Map<string, number>();
-  for (const a of answers) seen.set(a, (seen.get(a) ?? 0) + 1);
-  const top = [...seen.entries()].sort((a, b) => b[1] - a[1])[0];
-  return top ? { text: top[0], of: answers.length, all: seen.size > 1 } : { text: NOT_MEASURED, of: 0, all: false };
-}
-
 export function Compare({ conceptKey }: { conceptKey: string }) {
   /*
    * The behaviour columns are per-item detail (`site/lib.ts` fetches them once), so the comparison cannot draw
@@ -95,18 +86,25 @@ export function Compare({ conceptKey }: { conceptKey: string }) {
 function CompareBody({ conceptKey }: { conceptKey: string }) {
   const known = useMemo(() => conceptKeys.includes(conceptKey), [conceptKey]);
   // filed by source, then slug: the order a shelf is in, not an order of merit
-  const rows = useMemo(
+  const members = useMemo(
     () => conceptMembers(conceptKey).sort((a, b) => a.source.localeCompare(b.source) || a.slug.localeCompare(b.slug)),
     [conceptKey],
   );
+  /*
+   * A row is a member somebody measured. A member with no behaviour record is not six cells reading "not
+   * measured" — it is one line in the list under the table (`also`, below), with its one-line description and a
+   * link. That is the same rule the type pages keep (`site/TypePage.tsx`), on the surface the review read first.
+   */
+  const rows = useMemo(() => members.filter(hasFacts), [members]);
+  const also = useMemo(() => members.filter((m) => !hasFacts(m)), [members]);
   const stacked = useStacked();
-  const sources = useMemo(() => [...new Set(rows.map((r) => r.source))], [rows]);
+  const sources = useMemo(() => [...new Set(members.map((r) => r.source))], [members]);
   // The tiles are the gallery's own — the same `Grid`, so the same pool, the same mount queue, the same
   // reference card for a member with no demo. A second copy of the tile here would be a second behaviour to
   // keep in step, and the brief's whole point is that a visitor sees one catalogue, not four renderings of it.
   const narrow = useNarrow();
   const bodyH = narrow ? 180 : 210;
-  const { colW, host } = useColumnWidth(narrow, rows.length);
+  const { colW, host } = useColumnWidth(narrow, members.length);
   const theme = useSiteTheme();
   if (!known) {
     return (
@@ -120,7 +118,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
     );
   }
 
-  if (!rows.length) {
+  if (!members.length) {
     // a key can exist with no members only if the data moves under us; the honest answer is not "everything"
     return (
       <div className="page-in">
@@ -148,49 +146,39 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
     .pop() ?? null;
   const lastRun = measuredOn(latest);
   const probeVersion = rows.map((r) => behaviourOf(r)?.probe).find(Boolean) ?? null;
-  const measured = rows.filter((r) => behaviourOf(r)).length;
+  const measured = rows.length;
+  /* The subject of a "pick this if…" line is this set's own word, not the sidebar's — this page serves 29 sets. */
+  const subject = `a ${conceptKey.replace(/-/g, " ")}`;
 
   return (
     <div className="page-in" style={{ maxWidth: 1560, margin: "0 auto" }}>
       <div className="crumb">concept</div>
       <h2 className="title" data-compare-concept={conceptKey}>{conceptKey}</h2>
       <p className="lede" style={{ marginBottom: 12 }}>
-        {rows.length} members from {sources.length} {sources.length === 1 ? "library" : "libraries"}, compared on how
-        they behave. Both numbers are the data's, not a count kept by hand.
+        {members.length} members from {sources.length} {sources.length === 1 ? "library" : "libraries"}, compared on
+        how they behave. Both numbers are the data's, not a count kept by hand.
       </p>
 
       <div style={{ margin: "0 0 16px", paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
         <span
           data-compare-counts=""
-          data-compare-members={rows.length}
+          data-compare-members={members.length}
           data-compare-sources={sources.length}
           data-compare-measured={measured}
           data-compare-dropped={dropped.map((c) => c.key).join(",")}
           data-compare-shown={differing.map((c) => c.key).join(",")}
           style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.02em", color: "var(--ink-muted)" }}
         >
-          {rows.length} members · {sources.length} {sources.length === 1 ? "source" : "sources"} ·{" "}
-          {differing.length} of {COLS.length} columns differ · {measured} measured
+          {members.length} members · {sources.length} {sources.length === 1 ? "source" : "sources"} ·{" "}
+          {measured} measured{lastRun ? ` on ${lastRun}` : ""}
+          {probeVersion ? <span style={{ color: "var(--ink-subtle)" }}> {probeVersion}</span> : null}
         </span>
       </div>
 
       {/* One line about the set, in a visitor's terms: which items these are, and why. */}
       <p data-compare-method="" style={{ fontSize: 13.5, margin: "0 0 6px", color: "var(--ink-muted)" }}>
-        These are the {rows.length} items this catalogue files under “{conceptKey}” — {provenance(conceptKey, rows)}.
+        These are the {members.length} items this catalogue files under “{conceptKey}” — {provenance(conceptKey, members)}.
       </p>
-      {/* What the columns are, and when they were observed. A fact about a demo is only true of the demo as it
-          ran, so the date is the visitor's business: "says it collapses" and "collapsed when we pressed it" are
-          different claims, and only the second one is on this page. */}
-      <p data-compare-measured-note="" style={{ fontSize: 13, margin: "0 0 18px", color: "var(--ink-muted)" }}>
-        The columns are measured, not claimed: each demo was loaded in this site's own frame at 1440 px and again at
-        390 px and driven in a real browser{lastRun ? <>, most recently on {lastRun}</> : null}
-        {probeVersion ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}> ({probeVersion})</span> : null}.
-        {measured < rows.length ? (
-          <> {rows.length - measured} of these {rows.length} carry no measured behaviour, so their cells say
-            “{NOT_MEASURED}” — which is not “no”.</>
-        ) : null}
-      </p>
-
       {differing.length ? (
         <table
           data-compare-table=""
@@ -209,7 +197,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
           </thead>
           <tbody style={{ display: stacked ? "block" : "table-row-group" }}>
             {rows.map((item) => {
-              const pick = pickLine(item, rows);
+              const pick = pickLine(item, rows, subject, { date: false });
               // At 1440 the sentence gets its own full-width row under the member: in the name cell it cost ~5
               // wrapped lines per member (a measured 153 px row), and a comparison table that is mostly sentence
               // stops being scannable. On a 390 px frame it is the same two rows, styled as one card.
@@ -227,7 +215,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
                     <th scope="row" style={stacked ? { ...NAME, display: "block", padding: "0 0 6px" } : NAME}>
                       <span style={{ ...MONO_LABEL, display: "block", marginBottom: 1 }}>{item.source}</span>
                       <a href={`#/i/${item.id}`} style={{ color: "inherit", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-                        {label(item)}
+                        {asWords(label(item))}
                       </a>
                     </th>
                     {differing.map((c) => {
@@ -276,52 +264,29 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
             })}
           </tbody>
         </table>
-      ) : (
-        <div className="withheld" style={{ margin: "0 0 14px" }}>
-          {/* Two different reasons for no table, and they must not be conflated: a set whose members agree is a
-              comparison with nothing to compare; a set nobody measured is not a comparison at all. Saying the
-              first when the second is true would read as "they behave the same", which is a claim nobody made. */}
-          {measured === 0 ? (
-            <>Nobody has measured how the {rows.length} members of “{conceptKey}” behave, so there is nothing to
-              compare here: {rows.length} {rows.length === 1 ? "item" : "items"} and no measurement between them. A
-              table would be a list with lines drawn on it, so there is not one.</>
-          ) : (
-            <>These {rows.length} items answer every measured behaviour the same way — {dropped.length} of {COLS.length}{" "}
-              columns are identical or unanswered across the set, and the rest is the name. A table here would be a
-              list with lines drawn on it, so there is not one.</>
-          )}
-        </div>
-      )}
+      ) : null}
 
       {/*
-       * The dropped columns are named, with what they said, because "we only show what differs" is otherwise a
-       * claim a reader cannot check. A dropped behaviour column is still a measured fact about the set — it is
-       * simply not a fact that separates two members, and a column that cannot separate two members cannot help
-       * anyone choose between them.
+       * The members nobody measured are not rows. They are links, with the data's own one-line description, under
+       * the table — the table stops being five rows of "not measured", and the sentence that used to explain the
+       * gap ("a table would be a list with lines drawn on it") is gone: an empty set says nothing.
        */}
-      <p data-compare-dropped-note="" style={{ fontSize: 13.5, color: "var(--ink-muted)", margin: "0 0 22px" }}>
-        {measured === 0 ? (
-          <>Dropped, because none of them could be answered for “{conceptKey}”: no member of this set has a measured
-            behaviour, so all {COLS.length} columns read “{NOT_MEASURED}”.</>
-        ) : dropped.length ? (
-          <>
-            Dropped, because they do not separate the members of “{conceptKey}”:{" "}
-            {dropped.map((c, i) => {
-              const s = saidBy(c as FactCol, rows);
-              return (
-                <span key={c.key}>
-                  {i > 0 && " · "}
-                  <code>{c.head}</code> = <span style={{ fontVariantNumeric: "tabular-nums" }}>{s.text}</span>
-                  {s.of && s.of < rows.length ? ` (${s.of} of ${rows.length} answered)` : s.of ? ` (all ${s.of})` : " (nobody could answer)"}
-                </span>
-              );
-            })}
-            .
-          </>
-        ) : (
-          <>Every column differs inside this set, so every column is on the table.</>
-        )}
-      </p>
+      {also.length ? (
+        <Fragment>
+          <div className="section-h" style={{ margin: "18px 0 6px" }}>
+            {rows.length ? "Also in this set" : "In this set"}
+          </div>
+          <ul className="also-list" data-compare-also={conceptKey}>
+            {also.map((item) => (
+              <li key={item.id}>
+                <a href={`#/i/${item.id}`}>{asWords(label(item))}</a>
+                <span className="also-meta">{item.source} · {item.licence}</span>
+                {item.one_line ? <span className="also-line">{item.one_line}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </Fragment>
+      ) : null}
 
       {/*
        * The tiles, below the table: the same component the gallery and the front page mount, so a member with a
@@ -330,7 +295,7 @@ function CompareBody({ conceptKey }: { conceptKey: string }) {
        * tab stop — one tile is one stop, and it opens the item.
        */}
       <div className="section-h" style={{ marginTop: 6 }}>
-        The same {rows.length}, as tiles
+        The same {members.length}, as tiles
       </div>
       <p style={{ fontSize: 13, color: "var(--ink-muted)", margin: "0 0 12px" }}>
         A frozen first frame each, until you point at one or tab to it. Members with no demo show the reference

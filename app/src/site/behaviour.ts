@@ -239,6 +239,19 @@ export const BEHAVIOUR_COLS: FactCol[] = [
 ];
 
 /**
+ * Did the probe answer **anything** about this item?
+ *
+ * `behaviourOf` is truthy for every item the probe visited, and that is not the same as measured: five records in
+ * this build say, in their own words, *"no demo: this item is reference-only, so there is nothing to measure"* —
+ * six nulls and a reason. A collection's table row is a member somebody measured *something* about, so this is
+ * the test a row has to pass; a record that answered nothing belongs in the list under the table with the others
+ * nobody measured, not in a row of cells that all read "not measured".
+ *
+ * It asks the columns rather than restating the six fact names, so it cannot drift from what the table prints.
+ */
+export const hasFacts = (i: Item) => BEHAVIOUR_COLS.some((c) => c.answered(i));
+
+/**
  * Does this column separate the members? The page's existing rule, made precise for columns that can be
  * *unanswered*: a column is worth printing when the **answered** rows disagree. A column that 18 rows answer
  * "yes" and 6 rows do not answer at all is not a comparison — it is a badge with a footnote — so it is
@@ -265,8 +278,18 @@ const AND = (parts: string[]) =>
  *
  * If the record answered nothing, there is no line: an absent sentence is the honest output for an absent
  * measurement.
+ *
+ * `opts.date` may be `false`, and the type page passes that: a set of seven members printed the same day seven
+ * times is a date pretending to be a fact about each of them. The date is a fact about the **probe run**, so it
+ * belongs once, in the page's header (see `site/TypePage.tsx`). The item page keeps it, because one item's page
+ * has one line and there is no header to put a run in.
  */
-export function pickLine(item: Item, peers: Item[] = [], subject = "a sidebar"): string | null {
+export function pickLine(
+  item: Item,
+  peers: Item[] = [],
+  subject = "a sidebar",
+  opts: { date?: boolean } = {},
+): string | null {
   const b = behaviourOf(item);
   if (!b) return null;
 
@@ -307,7 +330,7 @@ export function pickLine(item: Item, peers: Item[] = [], subject = "a sidebar"):
     .sort((x, y) => x.rarity - y.rarity || x.i - y.i)
     .slice(0, 3)
     .map((c) => c.text);
-  const day = measuredOn(b);
+  const day = opts.date === false ? null : measuredOn(b);
   /* The subject is the caller's, because the same sentence is printed on a comparison set and on one item's own
      page; "a sidebar" was the only set that existed when this was written. */
   return `Pick this if you want ${subject} that ${AND(chosen)} — measured in this demo${day ? ` on ${day}` : ""}.`;
