@@ -19,7 +19,6 @@ import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
-<<<<<<< HEAD
 /**
  * This gate reads the manifest and the taxonomy of **the tree it lives in** — `fileURLToPath(new URL("..",
  * import.meta.url))` — not a path to some worktree that existed while it was written. r8-cards'
@@ -28,9 +27,6 @@ const BASE = (process.argv[2] || "http://localhost:8830/design-catalog/").replac
  * broken gate looked like a crashed script instead of a measurement. A gate must run anywhere its repo is checked out.
  */
 const REPO = fileURLToPath(new URL("..", import.meta.url));
-=======
-const REPO = fileURLToPath(new URL("..", import.meta.url));   // this gate's own tree, never a worktree path
->>>>>>> fleet/r9-gates
 const items = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
 const byId = new Map(items.map((i) => [i.id, i]));
 const noDemo = items.filter((i) => !i.has_demo);

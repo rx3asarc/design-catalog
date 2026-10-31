@@ -157,6 +157,12 @@ function TypesHere({ rows, query }: { rows: Item[]; query: GalleryQuery }) {
           >{count}</a>
         </span>
       ))}
+      {/* The line names the three biggest types *in this filter*, which is not a directory: five of the seventy-six
+          types (Agent UI's approvals, chat and streaming pages, Docs' helpers) are behind concepts whose sets are
+          small enough never to reach the top three, so a reader who came this far had no route to them at all. One
+          link closes that without a second directory: the home page's grid is already every type, A–Z, by section.
+          Nothing is counted here that the taxonomy does not already state. */}
+      <a className="g-types-all" data-all-types="" href="#/">all {TYPES.length} types</a>
     </p>
   );
 }

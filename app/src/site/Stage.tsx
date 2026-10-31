@@ -375,15 +375,20 @@ function Settings({ item, api, canReplay, h, words, noteId }: { item: Item; api:
  * swaps what the frame shows. The stage's state is above that strip, so a theme chosen on "Default" is still
  * chosen on "Outline" — the switch changes the demo, not the stage.
  *
- * The canvas paints **the demo's own paper** (`FRAME_SURFACE[stage.theme].ink`): the surface is the theme the
- * demo is in, so a light demo on a dark site gets a light stage, exactly as the demo itself would paint it. That
- * is what removes the "slab": before this, the canvas was the site's `surface-300` (#18181b dark / #f4f4f5 light)
- * and the frame inside it painted the demo's own `--background` (#09090b / #fff) edge to edge — two colours in one
- * box, in both themes, and in mixed themes the second one was the whole demonstration.
+ * **The canvas is the station's own surface, and the demo paints nothing of its own background.**
  *
- * The paper is a constant shared with the frame element (`FRAME_SURFACE`, `site/demo.tsx`), not a second reading
- * of the palette: the canvas, the frame's own box and the demo document's root measure the same painted value,
- * which `qa/demo_theme_check.mjs` reads back.
+ * Round 5's review found the frame painting the demo's `--background` edge to edge inside a canvas of a different
+ * colour: two paints in one box, in both themes, and in mixed themes the inner one — a black slab inside a light
+ * card — *was* the demonstration. Its fix was "give the frame a transparent background so the canvas colour shows
+ * through", and this is that, taken literally: the canvas keeps the site's `surface-300` (#18181b dark / #f4f4f5
+ * light), the frame is transparent, and the demo document's root is transparent, so there is exactly **one** paint
+ * and no slab in either theme or in a mixed one.
+ *
+ * That leaves the honest trade-off this file used to get wrong in the other direction: when the stage's theme and
+ * the site's theme agree, the canvas and the page are one surface step apart rather than two colours apart, so the
+ * separation is the canvas hairline plus the header band, not a colour jump. It is never *zero* — the page is
+ * `surface-100`, the canvas `surface-300` — and the demo's own components still draw their own cards and borders on
+ * it. What it never does again is paint a rectangle of somebody else's background inside the station.
  */
 export function ItemStage({ item, api }: { item: ItemFull; api: StageApi }) {
   const variants = item.variants;
@@ -410,7 +415,8 @@ export function ItemStage({ item, api }: { item: ItemFull; api: StageApi }) {
         ref={canvasRef}
         className="stage-canvas"
         data-stage-theme={api.stage.theme}
-        style={{ background: paper.ink, colorScheme: api.stage.theme }}
+        /* `--surface-300`: the station's own surface. The demo brings its own ink; it does not bring its own paper. */
+        style={{ background: "var(--surface-300)", colorScheme: api.stage.theme }}
       >
         {/* ── the one header row ─────────────────────────────────────────────────────────────────────────────
             Left: the name of the demo in the frame ("Default"). Right: the settings, the two views and Copy,
@@ -559,7 +565,9 @@ function StageFrame({ item, api, variant, index, isBlock, paper }: {
           data-frame-surface={stage.theme}
           style={{
             width: rendered ?? "100%",
-            background: paper.ink,
+            // transparent on purpose: the canvas is the paper (see the block comment above). `paper.rule` still
+            // draws the hairline that makes a narrowed frame read *as* a viewport.
+            background: "transparent",
             // a narrowed frame gets a hairline so the 390 px viewport is visible *as* a viewport; at full width
             // the frame IS the canvas and a rectangle inside it would be a box drawn around nothing
             outline: stage.width === "full" ? undefined : `1px solid ${paper.rule}`,

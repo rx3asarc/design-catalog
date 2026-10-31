@@ -232,32 +232,43 @@ console.log("E · the canvas, the frame element and the child document are one p
     const stageDark = m.stageTheme === "dark";
     /*
      * r5 §Item page, item 1, the whole complaint: "Preview canvas is dark grey (#18181b); inside it the demo frame
-     * paints the site's own page colour (#09090b) edge to edge" — two papers in one box. Restated: whatever the
-     * value is, the canvas, the frame's own box and the child's root are **one** paint, and it follows the stage's
-     * theme rather than the page's.
+     * paints the site's own page colour (#09090b) edge to edge" — two papers in one box, and in mixed themes the
+     * inner one was the whole demonstration. r5's own fix was "give the frame a transparent background so the canvas
+     * colour shows through", and that is now what the site does, taken literally: **the canvas is the only paint**.
+     *
+     * So the assertion is no longer "canvas, frame and child are one colour" (which only held while the canvas was
+     * painting the demo's paper). It is the stronger, simpler property:
+     *   · the frame element paints nothing at all,
+     *   · the child's root paints nothing, so the canvas is what shows through,
+     *   · the canvas is the station's surface and it is *not* the page, in both themes and both mixed cases,
+     *   · the stage's theme still owns the child's `color-scheme` and its set tokens, which is what a demo reacts to.
+     * The trade-off is stated instead of hidden: with the canvas on `surface-300` the separation from the page is one
+     * surface step (Δ ≈ 0.006 dark / 0.095 light), not a colour jump, so it is the hairline and the header band that
+     * make the canvas read as a station. `qa/stage_check.mjs` asserts that hairline and the bands.
      */
     ok(
-      L.canvas !== null && L.screen !== null && L.frame !== null && Math.abs(L.canvas - L.frame) < 0.002 && Math.abs(L.canvas - L.screen) < 0.002,
-      `E (${tag}): canvas, frame element and frame surface are one paper — canvas ${m.canvas}, screen ${m.screen}, frame ${m.frame} → luminance ${L.canvas?.toFixed(3)}`,
+      /rgba\(0, 0, 0, 0\)|transparent/.test(m.screen ?? ""),
+      `E (${tag}): the frame element paints nothing — screen ${m.screen} (the canvas is the paper)`,
     );
     ok(
-      m.childRoot === null || /rgba\(0, 0, 0, 0\)/.test(m.childRoot) || Math.abs(L.child - L.canvas) < 0.002,
-      `E (${tag}): the child document resolves to that same canvas — html ${m.childRoot} (transparent = the canvas shows through)`,
+      m.childRoot === null || /rgba\(0, 0, 0, 0\)/.test(m.childRoot),
+      `E (${tag}): the child document paints nothing either — html ${m.childRoot} (the canvas shows through)`,
+    );
+    /* The canvas belongs to the *site*, not to the stage: it is the station the demo is shown in, and a station that
+       repaints itself when you flip the demo's theme would be the second paper again, just moving. This is the case a
+       "one paper" assertion cannot tell apart from the bug it replaced, so it is asserted on its own. */
+    ok(
+      L.canvas !== null && (site === "dark" ? L.canvas < 0.15 : L.canvas > 0.75),
+      `E (${tag}): the canvas is the site's surface, not the stage's — site ${site}, stage ${m.stageTheme}, canvas ${m.canvas} (${L.canvas?.toFixed(3)})`,
     );
     ok(
-      (stageDark ? dark(L.canvas) : light(L.canvas)) && m.childScheme === m.stageTheme && m.frameScheme === m.stageTheme,
-      `E (${tag}): the stage's theme is the paper and the scheme — stage ${m.stageTheme}, canvas luminance ${L.canvas?.toFixed(3)}, child color-scheme ${m.childScheme}, frame color-scheme ${m.frameScheme}`,
+      m.childScheme === m.stageTheme,
+      `E (${tag}): the stage's theme owns the child's colour scheme — child ${m.childScheme}, stage ${m.stageTheme}`,
     );
-    if (pinned) {
-      // the important one: a stage that disagrees with the site must sit on a visibly different paper than the page
-      ok(
-        Math.abs(L.canvas - L.page) > 0.4,
-        `E (${tag}): the demo sits on a different paper than the page — canvas ${L.canvas?.toFixed(3)} vs page ${m.page} (${L.page?.toFixed(3)}), Δ ${Math.abs(L.canvas - L.page).toFixed(3)}`,
-      );
-    } else {
-      // measured, and printed rather than asserted: in a matching theme the canvas and the page are the same ink
-      console.log(`     E (${tag}): canvas ${L.canvas?.toFixed(3)} vs page ${L.page?.toFixed(3)} — Δ ${Math.abs(L.canvas - L.page).toFixed(3)} (same-theme case: the demo's paper IS the page's paper, by design — see the report)`);
-    }
+    ok(
+      Math.abs(L.canvas - L.page) > 0.004,
+      `E (${tag}): the canvas is never the page it sits on — canvas ${L.canvas?.toFixed(3)} (${m.canvas}) vs page ${L.page?.toFixed(3)} (${m.page}), Δ ${Math.abs(L.canvas - L.page).toFixed(3)}${pinned ? " (pinned: the stage disagrees with the site and the demo still stands on the canvas)" : ""}`,
+    );
     await ctx.close();
   }
 }

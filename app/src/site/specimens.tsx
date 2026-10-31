@@ -114,11 +114,19 @@ export function FontSpecimens({ items }: { items: Item[] }) {
   const faces = useFaces(names);
   const loaded = families.filter((f) => isSelfHosted(f.name) || faces[f.name] === "ok").length;
   const absent = families.length - loaded;
+  /* The number of cuts is the number of members this type folded, not "items minus families": since the taxonomy
+     folds a variant into its parent, `items` and `families` are both 26 and the subtraction printed **0** — "the 0
+     heading cuts are the same typefaces". The cuts are still there, one per family, sitting on the parent items as
+     `variants`; that is what gets counted. If a type ever has no cuts, the clause is dropped rather than printed as
+     a zero. */
+  const cuts = items.reduce((n, i) => n + (i.variants?.length ?? 0), 0);
   return (
     <div data-spec-surface="fonts" data-spec-count={items.length} data-spec-rows={families.length} data-spec-hosted={loaded}>
       <p className="spec-lede" data-spec-lede="">
-        {families.length} typefaces from {items.length} items — the {items.length - families.length} heading cuts are
-        the same typefaces and are named on their family&apos;s row rather than drawn twice. {loaded === families.length
+        {families.length} typefaces from {items.length} items{cuts > 0
+          ? ` — the ${cuts} heading cut${cuts === 1 ? " is" : "s are"} the same typeface${cuts === 1 ? "" : "s"},
+             named on ${cuts === 1 ? "its" : "their"} family&apos;s row rather than drawn twice`
+          : ""}. {loaded === families.length
           ? "Every row below is set in the face it names"
           : `${loaded} of ${families.length} rows are set in the face they name`}: two are this catalogue&apos;s own
         binaries (Instrument Sans and JetBrains Mono, self-hosted, OFL-1.1) and the rest are loaded for this page from
