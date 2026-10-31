@@ -1348,3 +1348,77 @@ pre { font-family: var(--font-mono); }
   .also-list .type-demo-cell { width: 132px; }
   .also-line { flex-basis: 100%; }
 }
+
+/* ---- rail: types not items (r8) ----------------------------------------------------------------
+   The rail is two levels now — seven uppercase sections, and the component types inside them — and the round-4
+   review's three complaints about its header are answered here and in `site/Rail.tsx`:
+
+     "the groups are made by cutting item names into words and adding an 's' … about 990 rows"
+        → the taxonomy's 89 types, not 769 items. `.rail-sec` and `.rail-item` are the only rows left; the
+          `.rail-cat` / `.rail-sub` / `.rail-sub2` rules above stay (they are the design system's, and nothing
+          here contradicts them) but no element carries those classes any more.
+     "their counts still sit half-hidden under the icons"
+        → the 39 grid doors are gone, so the count is the thing at the right edge of the row: `.rail-count`,
+          the mono tabular step the r6 block already names for `.sub-c`.
+     "move the theme switch to the top bar; turn the source chips into gallery filters"
+        → `.topbar-theme` below, and `.rail-filter a` — chips are links to `#/g?src=<source>` a reader can
+          share, reload and go Back from, which is what the grid's own `src` filter already reads.
+
+   Everything here is appended, and nothing above it is edited: the r6 rules that set the rail's mono `label`
+   step, its uppercase group names and its tabular counts keep winning on the elements they name. */
+
+/* the count on a section row and on a type row: one metric, right-aligned, mono, tabular (r6 block names
+   `.rail-count`; this is the row that makes it true) */
+.rail-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--ink-subtle);
+}
+.rail-item .rail-count { margin-left: auto; padding-left: 8px; }
+
+/* a type row is a link to its collection: indented one step under its section, and it says it is a link when the
+   pointer is on it. `min-height` 30 px desktop / 44 px phone comes from the r6 rules above, not from here. */
+.rail-sec > .rail-kids > * > .rail-item { padding-left: 22px; }
+.rail-item { border-radius: var(--radius-sm); }
+.rail-item:hover { background: var(--surface-300); }
+.rail-item[aria-current="page"] { background: var(--surface-300); font-weight: 500; }
+.rail-item .t { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* a section row is a group label, not a card: the hairline under it is what separates the seven */
+.rail-sec { margin: 0 0 2px; }
+.rail-sec > .disc-trigger .sec-n { letter-spacing: 0.06em; }
+
+/* THE SOURCE CHIPS ARE LINKS. They were buttons driving the rail's own source filter; the rail has no source
+   filter now (it lists types), and the grid has had one in its address all along. Same chip, same metric as the
+   old button — 12 px, 30 px tall on a mouse and 44 px under a thumb — as navigation: a link, with `aria-current`
+   on the source the grid is filtered to. `radius-sm` is the book's rule for "nav items, chips" (r7 §2). */
+.rail-filter a {
+  display: inline-flex; align-items: center;
+  min-height: 30px; padding: 5px 9px;
+  font-size: 12px; line-height: 16px; white-space: nowrap;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink-muted); text-decoration: none;
+}
+.rail-filter a:hover { color: var(--ink); background: var(--surface-300); }
+.rail-filter a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--surface-100); }
+@media (max-width: 860px) { .rail-filter a { min-height: 44px; } }
+
+/* THE THEME SWITCH IN THE TOP BAR. It is the same component with the same three 44 px segments and the same 12 px
+   label step (the r6 12 px-floor block names those two selectors, and the r7 radius rules name the track): what
+   changes is only where it sits. 46 px tall inside a 56 px bar, so the bar's height is untouched; and on a phone
+   the bar keeps its own shape, so it is not on it at all — the Browse menu's first row is (`.rail-theme-phone`). */
+.topbar-theme { display: flex; align-items: center; flex: none; }
+.topbar-theme .theme-switch { padding: 0 0 0 8px; background: transparent; border-color: var(--border); }
+@media (max-width: 860px) { .topbar-theme { display: none; } }
+
+/* the rail head's wordmark is a link and a thumb target on a phone like every other control in the menu: the
+   `max-width: 860px` brand rule below is scoped to the top bar's `.brand`, so the rail's own copy of the same
+   link was 18 px tall inside the sheet. 44 px tall, and the chip row's narrowest chip is 44 wide, not 43.98. */
+@media (max-width: 860px) {
+  .rail-brand h1 a { display: inline-flex; align-items: center; min-height: 44px; }
+  .rail-filter a { min-width: 44px; justify-content: center; }
+}

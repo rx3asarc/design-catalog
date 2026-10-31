@@ -6,10 +6,9 @@ import {
   SidebarProvider, SidebarRail,
 } from "@/registry/new-york-v4/ui/sidebar";
 import { items } from "./site/lib";
-import { SOURCES, neighbours, useCanonical, useRoute, useScrollReset, useTree, type Miss } from "./site/route";
+import { SOURCES, neighbours, useCanonical, useRoute, useScrollReset, type Miss } from "./site/route";
 import { PhoneRail, RailHead, RailReopen, RailTree, usePhone } from "./site/Rail";
 import { Home } from "./site/Home";
-import { ThemeSwitch } from "./site/ThemeSwitch";
 import { openPalette, Palette } from "./site/CommandPalette";
 import { TopBar } from "./site/TopBar";
 
@@ -140,24 +139,27 @@ function NotFound({ miss }: { miss: Miss }) {
  * `sessionStorage`, not `localStorage`: a filter is a thing you did a moment ago in this tab, not a setting. A
  * stored filter that outlived the tab would open tomorrow's visit showing 12 rows with no memory of why, which is
  * the same bug in the other direction.
+ *
+ * The *source* half of this key is gone (r8): a source chip is a link to `#/g?src=…` now, which is a gallery
+ * filter carried in the address — a filter you can link to, keep and go Back from — so the rail stores the one
+ * thing it still has, the text. A payload from an older build may still carry `from`; it is ignored.
  */
 const FILTER_KEY = "catalog-rail-filter";
 
-function readFilter(): { q: string; from: string } {
+function readFilter(): string {
   try {
     const raw = sessionStorage.getItem(FILTER_KEY);
-    if (!raw) return { q: "", from: "" };
-    const v = JSON.parse(raw) as { q?: unknown; from?: unknown };
-    return { q: typeof v.q === "string" ? v.q : "", from: typeof v.from === "string" ? v.from : "" };
+    if (!raw) return "";
+    const v = JSON.parse(raw) as { q?: unknown };
+    return typeof v.q === "string" ? v.q : "";
   } catch {
-    return { q: "", from: "" };  // private mode, a quota, a corpus from an older build: an empty rail, not a crash
+    return "";  // private mode, a quota, a corpus from an older build: an empty rail, not a crash
   }
 }
 
 export default function App() {
-  const [q, setQ] = useState(() => readFilter().q);
+  const [q, setQ] = useState(readFilter);
   const [menu, setMenu] = useState(false);
-  const [from, setFrom] = useState<string>(() => readFilter().from);
   const phone = usePhone();
   // the phone drawer closes on every route change, exactly as the hash listener used to do it
   const { route, hash } = useRoute(() => setMenu(false));
@@ -171,19 +173,20 @@ export default function App() {
   // …and written back on every change, including the first render (which stores what was just read, harmless)
   React.useEffect(() => {
     try {
-      if (!q && !from) sessionStorage.removeItem(FILTER_KEY);
-      else sessionStorage.setItem(FILTER_KEY, JSON.stringify({ q, from }));
+      if (!q) sessionStorage.removeItem(FILTER_KEY);
+      else sessionStorage.setItem(FILTER_KEY, JSON.stringify({ q }));
     } catch {
       /* a filter that cannot be stored is still a filter that works */
     }
-  }, [q, from]);
+  }, [q]);
 
-  const tree = useTree(q, from);
   const { prev, next } = useMemo(() => neighbours(route.kind === "item" ? route.item : undefined), [route]);
 
   const rendered = items.filter((i) => i.has_demo === true).length;
-  const rail = <RailTree tree={tree} activeId={route.kind === "item" ? route.id : undefined} />;
-  const head = <RailHead q={q} setQ={setQ} from={from} setFrom={setFrom} total={items.length} rendered={rendered} />;
+  // the rail reads the address, not the route: it lists the taxonomy's types and marks the one whose collection
+  // is on screen, which is a route shape this file does not parse (see `site/Rail.tsx`, `typeKeyAt`).
+  const rail = <RailTree q={q} hash={hash} />;
+  const head = <RailHead q={q} setQ={setQ} hash={hash} total={items.length} rendered={rendered} />;
 
   return (
     <SidebarProvider className={`cat${menu ? " menu-open" : ""}`}
@@ -195,13 +198,8 @@ export default function App() {
         <Sidebar collapsible="offcanvas" variant="sidebar" data-catalog-item="shadcn/sidebar">
           {head}
           <SidebarContent className="rail-list">
-            {/* The switch has to be in the DOM before the 769 rows or Tab can never reach it, and it cannot
-                live in the head: the brand row's 135px of free width is less than the strip's 144px, and a
-                taller head was not ours to spend. So it is the scroll area's first row, pinned. Measured:
-                Tab 129 -> 12, head 230.4px and list viewport 670px unchanged. */}
-            <div className="rail-theme">
-              <ThemeSwitch />
-            </div>
+            {/* the theme switch is the top bar's control now (`site/TopBar.tsx`): it changes the whole window,
+                and the rail's header is down to a filter and the seven section rows. */}
             <SidebarGroup className="rail-groupwrap">
               <SidebarGroupContent>{rail}</SidebarGroupContent>
             </SidebarGroup>
