@@ -1927,6 +1927,11 @@ a.spec-name:hover { text-decoration: underline; }
   border: 1px solid var(--border); border-radius: var(--radius-lg);
   background: var(--surface-100);        /* painted over inline; the inline value is `FRAME_SURFACE[theme].ink` */
   overflow: hidden; container-type: inline-size; container-name: stage;
+  /* ── the canvas is the box the review capped: "cap the canvas at about 560px with a taller demo scrolling
+     inside it". The 560 is on the *canvas*, so the header row, the variant strip and the window above share it —
+     capping `.stage-win` instead let those two bands push the box to 645 px on a block's page, which is what the
+     review measured as "more than a whole screen". The window takes what is left and scrolls; the bands stay put. */
+  display: flex; flex-direction: column; max-height: 560px;
 }
 
 /* ── the one header row: 32 px of control, 8 px label→control, 16 px group→group ────────────────────────────── */
@@ -2037,6 +2042,7 @@ a.spec-name:hover { text-decoration: underline; }
    what does not fit is reachable by scrolling *here*, inside the canvas. `tabindex` on the box (set in the TSX) is
    what makes that scroll keyboard-reachable. */
 .stage-win {
+  flex: 1 1 auto; min-height: 0;       /* the canvas caps the box; this takes the remainder */
   max-height: 560px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   /* no background of its own: the canvas paints the demo's paper and this box sits on it. Two paints for one
      surface is how the slab happened in the first place. */

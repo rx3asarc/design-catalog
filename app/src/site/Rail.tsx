@@ -202,7 +202,11 @@ export function RailHead({ q, setQ, hash, total, rendered }: {
   return (
     <SidebarHeader className="rail-top">
       <div className="rail-brand">
-        <h1><a href="#/" style={{ color: "inherit", textDecoration: "none" }}>design catalog</a></h1>
+        {/* the brand is not the page's `<h1>`. The site's own name sat in this slot as an `h1` on every route, so a
+            route's real heading ("Button", "Search", the home sentence) was the *second* `h1` on the page and a
+            screen reader announced two titles. The shell owns no heading: this is a home link with the brand's own
+            step, and the `<h1>` belongs to whichever surface the visitor is on. */}
+        <div className="rail-wordmark"><a href="#/">design catalog</a></div>
         <SidebarTrigger data-catalog-item="shadcn/button" className="rail-trigger" />
       </div>
       <div className="meta">{total} items · {TYPES.length} types · {rendered} rendered</div>

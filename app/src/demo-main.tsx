@@ -4,6 +4,7 @@ import "./styles.css";
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import manifest from "../manifest.json";
+import { TooltipProvider } from "@/registry/new-york-v4/ui/tooltip";
 
 class Boundary extends React.Component<{ children: React.ReactNode }, { err: string | null }> {
   state = { err: null as string | null };
@@ -165,7 +166,17 @@ function App() {
   }, [Mod]);
   if (!variant) return <p style={{ font: "13px ui-sans-serif", margin: 16 }}>No demo for this item.</p>;
   if (why) return <p style={{ font: "13px/1.5 ui-sans-serif", margin: 16, color: "var(--danger)" }}>{why}</p>;
-  return <Boundary>{Mod ? <Mod /> : null}</Boundary>;
+  /* A demo may ask for a context this document has to provide. The catalogue's tooltip preview is the case that bit:
+     `Tooltip` throws "`Tooltip` must be used within `TooltipProvider`" on the demo document, because a *page* is
+     supposed to mount the provider once and nothing here did — a direct load of the type page happened to mount it
+     from another preview, so the same URL worked cold and threw on in-page navigation. The provider is the frame's,
+     not the demo's: the demo is a component, and the document around it is the app. Wrapping costs one context and
+     fixes every preview that will ever need one, instead of a list of exceptions. */
+  return (
+    <Boundary>
+      <TooltipProvider delayDuration={300}>{Mod ? <Mod /> : null}</TooltipProvider>
+    </Boundary>
+  );
 }
 
 /* ---- boot: the frame's own address, then the document ----

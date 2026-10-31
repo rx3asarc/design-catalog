@@ -15,10 +15,18 @@
 // overflow without clamping is a word sliced in half in silence — this gate fails on one.
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r8-cards";
+/**
+ * This gate reads the manifest and the taxonomy of **the tree it lives in** — `fileURLToPath(new URL("..",
+ * import.meta.url))` — not a path to some worktree that existed while it was written. r8-cards'
+ * `qa/card_check.mjs` and `foundations_check.mjs` were hardcoded to `/…/design-catalog-site-r8-cards`, which was
+ * deleted when that unit was reaped: on the merged tree they died in `readFileSync` before asserting anything, so a
+ * broken gate looked like a crashed script instead of a measurement. A gate must run anywhere its repo is checked out.
+ */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
 const items = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
 const byId = new Map(items.map((i) => [i.id, i]));
 const noDemo = items.filter((i) => !i.has_demo);

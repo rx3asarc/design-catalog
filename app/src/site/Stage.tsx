@@ -198,6 +198,29 @@ export function readableName(item: Item): string {
  */
 const H = { desk: 32, touch: 44 };
 
+/**
+ * The **canvas'** width, not the window's.
+ *
+ * The review measured the header row as three wrapped rows on a component's page: a component's stage sits in a
+ * ~700 px column even on a 1440 px screen, so `THEME / WIDTH / MOTION` had nowhere to go and `.stage-settings`
+ * wrapped into a stack. A row that fits at 1036 px does not fit at 696, and the window width cannot know that. So the
+ * row asks the box it is in — the same question `@container stage` asks in `styles.css` — and folds the three groups
+ * into one `Stage` popover when the answer is narrow. One row, every width.
+ */
+function useCanvasNarrow(ref: React.RefObject<HTMLElement | null>, at = 780): boolean {
+  const [n, setN] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const read = () => setN(el.clientWidth > 0 && el.clientWidth < at);
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    read();
+    return () => ro.disconnect();
+  }, [ref, at]);
+  return n;
+}
+
 /* 12 px is the design system's `label` step and this site's floor: nothing it owns is smaller. */
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)",
@@ -288,7 +311,7 @@ function Settings({ item, api, canReplay, h, words, noteId }: { item: Item; api:
   );
   const stop = (on: boolean) => (on ? 0 : -1);
   return (
-    <div data-stage-bar={item.id} role="group" aria-label={`Stage for ${readableName(item)}`} className="stage-settings">
+    <div data-stage-settings={item.id} role="group" aria-label={`Stage for ${readableName(item)}`} className="stage-settings">
       <Cluster word={words ? "theme" : ""} hint="The demo only. The catalogue keeps its own theme.">
         <ToggleGroup
           type="single" variant="outline" style={track} value={stage.theme} onValueChange={api.chooseTheme}
@@ -371,6 +394,9 @@ export function ItemStage({ item, api }: { item: ItemFull; api: StageApi }) {
   const at = Math.min(vi, Math.max(0, variants.length - 1));
   const variant: Variant = variants[at];
   const narrow = useNarrow();
+  const canvasRef = React.useRef<HTMLDivElement | null>(null);
+  const canvasNarrow = useCanvasNarrow(canvasRef);
+  const fold = narrow || canvasNarrow;
   const h = narrow ? H.touch : H.desk;
   const paper = FRAME_SURFACE[api.stage.theme];
   const code = useCode(variant?.module ?? null);
@@ -381,6 +407,7 @@ export function ItemStage({ item, api }: { item: ItemFull; api: StageApi }) {
   return (
     <div className="stage" data-stage={item.id}>
       <div
+        ref={canvasRef}
         className="stage-canvas"
         data-stage-theme={api.stage.theme}
         style={{ background: paper.ink, colorScheme: api.stage.theme }}
@@ -394,10 +421,14 @@ export function ItemStage({ item, api }: { item: ItemFull; api: StageApi }) {
             chrome, and chrome follows the catalogue. That matters when the stage previews the other theme — a
             light demo inside a dark site has the site's ink on the site's band, and the demo's paper starts
             below it. */}
-        <div className="stage-head" data-stage-head={item.id}>
+        {/* The bar is the **row**, not the settings inside it: the row is what always exists, and it is the thing a
+            reader measures. `data-stage-bar` used to sit on the settings group, so folding those three groups into
+            the `Stage` popover (below 780 px of canvas) made the bar itself disappear — and with it every assertion
+            that reads it. */}
+        <div className="stage-head" data-stage-head={item.id} data-stage-bar={item.id} role="group" aria-label={`Stage for ${readableName(item)}`}>
           <span className="stage-name" title={`${readableName(item)} — ${variant.label}`}>{variant.label}</span>
           <span className="stage-sp" />
-          {narrow ? (
+          {fold ? (
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" style={{ height: h, minHeight: h, padding: "0 12px", fontSize: 12 }} aria-label="Stage settings: theme, width and motion">

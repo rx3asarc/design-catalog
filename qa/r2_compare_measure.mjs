@@ -15,7 +15,14 @@ import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mj
 import { readFileSync, writeFileSync } from "node:fs";
 
 const BASE = process.env.BASE || "http://localhost:8891/design-catalog/";
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r2-compare-page";
+/**
+ * This gate reads the manifest and the taxonomy of **the tree it lives in** — `fileURLToPath(new URL("..",
+ * import.meta.url))` — not a path to some worktree that existed while it was written. r8-cards'
+ * `qa/card_check.mjs` and `foundations_check.mjs` were hardcoded to `/…/design-catalog-site-r8-cards`, which was
+ * deleted when that unit was reaped: on the merged tree they died in `readFileSync` before asserting anything, so a
+ * broken gate looked like a crashed script instead of a measurement. A gate must run anywhere its repo is checked out.
+ */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
 const OUT = `${REPO}/qa/r2_compare_measure.json`;
 const SHOTS = `${REPO}/qa/shots`;
 const VIEWPORTS = [{ name: "1440x900", width: 1440, height: 900 }, { name: "390x844", width: 390, height: 844 }];

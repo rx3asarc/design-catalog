@@ -4,6 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>design catalog</title>
+    <!--
+      THE ICON IS INLINE, SO THERE IS NO 404 ANYWHERE.
+
+      The site had no favicon at all, and every page load ended with a console error: the browser guessed
+      `/favicon.ico` at the *origin* root, which on a project page is not this site's directory, and on the live host
+      is not a file either. `qa/r2_check.mjs` asserts "no console errors" on a page, and it was right to stay red:
+      a missing icon is a real finish defect on a catalogue of finished things, not a warning to filter out.
+
+      An inline SVG data URI answers it without a second request, without a binary in the repo, and without a path
+      that can rot under a subdirectory deploy. The mark is the catalogue's own: a paper square with one card off it.
+      Colours are the tokens' own values (ink on the dark page), written literally because an SVG data URI cannot read
+      a CSS custom property.
+    -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090b'/%3E%3Crect x='6' y='6' width='12' height='12' rx='2' fill='%23fafafa'/%3E%3Crect x='6' y='21' width='20' height='5' rx='2' fill='%23a1a1aa'/%3E%3C/svg%3E" />
     <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
     <meta name="description" content="%CATALOG_COUNT% entries from five reference libraries — %CATALOG_RENDERED% rendered here, with their source." />
     <!--

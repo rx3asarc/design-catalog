@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
-import { label as displayLabel, type Item, isMotionItem } from "./lib";
+import { type Item, isMotionItem } from "./lib";
 import { DemoFrame } from "./demo";
+import { readableName } from "./Stage";
 
 /**
  * The tile, and the pool that decides which tiles hold a frame.
@@ -301,7 +302,14 @@ export function useSiteTheme(): "light" | "dark" {
   return theme;
 }
 
-const title = (i: Item) => displayLabel(i);
+/**
+ * A card's name is a **name**, not an address: `form-formisch-complex` and lowercase `button` are slugs, and the
+ * round-5 review named them ("The titles are slugs"). `readableName` is the one rule in this repo that turns a
+ * published slug into a title without inventing anything — the item page's `<h1>` already uses it, so a card and
+ * the page it opens can no longer disagree about what the thing is called. `displayLabel` stays for the facets,
+ * where the field is being named rather than the item.
+ */
+const title = (i: Item) => readableName(i);
 
 /**
  * The facets a card shows, from the fields the data unit publishes. Known keys only; a `null` is "not known"
