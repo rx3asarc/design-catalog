@@ -24,8 +24,8 @@ import { TopBar } from "./site/TopBar";
 const Gallery = lazy(() => import("./site/Gallery").then((m) => ({ default: m.Gallery })));
 const About = lazy(() => import("./site/About").then((m) => ({ default: m.About })));
 const ItemPage = lazy(() => import("./site/ItemPage").then((m) => ({ default: m.ItemPage })));
-const Compare = lazy(() => import("./site/Compare").then((m) => ({ default: m.Compare })));
 const TypePage = lazy(() => import("./site/TypePage").then((m) => ({ default: m.TypePage })));
+const SearchPage = lazy(() => import("./site/SearchPage").then((m) => ({ default: m.SearchPage })));
 const ChromePage = lazy(() => import("./site/ChromePage").then((m) => ({ default: m.ChromePage })));
 
 /**
@@ -216,10 +216,11 @@ export default function App() {
           // GALLERY SEAM — the gallery unit owns this line: `#/g[?filter]` parses in site/route.ts and renders
           // the grid here.
           : route.kind === "gallery" ? <Gallery query={route.query} />
-          // COMPARISON SEAM — `#/c/<concept>` parses in site/route.ts; one arm, one surface (site/Compare.tsx).
-          : route.kind === "concept" ? <Compare conceptKey={route.key} />
+          // SEARCH SEAM — `#/s?q=…` parses in site/route.ts; the uncut result list for one query.
+          : route.kind === "search" ? <SearchPage q={route.q} />
           // TYPE SEAM — `#/t/<section>/<type>` is one collection per entry in the taxonomy; the route carries the
-          // entry it resolved, so the page renders the taxonomy's own membership rather than re-deriving it.
+          // entry it resolved, so the page renders the taxonomy's own membership rather than re-deriving it. The
+          // retired `#/c/<concept>` address resolves to this same arm: there is one comparison surface.
           : route.kind === "type" ? <TypePage entry={route.entry} />
           : route.kind === "item" && route.item ? <ItemPage item={route.item} prev={prev} next={next} />
           : route.kind === "about" ? <About />

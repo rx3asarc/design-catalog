@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { byId, items, type Item, type TreeSection } from "./lib";
-import type { TypeEntry } from "./taxonomy";
-import { typeAt, typeHref } from "./typeIndex";
+import { parentOf, SECTION_ORDER, typeOfItem, TYPE_BY_KEY, type TypeEntry } from "./taxonomy";
+import { TYPE_BY_ROUTE, typeAt, typeHref } from "./typeIndex";
 
 /**
  * Where the visitor is, and what the rail and the pager derive from it.
@@ -62,12 +62,12 @@ export type Route = {
   | { kind: "chrome" }
   | { kind: "gallery"; filter: string; query: GalleryQuery }
   | { kind: "about" }
-  // one concept's members, compared: `#/c/<concept-key>`. An unknown key is a route too — the page names the
-  // miss, which is what the gallery does, and a route that silently became the front page could not do that.
-  | { kind: "concept"; key: string }
   // one type's members: `#/t/<section-slug>/<type-slug>`, the collection the taxonomy already describes. The
   // entry is carried, not re-derived, so the page and the address are the same entry by construction.
   | { kind: "type"; entry: TypeEntry }
+  // the full search results for one query: `#/s?q=<text>`. The palette's list is cut at 20 rows; this is the
+  // rest of the same ranking, at an address a reader can keep, share and Go Back from.
+  | { kind: "search"; q: string }
   | { kind: "item"; id: string; item?: Item }
   // an address that resolves to nothing. It is a route, not a fallback: the shell used to render the front page
   // for it while the address bar kept the wrong URL, so a visitor could neither see the mistake nor fix it.
@@ -106,10 +106,82 @@ export function gridHref(q: GalleryQuery): string {
 }
 
 /**
- * The one spelling of a comparison address, so an item page's link, a hand-typed URL and a page that quotes its
- * own address cannot disagree. The key is the store's, printed verbatim — never slugged again on the way out.
+ * A concept key is a dead address. It resolves to a type, and that is the only comparison page this build has.
+ *
+ * Round 5's review found two comparison systems live at once: the gallery's strip and the item pages linked
+ * `#/c/<concept>` ("button 4"), while the sidebar and the front page linked `#/t/<section>/<type>` ("Button
+ * 21"). Two pages for one set is two answers to "how many buttons are there", so `#/c/` is retired: the page
+ * is gone (`site/Compare.tsx`), and every old address **redirects** to the type page that holds the same set.
+ *
+ * The mapping is the taxonomy's own, in two rules, most specific first:
+ *
+ *  1. **the concept key is the type's name.** `button` → `Components/Button`. This is why `#/c/button` is
+ *     `#/t/components/button` and not a page of its own: the key and the type have the same word.
+ *  2. **the type most of the concept's members are filed under.** `drawer` → `Components/Drawer and sheet`,
+ *     `faq` → `Components/Disclosure`, `utils` → `Docs/Helpers and hooks`. A variant counts as its parent's
+ *     type, because a variant is a demo on its parent's page and never an entry of its own.
+ *
+ * Nothing here is written down by hand and nothing is counted: both rules are read out of `taxonomy.json` and
+ * `taxonomy.ts` at load. The taxonomy is being re-cut in this same round, so a concept that gains, loses or
+ * renames its type keeps resolving without this file changing.
  */
-export const conceptHref = (key: string) => `#/c/${key}`;
+const TYPE_BY_TYPE_SLUG = new Map<string, TypeEntry>();
+for (const [route, entry] of TYPE_BY_ROUTE) {
+  const typeSlug = route.slice(route.indexOf("/") + 1);
+  if (!TYPE_BY_TYPE_SLUG.has(typeSlug)) TYPE_BY_TYPE_SLUG.set(typeSlug, entry);
+}
+
+/** Concept key → the type that holds most of its members. Derived once; never a written table. */
+const CONCEPT_TYPE = (() => {
+  const tally = new Map<string, Map<string, number>>();
+  for (const item of items) {
+    for (const key of item.concepts ?? []) {
+      const parent = parentOf(item);
+      const entry = typeOfItem(item) ?? (parent ? typeOfItem(parent) : null);
+      if (!entry) continue;
+      if (!tally.has(key)) tally.set(key, new Map());
+      const n = tally.get(key)!;
+      n.set(entry.key, (n.get(entry.key) ?? 0) + 1);
+    }
+  }
+  const out = new Map<string, TypeEntry>();
+  for (const [key, counts] of tally) {
+    const best = [...counts.entries()]
+      .map(([typeKey, n]) => ({ entry: TYPE_BY_KEY.get(typeKey)!, n }))
+      .filter((c) => !!c.entry)
+      // most members wins; a tie goes to the taxonomy's own section order (Components, Blocks, …) and then to the
+      // key, so the answer is a function of the data and never of iteration order
+      .sort((a, b) => b.n - a.n
+        || SECTION_ORDER.indexOf(a.entry.section) - SECTION_ORDER.indexOf(b.entry.section)
+        || a.entry.key.localeCompare(b.entry.key));
+    if (best.length) out.set(key, best[0].entry);
+  }
+  return out;
+})();
+
+/** The slug a name makes, exactly as `typeIndex` spells a route — the join between a concept key and a type. */
+const asSlug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+/** The type a concept key means, or `null` when the taxonomy has nothing for it. */
+export function typeForConcept(key: string): TypeEntry | null {
+  const slug = asSlug(key);
+  return TYPE_BY_TYPE_SLUG.get(slug) ?? CONCEPT_TYPE.get(key) ?? null;
+}
+
+/**
+ * The one spelling of a concept address — which is now the type page's address, because the concept page is gone.
+ *
+ * A caller that still thinks in concepts (an item page's "compare with the 3 others") gets the type route
+ * directly instead of a redirect it would have to follow, and an unresolvable key keeps its old address so the
+ * miss is visible rather than silently pointed at something else.
+ */
+export function conceptHref(key: string): string {
+  const entry = typeForConcept(key);
+  return entry ? typeHref(entry) : `#/c/${key}`;
+}
+
+/** The one spelling of a search address. An empty query has no `?q=`, so the blank page is `#/s`. */
+export const searchHref = (q: string) => (q.trim() ? `#/s?q=${encodeURIComponent(q.trim())}` : "#/s");
 
 /** Ids, folded: a shared link can arrive in caps (`#/i/beui/DYNAMIC-ISLAND`) and the id it means is lower. */
 const byFoldedId = new Map(items.map((i) => [i.id.toLowerCase(), i]));
@@ -203,6 +275,11 @@ export function parseRoute(hash: string): Route {
     const raw = bare.slice(2).replace(/^[/?]/, "");
     return { kind: "gallery", filter: raw, query: parseGalleryQuery(raw) };
   }
+  // …and the search results own everything after `#/s`, for the same reason the gallery owns its query
+  if (bare === "/s" || bare.startsWith("/s?")) {
+    const raw = bare.slice(2).replace(/^\?/, "");
+    return { kind: "search", q: new URLSearchParams(raw).get("q") ?? "" };
+  }
   const seg = bare.replace(/\/+$/, "").split("/").filter((s) => s.length > 0);
   // `#`, `#/` and the empty hash are the front page
   if (!seg.length) return { kind: "home" };
@@ -211,7 +288,14 @@ export function parseRoute(hash: string): Route {
   // a page this build has, with any extra segment dropped (see above)
   if (page === "about") return { kind: "about" };
   if (page === "chrome") return { kind: "chrome" };
-  if (page === "c") return { kind: "concept", key: rest.join("/") };
+  // the retired comparison address. It is a redirect to the type page, not a page: `parseRoute` hands back the
+  // type route, and `canonicalHash` (below) repairs the address bar to that route's own spelling. A key the
+  // taxonomy cannot place is a miss, and the miss page says which address it was.
+  if (page === "c") {
+    const key = rest[0] ?? "";                               // a third segment is spelling, not identity
+    const entry = key ? typeForConcept(key) : null;
+    return entry ? { kind: "type", entry } : missPath(hash);
+  }
   if (page === "t") {
     // half a type address is not a type address: `#/t/components` names a section, and no page here is a section
     if (rest.length < 2) return missPath(hash);
@@ -236,12 +320,16 @@ export function parseRoute(hash: string): Route {
  * the address bar should *say*. Only addresses that have exactly one canonical form appear here — a trailing
  * slash folded away, an id's case put back the way the manifest publishes it, an extra segment dropped.
  *
- * The three nulls are deliberate:
+ * The nulls are deliberate:
  *  - **notfound** — a miss is its own address. Rewriting `#/i/beui/does-not-exist` to something canonical would
  *    hide the thing the page is complaining about.
- *  - **home, gallery, concept** — `""`, `#` and `#/` are all the front page and none of them is wrong; a
- *    gallery's query is its spelling (including the keys it reports as ignored); a concept key is the store's
- *    and is printed verbatim.
+ *  - **home, gallery, search** — `""`, `#` and `#/` are all the front page and none of them is wrong; a
+ *    gallery's query is its spelling (including the keys it reports as ignored); a search's query is what the
+ *    reader typed into it.
+ *
+ * The one redirect this file performs on a *whole route* rather than a spelling is `#/c/<concept>`: it parses to
+ * the type route that holds the same set (`typeForConcept`), and `useCanonical` then writes that route's own
+ * address into the bar. A redirect and not a page — there is one comparison surface, and it is `#/t/`.
  */
 export function canonicalHash(route: Route): string | null {
   switch (route.kind) {
@@ -253,7 +341,8 @@ export function canonicalHash(route: Route): string | null {
     case "notfound": return null;
     case "home": return null;
     case "gallery": return null;
-    case "concept": return null;
+    // a search's query is its spelling, the way a gallery filter is: `#/s?q=button` is what it is
+    case "search": return null;
   }
 }
 

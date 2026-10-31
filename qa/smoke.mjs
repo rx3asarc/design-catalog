@@ -1,12 +1,16 @@
 // Slice smoke test: every publish runs this against docs/ served as a static site.
 // usage: node smoke.mjs [baseUrl]
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = process.argv[2] || "http://localhost:8830/design-catalog/";
 const ROUTES = [
   ["home", "#/"], ["gallery", "#/g"], ["item", "#/i/shadcn/button"],
   ["motion", "#/i/beui/bloom-menu"], ["chrome", "#/chrome"], ["about", "#/about"],
+  // the uncut search results (`site/SearchPage.tsx`) is a surface with its own address
+  ["search", "#/s?q=sidebar"],
 ];
 const VIEWPORTS = [{ name: "1440", width: 1440, height: 900 }, { name: "390", width: 390, height: 844 }];
 const out = [];
@@ -61,5 +65,57 @@ for (const r of out) {
   if (fails.length) bad++;
   console.log(`${r.vp} ${r.route.padEnd(8)} frames=${String(r.frames).padEnd(3)} ${fails.length ? "FAIL " + fails.join(" · ") : "ok   "} | ${r.body.slice(0, 60)}`);
 }
+console.log("");
+
+/* ── `#/c/<concept>` is retired: it must REDIRECT to the type page, not render one ────────────────────────────
+ * Round 5's review found two comparison systems live at once and said to delete one. The old address is kept as a
+ * redirect rather than a 404, because it is out in published links (the gallery's strip, item pages, the front
+ * page), so this gate walks EVERY concept key in the manifest — not a sample — and fails if any of them renders
+ * anything other than the type page for that set, or if a future unit quietly puts a `#/c/` page back.
+ *
+ * A redirect here is the address bar's own spelling being repaired (`canonicalHash` + `replaceState`), so the
+ * proof is: the hash is a `#/t/…` route, the page carries `data-type-title`, and nothing says "not found".
+ */
+{
+  const manifest = JSON.parse(readFileSync(fileURLToPath(new URL("../app/manifest.json", import.meta.url)), "utf8"));
+  const concepts = [...new Set(manifest.flatMap((i) => i.concepts ?? []))].sort();
+  const b = await chromium.launch({ executablePath: "/usr/local/bin/google-chrome", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  settle(page);
+  await page.goto(BASE + "#/", { waitUntil: "load" });
+  await page.waitForTimeout(500);
+  let wrong = 0;
+  const table = [];
+  for (const key of concepts) {
+    await page.evaluate((k) => { location.hash = `#/c/${k}`; }, key);
+    await page.waitForFunction(() => !document.querySelector("[data-surface-wait]"), null, { timeout: 8000 }).catch(() => {});
+    await page.waitForTimeout(120);
+    const m = await page.evaluate(() => ({
+      hash: location.hash,
+      type: document.querySelector("[data-type-title]")?.getAttribute("data-type-title") ?? null,
+      notfound: !!document.querySelector("[data-notfound]"),
+    }));
+    const pass = m.hash.startsWith("#/t/") && !!m.type && !m.notfound;
+    if (!pass) { wrong++; console.log(`       FAIL #/c/${key} → ${m.hash} (type=${m.type}, notfound=${m.notfound})`); }
+    table.push(`#/c/${key} → ${m.hash}`);
+  }
+  // two of them are the review's own examples, spelled out here so the table is not just self-consistent
+  for (const [key, want] of [["button", "#/t/components/button"], ["sidebar", "#/t/components/sidebar"]]) {
+    const got = table.find((t) => t.startsWith(`#/c/${key} → `))?.split(" → ")[1];
+    if (got !== want) { wrong++; console.log(`       FAIL #/c/${key} → ${got ?? "nothing"}, expected ${want}`); }
+  }
+  // …and a key the taxonomy does not have is a miss that says so, not a page and not the front page
+  await page.evaluate(() => { location.hash = "#/c/no-such-concept"; });
+  await page.waitForTimeout(500);
+  const miss = await page.evaluate(() => ({ hash: location.hash, notfound: !!document.querySelector("[data-notfound]") }));
+  if (!miss.notfound || miss.hash !== "#/c/no-such-concept") { wrong++; console.log(`       FAIL #/c/no-such-concept → ${miss.hash} (notfound=${miss.notfound})`); }
+  await b.close();
+  console.log(`\n#/c/ redirect table (${concepts.length} concept keys in app/manifest.json):`);
+  for (const line of table) console.log(`  ${line}`);
+  console.log(`${wrong ? "FAIL" : "ok  "} #/c/ redirects: ${concepts.length - wrong}/${concepts.length} concept keys land on their type page; #/c/<unknown> is a miss`);
+  bad += wrong;
+}
+
 console.log(bad ? `SMOKE: ${bad} FAIL` : "SMOKE: all routes ok");
 process.exit(bad ? 1 : 0);

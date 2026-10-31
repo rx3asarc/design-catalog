@@ -1896,3 +1896,96 @@ a.spec-name:hover { text-decoration: underline; }
   .spec-meta { text-align: left; white-space: normal; }
   .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- search: one marker, folded variants, type pages, and a way past the cut (r9) -------------------------
+   `site/CommandPalette.tsx` and `site/SearchPage.tsx` (`#/s?q=…`).
+
+   Six rules, and each is a review sentence turned into a class:
+
+   1. **the marker means one thing.** `.search-demo[data-demo=yes]` draws the green dot; `[data-demo=no]` draws
+      the words "no demo" and no dot at all. It used to be the licence tone painted on every row, which is why
+      the review read "every row has a green dot … so the dot means nothing".
+   2. **a dot is a graphic, its meaning is a word.** The dot is 6 px — under the 12 px floor is for text, not for
+      a mark — and the word beside it is 12 px mono, so the meaning survives a colour-blind reader and a
+      screenshot.
+   3. **12 px floor and 44 px taps** on both surfaces, including the "see all" link (`.pal-see-all`), which is a
+      row a thumb is meant to hit.
+   4. **no shadows, one hairline.** Rows are separated by `border` hairlines, the way the type page and the item
+      page already are; nothing here draws depth.
+   5. **nothing new is accent-filled.** There is no primary control on either surface: the field is a bordered
+      control (`Input`, `border-strong`) and every row is a link.
+   6. **it re-flows.** The search row is one line at 1440 and two at 390 — the name first, the facts under it —
+      because a result list that sideways-scrolls on a phone is not a result list.
+   ---------------------------------------------------------------------------------------------------------- */
+
+/* the palette's rows: the demo marker, and the way past the 20-row cut */
+.pal-demo {
+  display: inline-flex; align-items: center; gap: 5px; flex: none;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--ink-muted);
+}
+.pal-demo[data-demo="no"] { color: var(--ink-subtle); }
+.pal-demo-dot {
+  width: 6px; height: 6px; flex: none; border-radius: var(--radius-full);
+  background: oklch(0.65 0.16 150);
+}
+.pal-see-all {
+  display: inline-flex; align-items: center; min-height: 44px; padding-inline: 8px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+  color: var(--ink); text-decoration: underline; text-underline-offset: 3px;
+}
+.pal-see-all:hover { color: var(--accent-ink, var(--ink)); }
+
+/* the search page (`#/s?q=…`) */
+.search-page { max-width: 1080px; }
+.search-form { display: grid; gap: 6px; margin: 0 0 14px; }
+.search-label {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+.search-input {
+  min-height: 44px; height: 44px; font-size: 15px;
+  border-color: var(--border-strong); background: var(--surface-100); color: var(--ink);
+}
+.search-input::placeholder { color: var(--ink-subtle); }
+.search-counts { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin: 0 0 6px; }
+.search-counts code { font-size: 12.5px; color: var(--ink-muted); }
+.search-legend {
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-muted); margin: 0 0 16px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border); max-width: 92ch;
+}
+.search-legend strong { color: var(--ink); font-weight: 500; }
+.search-results { list-style: none; margin: 0; padding: 0; }
+.search-row { border-top: 1px solid var(--border); }
+.search-row:first-child { border-top: 0; }
+.search-row-link {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: baseline;
+  min-height: 44px; padding: 10px 0; color: var(--ink); text-decoration: none;
+}
+.search-row-link:hover .search-row-name { text-decoration: underline; }
+.search-row-name { font-size: 15px; line-height: 22px; font-weight: 500; }
+.search-row-meta {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.02em;
+  color: var(--ink-muted); text-align: right;
+}
+/* the folded variant a row answered for: the variant's own name, said plainly, under its parent */
+.search-row-matched {
+  grid-column: 1; font-family: var(--font-mono); font-size: 12px; line-height: 16px;
+  color: var(--ink-subtle);
+}
+.search-row .search-demo {
+  grid-column: 2; grid-row: 2; text-align: right;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted);
+}
+.search-row .search-demo[data-demo="no"] { color: var(--ink-subtle); }
+.search-demo[data-demo="yes"] { display: inline-flex; align-items: center; gap: 5px; }
+.search-demo-dot {
+  width: 6px; height: 6px; flex: none; border-radius: var(--radius-full);
+  background: oklch(0.65 0.16 150);
+}
+.search-empty { font-size: 14px; line-height: 1.6; color: var(--ink); margin: 16px 0 0; }
+
+@media (max-width: 860px) {
+  .search-row-link { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 12px 0; }
+  .search-row-meta { text-align: left; }
+  .search-row .search-demo { grid-column: 1; grid-row: auto; text-align: left; }
+}
