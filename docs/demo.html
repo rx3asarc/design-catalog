@@ -1,15 +1,54 @@
 <!doctype html>
-<html lang="en" class="light">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>demo</title>
-    <style>html,body{background:0 0;margin:0;padding:0}#root{display:block}</style>
-    <script type="module" crossorigin src="/design-catalog/assets/demo-U0n4az6J.js"></script>
+    <style>html,body{background:var(--background,transparent);margin:0;padding:0}#root{display:block}</style>
+    <!--
+      THE DEMO DOCUMENT'S THEME, BEFORE THE FIRST PAINT.
+
+      `<html>` used to ship `class="light"` and the theme arrived later, from `demo-main`'s `applyFlags()`: a
+      demo frame in a dark catalogue therefore painted a white document for as long as its module took to load —
+      on a lazy iframe that is a white panel in the middle of a dark page, and it is the panel this unit was sent
+      to remove. The resolved theme has to be on the root element before anything is painted, and it is knowable
+      before anything is painted: it is this frame's own `theme=` key, or — when the address carries none — the
+      site's resolved theme, which this document can read off its same-origin parent's `<html>`. The OS query is
+      the last resort, for a frame with no site around it (a direct visit to `demo.html`).
+
+      Same three-way order as `site/Stage.tsx`'s `systemTheme()` and `DemoFrame`'s `addr.theme`, one place.
+    -->
+    <script>
+      (function () {
+        var t = null;
+        try {
+          var seg = decodeURIComponent(location.hash.slice(1)).split("|");
+          for (var i = 2; i < seg.length; i++) {
+            var eq = seg[i].indexOf("=");
+            if (eq > 0 && seg[i].slice(0, eq) === "theme") t = seg[i].slice(eq + 1);
+          }
+          if (t !== "light" && t !== "dark") t = null;
+        } catch (e) {}
+        if (!t) {
+          try {
+            t = parent.document.documentElement.classList.contains("dark") ? "dark" : "light";
+          } catch (e) {
+            /* no site around this frame (a direct visit): the operating system is the only theme there is */
+            t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+        }
+        var h = document.documentElement;
+        h.classList.add(t);
+        /* the UA's own parts — scrollbars, form controls, the canvas behind a transparent body — follow the same
+           theme the demo does, instead of the operating system's */
+        h.style.colorScheme = t;
+      })();
+    </script>
+    <script type="module" crossorigin src="/design-catalog/assets/demo--cpJ4qDo.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-ZK1E9UxJ.js">
-    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-aFUiGbhK.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-aFUiGbhK.css"></noscript>
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-sL7lIdDG.js">
+    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-BtvFH7c7.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-BtvFH7c7.css"></noscript>
   </head>
   <body>
     <div id="root"></div>
