@@ -3,8 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>html,body{margin:0;padding:0;background:transparent} #root{display:block}</style>
+    <!--
+      THE PAPER BELONGS TO THE FRAME, NOT TO THE DOCUMENT.
+
+      Until r9 this document painted itself `var(--background)` edge to edge, and that is the "slab" the review
+      kept finding: the canvas around the frame is the site's grey (`surface-300`, #18181b dark / #f4f4f5 light),
+      and a document painted #09090b or #fff inside it drew a second, darker-or-brighter rectangle with a seam on
+      all four sides — in both themes, and unmissably in mixed ones (a dark stage on a light site).
+
+      So the demo document paints nothing. The paper comes from the frame element on the parent's side
+      (`site/demo.tsx`: `background: FRAME_SURFACE[theme].ink`, applied by every consumer — the item stage, a
+      tile, a type page's window), which is also the only side that knows which theme this frame is in before
+      this document has parsed a byte. Two consequences worth stating:
+
+        · a frame whose module is slow, throws, or never arrives shows the theme's paper, not white — the r8b
+          complaint cannot come back through this door, because there is no longer a door here;
+        · the demo's own panes (`bg-background`, cards, sheets) still paint themselves, exactly as before: they
+          were painting over a document background of the same value.
+
+      A direct visit to `demo.html` (no parent, no frame element) therefore has no paper at all. That is a debug
+      address, not a page: the catalogue never links to it, and a document that cannot know its stage should not
+      guess at one.
+    -->
     <title>demo</title>
-    <style>html,body{margin:0;padding:0;background:var(--background,transparent)} #root{display:block}</style>
     <!--
       THE DEMO DOCUMENT'S THEME, BEFORE THE FIRST PAINT.
 

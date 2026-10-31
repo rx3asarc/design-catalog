@@ -1,17 +1,19 @@
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { label, mainFile, isMotionItem, conceptsOf, conceptMembers, useDetail, type Item, type ItemFull } from "./lib";
+import { mainFile, useDetail, type Item, type ItemFull } from "./lib";
 import { DetailWait } from "./DetailWait";
 import { Files } from "./Code";
 import { ApiTable, type Fact } from "./ApiTable";
 import { InstallBlock } from "./InstallBlock";
 import { pickLine } from "./behaviour";
 import { RelatedCard } from "./RelatedCard";
-import { Demo } from "./demo";
 import { faceted } from "./Tile";
-import { StageBar, useStage } from "./Stage";
+import { ItemStage, readableName, useStage } from "./Stage";
 import type { Neighbour } from "./route";
-import { conceptHref } from "./route";
+// the taxonomy's own address for a type: the pager walks inside one type, and the "compare with the others" card
+// goes to the type page rather than to the retired `#/c/` comparison
+import { typeHref } from "./typeIndex";
+import { typeOfItem, type TypeEntry } from "./taxonomy";
 // `NOT_MEASURED` is the one word for a fact nobody measured; it is defined where the rule is written down
 import { NOT_MEASURED } from "./behaviour";
 // the one plain sentence per licence value, defined once in the file that explains licensing
@@ -108,23 +110,57 @@ function facts(item: ItemFull): Fact[] {
   return rows;
 }
 
-/** One neighbour of the pager: the item, and the relation that put it there. Both pagers render it the same way. */
-function PagerCard({ n, dir }: { n: Neighbour; dir: "prev" | "next" }) {
-  const text = label(n.item);
+/**
+ * The type an item is a member of, from the taxonomy — and where it sits inside that type.
+ *
+ * Both of the page's "where next" links are type-scoped now (r9): the pager walks the item's own type, so a
+ * button's neighbour is a button rather than whatever the ingest happened to put beside it ("button's previous
+ * is Emoji Reaction" was the review's example), and the comparison card goes to that type's page.
+ *
+ * `null` is a real answer: 320 of the 769 items are folded variants and 93 are withheld, and neither is a member
+ * of a type. Those pages keep the shell's own related neighbours (`site/route.ts`) rather than losing their pager.
+ */
+function typePlaceOf(item: Item): { entry: TypeEntry; at: number } | null {
+  const entry = typeOfItem(item);
+  if (!entry) return null;
+  const at = entry.members.findIndex((m) => m.id === item.id);
+  return at < 0 ? null : { entry, at };
+}
+
+/**
+ * One neighbour of the pager: "← Previous: <name>", or "Next: <name> →".
+ *
+ * The arrow used to be glued to the name ("←form-formisch-checkbox") and the two cards were different shapes —
+ * one led with a glyph and the other trailed one, so they never lined up. Here both cards are the same shape: the
+ * word (with its arrow on the side it points to), a colon, then the name. Below 860 px the word and the name
+ * become two lines — a 375 px column cannot hold "Previous: Formisch forms, complex" on one row, and the review's
+ * complaint was exactly that the name was the part that got cut ("←form-formisch-ch…").
+ *
+ * The card is still one `<a>` with the component's own classes (`related-card` / `related-title` /
+ * `related-context`), so the look, the 44 px floor and the gates that read those class names do not move; only the
+ * two inner spans are new, because `RelatedCard` renders one title line and this is the phone case that needs two.
+ */
+function PagerCard({ item, dir, relation }: { item: Item; dir: "prev" | "next"; relation?: string }) {
+  const name = readableName(item);
   const word = dir === "prev" ? "Previous" : "Next";
   return (
-    <RelatedCard
-      href={`#/i/${n.item.id}`}
-      ariaLabel={`${word}: ${text} — ${n.relation}`}
-      lead={dir === "prev" ? "←" : undefined}
-      title={text}
-      context={
-        <>
-          {n.relation}
-          {dir === "next" ? " →" : ""}
-        </>
-      }
-    />
+    <a
+      className={`related-card pager-card pager-${dir}`}
+      href={`#/i/${item.id}`}
+      aria-label={`${word}: ${name}${relation ? ` — ${relation}` : ""}`}
+      title={`${word}: ${name}`}
+    >
+      <span className="related-title">
+        <span className="pager-word">
+          {dir === "prev" ? <span className="pager-arrow" aria-hidden="true">← </span> : null}
+          {word}
+          <span className="pager-colon">:</span>
+        </span>{" "}
+        <span className="pager-name">{name}</span>
+        {dir === "next" ? <span className="pager-arrow" aria-hidden="true"> →</span> : null}
+      </span>
+      <span className="related-context">{relation ?? item.kind}</span>
+    </a>
   );
 }
 
@@ -142,14 +178,24 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
 }
 
 function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next?: Neighbour }) {
-  const name = label(item);
-  // the stage: one console for every demo on the page, so a 15-variant item does not grow 15 theme switches
+  // a title is a name, not an address: "button" is printed "Button", "form-formisch-complex" as
+  // "Formisch form, complex" (`Stage.tsx`'s `readableName`, the one derivation the stage header also uses)
+  const name = readableName(item);
+  // the stage: ONE stage for the item, its state above the variant strip, so a 14-variant item does not grow 14
+  // consoles and the theme a visitor chose survives picking another variant
   const api = useStage();
-  const canReplay = isMotionItem(item);
-  // the comparisons this item is a member of, and only those with something to compare against
-  const comparable = conceptsOf(item)
-    .map((key) => ({ key, others: conceptMembers(key).length - 1 }))
-    .filter((c) => c.others >= 1);
+  // the item's own type: the pager walks inside it, and the comparison card points at its page
+  const place = typePlaceOf(item);
+  const typeMembers = place?.entry.members ?? [];
+  const sameType = place && typeMembers.length > 1
+    ? {
+        prev: typeMembers[(place.at - 1 + typeMembers.length) % typeMembers.length],
+        next: typeMembers[(place.at + 1) % typeMembers.length],
+      }
+    : null;
+  // the type is the neighbour list when it has one; a variant or a withheld item keeps the shell's neighbours
+  const before = sameType ? { item: sameType.prev, relation: place!.entry.type } : prev;
+  const after = sameType ? { item: sameType.next, relation: place!.entry.type } : next;
   const sentence = licenceSentence(item.licence);
   /* The measured line, subject-stated: "Pick this if you want a component that collapses to an icon rail…".
      `null` when the probe has no facts for this item, and `null` prints nothing — never a dash, never "not
@@ -174,8 +220,8 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
        * is lost to a screen reader or to a search engine — only the clipped visible line goes.
        */}
       <nav className="related-pager pager-top" aria-label="Neighbouring items">
-        {prev ? <PagerCard n={prev} dir="prev" /> : <span />}
-        {next ? <PagerCard n={next} dir="next" /> : <span />}
+        {before ? <PagerCard item={before.item} dir="prev" relation={before.relation} /> : <span />}
+        {after ? <PagerCard item={after.item} dir="next" relation={after.relation} /> : <span />}
       </nav>
 
       <div className="crumb">{item.source} · {item.kind}</div>
@@ -226,16 +272,7 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
           )}
         </div>
       ) : item.variants.length ? (
-        <div className="stage" data-stage={item.id}>
-          <div className="stage-canvas">
-            <div className="stage-console">
-              <StageBar item={item} api={api} canReplay={canReplay} />
-            </div>
-            {item.variants.map((v, i) => (
-              <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
-            ))}
-          </div>
-        </div>
+        <ItemStage item={item} api={api} />
       ) : (
         <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
       )}
@@ -313,16 +350,13 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
        * item can sit in two sets (beui/bounce-sidebar is in `bounce-sidebar` and in `sidebar`), so the row names
        * each.
        */}
-      {comparable.length > 0 && (
+      {place && typeMembers.length > 1 && (
         <div className="related-row" data-compare-links="">
-          {comparable.map((c) => (
-            <RelatedCard
-              key={c.key}
-              href={conceptHref(c.key)}
-              title={`Compare with the ${c.others} other${c.others === 1 ? "" : "s"}`}
-              context={c.key}
-            />
-          ))}
+          <RelatedCard
+            href={typeHref(place.entry)}
+            title={`Compare with the ${typeMembers.length - 1} other${typeMembers.length - 1 === 1 ? "" : "s"} in ${place.entry.type}`}
+            context={`${place.entry.section} · ${typeMembers.length} in this type`}
+          />
         </div>
       )}
 
