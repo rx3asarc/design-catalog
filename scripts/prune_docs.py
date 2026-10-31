@@ -96,6 +96,10 @@ def main():
         # builds at runtime, so it is reachable by design in exactly the way `data/` is.
         if f.startswith("manifest/"):
             keep.add(f)
+        # `redesign/` is the evidence: the reports and the plan this site was built from, linked from #/about and
+        # readable as plain files. They are documents, not build output, and nothing in a bundle names them.
+        if f.startswith("redesign/"):
+            keep.add(f)
 
     # every relative link an HTML document makes is a file a visitor can click; those stay regardless of kind
     # (CHECKSUMS.txt and the packaged .tgz are real downloads on #/about, and an asset-name regex misses them)
