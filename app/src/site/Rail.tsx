@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Button } from "@/registry/new-york-v4/ui/button";
 import { Input } from "@/registry/new-york-v4/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/registry/new-york-v4/ui/collapsible";
 import {
@@ -289,7 +290,7 @@ export function PhoneRail({ open, onClose, head, rail }: {
           dialog and the trigger already closes it), and it exists as much to keep taps off the page as to be
           one of the ways out. */}
       {open && (
-        <button type="button" tabIndex={-1} aria-label="Close the menu"
+        <Button variant="ghost" tabIndex={-1} aria-label="Close the menu"
           className="menu-veil" onClick={onClose} />
       )}
       <div className={`rail rail-phone${open ? " is-open" : ""}`} id="rail" aria-label="Browse the catalogue">

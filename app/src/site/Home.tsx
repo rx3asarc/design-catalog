@@ -163,10 +163,10 @@ export function Home() {
 
       {/* 2. the main action: one field, which opens the palette the site already answers to on ⌘K */}
       <div className="home-actions">
-        <button type="button" className="home-search" data-home-search="" onClick={() => openPalette()}>
+        <Button variant="ghost" className="home-search" data-home-search="" onClick={() => openPalette()}>
           <span className="home-search-ph">Search {c.total} items — name, slug or concept</span>
           <kbd className="home-kbd">{MOD} K</kbd>
-        </button>
+        </Button>
         <a className="home-ctl" href="#/g" data-home-gallery="">
           All {c.total} items
         </a>

@@ -1,3 +1,4 @@
+import { Table } from "@/registry/new-york-v4/ui/table";
 import { label } from "./lib";
 import { faceted, type Faceted } from "./Tile";
 import { TYPE_BY_KEY } from "./taxonomy";
@@ -47,7 +48,7 @@ export function CompareShowcase() {
         driven — pressed, opened, resized — measured in a browser rather than claimed here.
       </p>
       <div className="showcase-scroll">
-        <table className="cmp-preview">
+        <Table className="cmp-preview">
           <caption className="cmp-caption">
             {SIDEBAR.type} · {ROWS.length} of {total} members shown, {runs} of them with a live demo
           </caption>
@@ -76,7 +77,7 @@ export function CompareShowcase() {
               );
             })}
           </tbody>
-        </table>
+        </Table>
       </div>
       <p className="showcase-foot">
         <a className="home-ctl" href="#/c/sidebar" data-compare-open="">

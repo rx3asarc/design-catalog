@@ -1,3 +1,5 @@
+import { Button } from "@/registry/new-york-v4/ui/button";
+import { Table } from "@/registry/new-york-v4/ui/table";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { asWords, label, useDetail, type Item } from "./lib";
 import { DetailWait } from "./DetailWait";
@@ -328,13 +330,13 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
 
         {rows.length ? (
         <div ref={tableHost} className="type-table-wrap">
-          <table className="type-table" data-type-table={entry.key}>
+          <Table className="type-table" data-type-table={entry.key}>
             <thead>
               <tr>
                 <th scope="col" aria-sort={sort.key === "item" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}>
-                  <button type="button" className="type-sort" onClick={() => toggle("item")}>
+                  <Button variant="ghost" className="type-sort" onClick={() => toggle("item")}>
                     item{sort.key === "item" ? <span aria-hidden="true">{sort.dir === "asc" ? "↑" : "↓"}</span> : null}
-                  </button>
+                  </Button>
                 </th>
                 <th scope="col" className="type-th-demo">demo</th>
                 {cols.map((c) => (
@@ -345,9 +347,9 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
                     data-col={c.key}
                     aria-sort={sort.key === c.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                   >
-                    <button type="button" className="type-sort" onClick={() => toggle(c.key)}>
+                    <Button variant="ghost" className="type-sort" onClick={() => toggle(c.key)}>
                       {c.head}{sort.key === c.key ? <span aria-hidden="true">{sort.dir === "asc" ? "↑" : "↓"}</span> : null}
-                    </button>
+                    </Button>
                   </th>
                 ))}
               </tr>
@@ -390,7 +392,7 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
                 );
               })}
             </tbody>
-          </table>
+          </Table>
         </div>
       ) : null}
 
