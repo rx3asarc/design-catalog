@@ -1896,3 +1896,205 @@ a.spec-name:hover { text-decoration: underline; }
   .spec-meta { text-align: left; white-space: normal; }
   .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- the item page's stage (r9) --------------------------------------------------------------------------------
+   ONE stage for the item — one header row, one frame, the variants as a strip — on **the demo's own paper**, with
+   the canvas capped at 560 px and a taller demo scrolling inside it.
+
+   What this block replaces, and why each line of it was measured first:
+
+     1. `.stage-canvas` painted `surface-100` (the site's page colour) while the demo card inside it painted
+        `surface-300` and the frame inside *that* painted the demo document's `--background` — three paints for one
+        box. At 1440 on `#/i/shadcn/form-formisch-complex` the measured values were: canvas #09090b (dark) / #fff
+        (light), card #18181b / #f4f4f5, frame #09090b / #fff. That is the "slab": the frame's paper and the
+        canvas' paper disagreed by one surface step in dark and by one step in light, on every item page, in both
+        themes. The canvas now paints `FRAME_SURFACE[stage.theme].ink` — the same constant the `<iframe>` element
+        is painted with (`site/demo.tsx`), applied inline from `site/Stage.tsx` — and `app/demo.html` no longer
+        paints its own root. The seam is gone by construction, not by matching two hand-typed colours.
+     2. The console was a second bar above the card (`THEME / WIDTH / MOTION`, then a row of Preview/Code/Copy in
+        each of 14 cards on `shadcn/button`). It is one 32 px row inside the canvas now: name, settings, views,
+        Copy.
+     3. The selected segment was `surface-300` on a `surface-300` track, i.e. no painted difference at all. It is
+        `surface-100` on a `surface-300` track with an inset `border-strong` outline and `ink` at 600 now, which is
+        the review's own prescription; measured, see `docs/catalog-redesign/build/r9-stage.md`.
+
+   Every rule names its surface. Nothing here is `!important`, and nothing above this line was edited. */
+
+/* the canvas: the demo's paper, one hairline, the cap. The paper itself is inline (it follows the *stage's* theme,
+   not the site's, and a stylesheet cannot read a React state) — these are the box rules that go with it. */
+.page-in .stage { margin: var(--s4) 0 var(--s3); }
+.page-in .stage-canvas {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-100);        /* painted over inline; the inline value is `FRAME_SURFACE[theme].ink` */
+  overflow: hidden; container-type: inline-size; container-name: stage;
+}
+
+/* ── the one header row: 32 px of control, 8 px label→control, 16 px group→group ────────────────────────────── */
+.stage-head {
+  display: flex; align-items: center; gap: var(--space-2);
+  min-height: 40px; padding: 4px 8px;
+  background: var(--surface-300); border-bottom: 1px solid var(--border);
+}
+.stage-head .stage-sp { flex: 1 1 auto; min-width: var(--space-2); }
+.stage-name {
+  flex: 0 1 auto; min-width: 0; max-width: 34ch;
+  font-family: var(--font-sans); font-size: 13px; line-height: 20px; font-weight: 500; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* the three groups, in one line, at one height. `gap` is the group→group step (16 px, inside the review's 16–24);
+   the 8 px inside a cluster is the label→control step and lives on the element (`site/Stage.tsx`'s `Cluster`). */
+.stage-settings { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-width: 0; }
+.stage-settings .stage-cluster { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
+/* The canvas, not the window, decides: this row is as wide as the column it is in (1036 px on a block's page,
+   696 on a component's), and the words it can afford differ between them. Below 600 px of canvas the group words
+   go — "light / dark" and "390 / 768 / full" already say what they are, and "on / off" sits next to the replay
+   chip. Measured at 696: all three words make the row 703 px wide in a 694 px band, i.e. two rows; dropping them
+   makes it 650. The phone (below 640 of *window*) puts all three back inside the `Stage` popover. */
+@container stage (max-width: 760px) {
+  .stage-head .stage-label { display: none; }
+}
+/* 44 px tap rows are the phone's (inside the popover); on a mouse the run-up to the row keeps its 40 px band */
+@media (max-width: 639px) {
+  .stage-head { min-height: 52px; padding: 4px 6px; }
+  /* The name goes, on a phone only. Measured at 375: the row's other five controls take 274 of its 341 px, which
+     left the name 15 px — a five-letter demo name ellipsised to "D…". The variant strip sits directly under this
+     row and names the same demo in full, so what the phone loses is a duplicate, not the name. */
+  .stage-head .stage-name { display: none; }
+}
+
+/*
+   THE SELECTED SEGMENT, in the settings groups. `surface-100` fill on the `surface-300` track, a `border-strong`
+   outline drawn inside the segment's own box (`outline-offset: -1`), `ink` text, 600.
+
+   The r8 rules above paint this state `surface-300` on a `surface-300` track — bold text as the only difference —
+   which is the state the review reported as "nearly invisible". These come later in the same file at the same
+   specificity, so they win; the track's own colour is set inline by `site/Stage.tsx` (`--surface-300`).
+*/
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"],
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"]:hover,
+[data-stage-bar] [data-slot="toggle-group-item"][aria-checked="true"] {
+  background: var(--surface-100); color: var(--ink); font-weight: 600;
+  outline: 1px solid var(--border-strong); outline-offset: -1px;
+  border-radius: calc(var(--radius-sm) - 1px);
+}
+[data-stage-bar] [data-slot="toggle-group-item"] { border: 0; background: transparent; color: var(--ink-muted); }
+[data-stage-bar] [data-slot="toggle-group-item"]:hover { background: var(--surface-200); color: var(--ink); }
+/* the replay glyph keeps its word for a screen reader and in the DOM (the gate matches on "Replay"), but the
+   visible chip is 40 px wide instead of 90: this row is 32 px tall and a word per control is what made it wrap */
+[data-stage-bar] .stage-replay-word {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* the two views, as one segmented track: the same shape as the settings groups, so the row reads as one row */
+.stage-views {
+  display: inline-flex; align-items: center; padding: 0;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-300);
+}
+.stage-views .stage-view { border: 0; background: transparent; color: var(--ink-muted); font-weight: 500; border-radius: calc(var(--radius-sm) - 1px); }
+.stage-views .stage-view:hover { background: var(--surface-200); color: var(--ink); }
+.stage-views .stage-view[aria-selected="true"] {
+  background: var(--surface-100); color: var(--ink); font-weight: 600;
+  outline: 1px solid var(--border-strong); outline-offset: -1px;
+}
+
+/* the Copy button in the row: 32 px like everything beside it, and never the accent (the page's one accent is the
+   install command's Copy — `qa/stage_check.mjs` counts the accent-painted elements on this page) */
+.stage-head [data-copy] { height: 32px; min-height: 32px; padding: 0 10px; font-size: 12px; }
+@media (max-width: 639px) {
+  .stage-head [data-copy] { height: 44px; min-height: 44px; padding: 0 12px; }
+}
+
+/* ── the variants: one strip, not fourteen headers ──────────────────────────────────────────────────────────────
+   A tab strip that scrolls sideways rather than wrapping: 14 labels on a 1,036 px canvas are one row, and on a
+   375 px screen they are still one row (the row scrolls; the page does not — `overflow-x: auto` on the strip keeps
+   the document's scrollWidth where it was). 32 px on a mouse, 44 px on a thumb. */
+.stage-tabs-wrap { margin: 0; }
+.stage-tabs {
+  display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: 4px;
+  width: 100%; height: 40px; padding: 4px 8px;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  border: 0; border-bottom: 1px solid var(--border); border-radius: 0;
+  background: var(--surface-200);
+  scrollbar-width: thin;
+}
+.stage-tab {
+  flex: 0 0 auto; height: 32px; padding: 0 12px; border-radius: var(--radius-sm);
+  border: 1px solid transparent; background: transparent; color: var(--ink-muted);
+  font-family: var(--font-sans); font-size: 12.5px; line-height: 1; white-space: nowrap;
+}
+.stage-tab:hover { background: var(--surface-300); color: var(--ink); }
+.stage-tab[data-state="active"] {
+  background: var(--surface-100); color: var(--ink); font-weight: 600;
+  border-color: var(--border-strong);
+}
+@media (max-width: 639px) {
+  .stage-tabs { height: 52px; padding: 4px 6px; }
+  .stage-tab { height: 44px; padding: 0 14px; }
+}
+
+/* ── the window the frame is drawn in: the demo's paper, centred, capped at 560 px ─────────────────────────────
+   The frame is not squashed to the cap and the overflow is not hidden: the demo keeps the height it reports, and
+   what does not fit is reachable by scrolling *here*, inside the canvas. `tabindex` on the box (set in the TSX) is
+   what makes that scroll keyboard-reachable. */
+.stage-win {
+  max-height: 560px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+  /* no background of its own: the canvas paints the demo's paper and this box sits on it. Two paints for one
+     surface is how the slab happened in the first place. */
+  background: transparent;
+  scrollbar-width: thin;
+}
+.stage-win:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.stage-win::-webkit-scrollbar { width: 10px; height: 10px; }
+.stage-win::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+.stage-lane { padding: 16px; display: flex; justify-content: center; }
+.stage-screen { margin: 0 auto; min-width: 0; max-width: 100%; }
+.stage-code pre {
+  margin: 0; padding: 16px 20px; white-space: pre; max-width: 100%;
+  font-size: 12px; line-height: 18px; color: var(--ink);
+}
+@media (max-width: 639px) {
+  .stage-lane { padding: 10px; }
+  .stage-win { max-height: 480px; }
+}
+
+/* the motion sentence, under the row it describes — a live region, never a line inside a 32 px band */
+.stage-note {
+  margin: 0; padding: 6px 10px; border-bottom: 1px solid var(--border);
+  background: var(--surface-200); color: var(--ink-muted);
+  font-family: var(--font-sans); font-size: 12px; line-height: 16px; max-width: 72ch;
+}
+
+/* ── the settings popover, on a phone: theme, width and motion with their words back ────────────────────────────
+   At 375 px the row cannot hold eleven controls, and the review's phone sheet found the words lost and "on / off"
+   standing alone. One `Stage` button opens all three groups, labelled, at 44 px each. */
+.stage-pop {
+  width: min(92vw, 320px); padding: var(--space-3);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  background: var(--surface-200); color: var(--ink);
+}
+.stage-pop .stage-settings { flex-direction: column; align-items: stretch; gap: var(--space-2); }
+.stage-pop .stage-cluster { display: flex; align-items: center; gap: var(--space-2); justify-content: space-between; }
+.stage-pop .stage-label { color: var(--ink-muted); }
+/* a preset wider than the phone is not offered (`site/Stage.tsx` filters it), and what is left fills the row */
+.stage-pop [data-slot="toggle-group"] { background: var(--surface-300); }
+
+/* ── the pager: "← Previous: X" / "Next: Y →", the same shape on both sides ───────────────────────────────────
+   The word and the name used to be one run ("←form-formisch-checkbox") with the arrow on only one of the two
+   cards. Now: arrow, word, colon, name — one line on a desktop, two on a phone (the name under the word), and
+   never a truncated name, which is what "←form-formisch-ch…" was. */
+.page-in > .related-pager.pager-top .pager-card { gap: 2px; }
+.page-in > .related-pager.pager-top .pager-card .related-title { gap: 0; font-size: 15px; line-height: 20px; font-weight: 500; }
+.page-in > .related-pager.pager-top .pager-word { color: var(--ink-muted); font-weight: 400; white-space: nowrap; }
+.page-in > .related-pager.pager-top .pager-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.page-in > .related-pager.pager-top .pager-next { text-align: right; }
+.page-in > .related-pager.pager-top .pager-next .related-title { justify-content: flex-end; text-align: right; }
+@media (max-width: 860px) {
+  /* two lines, and the name is the line that is allowed to be long: the word alone fits any column */
+  .page-in > .related-pager.pager-top .pager-card { height: auto; min-height: 56px; max-height: none; padding: 6px var(--space-3); }
+  .page-in > .related-pager.pager-top .pager-card .related-title {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 0; white-space: normal;
+  }
+  .page-in > .related-pager.pager-top .pager-colon { display: none; }
+  .page-in > .related-pager.pager-top .pager-name { font-size: 14px; line-height: 18px; white-space: normal; }
+  .page-in > .related-pager.pager-top .pager-next .related-title { align-items: flex-end; }
+}
