@@ -1,18 +1,20 @@
 import React, { useMemo, useState } from "react";
 import { XIcon } from "lucide-react";
-import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Kbd } from "@/registry/new-york-v4/ui/kbd";
 import {
-  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut,
+  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
 } from "@/registry/new-york-v4/ui/command";
 import {
   Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/registry/new-york-v4/ui/dialog";
 import { items, label, type Item } from "./lib";
+import { parentOf, isVariant, TYPES, variantsOf, type TypeEntry } from "./taxonomy";
+import { typeHref } from "./typeIndex";
+import { searchHref } from "./route";
 
 /**
- * Cmd/Ctrl+K over the catalogue: 769 items, searched in this browser, ranked, keyboard only.
+ * Cmd/Ctrl+K over the catalogue: 769 items and every type page, searched in this browser, ranked, keyboard only.
  *
  * The shell already shipped `@/registry/new-york-v4/ui/command`; what was missing was a reason to open it.
  * One open state, two mounts (a control in the phone topbar and a float on desktop), because the shell's
@@ -20,7 +22,17 @@ import { items, label, type Item } from "./lib";
  * visitor without a visible way in.
  *
  * Search is over the manifest's own fields and nothing else: `displayName ?? name`, slug, source, category,
- * concepts. There is no index, no server and no second copy of the data.
+ * concepts, plus the taxonomy's own type names. There is no index, no server and no second copy of the data.
+ *
+ * Three rules the round-5 review asked for, and where each one lives:
+ *
+ *  1. **a folded variant is not a row.** A variant is a demo on its parent's page, so a variant that matches is
+ *     folded into its parent's result — `Button · 12 variants` — and the row opens the parent, where the variants
+ *     are the demos (`DOCS`, below).
+ *  2. **type pages are results too.** All of the taxonomy's types are indexed by name and carry their section and
+ *     their two counts, so `sidebar` offers the Sidebar collection as well as the items (`TYPE_DOCS`).
+ *  3. **the cut is visible.** The palette shows 20 rows and says how many there were; when there are more, it
+ *     offers `See all N results`, which is `#/s?q=…` (`site/SearchPage.tsx`) — the same ranking, uncut.
  *
  * A query is matched twice, in this order: as the whole string it was typed (every ranking that existed before
  * this stayed exactly where it was), then word by word against the same fields, which is what lets
@@ -28,22 +40,19 @@ import { items, label, type Item } from "./lib";
  * five letters or more (`siderbar`), and a hit that needed that help always sorts below every hit that did not.
  */
 
-/** The three fields the data unit publishes that `site/lib.ts`'s Item predates. Read, never invented. */
-type Row = Item & { concepts?: string[]; used_here?: number; reference_only?: boolean };
+/** The fields the data unit publishes that `site/lib.ts`'s Item predates. Read, never invented. */
+type Row = Item & { concepts?: string[]; used_here?: number; reference_only?: boolean; has_demo?: boolean };
 
 const rows = items as Row[];
 
-/** The honest licence tone. The catalogue publishes four licence strings; each one gets a dot and a title. */
-const LICENCE_TONE: Record<string, string> = {
-  "MIT": "oklch(0.65 0.16 150)",
-  "MIT with no-redistribution clause": "oklch(0.7 0.14 80)",
-  "free-to-use (repo reports NOASSERTION)": "oklch(0.7 0.14 80)",
-  "unclear": "oklch(0.65 0.16 25)",
-};
-
 /** Every field, whole — and the same fields split into the words a person would type. Both, from one pass. */
 type Doc = {
-  item: Row; name: string; slug: string; source: string; category: string; concepts: string[];
+  item: Row;
+  /** the row this item stands for: itself, or the parent a folded variant is a demo of (`button-icon` → `button`) */
+  anchor: Row;
+  /** how many demos the anchor page carries (its own, plus every variant the taxonomy folds into it) */
+  variants: number;
+  name: string; slug: string; source: string; category: string; concepts: string[];
   nameWord: string[]; slugWord: string[]; sourceWord: string[]; categoryWord: string[]; conceptWord: string[][];
 };
 
@@ -52,30 +61,80 @@ const lower = (s: string) => s.toLowerCase();
 /** A field into the words it is made of: `sidebar-07`, `components/date picker` and `dynamic_island` all split. */
 const words = (s: string) => s.split(/[^a-z0-9]+/).filter(Boolean);
 
-/** Lowercased once at module load. 769 × 5 strings is cheaper to build once than to rebuild on every key. */
+/**
+ * Folded variants do not get a row of their own.
+ *
+ * 320 of the 769 items are variants — `button-icon`, `button-link`, `sidebar-01` … — and the taxonomy already
+ * says what they are: a **demo on their parent's page**, not an entry. A result row per variant is what the review
+ * read as "folded variants still appear as separate results", and it is the same mistake the collections fixed.
+ * So a variant that matches is **folded into its parent's row**, and the row says how many demos that page carries
+ * (`Button · 12 variants`). The row opens the parent, where the variants are the demos.
+ */
 const DOCS: Doc[] = rows.map((item) => {
+  const anchor = (isVariant(item) ? parentOf(item) : null) ?? item;
+  /* the fields are the *item's own* — a variant has to be findable by the name it was typed as (`button-icon`)
+     even though the row it produces is its parent's — and `anchor` is where that row points */
   const name = lower(label(item));
   const slug = lower(item.slug);
   const source = lower(item.source);
   const category = lower(item.category ?? "");
   const concepts = (item.concepts ?? []).map(lower);
   return {
-    item, name, slug, source, category, concepts,
+    item, anchor, variants: variantsOf(anchor).length,
+    name, slug, source, category, concepts,
     nameWord: words(name), slugWord: words(slug), sourceWord: words(source),
     categoryWord: words(category), conceptWord: concepts.map(words),
   };
 });
 
 /**
- * How a hit matched. The order here *is* the ranking: prefix, then name, then concept/category, then source —
- * and `fuzzy`, last, for a hit that only landed because of one typo. A typo never outranks a hit.
+ * The 89 type pages, searchable by the same box.
+ *
+ * The review's second search complaint was that "type pages never appear" — a visitor typing `sidebar` got 20
+ * rows and never the collection that holds them all. A type is the catalogue's own unit and the page a reader
+ * usually wants, so it is indexed here with the name a person types, the section it is filed under, and the two
+ * counts the type page prints (`21 members · 12 variants`). Nothing is written down: `TYPES` is the taxonomy.
  */
-export type Why = "name prefix" | "name" | "concept" | "category" | "source" | "fuzzy";
-const SCORE: Record<Why, number> = { "name prefix": 0, name: 1, concept: 2, category: 2, source: 3, fuzzy: 4 };
-/** A query that needed a typo's help sorts after every query that did not, whatever tier the typo landed in. */
-const FUZZY = 10;
+type TypeDoc = { entry: TypeEntry; name: string; word: string[]; members: number; variants: number };
 
-export type Hit = { item: Row; why: Why };
+const TYPE_DOCS: TypeDoc[] = TYPES.map((entry) => ({
+  entry, name: lower(entry.type), word: words(lower(entry.type)),
+  members: entry.members.length, variants: entry.variants.length,
+}));
+
+/**
+ * How a hit matched. The order here *is* the ranking: an exact type name first (a collection is what "button"
+ * means), then names that start with it, then names that contain it, then the softer fields, and `fuzzy` last
+ * for a hit that only landed because of one typo. A typo never outranks a hit, whatever tier it landed in.
+ */
+export type Why = "type name" | "type prefix" | "name prefix" | "name" | "type" | "concept" | "category" | "source" | "fuzzy";
+
+const TIER: Record<Why, number> = {
+  "type name": 0,
+  /* a type whose name starts with the query ranks with an item whose name starts with it, and the shorter name
+     wins the tie — which is why `theme` leads with the Themes collection and `chart` leads with the chart item */
+  "name prefix": 1,
+  "type prefix": 1,
+  name: 3,
+  type: 4,
+  concept: 5,
+  category: 5,
+  source: 6,
+  fuzzy: 8,
+};
+
+/** A query that needed a typo's help sorts after every query that did not. */
+const FUZZY = 9;
+
+/**
+ * One search result: a type's collection, or an item (with its folded variants counted on it).
+ *
+ * `matched` names the variant that brought a row in when the row stands for something else — `button-link`
+ * arrives as `Button`, and the row can still say what was typed.
+ */
+export type Result =
+  | { kind: "type"; entry: TypeEntry; why: Why; score: number; name: string; section: string; members: number; variants: number }
+  | { kind: "item"; item: Row; why: Why; score: number; name: string; source: string; variants: number; demo: boolean; matched?: string };
 
 /** Why this item matches `needle`, or null. The slug is the machine form of the name, so it ranks with it. */
 function why(doc: Doc, needle: string): Why | null {
@@ -111,13 +170,25 @@ function nearMiss(a: string, b: string): boolean {
 /** Two letters are too wide a net for a typo allowance; a long word is where a finger actually slips. */
 const TYPO_MIN = 5;
 
-/** The word a token is a prefix of, in one field, at the same tiers the whole-string match uses. */
+/**
+ * Does a word answer a token? A prefix, in either direction — `chart` finds `charts`, `charts` finds `chart` —
+ * because plurals are how a person types a collection's name and the catalogue's names are singular
+ * (`Typography`, `Chart demonstrations`). The shorter side has to be at least four letters, so `ch` never
+ * matches everything that begins with it.
+ */
+const wordHit = (w: string, tok: string) =>
+  w.startsWith(tok) || (tok.length >= 4 && w.length >= 4 && tok.startsWith(w));
+
+/** A match, and whether it needed the typo allowance — which is a rank of its own, not a tier. */
+type Match = { why: Why; fuzzy?: boolean };
+
+/** One token, against one item's words, at the tiers the whole-string match uses. */
 function wordWhy(doc: Doc, tok: string): Why | null {
-  if (doc.nameWord.some((w) => w.startsWith(tok))) return doc.nameWord[0].startsWith(tok) ? "name prefix" : "name";
-  if (doc.slugWord.some((w) => w.startsWith(tok))) return "name";
-  if (doc.conceptWord.some((ws) => ws.some((w) => w.startsWith(tok)))) return "concept";
-  if (doc.categoryWord.some((w) => w.startsWith(tok))) return "category";
-  if (doc.sourceWord.some((w) => w.startsWith(tok))) return "source";
+  if (doc.nameWord.some((w) => wordHit(w, tok))) return wordHit(doc.nameWord[0], tok) ? "name prefix" : "name";
+  if (doc.slugWord.some((w) => wordHit(w, tok))) return "name";
+  if (doc.conceptWord.some((ws) => ws.some((w) => wordHit(w, tok)))) return "concept";
+  if (doc.categoryWord.some((w) => wordHit(w, tok))) return "category";
+  if (doc.sourceWord.some((w) => wordHit(w, tok))) return "source";
   return null;
 }
 
@@ -138,48 +209,100 @@ function typoWhy(doc: Doc, tok: string): Why | null {
  * This is what makes `date picker` open `date-picker`: the whole string `date picker` is in no field of it, but
  * both of its words are, and the first one starts the name. `dyn isl` lands the same way, by prefix.
  */
-function wordsWhy(doc: Doc, toks: string[]): Why | null {
+function wordsWhy(doc: Doc, toks: string[]): Match | null {
   let worst: Why = "name prefix";
+  let fuzzy = false;
   for (const tok of toks) {
-    const w = wordWhy(doc, tok) ?? typoWhy(doc, tok);
-    if (!w) return null;
-    if (SCORE[w] > SCORE[worst]) worst = w;
+    const w = wordWhy(doc, tok);
+    const t = w ? null : typoWhy(doc, tok);
+    if (t) fuzzy = true;
+    const got = w ?? t;
+    if (!got) return null;
+    if (TIER[got] > TIER[worst] || got === "fuzzy") worst = got;
   }
-  return toks.length ? worst : null;
+  return toks.length ? { why: worst, fuzzy } : null;
+}
+
+/** A type's own match: its name, whole, then its name, word by word, then one typo out. */
+function typeWhy(td: TypeDoc, needle: string, toks: string[]): Match | null {
+  if (td.name === needle) return { why: "type name" };
+  if (td.name.startsWith(needle)) return { why: "type prefix" };
+  if (td.name.includes(needle)) return { why: "type" };
+  if (toks.length > 1 && toks.every((tok) => td.word.some((w) => wordHit(w, tok)))) {
+    return { why: td.word[0].startsWith(toks[0]) ? "type prefix" : "type" };
+  }
+  if (toks.length === 1 && toks[0].length >= TYPO_MIN && td.word.some((w) => nearMiss(toks[0], w))) {
+    return { why: "fuzzy", fuzzy: true };
+  }
+  return null;
 }
 
 export const LIMIT = 20;
 
 /**
- * The ranked hits, and how many matched before the cut.
+ * Every result for a query, ranked, and how many there are.
  *
- * Ties inside a rank are broken by the shorter name first (so `sidebar` opens `sidebar`, not
- * `sidebar-07`), then alphabetically. An empty query is not a blank list: it is the items the shell itself
- * runs on, which is the one answer that is both true and useful before you have typed anything.
+ * Ties inside a rank are broken by the shorter name first (so `sidebar` opens `sidebar`, not `Sidebar 07`), then
+ * alphabetically: the order is a function of the data, never of a shuffle. An empty query is not a blank list: it
+ * is the items the shell itself runs on, which is the one answer that is both true and useful before you have
+ * typed anything.
  */
-export function search(q: string): { hits: Hit[]; total: number; own: boolean } {
+export function searchAll(q: string): { results: Result[]; own: boolean } {
   const needle = q.trim().toLowerCase();
   if (!needle) {
-    const own = DOCS.filter((d) => (d.item.used_here ?? 0) > 0)
+    const own = DOCS.filter((d) => (d.item.used_here ?? 0) > 0 && d.anchor.id === d.item.id)
       .sort((a, b) => a.name.localeCompare(b.name))
-      .map((d) => ({ item: d.item, why: "name" as Why }));
-    return { hits: own, total: own.length, own: true };
+      .map((d): Result => ({
+        kind: "item", item: d.item, why: "name", score: TIER.name, name: label(d.item),
+        source: d.item.source, variants: d.variants, demo: d.item.has_demo === true,
+      }));
+    return { results: own, own: true };
   }
   const toks = words(needle);
-  const found: { hit: Hit; score: number }[] = [];
+  /* one row per anchor: a variant and its parent are the same result, and the better reason wins */
+  const best = new Map<string, { r: Result; score: number }>();
+  const keep = (key: string, r: Result, score: number) => {
+    const had = best.get(key);
+    if (had && had.score <= score) return;
+    best.set(key, { r, score });
+  };
+
+  for (const td of TYPE_DOCS) {
+    const m = typeWhy(td, needle, toks);
+    if (!m) continue;
+    keep(`type:${td.entry.key}`, {
+      kind: "type", entry: td.entry, why: m.why, score: m.fuzzy ? FUZZY : TIER[m.why],
+      name: td.entry.type, section: td.entry.section, members: td.members, variants: td.variants,
+    }, m.fuzzy ? FUZZY : TIER[m.why]);
+  }
+
   for (const doc of DOCS) {
     // the whole query first, exactly as it always ranked: a query that matched before is not re-ranked by the
     // word pass below, it only gains the rows the whole-string form could never see.
-    const w = why(doc, needle);
-    if (w) { found.push({ hit: { item: doc.item, why: w }, score: SCORE[w] }); continue; }
-    const t = wordsWhy(doc, toks);
-    if (t) found.push({ hit: { item: doc.item, why: t }, score: t === "fuzzy" ? FUZZY + SCORE[t] : SCORE[t] });
+    const whole = why(doc, needle);
+    const m: Match | null = whole ? { why: whole } : wordsWhy(doc, toks);
+    if (!m) continue;
+    const score = m.fuzzy ? FUZZY : TIER[m.why];
+    keep(`item:${doc.anchor.id}`, {
+      kind: "item", item: doc.anchor, why: m.why, score,
+      name: label(doc.anchor), source: doc.anchor.source, variants: doc.variants,
+      demo: doc.anchor.has_demo === true,
+      matched: doc.anchor.id === doc.item.id ? undefined : label(doc.item),
+    }, score);
   }
-  found.sort((a, b) =>
+
+  const results = [...best.values()].map((b) => b.r).sort((a, b) =>
     a.score - b.score ||
-    label(a.hit.item).length - label(b.hit.item).length ||
-    label(a.hit.item).localeCompare(label(b.hit.item)));
-  return { hits: found.slice(0, LIMIT).map((f) => f.hit), total: found.length, own: false };
+    a.name.length - b.name.length ||
+    a.name.localeCompare(b.name) ||
+    (a.kind === "type" ? a.entry.key : a.item.id).localeCompare(b.kind === "type" ? b.entry.key : b.item.id));
+  return { results, own: false };
+}
+
+/** The palette's list: the same ranking, cut. `total` is what there was before the cut, so the cut is visible. */
+export function search(q: string): { hits: Result[]; total: number; own: boolean } {
+  const { results, own } = searchAll(q);
+  return { hits: results.slice(0, LIMIT), total: results.length, own };
 }
 
 /* ---- one open state for two mounts: a context provider would cost App.tsx a wrapper element ---- */
@@ -318,26 +441,61 @@ export function PaletteTrigger({ place }: { place: "bar" | "float" }) {
   );
 }
 
-/** One row: the name, the source, the kind, the licence dot, and the truth about the demo. */
-function HitRow({ hit, onSelect }: { hit: Hit; onSelect: (id: string) => void }) {
-  const item = hit.item;
-  const tone = LICENCE_TONE[item.licence] ?? "oklch(0.65 0.16 25)";
+/**
+ * The one marker, and it means one thing: **a demo runs in this catalogue.**
+ *
+ * The round-5 review read the old row and found a green dot on every result — it was the licence tone, painted on
+ * a row whether or not there was anything to run — so "the dot means nothing". One green dot, one fact: a demo.
+ * A reference-only entry, or a helper, gets no dot and says so in words instead. A type page is a collection, not
+ * a demo, so it carries no marker at all — it carries its own two counts. The licence is still on the row (for a
+ * screen reader) and on the item page; it never had a colour of its own to keep.
+ */
+function DemoMark({ demo }: { demo: boolean }) {
+  return demo ? (
+    <span className="pal-demo" title="a demo runs in this catalogue">
+      <span className="pal-demo-dot" aria-hidden="true" />
+      demo<span className="sr-only"> runs in this catalogue</span>
+    </span>
+  ) : (
+    <span className="pal-demo" data-demo="no">no demo</span>
+  );
+}
+
+/** `21 items · 12 variants` — the two numbers a type page prints, on the result row that opens it. */
+const typeCounts = (r: Extract<Result, { kind: "type" }>) =>
+  `${r.members} item${r.members === 1 ? "" : "s"} · ${r.variants} variant${r.variants === 1 ? "" : "s"}`;
+
+/** One row: a type's collection, or an item with its folded variants counted on it. */
+function ResultRow({ r, onSelect }: { r: Result; onSelect: (href: string) => void }) {
+  const href = r.kind === "type" ? typeHref(r.entry) : `#/i/${r.item.id}`;
   return (
     <CommandItem
-      value={item.id}
-      onSelect={() => onSelect(item.id)}
+      value={r.kind === "type" ? `type:${r.entry.key}` : `item:${r.item.id}`}
+      onSelect={() => onSelect(href)}
       // 32 px tall from the registry's py-1.5; a row you are meant to hit with a thumb clears 44
       className="min-w-0 gap-2 max-[860px]:min-h-11"
+      data-result={r.kind}
       // the row is a search result, not a control: it wears the command item's slot, and the shell's
       // provenance layer reads the same filter box through the Command wrapper's tag
     >
-      <span className="min-w-0 flex-1 truncate">{label(item)}</span>
-      <span className="shrink-0 font-mono text-[12px] text-muted-foreground">{item.source}</span>
-      <Badge variant="outline" className="shrink-0 text-[12px] text-muted-foreground">{item.kind}</Badge>
-      {item.reference_only ? <CommandShortcut className="shrink-0">no demo</CommandShortcut> : null}
-      {/* a dot, not the catalogue's Badge: tagging it `shadcn/badge` would inflate that item's count */}
-      <span className="size-2 shrink-0 rounded-full" style={{ background: tone }} aria-hidden="true" />
-      <span className="sr-only">{`licence ${item.licence}`}</span>
+      <span className="min-w-0 flex-1 truncate">{r.name}</span>
+      {r.kind === "type" ? (
+        <>
+          <span className="shrink-0 font-mono text-[12px] text-muted-foreground">{r.section}</span>
+          <span className="shrink-0 truncate font-mono text-[12px] text-muted-foreground">{typeCounts(r)}</span>
+        </>
+      ) : (
+        <>
+          {r.variants > 0 ? (
+            <span className="shrink-0 font-mono text-[12px] text-muted-foreground">
+              · {r.variants} variant{r.variants === 1 ? "" : "s"}
+            </span>
+          ) : null}
+          <span className="shrink-0 font-mono text-[12px] text-muted-foreground">{r.source}</span>
+          <DemoMark demo={r.demo} />
+          <span className="sr-only">{`licence ${r.item.licence}`}</span>
+        </>
+      )}
     </CommandItem>
   );
 }
@@ -369,12 +527,12 @@ export function Palette() {
   }, []);
 
   /**
-   * Open an item. The entry the palette pushed becomes the item's own entry, so Back from the item page returns
-   * to the page the visitor was reading when they opened the palette — not to a dead copy of it. `replaceState`
-   * fires no event of its own, so the router is told in the one way it listens for (`hashchange`).
+   * Go somewhere, from a row or from the "see all" link. The entry the palette pushed becomes the destination's
+   * own entry, so Back from there returns to the page the visitor was reading when they opened the palette — not
+   * to a dead copy of it. `replaceState` fires no event of its own, so the router is told in the one way it
+   * listens for (`hashchange`).
    */
-  const go = (id: string) => {
-    const href = `#/i/${id}`;
+  const go = (href: string) => {
     if (pushed && history.state?.[ENTRY]) {
       pushed = false;
       closing = false;
@@ -387,9 +545,11 @@ export function Palette() {
     if (location.hash !== href) location.hash = href;
   };
 
+  /* The cut is said out loud, and it comes with the way past it: `20 of 40` used to be the end of the road. */
+  const more = !own && total > hits.length;
   const heading = own
     ? `the shell you are reading runs on these ${total}`
-    : total > hits.length ? `${hits.length} of ${total} matches` : `${total} match${total === 1 ? "" : "es"}`;
+    : total > hits.length ? `the first ${hits.length} of ${total} matches` : `${total} match${total === 1 ? "" : "es"}`;
 
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => { if (o) setQ(""); else requestClose(); }}>
@@ -400,7 +560,7 @@ export function Palette() {
         <DialogHeader className="sr-only">
           <DialogTitle>{`Search the catalogue`}</DialogTitle>
           <DialogDescription>
-            {`${items.length} items by name, slug, source, category and concept. Ranked in this browser; Enter opens the top hit.`}
+            {`${items.length} items and ${TYPES.length} type pages by name, slug, source, category and concept. Ranked in this browser; Enter opens the top hit. A green dot marks a result whose demo runs.`}
           </DialogDescription>
         </DialogHeader>
         {/* `shouldFilter={false}`: the ranking in `search()` is the ranking you get. cmdk's own `value`
@@ -417,7 +577,7 @@ export function Palette() {
           <CommandInput
             value={q}
             onValueChange={setQ}
-            placeholder={`Search ${items.length} items — name, source, category, concept…`}
+            placeholder={`Search ${items.length} items and ${TYPES.length} types — name, source, concept…`}
           />
           <CommandList className="max-h-[min(60dvh,420px)] min-w-0">
             {/* A query is not bounded by the box it is echoed in. The empty state is a centred line, so a
@@ -427,7 +587,7 @@ export function Palette() {
                 and its children let the flex/grid chain actually shrink to the dialog instead of to the text. */}
             <CommandEmpty className="min-w-0 max-w-full overflow-hidden px-3">
               <span className="block min-w-0 max-w-full [overflow-wrap:anywhere]">
-                {`Nothing in ${items.length} items matches “${q.trim()}” — not a name, a slug, a source, a category or a concept.`}
+                {`Nothing in ${items.length} items or ${TYPES.length} type pages matches “${q.trim()}” — not a name, a slug, a source, a category, a concept or a type.`}
               </span>
               <Button
                 type="button"
@@ -444,8 +604,28 @@ export function Palette() {
             </CommandEmpty>
             {hits.length ? (
               <CommandGroup heading={heading} className="min-w-0">
-                {hits.map((h) => <HitRow key={h.item.id} hit={h} onSelect={go} />)}
+                {hits.map((r) => (
+                  <ResultRow key={r.kind === "type" ? `type:${r.entry.key}` : `item:${r.item.id}`} r={r} onSelect={go} />
+                ))}
               </CommandGroup>
+            ) : null}
+            {/*
+             * `20 of 40` was a dead end: the palette said how many there were and gave no way to see one more.
+             * This is the way past the cut — the same ranking, uncut, at `#/s?q=…` (`site/SearchPage.tsx`), a real
+             * address a reader can keep. It is an anchor, not a command item, so Enter on the field still opens
+             * the top hit rather than "see all".
+             */}
+            {more ? (
+              <div className="px-2 pb-1 pt-1">
+                <a
+                  className="pal-see-all"
+                  data-see-all={total}
+                  href={searchHref(q)}
+                  onClick={(e: React.MouseEvent) => { e.preventDefault(); go(searchHref(q)); }}
+                >
+                  See all {total} results
+                </a>
+              </div>
             ) : null}
           </CommandList>
           <div className="flex items-center gap-2 border-t px-2 py-1.5">
