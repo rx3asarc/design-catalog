@@ -1,10 +1,11 @@
 import { Button } from "@/registry/new-york-v4/ui/button";
 import { Table } from "@/registry/new-york-v4/ui/table";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { asWords, label, useDetail, type Item } from "./lib";
 import { DetailWait } from "./DetailWait";
-import { BEHAVIOUR_COLS, behaviourOf, hasFacts, measuredOn, NOT_MEASURED, pickLine, type Measured } from "./behaviour";
-import { variantsOf, type TypeEntry } from "./taxonomy";
+import { behaviourOf, measuredOn, pickLine, NOT_MEASURED, type Measured } from "./behaviour";
+import { columnsOf, earnsTable, fieldColsOf, measuredColsOf, measuredMembers, sortedBy, type Col } from "./columns";
+import { itemsLabel, variantsOf, type TypeEntry } from "./taxonomy";
 import { sectionGalleryHref, typeHref, typesIn } from "./typeIndex";
 import { DemoFrame } from "./demo";
 import { hasDemo, Pool, scrollerOf, useSiteTheme } from "./Tile";
@@ -13,36 +14,33 @@ import { FontSpecimens, hasPalette, ThemeSwatches } from "./specimens";
 /**
  * `#/t/<section-slug>/<type-slug>` — ONE COLLECTION PER TYPE, drawn from the taxonomy.
  *
- * The round-7 review of the collections was blunt, and every rule below is one of its five sentences turned into
- * code:
+ * Round 9 rewrote what this page leads with, and both changes are the review's own sentences:
  *
- *   * **"one collection per level-2 type, using the same membership as the sidebar."** Membership *is*
- *     `entry.members` — the taxonomy's own list, the list `qa/taxonomy_check.mjs` gates and the rail prints. A
- *     variant (`entry.variants`, e.g. `sidebar-01` … `sidebar-16`) is never a row of its own: it is a demo on its
- *     parent's row, chosen in that row's own picker. There is no membership rule in this file. It only renders
- *     what the taxonomy already says.
+ *   * **"The tables are nearly empty. Button's has 1 row and 20 items under 'Also in this set'; 66 of 67 tables
+ *     hold a single row. Until more items are measured, lead with the visual grid and drop the table."**
+ *     → A type prints a table only when at least two of its members answered its own measured columns
+ *     (`columns.ts`: `TABLE_FLOOR`); everywhere else the page leads with the **grid**, and the table code is
+ *     kept exactly for the types that earn it (today one: Sidebar, 4 measured of 7).
  *
- *   * **"a sortable table, with unmeasured items moved into a short 'Also in this set' list below it."** A row is
- *     a member somebody measured. A member nobody measured is not a row of six "not measured" cells — it goes
- *     into the list below, with its one-line description and a link. When no member of a type was measured, there
- *     is no table and the page does not explain why (`behaviour.ts`: `null` is never `false`, and an absent thing
- *     says nothing).
+ *   * **"Thumbnails under 'Also in this set' stay grey 'DEMO' boxes."** They did, and the cause was a bug, not a
+ *     design: the lazy pool was only ever *told* about the windows inside the table (`tableHost`), so every
+ *     window in the list below it stayed parked forever and printed the word "demo" in a grey box. The observer
+ *     now sweeps every window on the page, and a parked window names the item it will become.
  *
- *   * **"a live demo next to each row."** The row's demo runs in the row, in this site's own frame protocol
- *     (`site/demo.tsx`'s `DemoFrame`), mounted lazily by the gallery's own `Pool`: never more than two frames at
- *     once, mounted within 300 px of the viewport, detached beyond 600. At 1440 the demo is the column beside the
- *     name; below 860 px the row stacks and it lands under the name, which is what the brief asks for.
+ * WHAT MEMBERSHIP IS: nothing in this file. `entry.members` is the taxonomy's own list — the list
+ * `qa/taxonomy_check.mjs` gates and the rail prints — and `entry.variants` are the demos the taxonomy folds into
+ * their parent (`sidebar-01` … `sidebar-16`). A variant is never a row and never a card of its own; it is a
+ * choice inside its parent's thumbnail, and its count is printed in the page's own facts line, in every rail row
+ * and on every browse card (`taxonomy.ts`: `itemsLabel`).
  *
- *   * **"the measurement date shown once, in the header."** One probe run, one date, once per page. The "pick this
- *     if…" line is still `behaviour.ts`'s, still derived from that member's own measured facts, and it is called
- *     with `{ date: false }` so seven rows do not say "28 October 2026" seven times.
- *
- *   * **"the 'compare side by side' strip is per section."** The strip at the foot of the page lists the other
- *     types in **this** section and nothing else: a Components page may offer the other Components types, and no
- *     page ever offers a checkbox on a navigation page.
+ * WHAT EACH TYPE PRINTS: its own columns. `taxonomy.json` declares them per type and `site/columns.ts` turns a
+ * key into a cell — which is why Button prints "14 demos · sizes · loading state · icons" and Calendar prints
+ * "11 demos · 1 file", and neither is ever asked whether it collapses.
  *
  * What is deliberately absent: no verdict, no rank, no score, no "best". Sorting is the reader's, by any column,
  * in either direction — an order of merit is still forbidden, and the manifest publishes nothing to rank by.
+ * The "pick this if…" line is printed only where the page prints measured facts, because a sentence built out of
+ * behaviour is meaningless on a page with no behaviour columns.
  */
 
 /* ── names, as words ────────────────────────────────────────────────────────────────────────────────────── */
@@ -58,85 +56,49 @@ const nameOrder = (a: Item, b: Item) => rowLabel(a).localeCompare(rowLabel(b)) |
 type Sort = { key: string; dir: "asc" | "desc" };
 const FIRST: Sort = { key: "item", dir: "asc" };
 
-/**
- * The value a behaviour column sorts by, or `null` when this member has no answer for it.
- *
- * The text a cell prints is not the order a reader wants: "to icons", "off-canvas", "narrower" and "no" are not
- * alphabetical facts. Each column gets the order its own answers imply — narrower before off-canvas before icon
- * rail, one level before two before three, a component before a page — and every word still comes from
- * `behaviourOf`, so the order is a reading of the measurement, not a second one.
- */
-const RANK: Record<string, (b: Measured | null) => number | null> = {
-  collapses: (b) => (typeof b?.collapses !== "boolean" ? null
-    : !b.collapses ? 0 : b.collapseKind === "narrower" ? 1 : b.collapseKind === "off canvas" ? 2 : 3),
-  nests: (b) => (typeof b?.nests !== "boolean" ? null : !b.nests ? 0 : b.nestDepth ?? 2),
-  sheet: (b) => (typeof b?.sheet !== "boolean" ? null : b.sheet ? 1 : 0),
-  keyboard: (b) => (typeof b?.keyboard !== "boolean" ? null : b.keyboard ? 1 : 0),
-  shape: (b) => (typeof b?.shape !== "boolean" ? null : b.shape ? 1 : 0),
-  animates: (b) => (typeof b?.animates !== "boolean" ? null : b.animates ? 1 : 0),
-};
+/* ── the thumbnail ──────────────────────────────────────────────────────────────────────────────────────── */
 
-/**
- * The rows, in the order the reader asked for.
- *
- * Two facts about this order are worth stating because they are the ones a sort can lie about:
- *
- *  1. **"not measured" is last in both directions.** It is not smaller than `false` and it is not larger than
- *     `true`; a direction cannot turn an absent measurement into an extreme, so the null branch is applied before
- *     the direction is.
- *  2. **the order is stable.** Ties fall back to the name and then to the id, so two sorts that agree on every
- *     answered fact still produce the same list twice — on the first render and after any re-render.
- */
-function sorted(rows: Item[], sort: Sort): Item[] {
-  const rank = RANK[sort.key];
-  if (!rank) return [...rows].sort(nameOrder);
-  return [...rows].sort((a, b) => {
-    const av = rank(behaviourOf(a));
-    const bv = rank(behaviourOf(b));
-    if (av === null || bv === null) return av === bv ? nameOrder(a, b) : av === null ? 1 : -1;
-    return av === bv ? nameOrder(a, b) : sort.dir === "asc" ? av - bv : bv - av;
-  });
-}
-
-/* ── the row's live demo ────────────────────────────────────────────────────────────────────────────────── */
-
-/** The window a row's demo is seen through, in CSS px. */
+/** The window a thumbnail is seen through, in CSS px: a table row, a grid card, a reference-only entry. */
 const DEMO_H = 170;
-/** the same window at list size, for a member that has no measured row to sit in */
-const LIST_H = 104;
+const CARD_H = 150;
 
 /*
- * The tile's own scaling rule, repeated here because a row's demo is a tile in a table cell:
+ * The tile's own scaling rule, repeated here because a thumbnail is a tile in a cell:
  * `site/Tile.tsx` gives a demo a **logical** width — `REF_WIDTH` until the child reports its own — and scales the
  * paint down to whatever column it has. Without it a 290 px cell lays the demo out at 290 px, which is a sidebar
  * squeezed into a phone and 736 px tall in a 170 px window; with it the demo lays out at 768 px and the window
  * shows the top of the real thing. Same numbers, same clamp, same oscillation guard.
  */
 const REF_WIDTH = 768;
-const ZOOM_MIN = 0.25;
+const ZOOM_MIN = 0.2;
 const ZOOM_MAX = 1.6;
 
 /**
- * One row's demo.
+ * One thumbnail.
  *
  * The frame is `inert` and pointer-transparent, exactly like a gallery tile: the item page is where a demo is
- * interactive, and a table row that trapped a phone's scroll inside a sidebar would be a worse table. What it is
- * for is seeing the thing while reading its columns.
+ * interactive, and a card that trapped a phone's scroll inside a calendar would be a worse card. What it is for
+ * is seeing the thing while reading its facts.
  *
- * The mount is lazy and capped by the pool it is handed (`Pool(2)` in `TypeBody`): a row's frame exists while the
- * row is near the viewport and is detached when it is not — measured, not hoped: `data-demo-mode` says which.
+ * The mount is lazy and capped by the pool it is handed (`Pool(2)` in `TypeBody`): a window exists while it is
+ * near the viewport and its frame is detached when it is not — measured, not hoped: `data-demo-mode` says which.
  *
  * The picker above it is the taxonomy's half of the brief: `sidebar-01` … `sidebar-16` are `variants` of
- * `shadcn/sidebar`, so they are demos on its row and never rows of their own. A one-line description goes with
- * the chosen demo, because sixteen demos that differ only by a number is the complaint this answers.
+ * `shadcn/sidebar`, so they are demos in its thumbnail and never cards of their own. A one-line description goes
+ * with the chosen demo, because sixteen demos that differ only by a number is the complaint this answers.
+ *
+ * In the table each row gets the picker (`pick`), because a table row is where a reader compares demos. A card in
+ * the grid does not: a page of thirty cards each carrying a 44 px select above its picture is a page of selects,
+ * and the card already says how many variants it holds (`· 3 variants`) with the demos one click away on the item
+ * page. Same data, different amount of chrome — which is the whole of what a table and a grid are for.
  */
 function RowDemo({
-  item, pool, theme, h = DEMO_H,
-}: { item: Item; pool: Pool; theme: "light" | "dark"; h?: number }) {
+  item, pool, theme, h = DEMO_H, pick = false,
+}: { item: Item; pool: Pool; theme: "light" | "dark"; h?: number; pick?: boolean }) {
   // the item itself first (its own first demo), then the variant demos the taxonomy folds into it
   const options = useMemo(() => [item, ...variantsOf(item).filter(hasDemo)], [item]);
-  const [pick, setPick] = useState(0);
-  const chosen = options[Math.min(pick, options.length - 1)] ?? item;
+  const [at, setAt] = useState(0);
+  const chosen = options[Math.min(at, options.length - 1)] ?? item;
 
   const host = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState(false);
@@ -149,7 +111,7 @@ function RowDemo({
     const el = host.current;
     if (!el) return;
     pool.register({ key: item.id, el, setLive });
-    // a row that is already on screen must not wait for a scroll event that will never come
+    // a window that is already on screen must not wait for a scroll event that will never come
     const box = el.getBoundingClientRect();
     if (box.bottom > -300 && box.top < innerHeight + 300) pool.want(item.id);
     return () => pool.unregister(item.id);
@@ -190,11 +152,11 @@ function RowDemo({
 
   return (
     <div className="type-demo-cell">
-      {options.length > 1 && (
+      {pick && options.length > 1 && (
         <select
           className="type-demo-pick"
-          value={pick}
-          onChange={(e) => setPick(Number(e.target.value))}
+          value={at}
+          onChange={(e) => setAt(Number(e.target.value))}
           aria-label={`Demo to show for ${rowLabel(item)}: ${options.length} in this item`}
         >
           {options.map((o, i) => (
@@ -226,11 +188,64 @@ function RowDemo({
             />
           </div>
         ) : (
-          <span className="type-demo-parked" title="the demo mounts as this row comes into view">demo</span>
+          /* A parked window is not a grey box with the word "demo" in it: it names the item the frame will become,
+             in the exact box the frame will occupy, so a grid can be read before a single demo has mounted. */
+          <span className="type-demo-parked" title="the demo mounts as this comes into view">
+            <span className="type-demo-kicker">demo</span>
+            <span className="type-demo-name">{rowLabel(item)}</span>
+          </span>
         )}
       </div>
-      {pick > 0 && chosen.one_line ? <span className="type-demo-line">{chosen.one_line}</span> : null}
+      {at > 0 && chosen.one_line ? <span className="type-demo-line">{chosen.one_line}</span> : null}
     </div>
+  );
+}
+
+/* ── one card of the grid ──────────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * A member as a card: its thumbnail, its name, the data's own one-line description, and **the facts this type
+ * prints** — not every fact the catalogue holds.
+ *
+ * A fact the member cannot answer is not printed on the card at all (there is no "not measured" pill on a card:
+ * a card is a poster, not a table cell). That is the same rule as the table's dropped columns, one size down.
+ */
+function MemberCard({ item, cols, pool, theme }: { item: Item; cols: Col[]; pool: Pool; theme: "light" | "dark" }) {
+  const facts = cols.map((c) => ({ col: c, text: c.text(item), why: c.exact(item) }))
+    .filter((f) => f.text !== NOT_MEASURED)
+    .slice(0, 3);
+  const variants = variantsOf(item).length;
+  return (
+    <li className="member-card" data-member-card={item.id}>
+      {hasDemo(item)
+        ? <RowDemo item={item} pool={pool} theme={theme} h={CARD_H} />
+        : (
+          <div className="type-demo-window type-demo-none" data-no-demo={item.id} style={{ height: CARD_H }}>
+            <span className="type-demo-parked">
+              <span className="type-demo-kicker">no demo</span>
+              <span className="type-demo-name">{rowLabel(item)}</span>
+            </span>
+          </div>
+        )}
+      <div className="member-body">
+        <a className="member-link" href={`#/i/${item.id}`}>{rowLabel(item)}</a>
+        <span className="member-meta">
+          {item.source} · {item.licence}
+          {variants ? ` · ${variants} ${variants === 1 ? "variant" : "variants"}` : ""}
+        </span>
+        {item.one_line ? <span className="member-line">{item.one_line}</span> : null}
+        {facts.length ? (
+          <span className="member-facts">
+            {facts.map((f) => (
+              <span className="member-fact" key={f.col.key} data-card-fact={f.col.key} title={f.why}>
+                <span className="member-fact-k">{f.col.head}</span>
+                {f.text}
+              </span>
+            ))}
+          </span>
+        ) : null}
+      </div>
+    </li>
   );
 }
 
@@ -239,8 +254,9 @@ function RowDemo({
 export function TypePage({ entry }: { entry: TypeEntry }) {
   /*
    * The behaviour record is per-item detail and arrives with the detail payload (`site/lib.ts`), so this page
-   * cannot draw a table before it is here — and it must not draw "not measured" for rows whose records are simply
-   * late. The gate is a component boundary because the hooks below run in the same order on every render.
+   * cannot judge "is this member measured" before it is here — and it must not draw a table from rows whose
+   * records are simply late. The gate is a component boundary because the hooks below run in the same order on
+   * every render.
    */
   const { ready, failed } = useDetail();
   if (!ready) return <DetailWait what="collection" failed={failed} />;
@@ -250,29 +266,28 @@ export function TypePage({ entry }: { entry: TypeEntry }) {
 function TypeBody({ entry }: { entry: TypeEntry }) {
   const theme = useSiteTheme();
   const pool = useMemo(() => new Pool(2), []);
-  const tableHost = useRef<HTMLDivElement>(null);
+  const gridHost = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<Sort>(FIRST);
 
   const members = entry.members;
   /*
-   * "Measured" is one fact and it is `behaviour.ts`'s: did the probe answer anything about this member? A record
-   * that says "there is nothing to measure" is not a row (§ hasFacts). This is the number the review was reading
-   * as "0 measured", and it is counted here from the columns the table prints.
+   * The columns are the TYPE's, not the sidebar's: declared per type in `taxonomy.json`, resolved through
+   * `site/columns.ts`, with every column none of this type's members can answer already dropped.
    */
-  const measured = useMemo(() => members.filter(hasFacts), [members]);
-  const unmeasured = useMemo(() => members.filter((m) => !hasFacts(m)), [members]);
-  const sources = useMemo(() => [...new Set(members.map((m) => m.source))], [members]);
+  const cols = useMemo(() => columnsOf(entry), [entry]);
+  const measuredCols = useMemo(() => measuredColsOf(cols), [cols]);
+  const cardCols = useMemo(() => fieldColsOf(cols), [cols]);
+  const measured = useMemo(() => measuredMembers(entry, cols), [entry, cols]);
+  const table = measuredCols.length > 0 && earnsTable(entry, cols);
   const variants = useMemo(() => members.reduce((n, m) => n + variantsOf(m).length, 0), [members]);
+  const sources = useMemo(() => [...new Set(members.map((m) => m.source))], [members]);
 
-  /*
-   * A column nobody in this set answered is not printed: six "not measured" cells per row is the shape of table
-   * the review called "not measured in every column". A column somebody answered stays — even when every answered
-   * row agrees — because sorting it is how a reader checks that for themselves.
-   */
-  const cols = useMemo(() => BEHAVIOUR_COLS.filter((c) => measured.some((m) => c.answered(m))), [measured]);
-  const rows = useMemo(() => sorted(measured, sort), [measured, sort]);
+  const rows = useMemo(() => (table ? sortedBy(measured, sort.key, sort.dir, nameOrder) : []), [table, measured, sort]);
+  const rowIds = useMemo(() => new Set(rows.map((r) => r.id)), [rows]);
+  /* what the grid holds: every member when there is no table, and the ones the table did not take when there is */
+  const grid = useMemo(() => members.filter((m) => !rowIds.has(m.id)).sort(nameOrder), [members, rowIds]);
 
-  // one probe run, one date, printed once — in the header, never in a row
+  // one probe run, one date, printed once — in the header, never in a card
   const latest = useMemo(() => {
     const runs = measured.map((m) => behaviourOf(m)).filter((b): b is Measured => !!b);
     return runs.sort((a, b) => String(a.at).localeCompare(String(b.at))).pop() ?? null;
@@ -280,69 +295,74 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
   const day = measuredOn(latest);
   const probe = useMemo(() => measured.map((m) => behaviourOf(m)?.probe).find(Boolean) ?? null, [measured]);
 
-  /* the same two observers the gallery uses, over this table's rows: in at 300 px, out at 600 */
+  /*
+   * ONE observer over every window on the page — the table's and the grid's alike. It used to be scoped to the
+   * table wrapper, which is why the thumbnails under "Also in this set" never mounted and stayed grey boxes.
+   * In at 300 px, out at 600, and the pool still caps the live frames at two.
+   */
   useEffect(() => {
-    const host = tableHost.current;
+    const host = gridHost.current;
     if (!host) return;
     const nodes = [...host.querySelectorAll<HTMLElement>("[data-row-demo]")];
     if (!nodes.length) return;
     const root = scrollerOf(nodes[0]);
-    const want = (e: IntersectionObserverEntry) =>
-      pool.want((e.target as HTMLElement).dataset.rowDemo!);
-    const enter = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) want(e); },
-      { root, rootMargin: "300px 0px" });
-    const exit = new IntersectionObserver((es) => { for (const e of es) if (!e.isIntersecting) pool.release((e.target as HTMLElement).dataset.rowDemo!); },
-      { root, rootMargin: "600px 0px" });
+    const enter = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) pool.want((e.target as HTMLElement).dataset.rowDemo!);
+    }, { root, rootMargin: "300px 0px" });
+    const exit = new IntersectionObserver((es) => {
+      for (const e of es) if (!e.isIntersecting) pool.release((e.target as HTMLElement).dataset.rowDemo!);
+    }, { root, rootMargin: "600px 0px" });
     nodes.forEach((n) => { enter.observe(n); exit.observe(n); });
     return () => { enter.disconnect(); exit.disconnect(); };
-  }, [pool, rows]);
+  }, [pool, rows, grid]);
 
   const siblings = useMemo(() => typesIn(entry.section).filter((t) => t.key !== entry.key), [entry]);
   /*
    * THE TWO FOUNDATIONS ROW KINDS (see `site/specimens.tsx`).
    *
-   * `Foundations/Fonts` is 52 members and not one of them has a demo — its rows are type specimens. `Themes` is
+   * `Foundations/Fonts` is 26 members and not one of them has a demo — its rows are type specimens. `Themes` is
    * seven members, five of which are theme *files* with a palette; the other two (`beui/theme-toggle`,
    * `rareui/theme-selector`) are components that switch a theme, and one of them has a live demo, so they stay in
-   * the ordinary list where `RowDemo` already knows what to do with them. The taxonomy is unchanged either way: the
-   * type is still the collection, and this is only the shape of its rows.
+   * the ordinary grid. The taxonomy is unchanged either way: the type is the collection, and this is only the
+   * shape of its rows.
    */
   const foundation = entry.section === "Foundations" ? entry.type : null;
-  const palette = useMemo(() => [...members].filter(hasPalette).sort(nameOrder), [members]);
-  const listed = useMemo(() => [...unmeasured].filter((m) => !hasPalette(m)).sort(nameOrder), [unmeasured]);
+  const palette = useMemo(() => [...grid].filter(hasPalette).sort(nameOrder), [grid]);
+  const cards = useMemo(() => grid.filter((m) => !hasPalette(m)), [grid]);
   const subject = `the ${entry.type.toLowerCase()}`;
   const toggle = (key: string) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
 
   return (
-    <div className="page-in type-page" style={{ maxWidth: 1560, margin: "0 auto" }}>
+    <div className="page-in type-page" style={{ maxWidth: 1560, margin: "0 auto" }} ref={gridHost}>
       <div className="crumb">
         <a href={sectionGalleryHref(entry.section)}>{entry.section}</a>
       </div>
       <h2 className="title" data-type-title={entry.key}>{entry.type}</h2>
 
-      {/* The page's one statement of the set, and the one place the probe run is dated. */}
+      {/* The page's one statement of the set, and the one place the probe run is dated. The count admits the
+          variants the taxonomy folds into these members — they are catalogue content, not a rounding error. */}
       <p
         className="type-facts"
         data-type-facts=""
         data-type-section={entry.section}
         data-type-members={members.length}
-        data-type-measured={measured.length}
-        data-type-unmeasured={unmeasured.length}
         data-type-variants={variants}
+        data-type-measured={measured.length}
         data-type-shown={rows.length}
+        data-type-has-table={table ? "yes" : "no"}
         data-type-sort={`${sort.key}:${sort.dir}`}
         data-type-columns={cols.map((c) => c.key).join(",")}
+        data-type-measured-columns={measuredCols.map((c) => c.key).join(",")}
       >
-        {members.length} {members.length === 1 ? "member" : "members"} ·{" "}
-        {sources.length} {sources.length === 1 ? "library" : "libraries"} ·{" "}
-        {measured.length} measured
-        {day ? <> on {day}</> : null}
+        {itemsLabel(members.length, variants)} ·{" "}
+        {sources.length} {sources.length === 1 ? "library" : "libraries"}
+        {table ? <>{` · ${measured.length} measured`}{day ? <> on {day}</> : null}</> : null}
         {probe ? <span className="type-probe"> {probe}</span> : null}
       </p>
 
-        {rows.length ? (
-        <div ref={tableHost} className="type-table-wrap">
+      {table ? (
+        <div className="type-table-wrap">
           <Table className="type-table" data-type-table={entry.key}>
             <thead>
               <tr>
@@ -352,7 +372,7 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
                   </Button>
                 </th>
                 <th scope="col" className="type-th-demo">demo</th>
-                {cols.map((c) => (
+                {measuredCols.map((c) => (
                   <th
                     key={c.key}
                     scope="col"
@@ -369,7 +389,7 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
             </thead>
             <tbody>
               {rows.map((item) => {
-                const pick = pickLine(item, rows, subject, { date: false });
+                const pickText = pickLine(item, rows, subject, { date: false });
                 return (
                   <tr key={item.id} data-type-row={item.id}>
                     <th scope="row" className="type-row-name">
@@ -378,14 +398,14 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
                       {item.one_line ? <span className="type-row-line">{item.one_line}</span> : null}
                       {/* derived from this member's own measured facts, in one template for every member; the
                           date is the header's, so it is not repeated seven times down the page */}
-                      {pick ? <span className="type-row-pick" data-type-pick={item.id}>{pick}</span> : null}
+                      {pickText ? <span className="type-row-pick" data-type-pick={item.id}>{pickText}</span> : null}
                     </th>
                     <td className="type-demo-cell-td">
                       {hasDemo(item)
-                        ? <RowDemo item={item} pool={pool} theme={theme} />
-                        : <span className="type-no-demo">no demo in this build</span>}
+                        ? <RowDemo item={item} pool={pool} theme={theme} pick />
+                        : <span className="type-no-demo">no demo captured</span>}
                     </td>
-                    {cols.map((c) => {
+                    {measuredCols.map((c) => {
                       const text = c.text(item);
                       const unknown = text === NOT_MEASURED;
                       return (
@@ -409,39 +429,27 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
         </div>
       ) : null}
 
+      {/* THE SURFACE: a real thumbnail per member, on the surface-300 canvas, with a border. A page with a table
+          keeps this for the members the table did not take; a page without one leads with it. */}
       {foundation === "Fonts" ? (
-        <Fragment>
+        <>
           <div className="section-h" style={{ margin: "18px 0 6px" }}>In this set</div>
           <FontSpecimens items={[...members].sort(nameOrder)} />
-        </Fragment>
-      ) : unmeasured.length ? (
-        <Fragment>
+        </>
+      ) : cards.length || palette.length ? (
+        <>
           <div className="section-h" style={{ margin: "18px 0 6px" }}>
-            {rows.length ? "Also in this set" : "In this set"}
+            {table ? "Also in this set" : "In this set"}
           </div>
           {palette.length ? <ThemeSwatches items={palette} /> : null}
-          {listed.length ? (
-          <ul className="also-list" data-type-also={entry.key}>
-            {listed.map((item) => (
-              <li key={item.id} data-also-row={item.id}>
-                {/*
-                  * The same demo as a table row's, at the size a list entry leaves for it. A member nobody measured
-                  * is not a member with nothing to show: the columns are missing, the thing is not, and a page
-                  * that turned 52 fonts into 52 lines of text would be a list of links, not a collection.
-                  */}
-                {hasDemo(item)
-                  ? <RowDemo item={item} pool={pool} theme={theme} h={LIST_H} />
-                  : <span className="also-no-demo">no demo</span>}
-                <div className="also-text">
-                  <a href={`#/i/${item.id}`}>{rowLabel(item)}</a>
-                  <span className="also-meta">{item.source} · {item.licence}</span>
-                  {item.one_line ? <span className="also-line">{item.one_line}</span> : null}
-                </div>
-              </li>
-            ))}
-          </ul>
+          {cards.length ? (
+            <ul className="type-grid" data-type-grid={entry.key}>
+              {cards.map((item) => (
+                <MemberCard key={item.id} item={item} cols={cardCols} pool={pool} theme={theme} />
+              ))}
+            </ul>
           ) : null}
-        </Fragment>
+        </>
       ) : null}
 
       {siblings.length ? (
@@ -450,7 +458,7 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
           {siblings.map((t) => (
             <a key={t.key} href={typeHref(t)}>
               {t.type}
-              <span>{t.members.length}</span>
+              <span>{itemsLabel(t.members.length, t.members.reduce((n, m) => n + variantsOf(m).length, 0))}</span>
             </a>
           ))}
         </nav>

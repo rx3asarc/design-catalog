@@ -1,16 +1,29 @@
 /* type-page-check — the gate on `#/t/<section-slug>/<type-slug>`, one collection per level-2 type.
  *
- * The brief for this surface is five sentences from a review of the collections, and each one is a check:
+ * The brief for this surface is the review's sentences, and each one is a check:
  *
  *   1. one collection per level-2 type, same membership as the sidebar → every entry in the taxonomy resolves to a
  *      page, and each page's title is that entry's own type;
- *   2. a live demo next to each row → every row and every "also" entry that has a demo gets a frame, and the pool
- *      never holds more than two at once at either viewport;
- *   3. a sortable table, unmeasured members in "Also in this set" instead of rows of "not measured" → no row
- *      answers nothing, no table row is a string of "not measured", the count in the header is the row count, and
- *      clicking a column header sorts by it in both directions, with `aria-sort` and a real re-order;
+ *   2. a live demo next to each row → every row that has a demo gets a frame, every card in the grid gets a window,
+ *      at least one of those windows is actually **live** (round 9: the grid's windows never mounted, which is
+ *      what made the thumbnails grey "DEMO" boxes), and the pool never holds more than two frames at either
+ *      viewport;
+ *   3. a sortable table where the type earns one, "Also in this set" as a grid instead of rows of "not measured" →
+ *      no row answers nothing, the header's counts are the row and card counts, and clicking a column header sorts
+ *      by it in both directions, with `aria-sort` and a real re-order;
  *   4. the measurement date once, in the header → exactly one date in the page's text, however many rows there are;
  *   5. the paragraphs explaining what isn't there are gone → a ban list of the sentences the review quoted.
+ *
+ * Round 9 added the three that the review's §2, §3 and §8 asked for, and they are the reason this file changed:
+ *
+ *   6. **columns are the type's, not the sidebar's** — the page declares `data-type-columns` and every printed cell
+ *      is one of them; Button declares `sizes`/`loading`/`icons` and declares neither `collapses` nor `sheet`
+ *      (nor `keyboard`), and Calendar declares no behaviour column at all;
+ *   7. **counts admit the folded variants** — the header, every rail row and every browse card prints
+ *      `N items · M variants`, and the numbers are the taxonomy's own;
+ *   8. **the table is earned, not assumed** — a type with fewer than two measured members prints no table at all
+ *      (`site/columns.ts`: `TABLE_FLOOR`), which is what the review asked for in "66 of 67 tables hold a single
+ *      row … lead with the visual grid".
  *
  * Two more, because this page is the backbone of the site and a backbone has to hold on a phone: nothing under
  * 12 px, nothing tappable under 44 px, and no horizontal overflow at 390.
@@ -53,15 +66,23 @@ const answered = (i) => !!i.behaviour && FACTS.some((k) => typeof i.behaviour[k]
 const byId = new Map(manifest.map((i) => [`${i.source}/${i.slug}`, i]));
 const measuredTypeCount = (p) =>
   (taxonomy.sections[p.section]?.[p.type] ?? []).filter((id) => answered(byId.get(id) ?? {})).length;
-const PREFERRED_NO_TABLE = { section: "Components", type: "Attachment" };
+/**
+ * THE TABLE FLOOR, mirrored from `app/src/site/columns.ts` (`TABLE_FLOOR`). Two members that answered the same
+ * measured question is the smallest thing that can be compared; a type with fewer prints no table and leads with
+ * the grid. The gate hardcodes the number on purpose — it is asserting the site against a rule, and a rule the
+ * gate read out of the code could not fail.
+ */
+const TABLE_FLOOR = 2;
+const PREFERRED_NO_TABLE = { section: "Components", type: "Button" };
 const noTableType = [PREFERRED_NO_TABLE, ...pairs].find((p) =>
-  measuredTypeCount(p) === 0 && (taxonomy.sections[p.section]?.[p.type] ?? []).length > 0) ?? null;
-/** a set with a measured row *and* unmeasured members that do have demos: the `also` list with windows in it */
+  measuredTypeCount(p) < TABLE_FLOOR && (taxonomy.sections[p.section]?.[p.type] ?? []).length > 1) ?? null;
+/** a set that EARNS its table *and* has unmeasured members with demos: the grid below the table, with windows in it */
 const alsoWithDemos = pairs
   .map((p) => ({ ...p, ids: taxonomy.sections[p.section]?.[p.type] ?? [] }))
-  .find((p) => p.ids.some((id) => answered(byId.get(id) ?? {})) && p.ids.some((id) => !answered(byId.get(id) ?? {}) && ((byId.get(id)?.variants ?? []).length > 0))) ?? null;
-console.log(`sample no-table type  ${noTableType ? `${noTableType.section}/${noTableType.type}` : "(none — every type has a measured member)"}`);
-console.log(`sample also-with-demos ${alsoWithDemos ? `${alsoWithDemos.section}/${alsoWithDemos.type}` : "(none)"}`);
+  .find((p) => measuredTypeCount(p) >= TABLE_FLOOR
+    && p.ids.some((id) => !answered(byId.get(id) ?? {}) && ((byId.get(id)?.variants ?? []).length > 0))) ?? null;
+console.log(`sample no-table type  ${noTableType ? `${noTableType.section}/${noTableType.type} (${measuredTypeCount(noTableType)} measured)` : "(none — every type earns a table)"}`);
+console.log(`sample table+grid     ${alsoWithDemos ? `${alsoWithDemos.section}/${alsoWithDemos.type} (${measuredTypeCount(alsoWithDemos)} measured)` : "(none)"}`);
 const route = (p) => `#/t/${slug(p.section)}/${slug(p.type)}`;
 
 let fails = 0;
@@ -137,12 +158,10 @@ await page.waitForSelector("[data-type-table]", { timeout: 10000 });
   const rows = await rowIds();
   ok("the header counts members and measured rows", Number(f.d.typeMembers) > rows.length && Number(f.d.typeMeasured) === rows.length,
     `${f.d.typeMembers} members, ${f.d.typeMeasured} measured, ${rows.length} rows`);
-  ok("the unmeasured members are counted, and not rows", Number(f.d.typeUnmeasured) === Number(f.d.typeMembers) - rows.length,
-    `${f.d.typeUnmeasured} also in this set`);
-  const also = await page.evaluate(() => [...document.querySelectorAll("[data-type-also] [data-also-row]")].map((r) => r.dataset.alsoRow));
+  const cards = await page.evaluate(() => [...document.querySelectorAll("[data-member-card]")].map((r) => r.dataset.memberCard));
   const rowSet = new Set(rows);
-  ok("the also list holds exactly the members that are not rows", also.length === Number(f.d.typeUnmeasured) && also.every((id) => !rowSet.has(id)),
-    `${also.length} listed, 0 overlap`);
+  ok("the grid holds exactly the members the table did not take", cards.length === Number(f.d.typeMembers) - rows.length && cards.every((id) => !rowSet.has(id)),
+    `${cards.length} cards for ${f.d.typeMembers} members, ${rows.length} in the table, 0 overlap`);
 
   // no row may be a string of "not measured": every row answers at least one column
   const hollow = await page.evaluate(() => [...document.querySelectorAll("[data-type-row]")].filter((r) => {
@@ -166,7 +185,9 @@ await page.waitForSelector("[data-type-table]", { timeout: 10000 });
 
   /* ── 3. sorting: every header, both directions, a real re-order, aria-sort following it ──────────────── */
   const headers = await page.evaluate(() => [...document.querySelectorAll(".type-table thead th .type-sort")].map((b) => b.textContent.trim()));
-  ok("every header is a sort control", headers.length === Number(f.d.typeColumns.split(",").filter(Boolean).length) + 1, headers.join(" · "));
+  // the table prints the type's MEASURED columns only: `data-type-columns` is everything the type declares
+  const measuredCols = f.d.typeMeasuredColumns.split(",").filter(Boolean);
+  ok("every measured column has a sort header", headers.length === measuredCols.length + 1, `${headers.join(" · ")} (measured: ${measuredCols.join(",")})`);
   const base = await rowIds();
   const sortState = async () => {
     const raw = await page.evaluate(() => document.querySelector("[data-type-facts]").dataset.typeSort);
@@ -223,44 +244,131 @@ await page.waitForSelector("[data-type-table]", { timeout: 10000 });
   ok("the strip does not include the page it is on", !strip.includes("#/t/components/sidebar"), "0 self-links");
 }
 
-/* ── a type nobody measured: no table, no explanation, every member still listed ──────────────────────────── */
+/* ── the type that earns no table: the grid, no explanation, every member still listed ───────────────────── */
 if (noTableType) {
   const route = `#/t/${slug(noTableType.section)}/${slug(noTableType.type)}`;
   await page.evaluate((h) => { location.hash = h; }, route);
   await settle();
+  // the pool mounts a frame after the grid is laid out: wait for one to be live rather than assume it
+  await page.waitForFunction(() => document.querySelectorAll('[data-demo-mode="live"]').length > 0, null, { timeout: 8000 }).catch(() => {});
   {
     const f = await facts();
     const t = await page.evaluate(() => ({
       table: document.querySelectorAll("[data-type-table]").length,
-      also: document.querySelectorAll("[data-also-row]").length,
+      cards: document.querySelectorAll("[data-member-card]").length,
+      windows: document.querySelectorAll("[data-member-card] [data-row-demo]").length,
+      live: document.querySelectorAll('[data-demo-mode="live"]').length,
       heading: [...document.querySelectorAll(".section-h")].map((h) => h.textContent),
       text: document.body.innerText.replace(/\s+/g, " ").toLowerCase(),
     }));
-    ok("a set nobody measured has no table", t.table === 0 && f.d.typeMeasured === "0", `${f.d.typeMembers} members, 0 measured`);
-    ok("its members are listed, not hidden", t.also === Number(f.d.typeMembers) && t.heading.includes("In this set"), `${t.also} entries`);
+    ok("a set below the table floor has no table", t.table === 0 && f.d.typeHasTable === "no",
+      `${f.d.typeMembers} members, ${f.d.typeMeasured} measured (floor ${TABLE_FLOOR})`);
+    ok("it leads with the grid, and every member is in it", t.cards === Number(f.d.typeMembers) && t.heading.includes("In this set"),
+      `${t.cards} cards, heading "${t.heading[0] ?? "none"}"`);
+    ok("its cards get demo windows, and at least one is live", t.windows > 0 && t.live > 0,
+      `${t.windows} windows, ${t.live} live — the grey-DEMO bug was 0 here`);
     const banned = BAN.filter((b) => t.text.includes(b));
     ok("and it does not explain the absence", banned.length === 0, banned.join(" | ") || "nothing said about it");
     ok("no date is printed for a set with no measurement", !/\b\d{1,2} [A-Z][a-z]+ 20\d{2}\b/.test(t.text), "no date");
   }
 }
 
-/* ── a set with one measured row: the table exists, and the unmeasured members below it keep their demos ── */
+/* ── a set that earns its table: the table exists, and the members below it keep their demos ─────────────── */
 if (alsoWithDemos) {
   const route = `#/t/${slug(alsoWithDemos.section)}/${slug(alsoWithDemos.type)}`;
   await page.evaluate((h) => { location.hash = h; }, route);
   await settle();
+  // the pool mounts a frame after the grid is laid out: wait for one to be live rather than assume it
+  await page.waitForFunction(() => document.querySelectorAll('[data-demo-mode="live"]').length > 0, null, { timeout: 8000 }).catch(() => {});
   {
     const f = await facts();
     const t = await page.evaluate(() => ({
       table: document.querySelectorAll("[data-type-table]").length,
       rows: document.querySelectorAll("[data-type-row]").length,
-      also: document.querySelectorAll("[data-also-row]").length,
-      windows: document.querySelectorAll("[data-also-row] [data-row-demo]").length,
+      cards: document.querySelectorAll("[data-member-card]").length,
+      windows: document.querySelectorAll("[data-member-card] [data-row-demo]").length,
+      heading: [...document.querySelectorAll(".section-h")].map((h) => h.textContent),
     }));
-    ok("a set with one measured member is a table, not a list", t.table === 1 && t.rows === Number(f.d.typeMeasured),
+    ok("a set at or above the table floor prints a table", t.table === 1 && t.rows === Number(f.d.typeMeasured),
       `${t.rows} rows for ${f.d.typeMeasured} measured of ${f.d.typeMembers}`);
-    ok("the unmeasured members below it keep their demos", t.also > 0 && t.windows > 0, `${t.windows} demo windows in ${t.also} entries`);
+    ok("the members below it are a grid that keeps its demos",
+      t.cards === Number(f.d.typeMembers) - t.rows && t.windows > 0 && t.heading.includes("Also in this set"),
+      `${t.windows} demo windows in ${t.cards} cards`);
   }
+}
+
+/* ── 6. THE COLUMNS ARE THE TYPE'S — the review's own example, checked against the declaration ─────────────── */
+{
+  const declared = (p) => {
+    const ids = taxonomy.sections[p.section]?.[p.type] ?? [];
+    return ids;
+  };
+  const BEHAVIOUR = ["collapses", "nests", "sheet", "keyboard", "shape", "animates"];
+  /* the review: "Every type reuses the sidebar's columns. Button and Calendar get COLLAPSES and AT 390 PX … Each
+     type needs its own columns; for buttons: variants, sizes, loading state, icon support." */
+  const samples = [
+    { section: "Components", type: "Button", wants: ["demos", "sizes", "loading", "icons"], bans: BEHAVIOUR },
+    { section: "Components", type: "Calendar", wants: ["demos"], bans: BEHAVIOUR },
+    { section: "Foundations", type: "Fonts", wants: [], bans: BEHAVIOUR },
+    // the transitions are reference-only: the probe reached them and answered null, so the type declares no
+    // measured column at all — which is the same rule stated the other way round
+    { section: "Effects", type: "Text transitions", wants: ["demos"], bans: ["collapses", "nests", "sheet", "keyboard", "shape", "animates"] },
+  ];
+  for (const p of samples) {
+    if (!declared(p).length) { ok(`${p.type}: the sample type exists`, false, "not in the taxonomy"); continue; }
+    await page.evaluate((h) => { location.hash = h; }, `#/t/${slug(p.section)}/${slug(p.type)}`);
+    await settle();
+    const f = await facts();
+    const cols = (f?.d.typeColumns ?? "").split(",").filter(Boolean);
+    const missing = p.wants.filter((c) => !cols.includes(c));
+    const banned = p.bans.filter((c) => cols.includes(c));
+    ok(`${p.type} declares the columns the review named, and no behaviour column it cannot answer`,
+      missing.length === 0 && banned.length === 0,
+      `[${cols.join(", ")}]${missing.length ? ` missing ${missing.join(",")}` : ""}${banned.length ? ` BANNED ${banned.join(",")}` : ""}`);
+    // and no cell on the page prints a column the type did not declare
+    const stray = await page.evaluate((ok) => [...document.querySelectorAll("[data-col]")]
+      .map((c) => c.dataset.col).filter((c) => !ok.includes(c)), cols);
+    ok(`${p.type} prints no column it did not declare`, stray.length === 0, stray.join(" ") || "0 stray cells");
+  }
+}
+
+/* ── 7. COUNTS ADMIT THE FOLDED VARIANTS, in all three places a count is printed ──────────────────────────── */
+{
+  const label = (members, variants) => `${members} ${members === 1 ? "item" : "items"}${variants ? ` · ${variants} ${variants === 1 ? "variant" : "variants"}` : ""}`;
+  const expect = (section, type) => {
+    const ids = taxonomy.sections[section]?.[type] ?? [];
+    const variants = ids.reduce((n, id) => n + (taxonomy.variants[id]?.length ?? 0), 0);
+    return label(ids.length, variants);
+  };
+  // the type page's header
+  await page.evaluate(() => { location.hash = "#/t/components/sidebar"; });
+  await settle();
+  const header = (await facts()).text;
+  const want = expect("Components", "Sidebar");
+  ok("the type page header prints `N items · M variants`", header.startsWith(want), `"${header.split(" · ").slice(0, 2).join(" · ")}" — want "${want}"`);
+
+  // the rail row for that type, and the browse card for it
+  const rail = await page.evaluate(() => {
+    const el = document.querySelector('[data-rail-count="Components/Sidebar"]');
+    return el ? el.textContent.trim() : null;
+  });
+  ok("the rail row prints the same phrase", rail === want, `${rail ?? "(no rail row)"} — want "${want}"`);
+
+  await page.evaluate(() => { location.hash = "#/"; });      // Browse by type is a section of the front page
+  await settle();
+  const card = await page.evaluate(() => {
+    const el = document.querySelector('[data-type-card-count="Components/Sidebar"]');
+    return el ? el.textContent.trim() : null;
+  });
+  ok("the browse card prints the same phrase", card === want, `${card ?? "(no card)"} — want "${want}"`);
+
+  // the type whose count the review called out: one member, eleven variants
+  const factLines = await page.evaluate(() => {
+    const el = document.querySelector('[data-type-card-count="Charts/Chart demonstrations"]');
+    return el ? el.textContent.trim() : null;
+  });
+  const chart = expect("Charts", "Chart demonstrations");
+  ok("a type that is mostly variants says so", factLines === chart, `${factLines ?? "(no card)"} — want "${chart}"`);
 }
 
 /* ── 7b. the gallery's compare strip is scoped to the grid it sits in ────────────────────────────────────── */

@@ -8,7 +8,7 @@ import {
 } from "@/registry/new-york-v4/ui/sidebar";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { byId } from "./lib";
-import { SECTION_ORDER, TYPES, typeOfItem, type SectionName, type TypeEntry } from "./taxonomy";
+import { SECTION_ORDER, itemsLabel, TYPES, typeOfItem, variantsOf, type SectionName, type TypeEntry } from "./taxonomy";
 import { typeAt, typeHref } from "./typeIndex";
 
 /**
@@ -72,7 +72,7 @@ export function sectionAt(hash: string): SectionName | null {
  */
 export function Level({ lvl, label, count, defaultOpen, children, resetKey }: {
   lvl: "rail-sec" | "rail-cat" | "rail-sub" | "rail-sub2";
-  label: React.ReactNode; count?: number; defaultOpen?: boolean;
+  label: React.ReactNode; count?: number | string; defaultOpen?: boolean;
   children: React.ReactNode; resetKey?: string;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
@@ -99,14 +99,25 @@ export function Level({ lvl, label, count, defaultOpen, children, resetKey }: {
   );
 }
 
-/** A type's row: its name, how many members it has, and a link to the collection that compares them. */
+/**
+ * A type's row: its name, and **the count it admits** — `7 items · 24 variants`, the taxonomy's own spelling
+ * (`taxonomy.ts`: `itemsLabel`) — and a link to the collection that compares them.
+ *
+ * Round 9's review (§8) found the rail printing `1` for a type whose real content was twelve things: the eleven
+ * variants the taxonomy folds into that one member are catalogue content, and a rail that counts members and
+ * hides their variants is a rail that under-reports its own index. The count is on its own line rather than at
+ * the row's right edge because the phrase does not fit beside a name in a 240 px rail — and because a count that
+ * is worth printing is worth reading, not worth truncating to `7 items …`.
+ */
 export function TypeRow({ t, current }: { t: TypeEntry; current: boolean }) {
+  const variants = t.members.reduce((n, m) => n + variantsOf(m).length, 0);
   return (
     <SidebarMenuSubItem>
       <SidebarMenuButton asChild isActive={current} className="rail-item">
-        <a href={typeHref(t)} aria-current={current ? "page" : undefined}>
+        <a href={typeHref(t)} aria-current={current ? "page" : undefined}
+           title={`${t.type} — ${itemsLabel(t.members.length, variants)}`}>
           <span className="t">{t.type}</span>
-          <span className="rail-count">{t.members.length}</span>
+          <span className="rail-count" data-rail-count={t.key}>{itemsLabel(t.members.length, variants)}</span>
         </a>
       </SidebarMenuButton>
     </SidebarMenuSubItem>
@@ -136,17 +147,19 @@ export function RailTree({ q, hash }: { q: string; hash: string }) {
   const sections = SECTION_ORDER.map((section) => {
     const all = TYPES.filter((t) => t.section === section);
     const types = needle ? all.filter((t) => t.type.toLowerCase().includes(needle)) : all;
-    return { section, types, count: types.reduce((n, t) => n + t.members.length, 0) };
+    const members = types.reduce((n, t) => n + t.members.length, 0);
+    const variants = types.reduce((n, t) => n + t.members.reduce((k, m) => k + variantsOf(m).length, 0), 0);
+    return { section, types, count: members, variants };
   }).filter((s) => s.types.length > 0);
 
   /* the filter, the counts it produced, the frame and where the reader is: everything the open/closed state was
      chosen about. Any of them moving means these are different rows. */
-  const sig = [needle, phone ? "phone" : "rail", here ?? "", ...sections.map((s) => `${s.section}:${s.count}`)].join("|");
+  const sig = [needle, phone ? "phone" : "rail", here ?? "", ...sections.map((s) => `${s.section}:${s.count}:${s.variants}`)].join("|");
 
   return (
     <SidebarMenu className="rail-menu">
       {sections.map((s) => (
-        <Level key={s.section} lvl="rail-sec" count={s.count} resetKey={sig}
+        <Level key={s.section} lvl="rail-sec" count={itemsLabel(s.count, s.variants)} resetKey={sig}
           defaultOpen={needle ? true : phone ? false : s.section === (here ?? "Components")}
           label={<span className="sec-n">{s.section}</span>}>
           {s.types.map((t) => <TypeRow key={t.key} t={t} current={t.key === currentKey} />)}

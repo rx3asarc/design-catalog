@@ -23,6 +23,23 @@ import { items, type Item } from "./lib";
  * helpers, `ai-sidebar` — are pinned). It is checked in, and `qa/taxonomy_check.mjs` fails if it ever stops
  * covering exactly the catalogue: every item either a member of exactly one type or a variant of exactly one
  * parent, and no type named after a plural somebody invented.
+ *
+ * ROUND 9 — the rule the file is now an application of, and what lives in it besides the lists:
+ *
+ *   1. **Membership is by identity, not by name** (`doc.rule` below). A member belongs to a type when the item
+ *      IS that thing: the head noun of its own name, or the component whose own control it is (a dialog's close
+ *      button is a dialog). The moves that follow from that rule are listed, with their evidence, in
+ *      `scripts/taxonomy.py`.
+ *   2. **A type names one axis** (`doc.axis`): what a thing is, or how it moves. Effects is the motions' section
+ *      and every type in it is named `<the part that moves> transitions`; the motion that used to sit in
+ *      Components (`Text animation`) moved there.
+ *   3. **Each type declares its own columns** (`columns` below), so Button no longer prints COLLAPSES and AT 390
+ *      PX. The declaration is generated from what the type's members actually answer (`scripts/taxonomy.py`,
+ *      §8) and `site/columns.ts` is the one place that turns a key into a cell.
+ *   4. **Every count admits the folded variants** (`itemsLabel`), because 226 of the 769 items are variants that
+ *      the taxonomy files under a parent and that no list prints as a row.
+ *
+ * `doc` is the file's docblock: JSON has no comments, so the argument lives in a key the site can also print.
  */
 
 export type SectionName = "Components" | "Blocks" | "Charts" | "Agent UI" | "Effects" | "Foundations" | "Docs";
@@ -32,8 +49,20 @@ export const SECTION_ORDER: SectionName[] = [
   "Components", "Blocks", "Charts", "Agent UI", "Effects", "Foundations", "Docs",
 ];
 
-type Raw = { sections: Record<string, Record<string, string[]>>; variants: Record<string, string[]> };
+type Raw = {
+  doc?: Record<string, string>;
+  sections: Record<string, Record<string, string[]>>;
+  variants: Record<string, string[]>;
+  /** `Section/Type` → the column keys that type prints (`site/columns.ts` reads them; nothing else spells one). */
+  columns?: Record<string, string[]>;
+};
 const data = raw as unknown as Raw;
+
+/** The taxonomy's own written argument — the rule, the one axis, the columns, the table threshold, the counts. */
+export const TAXONOMY_DOC: Record<string, string> = data.doc ?? {};
+
+/** The column keys a type declares. An unknown key prints nothing rather than a bogus column. */
+export const columnKeysOf = (key: string): string[] => data.columns?.[key] ?? [];
 
 /** `source/slug`, the key every surface already has: `items[i].id` is this string. */
 export const idOf = (i: Item) => `${i.source}/${i.slug}`;
@@ -98,3 +127,22 @@ export const entries = items.filter((i) => memberOf.has(idOf(i)));
 /** Counts for the front page and the rail's labels, all derived, never written down twice. */
 export const typeCount = (key: string) => TYPE_BY_KEY.get(key)?.members.length ?? 0;
 export const sectionOf = (key: string) => TYPE_BY_KEY.get(key)?.section ?? null;
+
+/** How many variants this type folds into its members — the number a count must admit (review, item 8). */
+export const variantCount = (t: { members: Item[] }) => t.members.reduce((n, m) => n + variantsOf(m).length, 0);
+
+/**
+ * `7 items · 24 variants` — every count the site prints, in one spelling.
+ *
+ * "Pie and donut · 1 item" printed a type whose real content was twelve things; the eleven variants are catalogue
+ * content the taxonomy files under a parent, and a count that omits them is a count that lies about its own set.
+ * So the plural is spelled once here, and the rail, the type page, the browse cards and the section headers all
+ * read it from this function. A type with no folds prints no variants clause at all — a zero is not a fact.
+ */
+export function itemsLabel(members: number, variants: number): string {
+  const items = `${members} ${members === 1 ? "item" : "items"}`;
+  return variants > 0 ? `${items} · ${variants} ${variants === 1 ? "variant" : "variants"}` : items;
+}
+
+/** The same line for a type entry. */
+export const typeItemsLabel = (t: { members: Item[] }) => itemsLabel(t.members.length, variantCount(t));
