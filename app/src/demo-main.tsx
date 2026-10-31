@@ -11,7 +11,7 @@ class Boundary extends React.Component<{ children: React.ReactNode }, { err: str
   render() {
     if (this.state.err)
       return (
-        <p style={{ font: "13px/1.5 ui-sans-serif, system-ui", color: "oklch(0.55 0.17 25)", margin: 16 }}>
+        <p style={{ font: "13px/1.5 ui-sans-serif, system-ui", color: "var(--danger)", margin: 16 }}>
           This demo throws in our build: <code>{this.state.err.slice(0, 220)}</code>
         </p>
       );
@@ -71,10 +71,18 @@ function styles() {
 
 function applyFlags() {
   const doc = document.documentElement;
-  if (flags.theme === "dark" || flags.theme === "light") {
-    doc.classList.toggle("dark", flags.theme === "dark");
-    doc.classList.toggle("light", flags.theme !== "dark");
-  }
+  /*
+   * The theme, in the same three-way order the boot script in `demo.html` uses: this frame's own `theme=` key,
+   * else the site's resolved theme (the class its own boot script painted on the parent's `<html>`), else the
+   * class already on this root — which the boot script resolved before the first paint. A hash change that
+   * carries no theme therefore leaves the theme alone instead of resetting the document to light.
+   */
+  const flagged = flags.theme === "dark" || flags.theme === "light" ? flags.theme : null;
+  const theme = flagged ?? (doc.classList.contains("dark") ? "dark" : "light");
+  doc.classList.toggle("dark", theme === "dark");
+  doc.classList.toggle("light", theme !== "dark");
+  /* the UA's own widgets and scrollbars inside the demo follow the demo's theme, not the OS's */
+  doc.style.colorScheme = theme;
   doc.classList.toggle("motion-off", motionOff());
   doc.classList.toggle("dc-static", isStatic());
 }
@@ -156,7 +164,7 @@ function App() {
     return () => ro.disconnect();
   }, [Mod]);
   if (!variant) return <p style={{ font: "13px ui-sans-serif", margin: 16 }}>No demo for this item.</p>;
-  if (why) return <p style={{ font: "13px/1.5 ui-sans-serif", margin: 16, color: "oklch(0.5 0.12 25)" }}>{why}</p>;
+  if (why) return <p style={{ font: "13px/1.5 ui-sans-serif", margin: 16, color: "var(--danger)" }}>{why}</p>;
   return <Boundary>{Mod ? <Mod /> : null}</Boundary>;
 }
 

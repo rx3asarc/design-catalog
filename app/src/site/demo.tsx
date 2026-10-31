@@ -59,7 +59,7 @@ export class Boundary extends React.Component<{ children: React.ReactNode }, { e
   render() {
     if (this.state.err) {
       return (
-        <span style={{ fontSize: 12.5, color: "oklch(0.6 0.16 25)", textAlign: "left" }}>
+        <span style={{ fontSize: 12.5, color: "var(--danger)", textAlign: "left" }}>
           This demo throws in our build: <code>{this.state.err.slice(0, 180)}</code>
         </span>
       );
@@ -199,7 +199,10 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWid
           transform: `scale(${zoom})`,
           transformOrigin: "top left",
           background: "transparent",
-          colorScheme: "light dark",
+          /* the frame's own box follows the theme the demo is in, and so do the UA's parts of it. The child
+             document states the same thing on its root element (`demo.html`'s boot script, `demo-main.tsx`'s
+             `applyFlags`); this line is the box around it, not a second source of truth. */
+          colorScheme: addr?.theme ?? "light dark",
         }}
       />
     </div>
@@ -218,6 +221,12 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWid
  * on a wrapper would give a dark surface inside a dark site, but nothing in the shell can put the light palette
  * back inside `html.dark`. Two values, one table, one place — and the report reads them back off the running
  * child, so a palette change in `styles.css` shows up as a disagreement in the measurement instead of hiding.
+ *
+ * The demo document states the same thing on its own root element since r8 (`demo.html`'s boot script paints
+ * `html` with `var(--background)` before the first paint, and `demo-main.tsx` keeps it there), so this paper is
+ * the ring's backdrop and the theme's first frame, not the only place the theme is applied. Two statements of
+ * one value, checked against each other: `qa/stage_check.mjs` reads the child's computed root background and
+ * compares it to this table.
  */
 export const FRAME_SURFACE = {
   light: { ink: "oklch(1 0 0)", rule: "oklch(0.92 0.004 286.32)" },

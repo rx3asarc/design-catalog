@@ -1568,3 +1568,196 @@ pre { font-family: var(--font-mono); }
 @media (max-width: 639px) {
   .cmp-preview .opt { display: none; }
 }
+/* ---- item page, reordered (r8) ---- */
+/* The page where a visitor decides. Five things changed, all of them on this surface only, all of them appended
+   (nothing above this line was edited):
+
+     1. ONE pager, at the top, pinned as a 44 px row; the bottom copy is gone. At 860 px and below the relation
+        line is not printed — it was the first thing the column clipped.
+     2. Title → preview → install → the rest. The preview is a canvas whose console (theme / width / motion /
+        replay) is its top-right corner.
+     3. ONE accent fill on the page: the install command's Copy. Every console segment is `surface-300` fill,
+        `ink` text, `border-strong` edge, selected by weight — never by accent.
+     4. The item's name is an `<h1>`.
+     5. The status hues are tokens (`--ok` / `--warn` / `--danger` plus a rule and a fill), gated at 4.5:1 on
+        every surface in both palettes by `qa/contrast_check.mjs`.
+
+   Where a rule below overrides a r6/r7 rule of the same selector, it wins by order (this file is unlayered and
+   appended last); where it overrides a *different* selector of lower specificity it wins by specificity, which is
+   why every rule here names the surface it belongs to (`.page-in`, `.stage-canvas`, `[data-stage-bar]`). No
+   `!important` anywhere: an `!important` in an appended block is how the next round loses the ability to edit. */
+
+/* ── the status hues: tokens, not literals ────────────────────────────────────────────────────────────────────
+   The two status badges on an item page were a green and an amber literal (`oklch(0.55 0.14 150)` /
+   `oklch(0.72 0.15 80)`), which is three problems in one: a colour that is not in the system, a colour picked
+   against a mid-tone surface rather than against the three surfaces it lands on, and a colour that cannot be
+   re-tuned in one place. `--ok` / `--warn` / `--danger` are the *text* step (≥4.5:1 on `surface-100`, `-200`
+   and `-300` in both palettes — `qa/contrast_check.mjs` measures every pair from the painted colour, not from
+   this table); `--*-rule` is the hairline and `--*-fill` is the 6 px dot, both graphics with no contrast floor
+   and therefore free to carry the hue at full strength.
+
+   Declared twice for the same reason `tokens.css` declares its palette twice: the chrome lives in `.cat` (dark
+   by default, light under `html:not(.dark)`), and the demo document lives in `:root` / `.dark`. One table would
+   be wrong on one of the two surfaces. */
+:root {
+  --ok: oklch(0.48 0.13 150);
+  --warn: oklch(0.5 0.11 75);
+  --danger: oklch(0.48 0.18 27);
+  --ok-rule: oklch(0.63 0.12 150);
+  --warn-rule: oklch(0.63 0.11 80);
+  --danger-rule: oklch(0.6 0.15 27);
+  --ok-fill: oklch(0.55 0.15 150);
+  --warn-fill: oklch(0.62 0.13 80);
+  --danger-fill: oklch(0.55 0.19 27);
+}
+.dark {
+  --ok: oklch(0.78 0.15 150);
+  --warn: oklch(0.82 0.14 80);
+  --danger: oklch(0.72 0.17 25);
+  --ok-rule: oklch(0.54 0.11 150);
+  --warn-rule: oklch(0.57 0.1 80);
+  --danger-rule: oklch(0.54 0.14 25);
+  --ok-fill: oklch(0.72 0.17 150);
+  --warn-fill: oklch(0.83 0.15 80);
+  --danger-fill: oklch(0.68 0.19 25);
+}
+.cat {
+  --ok: oklch(0.78 0.15 150);
+  --warn: oklch(0.82 0.14 80);
+  --danger: oklch(0.72 0.17 25);
+  --ok-rule: oklch(0.54 0.11 150);
+  --warn-rule: oklch(0.57 0.1 80);
+  --danger-rule: oklch(0.54 0.14 25);
+  --ok-fill: oklch(0.72 0.17 150);
+  --warn-fill: oklch(0.83 0.15 80);
+  --danger-fill: oklch(0.68 0.19 25);
+}
+html:not(.dark) .cat {
+  --ok: oklch(0.48 0.13 150);
+  --warn: oklch(0.5 0.11 75);
+  --danger: oklch(0.48 0.18 27);
+  --ok-rule: oklch(0.63 0.12 150);
+  --warn-rule: oklch(0.63 0.11 80);
+  --danger-rule: oklch(0.6 0.15 27);
+  --ok-fill: oklch(0.55 0.15 150);
+  --warn-fill: oklch(0.62 0.13 80);
+  --danger-fill: oklch(0.55 0.19 27);
+}
+
+/* ── the badges, on those tokens ────────────────────────────────────────────────────────────────────────────────
+   Same shape as r7 wrote it — a 6 px dot, a hairline, no fill — with the hues now coming from the table above.
+   The dot carries the hue at full strength and the words stay readable at 12 px, which is what the pair is for. */
+.badge.ok { --badge-hue: var(--ok-fill); --badge-ink: var(--ok); --badge-rule: var(--ok-rule); }
+.badge.warn { --badge-hue: var(--warn-fill); --badge-ink: var(--warn); --badge-rule: var(--warn-rule); }
+.badge.bad { --badge-hue: var(--danger-fill); --badge-ink: var(--danger); --badge-rule: var(--danger-rule); }
+.badge.ok, .badge.warn, .badge.bad { color: var(--badge-ink); border-color: var(--badge-rule); }
+.badge.ok::before, .badge.warn::before, .badge.bad::before { background: var(--badge-hue); }
+
+/* ── the title is the page's one <h1> ─────────────────────────────────────────────────────────────────────────
+   The item page's name was an `<h2 class="title">`, i.e. a page whose only heading is a subheading. The name is
+   the `<h1>` now (`site/ItemPage.tsx`); the comparison and type pages keep the levels they publish. Same 30/36
+   display step and the same bottom rhythm the `h2.title` had, so nothing moves except the element. */
+.page-in h1.title {
+  font-size: var(--t-title); line-height: var(--lh-title); font-weight: 600;
+  letter-spacing: -0.02em; margin: 0 0 var(--s1);
+}
+@media (max-width: 860px) {
+  .page-in h1.title { font-size: 26px; line-height: 32px; }
+}
+
+/* ── ONE pager, at the top, pinned ────────────────────────────────────────────────────────────────────────────
+   The page printed the same two links twice, at y=32 and again after the files. The top one is the one a visitor
+   reads first and the one that stays useful while they scroll a 3000 px demo, so it is the only one, and it is
+   `position: sticky` inside the column's own scroller (`.page` on desktop, `.page` on the phone).
+
+   Pinned as ONE 44 px row, not the ~90 px two-card block it renders as in flow: a bar that covers two lines of
+   the page is the "a strip covers the content" complaint this page answered once already. The card keeps its
+   own surface and hairline; only its metrics are compressed here (and only inside the pager — a 44 px card in
+   the comparison row would be a different component). */
+.page-in > .related-pager.pager-top {
+  position: sticky; top: 0; z-index: 6;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 6px 0;
+  background: var(--surface-100);
+  border-bottom: 1px solid var(--border);
+}
+.page-in > .related-pager.pager-top .related-card {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  min-height: 44px; max-height: 44px; padding: 0 var(--space-3);
+}
+.page-in > .related-pager.pager-top .related-title {
+  display: block; flex: 1 1 auto; min-width: 0;
+  font-size: 15px; line-height: 20px; font-weight: 500; letter-spacing: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.page-in > .related-pager.pager-top .related-context {
+  flex: 0 0 auto; max-width: 46%;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: 1;
+}
+/* the empty slot left by a first or last item of the catalogue: the grid still wants two columns */
+.page-in > .related-pager.pager-top > span { min-height: 44px; }
+@media (max-width: 860px) {
+  /* the relation is not printed at all on a phone: "same category" was the first thing the 390 px column cut
+     ("same categ"), and the name plus the arrow is the whole control. The relation is still the link's
+     accessible name (`PagerCard`'s ariaLabel), so nothing is lost — only the clipped visible line goes. */
+  .page-in > .related-pager.pager-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .page-in > .related-pager.pager-top .related-context { display: none; }
+  .page-in > .related-pager.pager-top .related-title { font-size: 14px; }
+}
+
+/* ── the preview canvas, and its console in the top-right corner ──────────────────────────────────────────────
+   Title → preview → install → the rest, and the theme / width / motion controls belong to the canvas they
+   control, not to a chrome strip above the column: they sit in the canvas's top-right corner and the demo card
+   fills the canvas underneath them. The canvas is `surface-100` inside one hairline (`border`), the demo card
+   keeps its own `surface-300` frame, and the console draws no box of its own — a second border around the
+   controls would make three nested rectangles out of one preview.
+
+   The console is a right-aligned flex row rather than an absolutely positioned badge over the demo's own
+   header: the header already carries Preview / Code / Copy in its top-right, and a floating console would cover
+   the copy control on the one card where a visitor is most likely to want it. Right-aligned in the canvas's own
+   top row, it is in the corner it was asked for and over nothing. */
+.page-in .stage { margin: 0 0 var(--space-3); }
+.page-in .stage-canvas {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-100); overflow: hidden;
+}
+.page-in .stage-console { display: flex; justify-content: flex-end; padding: 8px 8px 0; }
+.page-in .stage-console-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+  gap: 8px var(--space-4);
+  margin: 0; padding: 0; border: 0; background: none;
+}
+/* the demo card, inside the canvas: the canvas owns the outer hairline, so the card drops the sides and the
+   bottom, and its top rule becomes the console row's bottom rule */
+.page-in .stage-canvas > .demo {
+  margin: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0;
+}
+@media (max-width: 860px) {
+  /* the phone's own card rules give the demo negative side margins (full-bleed inside the column); inside the
+     canvas the canvas edge is the full bleed, so those margins would push the card out of its own frame */
+  .page-in .stage-canvas > .demo { margin: 0; border-left: 0; border-right: 0; }
+  .page-in .stage-console { padding: 6px 6px 0; }
+  .page-in .stage-console-bar { gap: 8px var(--space-2); }
+}
+
+/* ── the console's controls: neutral, and never an accent fill ────────────────────────────────────────────────
+   Four controls were accent-filled (the rail's AUTO, and the stage's dark / full / on). The design book allows
+   ONE accent fill per view and this page spends it on the install command's Copy, so every segment here is
+   `surface-300` + `ink` + a `border-strong` track, with the selection shown by weight — which is exactly what
+   `SegmentedTabs` publishes ("the selected segment on `surface-300` in `ink` with heavier weight, never an accent
+   fill"). The registry's `data-state="on"` utilities paint `bg-accent`; these rules are unlayered and come after
+   them, so they win without `!important`. Measured after the change: the accent paints one element on the page. */
+[data-stage-bar] [data-slot="toggle-group"] { border-color: var(--border-strong); background: var(--surface-200); }
+[data-stage-bar] [data-slot="toggle-group-item"] {
+  background: transparent; color: var(--ink-muted); font-weight: 400;
+}
+[data-stage-bar] [data-slot="toggle-group-item"]:hover {
+  background: var(--surface-300); color: var(--ink);
+}
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"],
+[data-stage-bar] [data-slot="toggle-group-item"][data-state="on"]:hover,
+[data-stage-bar] [data-slot="toggle-group-item"][aria-checked="true"] {
+  background: var(--surface-300); color: var(--ink); font-weight: 600;
+}

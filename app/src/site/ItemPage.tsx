@@ -158,20 +158,118 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
   return (
     <div className={"page-in" + (item.kind === "block" ? " wide" : "")}>
       {/*
-       * The pager, as `RelatedCards`. It was a strip of two 36 px pills with the item's name and the relation
-       * run together; a card gives the name the `title` step and the relation a line of its own, which is the
-       * shape the design system publishes for "a link to a neighbouring component". It is no longer `sticky`:
-       * two cards are ~90 px tall, and a 90 px bar pinned over the column is the "a strip covers the content"
-       * complaint this page has already answered once.
+       * ONE pager, and it is the top one.
+       *
+       * It used to print twice — once above the title and once after the files — which is the same two links
+       * offered at both ends of a page that is already scrolled to one of them. The top copy is the one a
+       * visitor arriving from the rail or the gallery reads first, so the top copy is the only copy, and it is
+       * `sticky` (see the r8 block at the foot of `styles.css`): walking a catalogue means walking sideways as
+       * well as down, and a way out of the page should not scroll away. It is pinned as ONE 44 px row, not the
+       * ~90 px two-card block it renders as in flow, because a bar that covers two lines of the page is the
+       * "a strip covers the content" complaint this page has already answered once.
+       *
+       * Below 860 px the relation line ("same category") is not printed at all: the card is then 44 px tall and
+       * the relation was the first thing the column clipped ("same categ"). The name and the arrow are the
+       * control, and the relation is still in the link's accessible name (`PagerCard`'s `ariaLabel`), so nothing
+       * is lost to a screen reader or to a search engine — only the clipped visible line goes.
        */}
-      <nav className="related-pager" aria-label="Neighbouring items">
+      <nav className="related-pager pager-top" aria-label="Neighbouring items">
         {prev ? <PagerCard n={prev} dir="prev" /> : <span />}
         {next ? <PagerCard n={next} dir="next" /> : <span />}
       </nav>
 
       <div className="crumb">{item.source} · {item.kind}</div>
-      <h2 className="title">{name}</h2>
+      {/*
+       * The item's own name is the page's `<h1>`.
+       *
+       * It was an `<h2>` on every route, which is a page whose only heading is a subheading: the item page had
+       * no first-level heading at all. Only this surface changes — the comparison and type pages keep the levels
+       * they publish — and `<h1 className="title">` picks up the 30/36 display step `.page-in h1` already sets.
+       */}
+      <h1 className="title">{name}</h1>
       {item.one_line && <p className="lede">{item.one_line}</p>}
+
+      {/*
+       * THE PREVIEW, under the title, before anything else — the order the design system's `PageHeader` →
+       * `PreviewCanvas` pair specifies. It used to sit under the facts table and under the install command:
+       * a visitor had to read a licence, five measured facts and a command before seeing the thing they came
+       * to look at. The console (theme / width / motion / replay) is inside the canvas, at its top-right
+       * corner, and it is one console for every demo rather than a switch per card.
+       *
+       * An item with no demo has no canvas: a withheld item explains why the code is not here (that is the
+       * honest thing to put where the preview would be), and an item that is a helper or a doc says so.
+       */}
+      {item.withheld ? (
+        <div className="withheld">
+          {/*
+           * Facts only, in the words a visitor already speaks: whether the code is here, why not when it is not,
+           * and where to read it. The old sentence ("The code is theirs. It is not republished here") said the
+           * same thing in two abstractions — "theirs" and "republished" — and named no reason. The licence is
+           * the reason and the table above still carries it, so the sentence can stay short and true.
+           */}
+          <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
+            Code not shown here because the licence does not allow us to republish it.
+            {host(item.page) ? ` See it on ${host(item.page)}.` : ""}
+          </p>
+          {host(item.page) && (
+            <Button
+              asChild
+              data-catalog-item="shadcn/button"
+              variant="default"
+              className="h-11 px-4"
+              style={{ height: 44, minHeight: 44 }}
+            >
+              <a href={item.page!} target="_blank" rel="noreferrer">
+                View on {host(item.page)} →
+              </a>
+            </Button>
+          )}
+        </div>
+      ) : item.variants.length ? (
+        <div className="stage" data-stage={item.id}>
+          <div className="stage-canvas">
+            <div className="stage-console">
+              <StageBar item={item} api={api} canReplay={canReplay} />
+            </div>
+            {item.variants.map((v, i) => (
+              <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
+      )}
+
+      {/*
+       * The install command, after the preview — it is what a visitor asks for once they have seen the thing.
+       * Its Copy stays the page's ONE accent-filled control (design book: one primary per view), and it is the
+       * only element on this page whose painted background is `--accent`; that is measured, not asserted (see
+       * the build report's accent list). It is not shown for a withheld item: pointing somebody at a command for
+       * code we are not allowed to show is a step they cannot take.
+       */}
+      {!item.withheld && item.install && (
+        <>
+          <h2 className="section-h">Installation</h2>
+          <InstallBlock install={item.install} />
+        </>
+      )}
+
+      {/*
+       * The measured line, on the item's own page too. The comparison pages have printed "pick this if…" since
+       * round 4, derived from the six behaviour facts the probe measured (`behaviour.ts`); the item page — the
+       * one place a visitor decides — did not. It is the same derivation, with this item as the subject, so it
+       * cannot say anything the probe did not measure; an item with no measured facts gets no line at all.
+       *
+       * This is not the `pick` table: that is the human curation slot (0 rows, and it stays whoever fills it,
+       * by their own name). What ships here is a measurement, printed in a sentence.
+       */}
+      {pickNote && <p className="pick-line" data-pick>{pickNote}</p>}
+
+      {/*
+       * The status and the counts, after the preview and the command: they are facts about the item, so they
+       * sit with the facts table rather than between a visitor and the thing they came to look at. The two
+       * status badges paint in `--ok` / `--warn` now, not in a green and an amber literal (r8).
+       */}
       <div className="badges">
         <Badge data-catalog-item="shadcn/badge" variant={item.withheld ? "outline" : "secondary"} className={`badge ${item.withheld ? "warn" : "ok"}`}>
           {item.withheld ? "code not shown" : "code shown here"}
@@ -234,72 +332,6 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
        * in files, and where it came from. Anything that read like a grade is gone from this file on purpose.
        */}
 
-      {item.withheld ? (
-        <div className="withheld">
-          {/*
-           * Facts only, in the words a visitor already speaks: whether the code is here, why not when it is not,
-           * and where to read it. The old sentence ("The code is theirs. It is not republished here") said the
-           * same thing in two abstractions — "theirs" and "republished" — and named no reason. The licence is
-           * the reason and the table above still carries it, so the sentence can stay short and true.
-           */}
-          <p style={{ margin: host(item.page) ? "0 0 14px" : 0 }}>
-            Code not shown here because the licence does not allow us to republish it.
-            {host(item.page) ? ` See it on ${host(item.page)}.` : ""}
-          </p>
-          {host(item.page) && (
-            <Button
-              asChild
-              data-catalog-item="shadcn/button"
-              variant="default"
-              className="h-11 px-4"
-              style={{ height: 44, minHeight: 44 }}
-            >
-              <a href={item.page!} target="_blank" rel="noreferrer">
-                View on {host(item.page)} →
-              </a>
-            </Button>
-          )}
-        </div>
-      ) : item.variants.length ? (
-        <>
-          {/*
-           * The install command comes before the demos, because it is the thing a visitor came for and because the
-           * tester's report was exact: "the first visible Copy on an item page copies a preview wrapper". Measured
-           * before this change on `#/i/beui/animated-sidebar`, the first Copy was the demo's source; after it, the
-           * first Copy in document order is the install command, labelled for what it puts on the clipboard, and
-           * it is the one accent-filled control on the page.
-           */}
-          {item.install && (
-            <>
-              <div className="section-h">Installation</div>
-              <InstallBlock install={item.install} />
-            </>
-          )}
-          {/*
-           * The measured line, on the item's own page too. The comparison pages have printed "pick this if…" since
-           * round 4, derived from the six behaviour facts the probe measured (`behaviour.ts`); the item page — the
-           * one place a visitor decides — did not. It is the same derivation, with this item as the subject, so it
-           * cannot say anything the probe did not measure; an item with no measured facts gets no line at all.
-           *
-           * This is not the `pick` table: that is the human curation slot (0 rows, and it stays whoever fills it,
-           * by their own name). What ships here is a measurement, printed in a sentence.
-           */}
-          {pickNote && <p className="pick-line" data-pick>{pickNote}</p>}
-          <div className="stage" data-stage={item.id}>
-            <StageBar item={item} api={api} canReplay={canReplay} />
-            {item.variants.map((v, i) => (
-              <Demo key={v.module} id={item.id} index={i} variant={v} isBlock={item.kind === "block"} stage={api.stage} />
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className="withheld">No demo for this one — it is a helper or a doc, not a component.</div>
-      )}
-
-      {/*
-       * The install block moved above the stage, so it is not repeated here: one command, one Copy, in the place a
-       * visitor looks first.
-       */}
       {/*
        * A withheld item gets no `<Files>`. The viewer was handed a placeholder line and rendered it inside a 560 px
        * box — an empty code pane under a page that had already said the code is not here. The file *names* are
@@ -308,9 +340,9 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
       {item.withheld ? (
         item.files.length > 0 && (
           <>
-            <div className="section-h">
+            <h2 className="section-h">
               Source {item.files.length === 1 ? "file" : "files"} ({item.files.length})
-            </div>
+            </h2>
             <p className="hint">
               {item.files.map((f, i) => (
                 <span key={f}>
@@ -322,13 +354,8 @@ function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next
           </>
         )
       ) : (
-        <Files files={item.files} main={mainFile(item)} />
+        <Files files={item.files} main={mainFile(item)} heading="h2" />
       )}
-
-      <nav className="related-pager" aria-label="The items either side of this one">
-        {prev ? <PagerCard n={prev} dir="prev" /> : <span />}
-        {next ? <PagerCard n={next} dir="next" /> : <span />}
-      </nav>
     </div>
   );
 }
