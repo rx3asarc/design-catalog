@@ -92,9 +92,19 @@ export function measuredOn(b: Measured | null): string | null {
 
 const num = (n: number | null | undefined): string => (typeof n === "number" ? String(n) : "?");
 
-/** "why is this cell not measured" — the honest answer, from the record's own words. */
-function why(b: Measured | null): string {
+/**
+ * "why is this cell not measured" — the honest answer, from the record's own words.
+ *
+ * `witness` is the fact's **own** detail (`nestsHow`, `keyboardHow`, `sheetHow`), and it comes first, because a
+ * record's `reason` explains the record and not every fact inside it. The probe writes a reason on most component
+ * demos — "no collapse control in the frame: no named trigger, no rail, no toggle/menu/panel button" — and printing
+ * that beside an unmeasured `nests` or `keyboard` cell would attribute the wrong witness to the wrong column: the
+ * collapse control has nothing to say about nesting. The reason remains the fallback for a fact that wrote no story
+ * of its own, which is exactly the case it was written for (a record with no demo, and so nothing to tell).
+ */
+function why(b: Measured | null, witness?: string | null): string {
   if (!b) return "not measured: this build carries no behaviour record for this item";
+  if (witness) return `not measured: ${witness}`;
   if (b.reason) return `not measured: ${b.reason}`;
   return "not measured: the probe could not tell from this frame";
 }
@@ -161,7 +171,7 @@ export const BEHAVIOUR_COLS: FactCol[] = [
     },
     exact: (i) => {
       const b = behaviourOf(i);
-      if (!b || b.nests === null) return why(b);
+      if (!b || b.nests === null) return why(b, b?.nestsHow);
       const how = b.nestsHow ? `${b.nestsHow}. ` : "";
       return `${how}deepest menu nesting in the DOM: ${num(b.nestDepth)}`;
     },
@@ -177,7 +187,7 @@ export const BEHAVIOUR_COLS: FactCol[] = [
     },
     exact: (i) => {
       const b = behaviourOf(i);
-      if (!b || b.sheet === null) return why(b);
+      if (!b || b.sheet === null) return why(b, b?.sheetHow);
       return b.sheetHow ? `${b.sheet ? "a sheet" : "no sheet"}: ${b.sheetHow}` : b.sheet ? "a sheet opened at 390 px" : "nothing became a sheet at 390 px";
     },
     answered: (i) => typeof behaviourOf(i)?.sheet === "boolean",
@@ -192,7 +202,7 @@ export const BEHAVIOUR_COLS: FactCol[] = [
     },
     exact: (i) => {
       const b = behaviourOf(i);
-      if (!b || b.keyboard === null) return why(b);
+      if (!b || b.keyboard === null) return why(b, b?.keyboardHow);
       const arrows = b.arrows === null || b.arrows === undefined
         ? "arrow keys were not tested"
         : b.arrows

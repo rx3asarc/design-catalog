@@ -32,12 +32,33 @@
  * Usage: node qa/pick_line_check.mjs [base]      (default http://localhost:8830/design-catalog/)
  */
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = process.argv[2] || "http://localhost:8830/design-catalog/";
 
+/**
+ * The sample is **preferred, then derived**, and it says which it used.
+ *
+ * r7 wrote this gate with three hardcoded unmeasured ids, and it said in `r7-gates.md` that a new measurement
+ * arriving in `behaviour.json` "is not a regression and must not fail a gate" — so r8-probe, which measured one
+ * item per type, must not be able to break the gate by doing the thing the gate is about. The preferred ids below
+ * are the r7 ones; whatever of them is still unmeasured is kept, and the sample is topped up from the build's own
+ * manifest (`answered()` is the same test `behaviour.ts` calls `hasFacts`) so the gate keeps three real unmeasured
+ * items and three real measured ones however far the probe has got. The lists it actually used are printed at the
+ * top of the run, because a sample that silently changes is a gate that silently measures something else.
+ */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const FACTS = ["collapses", "sheet", "nests", "animates", "keyboard", "shape"];
+const answered = (i) => !!i.behaviour && FACTS.some((k) => typeof i.behaviour[k] === "boolean");
+const idOf = (i) => `${i.source}/${i.slug}`;
+const manifest = JSON.parse(readFileSync(`${REPO}app/manifest.json`, "utf8"));
+const demoed = manifest.filter((i) => (i.variants ?? []).length > 0 && !i.withheld);
+const byId = new Map(manifest.map((i) => [idOf(i), i]));
+
 /** Ten measured ids: the two the brief names, plus eight more that carry a `behaviour` record and a demo. */
-const MEASURED = [
+const PREFERRED_MEASURED = [
   "shadcn/sidebar-09",
   "beui/animated-sidebar",
   "beui/ai-sidebar",
@@ -49,8 +70,20 @@ const MEASURED = [
   "shadcn/sidebar-13",
   "shadcn/sidebar-16",
 ];
-/** Measured, but their page renders no demo — the slot they would print in is inside the demo branch. */
-const MEASURED_NO_DEMO = ["beautifului/sidebar-nav", "rareui/hook-sidebar", "shadcn/docs-components-sidebar"];
+const MEASURED = [
+  ...PREFERRED_MEASURED.filter((id) => byId.has(id) && answered(byId.get(id))),
+  ...demoed.filter(answered).map(idOf),
+].filter((id, n, all) => all.indexOf(id) === n).slice(0, 10);
+/**
+ * Items whose page renders no demo. The slot the measured line prints in is inside the demo branch, so a page with
+ * no demo cannot print a line — and after r8-probe that is the *only* thing this list can test: the probe answers
+ * "no demo: this item is reference-only, so there is nothing to measure" for every one of these, so `answered`
+ * and `has a demo` are now the same fact and this branch is no longer reachable *with* facts. The assertion is kept
+ * rather than deleted, because the day a no-demo item acquires a record that answers something, this is the line
+ * that says so.
+ */
+const NO_DEMO = ["beautifului/sidebar-nav", "rareui/hook-sidebar", "shadcn/docs-components-sidebar"]
+  .filter((id) => byId.has(id) && (byId.get(id).variants ?? []).length === 0);
 /**
  * The probe never reached these: no behaviour record, so nothing may be printed in its place. Each one has demos
  * and an install command, so the page renders the very branch the line would print in — the assertion has teeth.
@@ -58,10 +91,25 @@ const MEASURED_NO_DEMO = ["beautifului/sidebar-nav", "rareui/hook-sidebar", "sha
  * The r7 brief named `beui/loading-state` as the second of these; that id does not exist (it resolves to the
  * not-found page), so nothing could be asserted about it here. `beui/loading-states` and
  * `beautifului/loading-state` are the ids it is nearest to, and both are measured-never (no `behaviour` record)
- * but have no demo either — a page with no demo cannot print a line at all, so it cannot test this rule. The
- * sample below is three unmeasured items that *do* reach the demo branch. (Reported in build/r7-gates.md.)
+ * but have no demo either — a page with no demo cannot print a line at all, so it cannot test this rule.
+ *
+ * r8-probe measured `shadcn/accordion` and `beui/bloom-menu` (they are the first demoed member of Accordion and of
+ * App shells), so that sample retired exactly as intended. The preferred three below are chosen for reach: a demo,
+ * an install command, and — being ordinary members of a type whose first demoed member was measured instead — no
+ * record of their own while their neighbours have one.
  */
-const UNMEASURED = ["shadcn/button", "shadcn/accordion", "beui/bloom-menu"];
+const PREFERRED_UNMEASURED = ["shadcn/button", "shadcn/card", "shadcn/alert"];
+const UNMEASURED = [
+  ...PREFERRED_UNMEASURED.filter((id) => byId.has(id) && (byId.get(id).variants ?? []).length > 0 && !answered(byId.get(id))),
+  ...demoed.filter((i) => !answered(i)).map(idOf),
+].filter((id, n, all) => all.indexOf(id) === n).slice(0, 3);
+
+console.log(`sample measured  ${MEASURED.join(", ")}`);
+console.log(`sample unmeasured ${UNMEASURED.join(", ")}`);
+if (MEASURED.length < 10 || UNMEASURED.length < 3) {
+  console.log(`FAIL the build does not hold a usable sample — ${MEASURED.length} measured, ${UNMEASURED.length} unmeasured`);
+  process.exit(1);
+}
 
 /** A verdict, in the words a verdict uses. The line is a measurement; an order of merit is forbidden here. */
 const VERDICT = /\b(rank|ranks|ranked|ranking|winner|winners|winning|score|scores|scored|best|better|worst|recommend|recommends|recommended|top pick|number one)\b/i;
@@ -192,10 +240,10 @@ for (const id of UNMEASURED) {
 }
 
 /* ── the carve-out, measured rather than assumed: the slot lives inside the demo branch ──────────────────── */
-for (const id of MEASURED_NO_DEMO) {
+for (const id of NO_DEMO) {
   const m = await readPage(page, id);
-  if (m.pickCount === 0) ok(`measured-no-demo ${id}: no demo, no line`, `0 elements (the slot is inside the demo branch)`);
-  else bad(`measured-no-demo ${id}: no demo, no line`, `${m.pickCount} elements`);
+  if (m.pickCount === 0) ok(`no-demo ${id}: no demo, no line`, `0 elements (the slot is inside the demo branch)`);
+  else bad(`no-demo ${id}: no demo, no line`, `${m.pickCount} elements`);
 }
 
 /* ── the same sentence on a phone: present, and it does not scroll the page sideways ─────────────────────── */
@@ -224,5 +272,5 @@ for (const id of MEASURED_NO_DEMO) {
 }
 
 await browser.close();
-console.log(fails ? `PICK: ${fails} FAIL` : `PICK: ok (${MEASURED.length} measured, ${UNMEASURED.length} unmeasured, ${MEASURED_NO_DEMO.length} measured-no-demo)`);
+console.log(fails ? `PICK: ${fails} FAIL` : `PICK: ok (${MEASURED.length} measured, ${UNMEASURED.length} unmeasured, ${NO_DEMO.length} no-demo)`);
 process.exit(fails ? 1 : 0);
