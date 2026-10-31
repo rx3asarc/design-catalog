@@ -1,4 +1,4 @@
-import { SECTION_ORDER, TYPES, type SectionName, type TypeEntry } from "./taxonomy";
+import { SECTION_ORDER, itemsLabel, TYPES, variantCount, type SectionName, type TypeEntry } from "./taxonomy";
 import { typeHref } from "./typeIndex";
 
 /**
@@ -8,7 +8,9 @@ import { typeHref } from "./typeIndex";
  * sentence, and nothing leads to collections." This is the answer, and it is not a new taxonomy — `taxonomy.json`
  * is 89 types in 7 sections, reviewed and gated (`qa/taxonomy_check.mjs`), and this grid is that file drawn: one
  * card per type, grouped by section, A–Z inside each. Nothing is invented, nothing is ranked, and no card carries
- * a number that is not `entry.members.length`.
+ * a number that is not the type's own count — and that count is spelled `N items · M variants`, because the
+ * variants the taxonomy folds into a type's members are catalogue content: "Pie and donut · 1 item" was a card
+ * about twelve things (review, §8).
  *
  * Every card is a control that opens the type's own page — `#/t/<section-slug>/<type-slug>` — and that address is
  * not spelled here: `typeHref` comes from `site/typeIndex.ts`, which the rail and the type page also use, so a card,
@@ -30,12 +32,13 @@ export function BrowseByType() {
       {SECTION_ORDER.map((section) => {
         const types = bySection.get(section) ?? [];
         const members = types.reduce((n, t) => n + t.members.length, 0);
+        const variants = types.reduce((n, t) => n + variantCount(t), 0);
         return (
           <div className="browse-sec" key={section} data-type-section={section}>
             <div className="browse-sec-h">
               <span className="browse-sec-name">{section}</span>
               <span className="browse-sec-n">
-                {types.length} type{types.length === 1 ? "" : "s"} · {members} item{members === 1 ? "" : "s"}
+                {types.length} type{types.length === 1 ? "" : "s"} · {itemsLabel(members, variants)}
               </span>
             </div>
             <ul className="browse-grid">
@@ -44,8 +47,8 @@ export function BrowseByType() {
                   {/* one card, one control: the name and the member count, and nothing that is not in the file */}
                   <a className="type-card" data-type-card="" href={typeHref(t)}>
                     <span className="type-card-name">{t.type}</span>
-                    <span className="type-card-n">
-                      {t.members.length} item{t.members.length === 1 ? "" : "s"}
+                    <span className="type-card-n" data-type-card-count={t.key}>
+                      {itemsLabel(t.members.length, variantCount(t))}
                     </span>
                   </a>
                 </li>

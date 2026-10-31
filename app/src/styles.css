@@ -1896,3 +1896,81 @@ a.spec-name:hover { text-decoration: underline; }
   .spec-meta { text-align: left; white-space: normal; }
   .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- taxonomy, per-type columns and counts (r9) -------------------------------------------------------------
+   The round-9 review's §2, §3, §4, §5 and §8, as rules. Everything here is appended, per the round's CSS rule, and
+   every selector is either new (`.type-grid`, `.member-*`) or deliberately overrides an r8 rule of the same
+   specificity further up this file (`.type-demo-parked`, `.rail-item .t`, `.rail-item .rail-count`) — grep found no
+   third copy of any of them.
+
+   * §3 "lead with the visual grid and drop the table": `.type-grid` is the surface a collection leads with — the
+     type page prints its table only when at least two members answered its own measured columns
+     (`site/columns.ts`, `TABLE_FLOOR`), and everything else is a card. The old `.also-list` rules above are dead:
+     nothing renders that class any more, and they are left in place rather than deleted because this round's rule
+     is appended CSS only.
+   * §4 "thumbnails under 'Also in this set' are grey DEMO boxes": the box was grey because the window never
+     mounted (the lazy pool was only ever told about the windows inside the table), and it said DEMO because that
+     was all it had to say. `.type-demo-parked` now prints a kicker and the item's name, in the exact box the frame
+     will occupy; the live frame scales to the card's own width, which is what un-crops the Calendar.
+   * §5 "counts must admit the folded variants": the count is printed by `taxonomy.ts`'s `itemsLabel`, and the rail's
+     row cannot fit the phrase beside a name in 240 px, so the row wraps and the count takes its own line.
+   * §2 "each type needs its own columns": a card prints only the facts its type declares (three at most) and never
+     a "not measured" pill — `.member-fact` is the pill, and a card without an answer simply has fewer of them.
+   ---------------------------------------------------------------------------------------------------------- */
+
+/* the surface: a card is a picture, then the name, the data's own one-liner, and this type's facts */
+.type-grid {
+  list-style: none; margin: 0 0 20px; padding: 0;
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+}
+.member-card {
+  display: flex; flex-direction: column; min-width: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; background: var(--surface-300);
+}
+.member-card .type-demo-cell { width: 100%; gap: 0; }
+.member-card .type-demo-window { border: 0; border-radius: 0; border-bottom: 1px solid var(--border); }
+.type-demo-none { background: var(--surface-200); }
+.member-body { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px 12px; min-width: 0; }
+.member-link {
+  font-size: 14px; line-height: 20px; font-weight: 500; color: var(--ink);
+  text-decoration: none; align-self: flex-start;
+}
+.member-link:hover { text-decoration: underline; }
+.member-meta {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-subtle);
+}
+.member-line {
+  font-size: 13px; line-height: 1.45; color: var(--ink-muted); margin-top: 2px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.member-facts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.member-fact {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums;
+  color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1px 6px;
+}
+.member-fact-k { font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-subtle); }
+
+/* a parked window names what it will become, in the box the frame will occupy (r8 printed the word DEMO alone) */
+.type-demo-parked {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0 12px; text-align: center;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+}
+.type-demo-parked .type-demo-kicker { letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-subtle); }
+.type-demo-parked .type-demo-name { font-family: var(--font-sans); font-size: 13px; color: var(--ink-muted); }
+
+/* the rail: `7 items · 16 variants` on its own line, because the phrase does not fit beside a name in 240 px */
+.rail-item { flex-wrap: wrap; row-gap: 0; }
+.rail-item .t { flex: 1 1 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail-item .rail-count { flex: 1 1 100%; margin-left: 0; padding-left: 0; font-size: 12px; line-height: 15px; }
+.rail-sec > .disc-trigger .sec-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail-sec > .disc-trigger .rail-count { white-space: nowrap; }
+
+/* 860 px: one card per row, and the card's own link is a 44 px tap target like every other control here */
+@media (max-width: 860px) {
+  .type-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .member-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
