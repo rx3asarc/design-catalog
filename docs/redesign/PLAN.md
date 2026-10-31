@@ -402,3 +402,31 @@ green local and live. `slice3_check`'s long-standing pre-existing "first paint l
 - **evidence**: only 20 items answer any behaviour fact, and all 20 are Sidebar, so **88 of 89 collections have no
   table**. That is the data, not the page. → `r8-probe` measures one demo-bearing member per type and writes the
   facts with their date, so the tables can exist.
+
+### 5. Wave 2 — the cards, the paper, the specimens, and the evidence (31 Oct 2026)
+
+Two units, both merged (`02c1ee7b`), published (`5beb2d1a`), live (`main-OZr2Pjcu.js`), all **seventeen** gates
+green against the live URL.
+
+| Unit | What it changed | The number that proves it |
+| --- | --- | --- |
+| `r8-cards` | the card prints the item's **one-line description** above the fold, provenance (`source · licence`) as an eyebrow, and a reference-only card says so in words; the demo frame now paints the site's paper in the grid (the document half landed in `r8-itempage`); **fonts are type specimens** and **themes are palette swatches**, painted and re-read from the DOM rather than eyeballed | card spread **0 px** before and after at 1440 and 390 (486 cards, 339.0 px); page +22 % taller, +63 px a card, stated as the price; **48 of 52 font rows cannot be shown in their own face** and say so instead of faking it; 5 palettes prove **distinct** on the variables that differ |
+| `r8-probe` | the probe measures **the first demo-bearing member of every type** (68 targets) plus the 25 sidebar members, and writes the facts with their date into `app/behaviour.json`; `scripts/probe-behaviour.py` re-runs it in batches | type pages with a table **1 of 89 → 67 of 89**; rows 4 → 70; **113 records** (86 answered a fact, 27 say why not); 0 probe crashes, p50 6.0 s an item, 92 items in 9.7 min at load 5–9 on 4 cores |
+
+Both reports say what the work is **not**, and both sentences matter more than the totals: 66 of the 67 new tables
+hold **one row**, so the pages gained evidence and a derived "pick this if…" line, not a field to choose within —
+the next batch is one command and ~4 minutes per 40 items. And 48 of 52 font rows genuinely have no binary in the
+catalogue, so the surface says that rather than setting them in a face they are not.
+
+**A third fault, same class as the first two.** The pruner deleted **`docs/.nojekyll`** — the file that makes Pages
+serve the tree verbatim. Restored, and it is now in the pruner's `ALWAYS` set with the reason written beside it:
+without it, the reports in `redesign/` fail the Jekyll build, GitHub skips the deploy, and the previous build keeps
+serving — a **silent stale site**. That is exactly what happened for one commit earlier in this round.
+
+**A gate that assumed its sample.** `foundations_check` asserted that both component-shaped themes members are
+"also in this set" rows. Once the probe measured one of them, the page printed it as evidence instead, and the gate
+failed on the day the data got better. Corrected to accept either shape while still requiring exactly the two named
+members.
+
+Reports: `build/r8-rail.md`, `build/r8-collections.md`, `build/r8-home.md`, `build/r8-itempage.md`,
+`build/r8-cards.md`, `build/r8-probe.md` (all also at `/design-catalog/redesign/`).
