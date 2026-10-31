@@ -25,7 +25,10 @@ DATA_DIRS = ["data"]
 # always keep: the packaged downloads and the checksums live under data/ and are linked from the bundle,
 # and CHECKSUMS.txt is a published artifact in its own right (the About page points at the repo copy,
 # but the file is part of what publish_export writes and must survive a prune)
-ALWAYS = {"CHECKSUMS.txt"}
+# files a visitor never receives but the static host must: `CHECKSUMS.txt` is a download on #/about, `.nojekyll`
+# tells GitHub Pages to serve this tree verbatim instead of running it through Jekyll (without it, the reports in
+# redesign/ fail the build and the deploy is skipped while the previous one keeps serving — a silent stale site).
+ALWAYS = {"CHECKSUMS.txt", ".nojekyll"}
 # anything that looks like an asset filename we could have emitted
 NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9._-]{2,80}\.(?:js|css|woff2?|svg|png|jpg|webp|json)")
 

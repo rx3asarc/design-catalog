@@ -151,8 +151,13 @@ const errors = [];
       });
     }
     out.alsoRows = [...document.querySelectorAll("[data-also-row]")].map((el) => el.getAttribute("data-also-row"));
+    // … and the same two members may be table rows instead: once `r8-probe` measured one of them, the type page prints
+    // it as evidence, and a gate that assumed "both are also-rows" failed on the day the data got better.
+    out.tableRows = [...document.querySelectorAll("[data-type-row]")].map((el) => el.getAttribute("data-type-row"));
     out.facts = (document.querySelector("[data-type-facts]")?.textContent ?? "").replace(/\s+/g, " ").trim();
-    out.demos = document.querySelectorAll("[data-also-row] iframe, [data-also-row] .type-demo-window").length;
+    out.demos = document.querySelectorAll(
+      "[data-also-row] iframe, [data-also-row] .type-demo-window, [data-row-demo] iframe, [data-row-demo] .type-demo-window",
+    ).length;
     return out;
   });
 
@@ -182,9 +187,14 @@ const errors = [];
     r.themes.every((t) => /theme-[a-z]+\.json/.test(t.facts)),
     `themes: each palette names the file it was read from — ${r.themes.map((t) => (t.facts.match(/theme-[a-z]+\.json/) ?? ["?"])[0]).join(", ")}`,
   );
-  const leftovers = r.alsoRows.filter((id) => !r.themes.some((t) => t.id === id));
-  ok(leftovers.length === 2, `themes: the two members that are components, not palettes, are still on the page — ${JSON.stringify(leftovers)}`);
-  ok(r.demos >= 1, `themes: their demos still run — ${r.demos} demo window(s) under the palettes`);
+  const leftovers = [...r.alsoRows, ...r.tableRows].filter((id) => !r.themes.some((t) => t.id === id));
+  ok(
+    leftovers.length === 2 && leftovers.includes("beui/theme-toggle") && leftovers.includes("rareui/theme-selector"),
+    `themes: the two members that are components, not palettes, are still on the page — ${JSON.stringify(leftovers)}`,
+  );
+  // the demo may hang under the also-row it belongs to or under the table row that now carries evidence: what the
+  // gate cares about is that a live demo runs somewhere on the surface, not which of the two shapes holds it
+  ok(r.demos >= 1, `themes: their demos still run — ${r.demos} demo window(s) on the page`);
   ok(/7 members|7 item/.test(r.facts), `themes: the page still states its own count — "${r.facts.slice(0, 70)}"`);
   console.log(`     themes: ${r.nodes} DOM nodes for 5 palettes × 2 panels`);
   await ctx.close();
