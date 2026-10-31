@@ -8,6 +8,7 @@ import {
 import { ThemeSwitch } from "./ThemeSwitch";
 import { byId } from "./lib";
 import { SECTION_ORDER, TYPES, typeOfItem, type SectionName, type TypeEntry } from "./taxonomy";
+import { typeAt, typeHref } from "./typeIndex";
 
 /**
  * THE RAIL: SEVEN SECTIONS, THE TYPES INSIDE THEM, AND NOTHING ELSE.
@@ -34,27 +35,16 @@ import { SECTION_ORDER, TYPES, typeOfItem, type SectionName, type TypeEntry } fr
  */
 
 /* ── the addresses ────────────────────────────────────────────────────────────────────────────────────────────
- * A section slug and a type slug are the same rule (lowercase, spaces → `-`), and the route is the one
- * `r8-collections` builds its pages on. Both directions are here so the rail cannot spell an address the
- * collection cannot resolve: `typeHref` writes it, `typeKeyAt` reads the one the address bar is carrying.
- */
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-/** A type's collection address: `#/t/components/button`, `#/t/agent-ui/chat-and-messages`. */
-export const typeHref = (t: { section: string; type: string }) => `#/t/${slug(t.section)}/${slug(t.type)}`;
-
-/**
- * The type key (`Components/Button`) an address names, or `null`.
- *
- * Read from the hash rather than from `Route`: the rail must be able to mark its own row current on the day the
- * collections unit lands its route, and this spelling is fixed by both briefs. A route the parser has not learned
- * yet renders the not-found page *with the rail around it*, so the row still has to know the address is its own.
+ * A type's collection address is `site/typeIndex.ts`'s — the module the type page itself resolves routes with —
+ * and nothing here spells a second copy of it. (This file carried a two-line duplicate of `typeHref` while the two
+ * units were in flight; it was deleted on merge, as both reports asked.) `typeKeyAt` stays because the rail asks a
+ * different question than the router does: "is the address bar naming one of my rows?" — asked of hashes the
+ * router may not have learned yet, since a miss still renders the rail around the not-found page.
  */
 export function typeKeyAt(hash: string): string | null {
   const seg = hash.replace(/^#/, "").replace(/\/+$/, "").split("/").filter(Boolean);
   if (seg.length < 3 || seg[0].toLowerCase() !== "t") return null;
-  const wantSec = seg[1].toLowerCase(), wantType = seg[2].toLowerCase();
-  const hit = TYPES.find((t) => slug(t.section) === wantSec && slug(t.type) === wantType);
+  const hit = typeAt(seg[1], seg[2]);
   return hit ? hit.key : null;
 }
 

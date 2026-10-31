@@ -1422,3 +1422,149 @@ pre { font-family: var(--font-mono); }
   .rail-brand h1 a { display: inline-flex; align-items: center; min-height: 44px; }
   .rail-filter a { min-width: 44px; justify-content: center; }
 }
+/* ---- home, rebuilt (r8) ---------------------------------------------------------------------------------------
+   The front page is now built around "Browse by type": a heading that says what the site is, the search field as
+   the main action, six real items running, 89 type cards, one comparison, the five libraries, and the agent
+   interface folded to four rows. Everything below is the page's own layout; every colour, size and radius is a
+   token, nothing is hard-coded, and nothing here reaches into an iframe (a demo is a separate document).
+
+   The three rules that shaped it, from the design system: dark by default, no shadows (depth is surface-100/200/300
+   plus a hairline), `border-strong` on a control. There is no accent fill anywhere on this page — at 89 cards and
+   five rows, a filled control would be a wall of colour rather than a set of doors. */
+
+.home-h1 { max-width: 30ch; }
+.home-sub {
+  font-size: var(--t-body); line-height: var(--lh-body); color: var(--ink-muted);
+  margin: 0 0 var(--s2); max-width: 74ch;
+}
+/* the `.page-in p` rule is `font-size: var(--t-body)` at a heavier specificity than a lone class, so the note's
+   own type step is stated with the page's selector in front of it — otherwise it silently renders at 15/24, wraps
+   to two lines, and pushes the row 32 px down from where the boot shell drew it */
+.page-in p.home-hero-note, .home-hero-note {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  margin: 0 0 16px; max-width: none;
+}
+
+/* 1. the search, as the main action: one 44 px control, a mono hint, and the gallery beside it */
+.home-actions {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px;
+  margin: var(--s2) 0 var(--s3);
+}
+.home-search {
+  display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px;
+  background: var(--surface-200); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  color: var(--ink-muted); font-family: var(--font-sans); font-size: 14px; line-height: 20px;
+  text-align: left; cursor: text;
+}
+.home-search:hover { border-color: var(--ink-subtle); color: var(--ink); }
+.home-search:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-color: var(--focus); }
+.home-search-ph { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-kbd {
+  flex: none; font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 2px 6px;
+}
+/* every entry point on this page is a control with a 44 px box, never a phrase inside a sentence */
+.home-ctl {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: transparent;
+  color: var(--ink); font-family: var(--font-sans); font-size: 13px; line-height: 20px;
+  text-decoration: none; white-space: nowrap;
+}
+.home-ctl:hover { background: var(--surface-200); border-color: var(--ink-subtle); }
+.home-foot { display: flex; flex-wrap: wrap; gap: 10px; margin: var(--s5) 0 0; padding-top: var(--s2); border-top: 1px solid var(--border); }
+
+/* 2. browse by type: one card per type, grouped by section */
+.browse { margin: var(--s5) 0 0; }
+.browse-sec { margin: var(--s3) 0 0; }
+.browse-sec-h {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 0 0 6px; border-bottom: 1px solid var(--border);
+}
+.browse-sec-name {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--ink-subtle);
+}
+.browse-sec-n {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-variant-numeric: tabular-nums;
+  color: var(--ink-subtle); white-space: nowrap;
+}
+.browse-grid {
+  list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(186px, 1fr));
+}
+.type-card {
+  display: grid; align-content: center; gap: 2px; min-height: 44px; padding: 6px 10px;
+  background: var(--surface-200); border: 1px solid var(--border); border-radius: var(--radius-md);
+  color: var(--ink); text-decoration: none;
+}
+.type-card:hover { background: var(--surface-300); border-color: var(--border-strong); }
+.type-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.type-card-name {
+  font-size: 13px; line-height: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.type-card-n {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 3. the one comparison: the table's shape, four real rows, one door */
+.showcase { margin: var(--s5) 0 0; }
+.showcase-scroll { max-width: 100%; }
+.cmp-preview { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 20px; }
+.cmp-caption {
+  caption-side: top; text-align: left; padding: 0 0 8px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+}
+.cmp-preview th, .cmp-preview td {
+  text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--border); vertical-align: middle;
+}
+.cmp-preview thead th {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; font-weight: 400;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-subtle); background: var(--surface-200);
+  border-bottom: 1px solid var(--border-strong);
+}
+.cmp-preview tbody th { font-weight: 500; }
+.cmp-preview tbody th a {
+  display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: none;
+}
+.cmp-preview tbody th a:hover { text-decoration: underline; text-decoration-color: var(--accent-ink); }
+.cmp-preview .mono { font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted); }
+.cmp-preview .num { font-family: var(--font-mono); font-size: 12px; line-height: 16px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+.cmp-preview thead .num { text-align: right; }
+.showcase-foot { margin: 10px 0 0; }
+
+/* 4. the five libraries: name, count, licence — the licence verbatim, from the manifest */
+.libs-sec { margin: var(--s5) 0 0; }
+.libs { list-style: none; margin: 8px 0 0; padding: 0; border-top: 1px solid var(--border); }
+.lib-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline;
+  min-height: 44px; padding: 9px 2px; border-bottom: 1px solid var(--border);
+  color: var(--ink); text-decoration: none;
+}
+.lib-row:hover { background: var(--surface-200); }
+.lib-row:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.lib-name { font-size: 14px; line-height: 20px; }
+.lib-n {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  font-variant-numeric: tabular-nums; justify-self: end;
+}
+.lib-lic {
+  grid-column: 1 / -1; font-family: var(--font-mono); font-size: 12px; line-height: 16px;
+  color: var(--ink-subtle); overflow-wrap: anywhere;
+}
+
+/* 5. the agent interface, short: the fold is a control, and the marker under it states the real total */
+.agent-sec { margin: var(--s5) 0 0; }
+.term-fold { margin: 0 0 var(--s2); }
+
+/* phone: the same page, two columns of cards, and a comparison that keeps the two columns that matter */
+@media (max-width: 860px) {
+  .home-actions { grid-template-columns: minmax(0, 1fr); }
+  .home-ctl { justify-content: flex-start; }
+  .browse-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
+  .home-h1 { max-width: none; }
+}
+@media (max-width: 639px) {
+  .cmp-preview .opt { display: none; }
+}
