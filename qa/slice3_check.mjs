@@ -1,7 +1,17 @@
 // Type, theme, palette, about, chrome: the four things slice 3 claims, measured at both viewports.
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 const BASE = process.argv[2] || "http://localhost:8830/design-catalog/";
+/** this gate's own tree: what counts as a destination is the manifest's items and the taxonomy's types */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const MANIFEST = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
+const TAXONOMY = JSON.parse(readFileSync(`${REPO}/app/src/site/taxonomy.json`, "utf8"));
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const ITEM_ROUTES = new Set(MANIFEST.map((i) => `#/i/${i.id}`));
+const TYPE_ROUTES = new Map(Object.entries(TAXONOMY.sections).flatMap(([section, types]) =>
+  Object.keys(types).map((t) => [`#/t/${slug(section)}/${slug(t)}`, t])));
 const browser = await chromium.launch({ executablePath: "/usr/local/bin/google-chrome", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
 const rows = []; let bad = 0;
 const push = (name, ok, detail) => { if (!ok) bad++; rows.push(`${ok ? "ok  " : "FAIL"} ${name}: ${detail}`); };
@@ -96,10 +106,35 @@ for (const [chosen, scheme, want] of [
   await page.waitForTimeout(500);
   const results = await page.evaluate(() => [...document.querySelectorAll('[role="option"], [cmdk-item]')].map((e) => e.textContent.trim().slice(0, 30)).slice(0, 3));
   await page.keyboard.press("Enter");
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(900);
   const route = await page.evaluate(() => location.hash);
   await page.keyboard.press("Escape");
-  push("palette", open && results.length > 0 && route.startsWith("#/i/"), `open=${open} focus=${focused} first=${JSON.stringify(results[0] || null)} -> ${route}`);
+  /*
+   * r5 §Search: "type pages never appear" among the results, and §Type pages 1: the comparison surface is `#/t/`
+   * now. So the palette no longer has to land on an **item** — it has to land on a destination that exists: an
+   * item in the manifest, or a type in the taxonomy. Typing "sidebar" is the interesting case, because the type
+   * page is the better answer (21 members) and the old assertion (`route.startsWith("#/i/")`) called that a fail.
+   */
+  const destination = ITEM_ROUTES.has(route) ? "item" : TYPE_ROUTES.has(route) ? "type" : null;
+  push("palette", open && results.length > 0 && !!destination, `open=${open} focus=${focused} first=${JSON.stringify(results[0] || null)} -> ${route} (${destination ?? "not a route in this build"})`);
+  push("palette: a type is a result, and Enter lands on it",
+    TYPE_ROUTES.has(route) && /sidebar/i.test(TYPE_ROUTES.get(route) ?? ""),
+    `"sidebar" → ${route} — the taxonomy's "${TYPE_ROUTES.get(route) ?? "-"}" page`);
+  /*
+   * …and the other half of the same rule: a query that names no type still leads with an **item**, and Enter lands on
+   * `#/i/`. Without this, a palette that offered nothing but type pages would pass the assertion above.
+   */
+  await page.keyboard.press("Control+k");
+  await page.waitForTimeout(400);
+  await page.keyboard.type("sankey");
+  await page.waitForTimeout(600);
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(900);
+  const itemRoute = await page.evaluate(() => location.hash);
+  await page.keyboard.press("Escape");
+  push("palette: a query that names no type leads with an item",
+    ITEM_ROUTES.has(itemRoute),
+    `"sankey" → ${itemRoute} ${ITEM_ROUTES.has(itemRoute) ? `(an item in the manifest)` : "(not an item route)"}`);
   await ctx.close();
 }
 

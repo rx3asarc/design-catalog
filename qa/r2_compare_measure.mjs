@@ -13,6 +13,7 @@
  */
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const BASE = process.env.BASE || "http://localhost:8891/design-catalog/";
 /**

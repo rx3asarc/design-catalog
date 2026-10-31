@@ -20,16 +20,41 @@ import { settle } from "./settle.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
 /**
+<<<<<<< HEAD
  * This gate reads the manifest and the taxonomy of **the tree it lives in** — `fileURLToPath(new URL("..",
  * import.meta.url))` — not a path to some worktree that existed while it was written. r8-cards'
  * `qa/card_check.mjs` and `foundations_check.mjs` were hardcoded to `/…/design-catalog-site-r8-cards`, which was
  * deleted when that unit was reaped: on the merged tree they died in `readFileSync` before asserting anything, so a
  * broken gate looked like a crashed script instead of a measurement. A gate must run anywhere its repo is checked out.
+=======
+ * This gate's own tree, never a hardcoded worktree path: it used to read `…-r8-cards/app/manifest.json`, so it died
+ * in `readFileSync` the moment that worktree was reaped, and before that it decided membership from a different
+ * tree's manifest than the one the server was serving.
+>>>>>>> fleet/r9-gates
  */
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const items = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
+const taxonomy = JSON.parse(readFileSync(`${REPO}/app/src/site/taxonomy.json`, "utf8"));
 const byId = new Map(items.map((i) => [i.id, i]));
+/** every `shadcn/font-*` item, heading cuts included: the members plus the cuts each member folds */
 const fontIds = items.filter((i) => /^shadcn\/font-/.test(i.id)).map((i) => i.id);
+/** a type's current membership, read from the taxonomy the site is built from — never a hardcoded pair of ids */
+const membersOfType = (section, type) => taxonomy.sections?.[section]?.[type] ?? [];
+const themeMembers = membersOfType("Foundations", "Themes");
+const fontMembers = membersOfType("Foundations", "Fonts");
+/**
+ * `26 items · 26 variants · 1 library` — the count line the type page prints, computed here from the data the site
+ * is built from (`site/taxonomy.ts#itemsLabel` + the sections' own sources) and never typed into the gate.
+ */
+const factsOf = (section, type) => {
+  const ids = membersOfType(section, type);
+  const variants = ids.reduce((n, id) => n + (taxonomy.variants?.[id]?.length ?? 0), 0);
+  const libs = new Set(ids.map((id) => byId.get(id)?.source).filter(Boolean)).size;
+  return {
+    ids, variants, libs,
+    text: `${ids.length} items${variants > 0 ? ` · ${variants} ${variants === 1 ? "variant" : "variants"}` : ""} · ${libs} ${libs === 1 ? "library" : "libraries"}`,
+  };
+};
 
 const fails = [];
 const ok = (cond, line) => {
@@ -49,19 +74,24 @@ const errors = [];
   settle(page);
   await page.goto(`${BASE}#/t/foundations/fonts`, { waitUntil: "load" });
   await page.waitForTimeout(1800);
-  const r = await page.evaluate(() => {
+  const r = await page.evaluate(async () => {
+    await document.fonts.ready;
     const rows = [...document.querySelectorAll("[data-specimen]")];
     const out = { n: rows.length, rows: [], nodes: document.querySelectorAll("*").length, facts: "", lede: "" };
     for (const li of rows) {
       const name = li.querySelector(".spec-name");
       const cs = name ? getComputedStyle(name) : null;
       const note = li.querySelector(".spec-note");
+      const first = cs ? (cs.fontFamily.split(",")[0] ?? "").trim().replace(/^["']|["']$/g, "") : "";
       out.rows.push({
         id: li.getAttribute("data-specimen"),
         face: li.getAttribute("data-specimen-face"),
         text: (name?.textContent ?? "").trim(),
         size: cs ? parseFloat(cs.fontSize) : 0,
         family: cs ? cs.fontFamily : "",
+        first,
+        // does the browser actually have the face it was asked for? `check` is the only honest answer
+        loaded: cs ? document.fonts.check(`${cs.fontSize} "${first}"`) : false,
         note: note ? (note.textContent ?? "").trim() : "",
         meta: (li.querySelector(".spec-meta")?.textContent ?? "").trim(),
         row: (li.textContent ?? "").replace(/\s+/g, " ").trim(),
@@ -73,43 +103,50 @@ const errors = [];
     return out;
   });
 
-  ok(r.n === fontIds.length, `fonts: one row per member of the type — ${r.n} rows for ${fontIds.length} items`);
+  /*
+   * r5 §Fonts: "48 of 52 rows are set in the site's own font … the '(Heading)' entries double every typeface. On
+   * this page only, load the fonts from Google Fonts … either way merge each heading cut into its typeface: **26
+   * rows, not 52**." The old gate asserted "one row per member of the type — 52 rows for 52 items" and "four rows,
+   * two families", both of which measured the unmerged page. The properties that hold now, and that can regress:
+   *
+   *   1. one row per **member of the type** (the taxonomy's own list), and every one of the 52 `shadcn/font-*`
+   *      items accounted for — as a member, or as a cut folded into its typeface's row;
+   *   2. every row's face is its own: 26 rows paint 26 different first families, so no two rows share a typeface
+   *      (the review's "DM Sans and EB Garamond look identical");
+   *   3. at least twenty of them are the face they name — `document.fonts.check`, which is what "loaded from
+   *      Google Fonts" has to mean;
+   *   4. a row says where its face comes from, and the words match the attribute the page carries.
+   */
+  const facts = factsOf("Foundations", "Fonts");
+  const folded = fontMembers.reduce((n, id) => n + (taxonomy.variants?.[id]?.length ?? 0), 0);
+  ok(r.n === fontMembers.length, `fonts: one row per member of the type — ${r.n} rows for ${fontMembers.length} members`);
+  ok(fontMembers.length + folded === fontIds.length,
+    `fonts: and every font item in the catalogue is accounted for — ${fontMembers.length} members + ${folded} folded heading cuts = ${fontIds.length} of ${fontIds.length}`);
   ok(r.rows.every((x) => x.id && byId.has(x.id)), "fonts: every row is a real item id from the manifest");
-  const hosted = r.rows.filter((x) => x.face === "hosted");
-  const absent = r.rows.filter((x) => x.face === "absent");
-  // two families, each with a `heading` cut: four rows, and they must be the two families the build actually has
-  const hostedFamilies = new Set(hosted.map((h) => (/JetBrains/.test(h.family) ? "jetbrains-mono" : /Instrument/.test(h.family) ? "instrument-sans" : h.family)));
-  ok(
-    hosted.length === 4 && hostedFamilies.size === 2,
-    `fonts: the self-hosted families and their heading cuts are drawn in their own face — ${hosted.length} rows, ${hostedFamilies.size} families: ${hosted.map((h) => `${h.text} (${h.size}px)`).join(", ")}`,
-  );
-  ok(
-    hosted.every((h) => /Instrument Sans|JetBrains Mono/.test(h.family) && h.size >= 36),
-    `fonts: those two rows ARE the face — family ${JSON.stringify(hosted.map((h) => h.family.split(",")[0]))}, size ${JSON.stringify(hosted.map((h) => h.size))}`,
-  );
-  ok(
-    absent.every((a) => /not self-hosted/.test(a.meta)),
-    `fonts: the other ${absent.length} rows say on themselves that the face is not here — ${absent.filter((a) => /not self-hosted/.test(a.meta)).length} of ${absent.length}`,
-  );
-  ok(
-    hosted.every((h) => /self-hosted/.test(h.meta)),
-    `fonts: and the two hosted families say why they are different — "${hosted[0]?.meta}"`,
-  );
-  ok(
-    absent.every((a) => a.row.length <= 90),
-    `fonts: a row is a specimen and one mono line, not a paragraph — longest row ${Math.max(...absent.map((a) => a.row.length))} chars`,
-  );
-  ok(
-    absent.every((a) => /Instrument Sans/.test(a.family) && !/Instrument Sans|JetBrains Mono/.test(a.text.replace(/^(Heading )/, "")) === false ? true : true) &&
-      absent.every((a) => /Instrument Sans/.test(a.family)),
-    `fonts: no absent row is drawn in a face it does not have — all ${absent.length} are set in the interface face`,
-  );
+  const faces = r.rows.map((x) => x.first);
+  ok(faces.length === r.n && new Set(faces).size === faces.length,
+    `fonts: no two rows share a typeface — ${new Set(faces).size} distinct first families of ${faces.length}`);
+  const loadedRows = r.rows.filter((x) => x.loaded);
+  ok(loadedRows.length >= 20, `fonts: the faces are really loaded, not declared — ${loadedRows.length} of ${r.n} rows pass document.fonts.check`);
+  ok(r.rows.every((x) => (x.face === "hosted" || x.face === "google") &&
+    (x.face === "hosted" ? /self-hosted/i.test(x.meta) : /Google Fonts/i.test(x.meta))),
+    `fonts: every row says where its face comes from — ${r.rows.filter((x) => x.face === "hosted").length} self-hosted (${r.rows.filter((x) => x.face === "hosted").map((x) => x.text).join(", ")}), the rest Google Fonts`);
+  ok(r.rows.every((x) => x.size >= 36),
+    `fonts: every row is a specimen, set large enough to read as one — ${JSON.stringify([...new Set(r.rows.map((x) => x.size))])} px`);
   ok(r.table === 0, `fonts: the collection does not fall back to a demo table — ${r.table} rows in the table`);
-  ok(/52 members|52 item/.test(r.facts), `fonts: the page still states its own count — "${r.facts.slice(0, 70)}"`);
-  ok(r.lede.length > 60, `fonts: the surface says once what it is showing and what it cannot — "${r.lede.slice(0, 96)}…"`);
+  ok(r.facts === facts.text, `fonts: the page prints the taxonomy's own counts — "${r.facts}", want "${facts.text}"`);
+  ok(r.lede.length > 60, `fonts: the surface says once what it is showing — "${r.lede.slice(0, 96)}…"`);
+  // measured, printed, and reported rather than asserted: the lede's own heading-cut count is `items - families`,
+  // which is 0 on the merged page because the cuts are folded variants now, not members
+  const ledeCounts = /(\d+) typefaces from (\d+) items/.exec(r.lede);
+  const ledeCuts = /the (\d+) heading cuts/.exec(r.lede);
+  console.log(`     fonts: lede says ${ledeCounts ? `"${ledeCounts[1]} typefaces from ${ledeCounts[2]} items"` : "no counts"}` +
+    `${ledeCuts ? `, "the ${ledeCuts[1]} heading cuts"` : ""} — this build folds ${facts.variants} cuts (report: the 0 is stale)`);
+  ok(ledeCounts && Number(ledeCounts[2]) === fontMembers.length && Number(ledeCounts[1]) === new Set(faces).size,
+    `fonts: and the lede's counts are the rendered ones — "${ledeCounts?.[1] ?? "?"} typefaces from ${ledeCounts?.[2] ?? "?"} items", rendered ${new Set(faces).size} from ${r.n}`);
   const names = r.rows.map((x) => x.text);
   ok(new Set(names).size === names.length, `fonts: every specimen is a different name — ${new Set(names).size} distinct of ${names.length}`);
-  console.log(`     fonts: ${r.nodes} DOM nodes for 52 specimens`);
+  console.log(`     fonts: ${r.nodes} DOM nodes for ${r.n} specimens`);
   await ctx.close();
 }
 
@@ -122,6 +159,13 @@ const errors = [];
   settle(page);
   await page.goto(`${BASE}#/t/foundations/themes`, { waitUntil: "load" });
   await page.waitForTimeout(1800);
+  // walk the page once, so the cards below the palettes are on screen and the one live demo among them mounts
+  for (const y of [0, 900, 1800, 2700]) {
+    await page.evaluate((yy) => window.scrollTo(0, yy), y);
+    await page.waitForTimeout(350);
+  }
+  await page.evaluate(() => document.querySelector("[data-type-grid]")?.scrollIntoView({ block: "center" }));
+  await page.waitForTimeout(1200);
   const r = await page.evaluate(() => {
     const probe = (css) => {
       const c = document.createElement("canvas");
@@ -166,9 +210,32 @@ const errors = [];
     out.demos = document.querySelectorAll(
       "[data-also-row] iframe, [data-also-row] .type-demo-window, [data-row-demo] iframe, [data-row-demo] .type-demo-window",
     ).length;
+    /*
+     * MEMBERSHIP BY ELEMENT, not by attribute. One `<section>` carries `data-also-row` **and** `data-theme-swatch`
+     * for the same palette (`site/specimens.tsx`), so counting attributes invented six duplicate rows that do not
+     * exist. What a duplicate would actually be — the same type member listed twice on one page — needs two
+     * *elements*, which is what this collects.
+     */
+    const seen = new Map();
+    for (const el of document.querySelectorAll("[data-theme-swatch], [data-also-row], [data-type-row], [data-type-grid] a.member-link")) {
+      const id = el.getAttribute("data-theme-swatch") ?? el.getAttribute("data-also-row") ?? el.getAttribute("data-type-row")
+        ?? (el.getAttribute("href") ?? "").replace("#/i/", "");
+      if (!id) continue;
+      if (!seen.has(id)) seen.set(id, []);
+      seen.get(id).push(el.tagName.toLowerCase() + (el.classList.contains("member-link") ? ".member-link" : ""));
+    }
+    out.listed = [...seen.entries()].map(([id, els]) => ({ id, count: els.length, els }));
+    out.cards = [...document.querySelectorAll("[data-type-grid] li")].map((li) => ({
+      id: (li.querySelector("a.member-link")?.getAttribute("href") ?? "").replace("#/i/", ""),
+      mode: li.querySelector("[data-demo-mode]")?.getAttribute("data-demo-mode")
+        ?? (li.querySelector(".type-demo-window") ? (/type-demo-none/.test(li.querySelector(".type-demo-window").className) ? "none" : "window") : "none"),
+      frames: li.querySelectorAll("iframe").length,
+      says: /no demo/i.test((li.textContent ?? "").replace(/\s+/g, " ")),
+    }));
     return out;
   });
 
+  const themeFacts = factsOf("Foundations", "Themes");
   ok(r.themes.length === 5, `themes: five palette members are drawn as palettes — ${r.themes.length}`);
   ok(
     r.themes.every((t) => t.panels.length === 2 && t.panels[0].side === "light" && t.panels[1].side === "dark"),
@@ -195,15 +262,37 @@ const errors = [];
     r.themes.every((t) => /theme-[a-z]+\.json/.test(t.facts)),
     `themes: each palette names the file it was read from — ${r.themes.map((t) => (t.facts.match(/theme-[a-z]+\.json/) ?? ["?"])[0]).join(", ")}`,
   );
-  const leftovers = [...r.alsoRows, ...r.tableRows].filter((id) => !r.themes.some((t) => t.id === id));
-  ok(
-    leftovers.length === 2 && leftovers.includes("beui/theme-toggle") && leftovers.includes("rareui/theme-selector"),
-    `themes: the two members that are components, not palettes, are still on the page — ${JSON.stringify(leftovers)}`,
-  );
-  // the demo may hang under the also-row it belongs to or under the table row that now carries evidence: what the
-  // gate cares about is that a live demo runs somewhere on the surface, not which of the two shapes holds it
-  ok(r.demos >= 1, `themes: their demos still run — ${r.demos} demo window(s) on the page`);
-  ok(/7 members|7 item/.test(r.facts), `themes: the page still states its own count — "${r.facts.slice(0, 70)}"`);
+  /*
+   * r5 §Fonts and themes: "There are 5 fonts listed as 'Fonts' with five different names and no sample; same for the
+   * seven themes." Themes is seven members and five palettes, and round 9 re-cut the membership (read from
+   * `app/src/site/taxonomy.json`, never a hardcoded pair of ids). The old assertions — "the two members that are
+   * components … are still on the page" as `[data-also-row]`s, and "their demos still run ≥ 1" — measured the
+   * shape of the page rather than its content. Restated:
+   *
+   *   a. every member of the type is on the page, and drawn as what it is: the palettes as swatches, the two
+   *      components as grid cards;
+   *   b. no member is listed twice — by element, since one element legitimately carries two of these attributes;
+   *   c. every member whose manifest record says it has a demo mounts one when it is scrolled to, and a member with
+   *      no demo says "no demo" in words rather than showing an empty box.
+   */
+  const listedIds = r.listed.map((l) => l.id);
+  const missing = themeMembers.filter((id) => !listedIds.includes(id));
+  ok(missing.length === 0, `themes: every member of the type is on the page — ${listedIds.length} of ${themeMembers.length}${missing.length ? `, missing ${JSON.stringify(missing)}` : ""}`);
+  const twice = r.listed.filter((l) => l.count > 1);
+  ok(twice.length === 0, `themes: and no member is listed twice — ${twice.length ? twice.map((t) => `${t.id} in ${t.els.join(" + ")}`).join("; ") : "7 members, 7 elements (5 swatches + 2 cards)"}`);
+  const swatchIds = r.themes.map((t) => t.id);
+  const notPalette = swatchIds.filter((id) => !themeMembers.includes(id));
+  ok(notPalette.length === 0, `themes: each swatch is a member of this type — ${swatchIds.length} swatches, ${notPalette.length} not in ${JSON.stringify(themeMembers.length)} members`);
+  const cardIds = r.cards.map((c) => c.id).filter(Boolean);
+  const components = themeMembers.filter((id) => !swatchIds.includes(id));
+  ok(cardIds.length === components.length && components.every((id) => cardIds.includes(id)),
+    `themes: the members that are components, not palettes, are drawn as cards — ${JSON.stringify(cardIds)} (the type's non-palette members: ${JSON.stringify(components)})`);
+  const demosExpected = components.filter((id) => byId.get(id)?.has_demo);
+  const demosRunning = r.cards.filter((c) => demosExpected.includes(c.id) && c.frames > 0);
+  const honest = r.cards.filter((c) => !byId.get(c.id)?.has_demo).every((c) => c.says);
+  ok(demosRunning.length === demosExpected.length && honest,
+    `themes: their demos still run — ${demosRunning.length}/${demosExpected.length} demoed member(s) mounted a frame (${demosRunning.map((c) => c.id).join(", ") || "none"}), and the member with no demo says "no demo" (${r.cards.filter((c) => !byId.get(c.id)?.has_demo).map((c) => `${c.id}: ${c.says ? "says so" : "EMPTY BOX"}`).join(", ")})`);
+  ok(r.facts === themeFacts.text, `themes: the page prints the taxonomy's own counts — "${r.facts}", want "${themeFacts.text}"`);
   console.log(`     themes: ${r.nodes} DOM nodes for 5 palettes × 2 panels`);
   await ctx.close();
 }
