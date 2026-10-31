@@ -1761,3 +1761,138 @@ html:not(.dark) .cat {
 [data-stage-bar] [data-slot="toggle-group-item"][aria-checked="true"] {
   background: var(--surface-300); color: var(--ink); font-weight: 600;
 }
+
+/* ---- cards, canvases, specimens (r8b) ------------------------------------------------------------------------
+   THE GRID CARD PRINTS A DESCRIPTION, NOT A STATS LINE (`site/Tile.tsx`, `CardText`).
+
+   Measured before this block existed: 486 cards, every one 275.9 px tall at 1440 and 247.9 px at 390 — a spread of
+   **0 px** at both widths. That number is the contract: a grid is read by row, so no card may grow a line its
+   neighbour does not have. Each slot below is therefore a fixed height and the clamp ends a cut line with an
+   ellipsis:
+
+     provenance   16 px  (mono 12/16, the system's label step — source · licence, ellipsised, never wrapped)
+     name         35 px  (two lines of 17.5)
+     description  54 px  (three lines of 18; clamped, so a sentence past ~160 characters ends in "…")
+
+   16 + 4 + 35 + 4 + 54 = 113, plus 6 px above and 8 px below = 127 px of card under the canvas.
+
+   The order is provenance, name, description — not name, description, provenance — because 355 of the 486 cards
+   publish no description at all. With the description in the middle, each of those 355 cards opened a 54 px hole
+   between its name and its meta line, and a row of holes reads as a grid that has come apart. Hanging the eyebrow
+   above the name means every card starts with the same two things in the same place, and a card with nothing to
+   describe simply ends earlier inside a block whose height has not moved.
+
+   Three lines, not two, is a measured choice: of the 131 cards that publish a description, the sentence renders
+   as 1 line for 34, 2 for 36, 3 for 33, 4 for 18, 5 for 5, 6 for 4 and 7 for 1 (a 357 px card at 13/18). Two lines
+   would show 70 of the 131 in full — half the grid cut mid-sentence — and three shows 103, with the other 28
+   ending in an ellipsis. Beyond three the empty slot (355 cards publish no description at all) costs more than the
+   sentence it buys.
+
+   Nothing here is a new colour, a new radius or a new shadow: the block is a hairline and three type steps the
+   stylesheet already publishes (14/17.5 name, 13/18 description, 12/16 mono provenance), and the muted ink is
+   `--ink-muted`, which the contrast gate measures at 4.5:1 or better on every surface in both palettes.
+   ---------------------------------------------------------------------------------------------------------- */
+
+.dc-card-text {
+  /* the card's whole lower half, in one box: fixed slots, fixed height, so the spread above cannot come back */
+  box-sizing: border-box; height: 127px; overflow: hidden;
+  padding: 6px 10px 8px; border-top: 1px solid var(--border);
+  display: grid; grid-template-rows: 16px 35px 54px; gap: 4px 0; align-content: start;
+}
+.dc-card-name {
+  font-size: 14px; line-height: 17.5px; font-weight: 500; color: var(--ink); overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dc-card-line {
+  /* three lines: the description is the card's only prose, so it gets the room a sentence needs */
+  font-size: 13px; line-height: 18px; color: var(--ink-muted); overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dc-card-prov {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-subtle);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* the reference card's canvas link: the two lines of a sentence, and the library it belongs to */
+.dc-card-text a, .dc-card-out { text-decoration: none; }
+.dc-card-out:hover { background: var(--surface-200); }
+
+/* ---- foundations: a type specimen and a theme's palette are rows of a collection (r8b) -----------------------
+   `site/specimens.tsx`, rendered by `site/TypePage.tsx` where a Foundations row would otherwise be a tile with a
+   demo. The two surfaces are the same object seen twice: **the row is the specimen**, so the name is set in the
+   face at a size where the letterforms are the content, and a theme's palette is drawn from the variables that
+   theme file actually declares (nothing sampled, nothing invented).
+
+   Type steps here are larger than the catalogue's own by design — a specimen at 13 px is a specimen of nothing —
+   and every label stays on the system's 12/16 mono step. Nothing is under 12 px, nothing is tappable under 44 px,
+   and both surfaces re-flow to one column at 860 px.
+   ---------------------------------------------------------------------------------------------------------- */
+
+.spec-lede { font-size: 13px; line-height: 1.55; color: var(--ink-muted); max-width: 78ch; margin: 0 0 14px; }
+.spec-lede + .spec-list { margin-top: 0; }
+.spec-list { list-style: none; margin: 0 0 20px; padding: 0; }
+.spec-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: baseline;
+  border-top: 1px solid var(--border); padding: 10px 0 12px;
+}
+.spec-name {
+  /* the specimen: its own name in its own face, at the size the letterforms are the content */
+  font-size: 40px; line-height: 48px; letter-spacing: -0.01em; color: var(--ink);
+  display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; overflow-wrap: anywhere;
+}
+a.spec-name:hover { text-decoration: underline; }
+.spec-meta {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-subtle); text-align: right; white-space: nowrap;
+}
+/* the mark on a row whose face this build does not have: same line as the source and licence, so a specimen row
+   is always exactly two things — the name, and one mono line about it. */
+.spec-absent-mark { text-transform: none; letter-spacing: 0.02em; color: var(--ink-muted); }
+.spec-hosted-mark { color: var(--ink-muted); }
+
+/* a theme: light and dark side by side, each a column of the theme's own declared swatches */
+.swatch-theme { border-top: 1px solid var(--border); padding: 12px 0 14px; }
+.swatch-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
+.swatch-title {
+  font-size: 16px; line-height: 22px; font-weight: 500; color: var(--ink); text-decoration: none;
+  display: inline-flex; align-items: center; min-height: 44px;
+}
+.swatch-title:hover { text-decoration: underline; }
+.swatch-side-by-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.swatch-panel {
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 8px 10px 10px;
+  background: var(--surface-100); min-width: 0;
+}
+.swatch-panel-label {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-muted); display: block; margin-bottom: 6px;
+}
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 6px 8px; }
+.swatch { display: grid; gap: 3px; min-width: 0; }
+.swatch-chip {
+  height: 26px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  /* the chip is the value; the hairline is what makes a white-on-white swatch visible without a shadow */
+  box-sizing: border-box;
+}
+.swatch-name {
+  /* a token name is the point of the row, so it wraps rather than being cut: `sidebar-primary-foreground` is 27
+     characters and a column here is 104–170 px, so one line would either ellipsise the name or force two columns
+     per panel. It breaks on its own hyphens, which is how the variable is spelled anyway. */
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted);
+  overflow-wrap: anywhere; white-space: normal; min-height: 16px;
+}
+.swatch-value {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-subtle);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.swatch-facts {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em;
+  color: var(--ink-subtle); margin-top: 8px;
+}
+
+@media (max-width: 860px) {
+  .spec-name { font-size: 30px; line-height: 38px; min-height: 44px; }
+  .spec-row { grid-template-columns: minmax(0, 1fr); }
+  .spec-meta { text-align: left; white-space: normal; }
+  .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
+}

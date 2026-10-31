@@ -198,7 +198,22 @@ export function DemoFrame({ id, index, zoom, floor, addr, play, onSize, frameWid
           display: "block",
           transform: `scale(${zoom})`,
           transformOrigin: "top left",
-          background: "transparent",
+          /*
+           * THE PAPER THE DEMO IS PRINTED ON, IN THE DEMO'S THEME — not `transparent`.
+           *
+           * The child document paints its own themed background since r8 (`app/demo.html`'s boot script resolves
+           * the theme and applies it before the first paint, and its inline rule is `var(--background)`), so a
+           * transparent frame *usually* looks the same because the page behind it happens to be themed too. That
+           * `usually` is the bug the review called "demos render white in the dark grid": the frame is white for
+           * as long as anything about the child is late — a lazy chunk that has not arrived, a demo whose module
+           * threw, a document that paints before its stylesheet — and a white panel in a dark grid is exactly what
+           * a visitor reads as broken.
+           *
+           * The value comes from `FRAME_SURFACE`, the one table of the frame's two papers that `Demo`'s stage
+           * surface already paints with. When the address carries no theme (every link written before r8), the
+           * element stays transparent and nothing about this prop changes.
+           */
+          background: addr?.theme ? FRAME_SURFACE[addr.theme].ink : "transparent",
           /* the frame's own box follows the theme the demo is in, and so do the UA's parts of it. The child
              document states the same thing on its root element (`demo.html`'s boot script, `demo-main.tsx`'s
              `applyFlags`); this line is the box around it, not a second source of truth. */

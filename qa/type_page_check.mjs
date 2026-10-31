@@ -21,7 +21,9 @@ import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mj
 import { readFileSync } from "node:fs";
 
 const BASE = (process.argv[2] ?? "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r8-collections";
+/* the worktree this gate runs in: it reads the taxonomy and manifest that the served build was made from, and
+   every fleet worktree carries the same two files (this unit does not edit them) */
+const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r8-cards";
 const taxonomy = JSON.parse(readFileSync(`${REPO}/app/src/site/taxonomy.json`, "utf8"));
 const manifest = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
 /** a concept's members, read from the item's own `concepts` — the field `#/c/<key>` and the strip both read */
