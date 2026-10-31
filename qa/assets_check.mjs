@@ -11,8 +11,9 @@
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DOCS = process.argv[2] ?? "/root/design-catalog-site/docs";
+const DOCS = process.argv[2] ?? fileURLToPath(new URL("../docs", import.meta.url));   // this gate's own tree
 const NAME = /assets\/[A-Za-z0-9_.-]+\.(?:js|css)/g;
 
 const have = new Set();

@@ -31,9 +31,24 @@
  * Usage: node qa/rail_density_check.mjs [base]      (default http://localhost:8830/design-catalog/)
  */
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = process.argv[2] || "http://localhost:8830/design-catalog/";
+/** this gate's own tree (never a worktree path): the section counts the rail prints are the taxonomy's own */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const TAXONOMY = JSON.parse(readFileSync(`${REPO}/app/src/site/taxonomy.json`, "utf8"));
+/** section → { items, variants }, counted the way `site/taxonomy.ts#variantCount` counts: members, plus the folded
+ *  variants the taxonomy files under each member and that no list prints as a row (r5 §Fonts/gallery: "Folded
+ *  variants vanish from the counts … Show '1 item · 11 variants'"). */
+const SECTION_COUNTS = new Map(Object.entries(TAXONOMY.sections).map(([section, types]) => {
+  const members = [...new Set(Object.values(types).flat())];
+  const variants = members.reduce((n, id) => n + (TAXONOMY.variants?.[id]?.length ?? 0), 0);
+  return [section, { items: members.length, variants }];
+}));
+/** `245 items · 124 variants`, `37 items` — the one spelling `itemsLabel` prints (`site/taxonomy.ts`) */
+const COUNT_LABEL = /^(\d+) items?(?: · (\d+) variants?)?$/;
 const ROW = ".rail-sec, .rail-item";
 const SECTIONS = ["Components", "Blocks", "Charts", "Agent UI", "Effects", "Foundations", "Docs"];
 const PHONE_MAX = 8;
@@ -111,9 +126,31 @@ const measure = (page, root, rowSel) =>
   if (closed.doors === 0) ok("390 menu open: no grid doors in the rail", "0 [data-sidebar=menu-action]");
   else bad("390 menu open: no grid doors in the rail", `${closed.doors} grid doors — the review asked for them gone`);
 
-  const counted = closed.counts.filter((c) => /^\d+$/.test(c));
-  if (counted.length === closed.labels.length) ok("390 menu open: every section row prints its count as text", counted.join(" · "));
-  else bad("390 menu open: every section row prints its count as text", `${counted.length}/${closed.labels.length} — ${JSON.stringify(closed.counts)}`);
+  /*
+   * r5 §Fonts/gallery: "Folded variants vanish from the counts. 'Pie and donut · 1 item' hides 11 variants. Show
+   * '1 item · 11 variants'." Round 8 asserted a bare integer here; the count is a phrase now, so the assertion is
+   * the phrase's own grammar **and** its arithmetic: every section row prints `N items · M variants`, and both
+   * numbers are the taxonomy's own for that section.
+   */
+  const parsed = closed.counts.map((raw, i) => {
+    const m = COUNT_LABEL.exec(raw);
+    return m ? { label: closed.labels[i], items: Number(m[1]), variants: Number(m[2] ?? 0), raw } : { label: closed.labels[i], raw };
+  });
+  const badCounts = parsed.filter((p) => p.items === undefined);
+  if (badCounts.length === 0) ok("390 menu open: every section row prints its count as text", parsed.map((p) => p.raw).join(" · "));
+  else bad("390 menu open: every section row prints its count as text", `${parsed.length - badCounts.length}/${closed.labels.length} — ${JSON.stringify(closed.counts)}`);
+
+  const wrongCounts = parsed.filter((p) => {
+    const want = SECTION_COUNTS.get(p.label);
+    return !want || want.items !== p.items || (want.variants || 0) !== p.variants;
+  });
+  if (badCounts.length === 0 && wrongCounts.length === 0) {
+    ok("390 menu open: and the numbers are the taxonomy's own",
+      parsed.map((p) => `${p.label} ${p.items}${p.variants ? `·${p.variants}` : ""}`).join(" "));
+  } else {
+    bad("390 menu open: and the numbers are the taxonomy's own",
+      wrongCounts.map((p) => `${p.label} printed ${p.items}${p.variants !== undefined ? `·${p.variants}` : ""}, taxonomy ${JSON.stringify(SECTION_COUNTS.get(p.label))}`).join("; "));
+  }
 
   if (closed.shortRows.length === 0) ok("390 menu open: every rail row clears 44 px", `0 rows under 44, ${closed.rows} measured`);
   else bad("390 menu open: every rail row clears 44 px", closed.shortRows.slice(0, 4).join(" · "));

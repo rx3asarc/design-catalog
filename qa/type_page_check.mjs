@@ -371,50 +371,118 @@ if (alsoWithDemos) {
   ok("a type that is mostly variants says so", factLines === chart, `${factLines ?? "(no card)"} — want "${chart}"`);
 }
 
-/* ── 7b. the gallery's compare strip is scoped to the grid it sits in ────────────────────────────────────── */
+/* ── 7b. `#/c/` is a redirect into the type pages, and the gallery offers the type pages themselves ───────── */
 {
+  /*
+   * r5 §Type pages and sorting, item 1: **"Delete `#/c/` and redirect it to `#/t/`"**, and §Phones Gallery: "old
+   * 'Compare side by side' strip fills the first screen (20 links) → remove the strip".
+   *
+   * The strip this block used to measure is gone, so two of its assertions ("the unfiltered gallery still offers
+   * every comparable set ≥ 20", "a narrow filter offers only sets that are in it") had nothing left to count and
+   * failed at 0 links. What replaced them is the rule the review actually asked for, measured from the data:
+   *
+   *   a. the gallery offers the type pages, and every one it offers is a type the taxonomy has;
+   *   b. nothing on the gallery links to a `#/c/` page, and the strip's container is gone;
+   *   c. **every** concept key in `app/manifest.json` redirects into a type page that renders that type's name;
+   *   d. every type the gallery offers is reachable through the rail (a row under its section) **and** through
+   *      the type pages (the route renders the type it names).
+   */
+  const TYPE_ROUTES = new Map(pairs.map((p) => [route(p), p.type]));
+  const CONCEPTS = [...new Set(manifest.flatMap((i) => i.concepts ?? []))].sort();
+  const galleryTypes = () => page.evaluate(() =>
+    [...new Set([...document.querySelectorAll("a[href^='#/t/']")].map((a) => a.getAttribute("href")))]);
+
   const gridIds = () => page.evaluate(() => [...document.querySelectorAll("[data-catalog-item]")].map((e) => e.dataset.catalogItem));
-  const strip = () => page.evaluate(() => [...document.querySelectorAll("[data-compare-links] a")].map((a) => a.getAttribute("href")));
 
   await page.evaluate(() => { location.hash = "#/g"; });
   await settle();
-  await page.waitForTimeout(600);
-  const everySet = await strip();
-  ok("the unfiltered gallery still offers every comparable set", everySet.length >= 20, `${everySet.length} links`);
+  await page.waitForTimeout(700);
+  const offered = await galleryTypes();
+  const unknown = offered.filter((h) => !TYPE_ROUTES.has(h));
+  ok("the gallery offers the type pages, and every one is a type the taxonomy has",
+    offered.length >= 20 && unknown.length === 0,
+    `${offered.length} type links${unknown.length ? `, ${unknown.length} not a type: ${unknown.slice(0, 3).join(" ")}` : ", all #/t/<section>/<type>"} — ${(await gridIds()).length} items in the grid`);
+  const legacy = await page.evaluate(() => ({
+    strip: document.querySelectorAll("[data-compare-links]").length,
+    conceptLinks: document.querySelectorAll("a[href^='#/c/']").length,
+  }));
+  ok("the old compare strip is gone and nothing links to a #/c/ page",
+    legacy.strip === 0 && legacy.conceptLinks === 0,
+    `${legacy.strip} strip container(s), ${legacy.conceptLinks} #/c/ link(s)`);
 
-  // a section filter, taken from the rail so the label is the rail's own; the first with a non-empty grid wins
-  // the rail's four sections, in the rail's order (`SECTIONS` in site/route.ts); a label that resolves to no rows
-  // is skipped rather than failed, because the point is the strip, not the filter
-  const labels = ["Components", "Blocks and pages", "Motion and effects", "Docs"];
-  let used = null, filteredIds = [], filtered = [];
-  for (const label of labels.slice(0, 6)) {
+  // a section filter still mounts a grid to check against (kept from the old block: it is the context, not the claim)
+  const labels = ["Components", "Blocks", "Charts", "Agent UI", "Effects", "Foundations", "Docs"];
+  let used = null, filteredIds = [];
+  for (const label of labels) {
     await page.evaluate((l) => { location.hash = `#/g?sec=${encodeURIComponent(l)}`; }, label);
     await settle();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(450);
     const ids = await gridIds();
-    if (ids.length) { used = label; filteredIds = ids; filtered = await strip(); break; }
+    if (ids.length) { used = label; filteredIds = ids; break; }
   }
-  ok("a section filter still mounts a grid to check against", !!used, used ? `sec=${used}, ${filteredIds.length} items` : "no rail section produced a grid");
+  ok("a section filter still mounts a grid to check against", !!used, used ? `sec=${used}, ${filteredIds.length} items` : "no section produced a grid");
   if (used) {
-    const inGrid = new Set(filteredIds);
-    const wrong = filtered
-      .map((h) => h.replace("#/c/", ""))
-      .filter((key) => !membersOf(key).some((id) => inGrid.has(id)));
-    ok("the strip offers no set that has nothing in this grid",
-      wrong.length === 0, wrong.length ? wrong.join(" ") : `${filtered.length} set(s), every one has a member here`);
+    // the types a filtered grid can reach are the types its own members belong to — and every one is offered
+    const reachable = new Set(filteredIds.flatMap((id) => CONCEPTS.filter((k) => (byId.get(id)?.concepts ?? []).includes(k))));
+    const landing = [];
+    for (const key of reachable) {
+      await page.evaluate((k) => { location.hash = `#/c/${k}`; }, key);
+      await page.waitForFunction(() => !!document.querySelector("[data-type-title]"), null, { timeout: 8000 }).catch(() => {});
+      landing.push({ key, hash: await page.evaluate(() => location.hash), title: await page.evaluate(() => document.querySelector("[data-type-title]")?.textContent?.trim() ?? "") });
+    }
+    const wrong = landing.filter((l) => !TYPE_ROUTES.has(l.hash));
+    ok("every concept in a filtered grid redirects into a type page",
+      landing.length > 0 && wrong.length === 0,
+      `${landing.length} concept(s) → ${new Set(landing.map((l) => l.hash)).size} type route(s)${wrong.length ? `; escaped: ${wrong.slice(0, 3).map((l) => `${l.key}→${l.hash}`).join(" ")}` : ""}`);
   }
 
-  // the review's own complaint: the strip listed all twenty sets "in every section". A text filter is the narrowest
-  // grid this page can be put in, and a set with nothing in that grid is the failure being checked.
-  await page.evaluate(() => { location.hash = "#/g?q=sidebar"; });
+  // (c) every concept key in the whole manifest, not only the filtered grid's
+  const landings = [];
+  for (const key of CONCEPTS) {
+    await page.evaluate((k) => { location.hash = `#/c/${k}`; }, key);
+    await page.waitForFunction(() => !!document.querySelector("[data-type-title]"), null, { timeout: 8000 }).catch(() => {});
+    landings.push({ key, hash: await page.evaluate(() => location.hash), title: await page.evaluate(() => document.querySelector("[data-type-title]")?.textContent?.trim() ?? "") });
+  }
+  const escaped = landings.filter((l) => !TYPE_ROUTES.has(l.hash));
+  ok("every concept key in the manifest redirects into a #/t/ page",
+    CONCEPTS.length >= 20 && escaped.length === 0,
+    `${CONCEPTS.length} keys → ${new Set(landings.map((l) => l.hash)).size} type routes${escaped.length ? `; escaped: ${escaped.slice(0, 3).map((l) => `${l.key}→${l.hash}`).join(" ")}` : ""}`);
+  const misnamed = landings.filter((l) => TYPE_ROUTES.has(l.hash) && l.title !== TYPE_ROUTES.get(l.hash));
+  ok("and each redirect lands on the page that names that type",
+    misnamed.length === 0,
+    misnamed.length ? misnamed.slice(0, 3).map((l) => `${l.hash} rendered "${l.title}"`).join("; ") : `${landings.length} landings, every title the taxonomy's own`);
+
+  /*
+   * (d) reachable through the rail **and** the type pages. The rail renders a section's types when the section is
+   * open, so the full set is read after opening all seven — one browser, one page, no second build.
+   */
+  await page.evaluate(() => { location.hash = "#/g"; });
   await settle();
-  await page.waitForTimeout(600);
-  const narrowIds = new Set(await gridIds());
-  const narrow = await strip();
-  const narrowWrong = narrow.map((h) => h.replace("#/c/", "")).filter((k) => !membersOf(k).some((id) => narrowIds.has(id)));
-  ok("a narrow filter offers only sets that are in it",
-    narrowWrong.length === 0 && narrow.length < everySet.length && !narrow.includes("#/c/checkbox"),
-    `${narrow.length} of ${everySet.length} sets, ${narrowIds.size} items in the grid${narrowWrong.length ? `, wrong: ${narrowWrong.join(" ")}` : ""}`);
+  await page.waitForTimeout(500);
+  const secs = page.locator('[data-slot="sidebar"] .rail-sec');
+  const n = await secs.count();
+  for (let i = 0; i < n; i += 1) {
+    const closed = await secs.nth(i).evaluate((el) => !el.classList.contains("is-open"));
+    if (closed) {
+      await page.locator('[data-slot="sidebar"] .rail-sec > [data-slot="collapsible-trigger"]').nth(i).click().catch(() => {});
+      await page.waitForTimeout(180);
+    }
+  }
+  const railTypes = await page.evaluate(() =>
+    [...new Set([...document.querySelectorAll('[data-slot="sidebar"] .rail-item')].map((a) => a.getAttribute("href")))]);
+  const unrailed = offered.filter((h) => !railTypes.includes(h));
+  ok("every type the gallery offers has a row in the rail",
+    railTypes.length === TYPE_ROUTES.size && unrailed.length === 0,
+    `${railTypes.length}/${TYPE_ROUTES.size} types in the rail, ${unrailed.length} offered by the gallery without a row${unrailed.length ? `: ${unrailed.slice(0, 3).join(" ")}` : ""}`);
+  const unrendered = [];
+  for (const h of offered) {
+    await page.evaluate((x) => { location.hash = x; }, h);
+    await page.waitForFunction(() => !!document.querySelector("[data-type-title]"), null, { timeout: 8000 }).catch(() => {});
+    const title = await page.evaluate(() => document.querySelector("[data-type-title]")?.textContent?.trim() ?? "");
+    if (title !== TYPE_ROUTES.get(h)) unrendered.push(`${h} → "${title}"`);
+  }
+  ok("and every one of them renders the type page it names", unrendered.length === 0,
+    unrendered.length ? unrendered.slice(0, 3).join("; ") : `${offered.length} gallery types opened, ${offered.length} named themselves`);
 }
 
 /* ── 390: the same page, re-flowed — no overflow, no fact column lost, nothing small, nothing untappable ── */

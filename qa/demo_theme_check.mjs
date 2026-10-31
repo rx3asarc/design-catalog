@@ -101,7 +101,20 @@ for (const theme of ["light", "dark"]) {
 }
 
 /* ── B: the demo document once it runs ───────────────────────────────────────────────────────────────────── */
-console.log("B · the same document with its module running — html and body must be an opaque colour, never transparent");
+console.log("B · the same document with its module running — the frame is transparent on purpose; what it may never do is paint the wrong paper");
+/*
+ * r5 §Item page, item 1: "**Fix:** transparent frame so the canvas shows through". Round 8 asserted the opposite —
+ * that `html` and `body` were an opaque colour — and that assertion is now eight failures measured against a
+ * deliberate decision. What replaced it, and what can still fail:
+ *
+ *   a. the child's root is **either transparent or the theme's own paper** — never a third colour, and never an
+ *      opaque paper of the wrong polarity (that is the "demos render white in the dark grid" bug);
+ *   b. the paper a visitor actually sees is the composite: the child's backgrounds painted over the canvas the
+ *      frame sits on (`var(--background)` for that theme, the value `FRAME_SURFACE` carries). Composited, it has
+ *      to be the theme's ink;
+ *   c. the child's `color-scheme` is the theme's — a transparent frame with the wrong scheme hands the UA's own
+ *      widgets (scrollbars, form controls) the other theme.
+ */
 for (const theme of ["light", "dark"]) {
   const ctx = await browser.newContext({ viewport: { width: 900, height: 700 } });
   const page = await ctx.newPage();
@@ -111,18 +124,37 @@ for (const theme of ["light", "dark"]) {
     await page.evaluate(PROBE);
     const info = await page.evaluate(() => {
       const g = (el) => getComputedStyle(el);
-      const htmlBg = g(document.documentElement).backgroundColor;
-      const bodyBg = g(document.body).backgroundColor;
-      const body = window.__lum(bodyBg);
-      const html = window.__lum(htmlBg);
-      // the paper is the body's if it is opaque, otherwise the root's — and if neither is, it is transparent
-      const paper = body.lum >= 0 ? body : html;
-      return { cls: document.documentElement.className, html: htmlBg, body: bodyBg, lum: paper.lum, paper: paper.rgba };
+      return {
+        cls: document.documentElement.className,
+        html: g(document.documentElement).backgroundColor,
+        body: g(document.body).backgroundColor,
+        scheme: g(document.documentElement).colorScheme,
+        htmlLum: window.__lum(g(document.documentElement).backgroundColor),
+        bodyLum: window.__lum(g(document.body).backgroundColor),
+      };
     });
-    const lum = info.lum;
+    // the canvas this frame is drawn on: the theme's own `--background`, read off the running page rather than typed
+    const canvasCss = await page.evaluate((t) => {
+      const probeEl = document.createElement("div");
+      probeEl.style.color = `var(--background)`;
+      document.body.appendChild(probeEl);
+      const v = getComputedStyle(probeEl).color;
+      probeEl.remove();
+      // `demo.html` carries the same tokens as the site; the boot script has already put the theme's class on the root
+      return v || (t === "dark" ? "oklch(0.141 0.005 285.823)" : "oklch(1 0 0)");
+    }, theme);
+    const canvasLum = await page.evaluate((css) => window.__lum(css), canvasCss);
+    const alpha = (lum) => lum < 0;
+    const composited = (l) => (alpha(l) ? canvasLum.lum : l);
+    const paper = Math.max(composited(info.bodyLum.lum), composited(info.htmlLum.lum));
+    const thirdColour = [info.htmlLum, info.bodyLum].some((l) => !alpha(l.lum) && Math.abs(l.lum - canvasLum.lum) > 0.002);
     ok(
-      lum !== null && lum >= 0 && (theme === "dark" ? lum < 0.25 : lum > 0.5),
-      `B ${theme}: ${id} paints an opaque ${theme} paper — html ${info.html}, body ${info.body} → rgb(${info.paper.join(",")}), luminance ${info.lum.toFixed(3)} (class "${info.cls}")`,
+      !thirdColour && (theme === "dark" ? paper < 0.25 : paper > 0.5),
+      `B ${theme}: ${id} — html ${info.html}, body ${info.body} (transparent = the canvas shows through); composited over the canvas ${canvasCss} the paper is ${paper.toFixed(3)} (${theme === "dark" ? "dark" : "light"})${thirdColour ? " — a THIRD colour, not the canvas and not the theme" : ""} (class "${info.cls}")`,
+    );
+    ok(
+      info.scheme.trim() === theme,
+      `B ${theme}: ${id} — color-scheme ${info.scheme} on a transparent frame, so the UA's own parts are the demo's (class "${info.cls}")`,
     );
   }
   await ctx.close();
@@ -153,6 +185,81 @@ for (const theme of ["dark", "light"]) {
     );
   }
   await ctx.close();
+}
+
+/* ── E: one paper for the canvas, the frame and the child — and, when the stage disagrees with the site, a paper
+ *       that is visibly not the page's ─────────────────────────────────────────────────────────────────────── */
+console.log("E · the canvas, the frame element and the child document are one paper; a pinned stage leaves the page's paper");
+{
+  const read = (page) => page.evaluate(() => {
+    const canvas = document.querySelector("[data-stage-theme]");
+    const screen = document.querySelector("[data-frame-surface]");
+    const f = document.querySelector("[data-stage] iframe, .stage-win iframe");
+    let child = null;
+    try { child = f?.contentDocument ?? null; } catch { child = null; }
+    const bg = (el) => (el ? getComputedStyle(el).backgroundColor : null);
+    return {
+      stageTheme: canvas?.getAttribute("data-stage-theme") ?? null,
+      canvas: bg(canvas), screen: bg(screen), frame: bg(f),
+      childRoot: child ? bg(child.documentElement) : null,
+      childScheme: child ? getComputedStyle(child.documentElement).colorScheme : null,
+      frameScheme: f ? getComputedStyle(f).colorScheme : null,
+      page: bg(document.body), pageScheme: getComputedStyle(document.documentElement).colorScheme,
+    };
+  });
+  const lum = (page, css) => page.evaluate((c) => (c ? window.__lum(c).lum : null), css);
+
+  for (const [site, pinned] of [["dark", null], ["light", null], ["light", "dark"], ["dark", "light"]]) {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await ctx.addInitScript((t) => localStorage.setItem("catalog-theme", t), site);
+    const page = await ctx.newPage();
+    settle(page);
+    await page.goto(`${BASE}#/i/beui/bloom-menu`, { waitUntil: "load" });
+    await page.waitForTimeout(2200);
+    await page.evaluate(PROBE);
+    if (pinned) {
+      await page.click(`[aria-label="Preview the demo in ${pinned}"]`);
+      await page.waitForTimeout(1200);
+    }
+    const m = await read(page);
+    const L = {
+      canvas: await lum(page, m.canvas), screen: await lum(page, m.screen), frame: await lum(page, m.frame),
+      child: await lum(page, m.childRoot), page: await lum(page, m.page),
+    };
+    const tag = pinned ? `site ${site}, stage pinned ${pinned}` : `site ${site} = stage ${site}`;
+    const dark = (v) => v !== null && v < 0.25;
+    const light = (v) => v !== null && v > 0.5;
+    const stageDark = m.stageTheme === "dark";
+    /*
+     * r5 §Item page, item 1, the whole complaint: "Preview canvas is dark grey (#18181b); inside it the demo frame
+     * paints the site's own page colour (#09090b) edge to edge" — two papers in one box. Restated: whatever the
+     * value is, the canvas, the frame's own box and the child's root are **one** paint, and it follows the stage's
+     * theme rather than the page's.
+     */
+    ok(
+      L.canvas !== null && L.screen !== null && L.frame !== null && Math.abs(L.canvas - L.frame) < 0.002 && Math.abs(L.canvas - L.screen) < 0.002,
+      `E (${tag}): canvas, frame element and frame surface are one paper — canvas ${m.canvas}, screen ${m.screen}, frame ${m.frame} → luminance ${L.canvas?.toFixed(3)}`,
+    );
+    ok(
+      m.childRoot === null || /rgba\(0, 0, 0, 0\)/.test(m.childRoot) || Math.abs(L.child - L.canvas) < 0.002,
+      `E (${tag}): the child document resolves to that same canvas — html ${m.childRoot} (transparent = the canvas shows through)`,
+    );
+    ok(
+      (stageDark ? dark(L.canvas) : light(L.canvas)) && m.childScheme === m.stageTheme && m.frameScheme === m.stageTheme,
+      `E (${tag}): the stage's theme is the paper and the scheme — stage ${m.stageTheme}, canvas luminance ${L.canvas?.toFixed(3)}, child color-scheme ${m.childScheme}, frame color-scheme ${m.frameScheme}`,
+    );
+    if (pinned) {
+      // the important one: a stage that disagrees with the site must sit on a visibly different paper than the page
+      ok(
+        Math.abs(L.canvas - L.page) > 0.4,
+        `E (${tag}): the demo sits on a different paper than the page — canvas ${L.canvas?.toFixed(3)} vs page ${m.page} (${L.page?.toFixed(3)}), Δ ${Math.abs(L.canvas - L.page).toFixed(3)}`,
+      );
+    } else {
+      // measured, and printed rather than asserted: in a matching theme the canvas and the page are the same ink
+      console.log(`     E (${tag}): canvas ${L.canvas?.toFixed(3)} vs page ${L.page?.toFixed(3)} — Δ ${Math.abs(L.canvas - L.page).toFixed(3)} (same-theme case: the demo's paper IS the page's paper, by design — see the report)`);
+    }
+    await ctx.close();
+  }
 }
 
 /* ── D: the whole gallery, dark ──────────────────────────────────────────────────────────────────────────── */

@@ -15,10 +15,11 @@
 // overflow without clamping is a word sliced in half in silence — this gate fails on one.
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { settle } from "./settle.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r8-cards";
+const REPO = fileURLToPath(new URL("..", import.meta.url));   // this gate's own tree, never a worktree path
 const items = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
 const byId = new Map(items.map((i) => [i.id, i]));
 const noDemo = items.filter((i) => !i.has_demo);

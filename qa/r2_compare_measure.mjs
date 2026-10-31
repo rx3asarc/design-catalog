@@ -13,9 +13,10 @@
  */
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const BASE = process.env.BASE || "http://localhost:8891/design-catalog/";
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r2-compare-page";
+const REPO = fileURLToPath(new URL("..", import.meta.url));   // this gate's own tree, never a worktree path
 const OUT = `${REPO}/qa/r2_compare_measure.json`;
 const SHOTS = `${REPO}/qa/shots`;
 const VIEWPORTS = [{ name: "1440x900", width: 1440, height: 900 }, { name: "390x844", width: 390, height: 844 }];
