@@ -55,7 +55,17 @@ def main():
         cands = [name, f"assets/{base}"]
         if src and "/" in src:
             cands.append(os.path.normpath(os.path.join(os.path.dirname(src), name)))
+        # … and, last, anywhere in the tree if the basename is unique. The app fetches some files by a path it
+        # builds at runtime — `manifest/detail-<hash>.json` is joined to `BASE_URL` by `site/lib.ts`, so the name
+        # the bundle carries is the file name and not the path. Round 8 shipped without it: the crawl could not
+        # resolve `detail-fe2a6e189f.json` to `manifest/`, deleted it as dead, and every item page on the live site
+        # said "404" instead of "this item's own fields". A unique basename is a reference, and a pruner that
+        # cannot see a reference must not call it dead.
         hit = next((c for c in cands if c in have), None)
+        if hit is None:
+            matches = [f for f in have if os.path.basename(f) == name]
+            if len(matches) == 1:
+                hit = matches[0]
         if hit and hit not in keep:
             keep.add(hit)
             if hit.endswith((".js", ".css")):
@@ -80,6 +90,11 @@ def main():
     # the demo frame logged a 404 it had not caused — a pruner that cannot see a reference must not call it dead.
     for f in have:
         if f.startswith(("fonts/", "avatars/")) or f.endswith((".woff2", ".woff")):
+            keep.add(f)
+        # `manifest/` is the split catalogue's per-item detail, fetched once when an item page or a comparison
+        # opens (`virtual:catalog-detail-url` → `site/lib.ts` → `DetailWait`). It is reached by a URL the app
+        # builds at runtime, so it is reachable by design in exactly the way `data/` is.
+        if f.startswith("manifest/"):
             keep.add(f)
 
     # every relative link an HTML document makes is a file a visitor can click; those stay regardless of kind
