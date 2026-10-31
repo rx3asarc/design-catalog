@@ -148,28 +148,31 @@ const HERO_NOTE = "Six from the catalogue, no two the same type. Open any of the
  * Not a second tile and not a second harness — `Grid` owns the pool, the observers and the parked→live handover,
  * and it already renders the reference card for an item with no demo. What belongs to the row:
  *
- *  1. the column template — six across in the page's column, one band that scrolls sideways on a phone, so all six
- *     land inside the first screen instead of stacking into six rows;
+ *  1. the column template — six across in the page's column; **two across at 4:3 on a phone**, which is r9's fix
+ *     for the review's "a sideways scroller of 293 × 134 strips, each demo a thin crop". Two across at 4:3 is the
+ *     one that holds the row's own claim: all six tiles, named, inside the first phone screen (measured at 375 ×
+ *     812: six tiles in 3 rows, the band 400 px tall — a vertical list shows two of the six and buries the rest).
  *  2. the cap — six frames, because six is all the row has and the measured ceiling is nine;
  *  3. `frozen` — every tile loads `static=1`, a frozen first frame, and only the tile the visitor hovers or
  *     focuses is told to play. The frame is on the critical path here in a way it is not in a grid;
- *  4. `defer` — the pool starts on the first idle slot after the first paint. The posters are already in the exact
- *     boxes the frames will take, so this costs no layout shift; it only decides when six frames begin to mount.
+ *  4. `serial` — one tile at a time, each finishing its first paint before the next starts. Measured at 400 kbit/s
+ *     (the profile this project publishes its own numbers at), six tiles mounting at once put the first demo's
+ *     paint at 24.0 s and the last at 56.2 s; one at a time the first demo is a demo rather than a seventh of one.
+ *     The `defer` this replaces bought a 1 s idle wait and nothing else, so it is gone: the posters hold the exact
+ *     boxes, and the frames are this surface's content, not background work.
  */
 export function Featured() {
   const narrow = useNarrow();
-  const bodyH = narrow ? 132 : 210;
   const { colW, host } = useColumnWidth(narrow, HERO_TILES.length);
+  // 4:3 on a phone: the canvas is the tile's own measured width, three quarters of it deep. Before the first
+  // measure `colW` is 0, and `useColumnWidth`'s layout effect corrects it before the browser paints, so the height
+  // is never seen at 0.
+  const bodyH = narrow ? (colW > 0 ? Math.round(colW * 0.75) : 0) : 210;
   const theme = useSiteTheme();
   return (
     <>
       <p className="home-hero-note" data-hero-note="">{HERO_NOTE}</p>
-      <div
-        ref={host}
-        data-hero-tiles=""
-        data-hero-ids={HERO_IDS.join(" ")}
-        style={narrow ? { overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", paddingBottom: 4 } : undefined}
-      >
+      <div ref={host} data-hero-tiles="" data-hero-ids={HERO_IDS.join(" ")}>
         <Grid
           rows={HERO_TILES}
           colW={colW}
@@ -177,9 +180,9 @@ export function Featured() {
           narrow={narrow}
           theme={theme}
           cap={HERO_TILES.length}
-          columns={narrow ? "repeat(6, 78vw)" : "repeat(6, minmax(0, 1fr))"}
+          columns={narrow ? "repeat(2, minmax(0, 1fr))" : "repeat(6, minmax(0, 1fr))"}
           frozen
-          defer
+          serial
           caption="bar"
         />
       </div>

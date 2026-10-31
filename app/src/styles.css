@@ -1896,3 +1896,102 @@ a.spec-name:hover { text-decoration: underline; }
   .spec-meta { text-align: left; white-space: normal; }
   .swatch-side-by-side { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- r9: the first screen's row, one specimen per typeface, the phone menu (r9) --------------------------------
+   The review's list, in order, and nothing else: the front page's six tiles (their captions were escaping to the
+   page's bottom corner; they took ten seconds to appear; the phone showed them as sideways strips), the comparison
+   preview's columns, two sentences of machinery, one confusing counter, the gallery's twenty-link strip and the
+   "reference-only" wording, the font specimen page, and the phone's menu and search field. Sources: `site/Tile.tsx`
+   (the caption's anchor and the serial pool), `site/Featured.tsx` (the phone geometry), `site/CompareShowcase.tsx`
+   (the measured columns), `site/fontFamilies.ts` (the faces), `site/Gallery.tsx` (the type row), and this block.
+
+   Appended, not edited: everything above is a rule the earlier rounds argued for, and the ones this block overrides
+   are named with the reason. Nothing is `!important`, nothing is a literal colour, and the two sizes that move are
+   named with the measurement that moved them.
+   ---------------------------------------------------------------------------------------------------------- */
+
+/* 1. THE PHONE MENU REACHES THE FOOT, AND SAYS ITS NAME ONCE.
+   The panel was content-sized (`bottom: auto`, `max-height: 100dvh - header`), so a tree shorter than the viewport
+   left a strip of page under it — dimmed by the veil to 40 %, which is exactly "page text shows through it". Both
+   facts are gone: the panel is bounded by the header and the foot, and the page under it is not visible at all. The
+   strip of page was also the only place the veil could be tapped; with the panel at full height the veil is behind
+   it, which is what "the menu blocks the page" should have meant.
+
+   The duplicated wordmark: `.rail-brand`'s `<h1>` is the desktop rail's brand, which the desktop already hides in
+   favour of the top bar's (§ "the rail — the second surface — drops it"). On a phone those two are the same bar and
+   the same title, one above the other; the menu's copy goes, and the top bar's stays as the page's only name. The
+   head's remaining rows (the search field, the counts, the filters) are untouched. */
+@media (max-width: 860px) {
+  .menu-open .rail-phone { bottom: 0; max-height: none; }
+  .rail-phone .rail-brand { display: none; }
+}
+
+/* 2. THE SHORTCUT HINT IS NOT FOR A THUMB. "Ctrl K" is a fact about a keyboard; on a device with no pointer that can
+   hover there is no key to press, so the hint is not advice, it is noise in a 44 px field that already truncates. */
+@media (hover: none) {
+  .home-kbd { display: none; }
+}
+
+/* 3. THE GALLERY'S TYPE ROW: three types, six links, one 44 px line (`site/Gallery.tsx`, `TypesHere`). The strip it
+   replaces was up to twenty links and 284 px tall at 375; this is one line at every width, and every link keeps a
+   44 px target. The name opens the type page (the comparison); the count narrows this grid to that type. */
+.g-types {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; margin: 0 0 10px;
+  font-size: 13px; line-height: 20px;
+}
+.g-types-label {
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--ink-subtle); margin-right: 6px;
+}
+.g-type { display: inline-flex; align-items: center; gap: 2px; }
+.g-type > a {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 44px; padding: 0 8px; color: var(--ink); text-decoration: none;
+}
+.g-type > a:hover { text-decoration: underline; text-underline-offset: 2px; }
+.g-type-n {
+  /* the count is a link too, and it is the same 44 px box: a number is not a smaller target than a word */
+  font-family: var(--font-mono); font-size: 12px; line-height: 16px; color: var(--ink-muted);
+  font-variant-numeric: tabular-nums; padding: 0 6px; min-width: 24px;
+}
+
+/* 4. THE COMPARISON PREVIEW'S CELLS ARE WORDS NOW, NOT COUNTS (r5 §Home: "the boring columns"). They wrap rather than
+   measuring off the surface, and the table keeps its own horizontal scroller so a 375 px screen never gets a sideways
+   page — only a sideways table, which is the one place a table may scroll. */
+.cmp-preview .cmp-fact { color: var(--ink-muted); }
+.showcase-scroll { overflow-x: auto; overscroll-behavior-x: contain; }
+@media (max-width: 639px) {
+  .showcase .cmp-preview { font-size: 12px; line-height: 18px; }
+  .showcase .cmp-preview th, .showcase .cmp-preview td { padding: 2px 8px; }
+}
+
+/* 5. THE SPECIMEN ROW GAINS ITS SAMPLE LINE (r5 §Fonts: "48 of 52 rows are set in the site's own font, so 'DM Sans'
+   and 'EB Garamond' look identical"). The name is still the specimen at 40 px; the sample is the second half of one —
+   a name in a face tells you its capitals, "Hamburgefonstiv 0123" tells you its lowercase, its digits and its fit.
+   Two rows of type on the left, the mono provenance on the right, and at 860 px the provenance drops under them. */
+.spec-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name meta" "sample meta";
+  gap: 0 16px;
+}
+.spec-name { grid-area: name; }
+.spec-sample {
+  grid-area: sample; font-size: 21px; line-height: 30px; color: var(--ink-muted);
+  letter-spacing: 0; overflow-wrap: anywhere;
+}
+.spec-meta { grid-area: meta; align-self: center; }
+/* the heading cut's link, on the mono line: same 44 px target as everything else, and it does not break the line */
+.spec-meta a.spec-cut { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-muted); text-decoration: underline; text-underline-offset: 2px; }
+.spec-meta a.spec-cut:hover { color: var(--ink); }
+@media (max-width: 860px) {
+  .spec-row { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "sample" "meta"; }
+  .spec-sample { font-size: 18px; line-height: 26px; }
+}
+
+/* 6. A CARD'S DESCRIPTION IS TWO LINES (r5 §Gallery: "descriptions clamp to 3 lines where the RelatedCard spec says
+   2"). Round 8b argued for three and measured the cost of two — 103 of 131 cards showed the whole sentence at three
+   lines, 70 do at two — but a card's prose is a label for the tile, not the tile's subject, and the design system
+   publishes one clamp for it. The slot is 36 px (two 18 px lines) instead of 54, so the grid's zero-spread rule is
+   kept at the new height rather than traded for it. */
+.dc-card-text { height: 109px; grid-template-rows: 16px 35px 36px; }
+.dc-card-line { -webkit-line-clamp: 2; }

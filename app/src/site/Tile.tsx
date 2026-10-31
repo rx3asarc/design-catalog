@@ -48,6 +48,7 @@ const REF_WIDTH = 768;       // logical width a tile's demo lays out at, before 
 const ZOOM_MIN = 0.25;
 const ZOOM_MAX = 1.6;
 const SETTLE_MS = 140;       // mounts wait for the scroller to be still this long (see Pool.tick)
+const HOLD_MS = 6000;        // a serial surface waits this long for a tile to paint, then moves on regardless
 
 /**
  * The element that actually scrolls this tile, or null when the document does.
@@ -67,7 +68,7 @@ export function scrollerOf(el: HTMLElement | null): HTMLElement | null {
   return null;
 }
 
-type Slot = { key: string; el: HTMLElement; setLive: (v: boolean) => void };
+type Slot = { key: string; el: HTMLElement; setLive: (v: boolean) => void }; 
 export type PoolStats = {
   mounts: number; perFrameMax: number; frames: number; evictions: number; deferred: number; live: number; cap: number;
 };
@@ -92,6 +93,21 @@ export class Pool {
   private timer: ReturnType<typeof setTimeout> | 0 = 0;
   private stillUntil = 0;
   private watching = false;
+  /* ── the first screen's rule (r9) ────────────────────────────────────────────────────────────────────────────
+   * A tile is a whole document: it loads its own React, the demo runtime and the demo's chunk, and on this box one
+   * of those costs 1.47–3.02 MB and ~40 requests (measured, `build/r9-home.md` §2). Nine of them at once is the
+   * measured ceiling for 60 fps, but *six of them at once on one slow link* is also six-way contention for the same
+   * pipe: measured at 400 kbit/s, the first of the front page's six demos did not paint until 24.0 s and the last
+   * until 56.2 s, because all six wanted the wire at the same instant.
+   *
+   * A surface that IS the first screen (`serial`) therefore mounts **one tile at a time, in view order, and waits
+   * for that tile's child to speak before it starts the next**: the first demo gets the pipe to itself, so it is a
+   * demo rather than a seventh of one. The hold is released by the child's first `onSize` message (`reportReady`) or
+   * by `HOLD_MS`, because a demo that never reports must not be able to stall the rest of the row.
+   */
+  private serially = false;
+  private holding: string | null = null;
+  private holdTimer: ReturnType<typeof setTimeout> | 0 = 0;
   /** the scrolling ancestor, resolved once: `scrollerOf` walks the tree and reads computed styles, and doing that
    *  per queued tile per mount cost ~10 ms of forced style recalc on a 486-tile grid. */
   private root: HTMLElement | null = null;
@@ -129,6 +145,21 @@ export class Pool {
     if (this.live.has(key) || this.queue.includes(key)) return;
     this.queue.push(key);
     this.schedule();
+  }
+  /** Serial or parallel mounting: set once per surface, by the surface's own rule. */
+  serial(on: boolean) {
+    this.serially = on;
+    if (!on) this.unhold();
+  }
+  /** The child has spoken (its first measured size): a serial pool may start the next tile now. */
+  reportReady(key: string) {
+    if (this.holding === key) this.unhold();
+  }
+  private unhold() {
+    if (this.holdTimer) { clearTimeout(this.holdTimer); this.holdTimer = 0; }
+    if (this.holding === null) return;
+    this.holding = null;
+    if (this.queue.length) this.schedule();
   }
   /** Out of the exit margin: detach the element, keep the tile (and the page's geometry) exactly where it was. */
   release(key: string) {
@@ -185,6 +216,8 @@ export class Pool {
     this.raf = 0;
     this.stats.frames++;
     if (this.queue.length && performance.now() < this.stillUntil) { this.schedule(); return; }
+    // a serial surface waits for the tile it just started to paint before it starts another (see the fields above)
+    if (this.serially && this.holding !== null && this.live.has(this.holding)) return;
     let mounted = 0;
     let deferred = false;
     while (this.queue.length && !mounted) {
@@ -207,6 +240,10 @@ export class Pool {
       this.stats.live = this.live.size;
       this.stats.mounts++;
       mounted = 1;
+      if (this.serially) {
+        this.holding = slot.key;
+        this.holdTimer = setTimeout(() => { this.holdTimer = 0; this.unhold(); }, HOLD_MS);
+      }
     }
     if (mounted) this.stats.perFrameMax = Math.max(this.stats.perFrameMax, mounted);
     if (!this.queue.length) return;
@@ -436,6 +473,8 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "bl
   // re-flows at a different frame width must not be able to oscillate the scale frame after frame.
   const onSize = useCallback((m: { height: number; width: number }) => {
     setReady(true);
+    // the child has painted: on a serial surface this is what lets the next tile start (see Pool.serial)
+    pool.reportReady(key);
     const w = m.width;
     if (!w || w < 32) return;
     if (zooms.current >= 4) return;                       // four corrections is a scale, not an oscillation
@@ -445,8 +484,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "bl
     zooms.current += 1;
     setNatural(w);
   }, []);
-  const zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, colW > 0 ? colW / (natural || REF_WIDTH) : ZOOM_MIN + 0.15));
-  // The tile is a window of a fixed height, so the frame it looks through must be at least that tall **in the
+  const zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, colW > 0 ? colW / (natural || REF_WIDTH) : ZOOM_MIN + 0.15));  // The tile is a window of a fixed height, so the frame it looks through must be at least that tall **in the
   // child's own px** (`bodyH / zoom`, rounded up so the product can never land 0.3 px short). `floor` alone
   // could not do this: it is only what a demo gets *before* it reports, and a demo that honestly reports 60 px
   // then got 60 px inside a 210 px tile — measured, `beui/marquee` filled 30.4 px of 210 at 1440. `stretch` is
@@ -462,6 +500,21 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "bl
         data-catalog-item={item.id}
         style={{
           ...cardStyle,
+          /*
+           * THE CAPTION'S ANCHOR, and the whole of the review's worst finding (r5 §Home, item 1).
+           *
+           * The bar under a hero tile is `position: absolute` with `left/right/bottom: 0`, so it is positioned
+           * against its nearest positioned ancestor — and this element, the card, had no `position` at all. The
+           * browser walked past it to the page, and all six captions stacked in the page's bottom-left corner,
+           * where the six demos had no visible names and a phone read the stuck bar as a footer. Measured on the
+           * build before this line (1440 and 375): 0 of 6 captions inside their own tile, 1 distinct caption
+           * position for all six. After: 6 of 6 inside, 6 distinct positions, both widths.
+           *
+           * The sibling canvas below is `position: relative` for the poster, which is why the poster was always
+           * in the right place and only the caption was not: the fix belongs to the parent, not to the caption's
+           * coordinates.
+           */
+          position: "relative",
           borderColor: hot ? "var(--focus)" : "var(--border)",
           outline: ringed ? "2px solid var(--ink)" : undefined,
           outlineOffset: ringed ? 2 : undefined,
@@ -491,6 +544,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "bl
             <div
               inert
               aria-hidden="true"
+              data-demo-frame={item.id}
               style={{
                 pointerEvents: "none", position: "relative",
                 opacity: ready ? 1 : 0, transition: "opacity 140ms linear",
@@ -630,7 +684,7 @@ export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
 
 /* ── the grid, and the observers that decide what is mounted ────────────────────────────────────────────── */
 
-export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, defer, caption = "block" }: {
+export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, defer, serial, caption = "block" }: {
   rows: Item[]; colW: number; bodyH: number; narrow: boolean; theme: "light" | "dark";
   /**
    * How many frames may run at once. Absent is the grid's own budget — 9 wide, 2 on a phone, both measured — and
@@ -653,6 +707,12 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, d
    * frames will occupy, so this costs the row no layout shift — it only decides when the frames begin.
    */
   defer?: boolean;
+  /**
+   * Mount one tile at a time and let each one finish painting before the next starts. For a surface whose tiles ARE
+   * the first screen (`site/Featured.tsx`): six demo documents asking for one slow link at once is why the first
+   * demo took 24 s to paint at 400 kbit/s. See `Pool.serial` for the measurement.
+   */
+  serial?: boolean;
   /** see `DemoTile`: a hero row names its tiles across the canvas's foot to keep the row one canvas tall */
   caption?: "block" | "bar";
 }) {
@@ -660,6 +720,10 @@ export function Grid({ rows, colW, bodyH, narrow, theme, cap, columns, frozen, d
   const limit = cap ?? (narrow ? PHONE_CAP : LIVE_CAP);
   const pool = useMemo(() => new Pool(limit), [limit]);
   const [armed, setArmed] = useState(!defer);
+
+  // the mounting rule belongs to the surface, not to the pool: a row of six tidies up after itself, a grid of 486
+  // fills the pipe (the cap is what keeps a grid honest)
+  useEffect(() => { pool.serial(!!serial); }, [pool, serial]);
 
   // the first paint happens without us; the mount queue starts on the first idle slot after it
   useEffect(() => {

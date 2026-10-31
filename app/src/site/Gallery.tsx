@@ -3,6 +3,8 @@ import { Button } from "@/registry/new-york-v4/ui/button";
 import { items, type Item } from "./lib";
 import { buildTree, gridHref, needleHit, type GalleryQuery, type TreeSection } from "./route";
 import { Grid, hasDemo, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
+import { idOf, TYPES, typeOfItem } from "./taxonomy";
+import { TYPE_BY_ROUTE, typeRoute, typeHref } from "./typeIndex";
 
 /**
  * The gallery: every item the filter names, as a card, with a live demo in the ones that have one.
@@ -10,13 +12,13 @@ import { Grid, hasDemo, useColumnWidth, useNarrow, useSiteTheme } from "./Tile";
  * What is left here is the filter and the header — the tile, the mount pool and the grid moved to `./Tile`
  * unchanged, so the front page can put the same tile on its first screen instead of a second copy of it.
  * `resolve()` still resolves filters through the rail's own tree, and the header still states how many of the
- * filter's rows are shown and how many are reference-only.
+ * filter's rows are shown and how many have no demo.
  */
 
 /* ── the filter, resolved through the same tree the rail renders ───────────────────────────────────────── */
 
 type Resolved = {
-  /** every row the filter matched, before the reference-only toggle */
+  /** every row the filter matched, before the no-demo toggle */
   rows: Item[];
   shown: Item[];
   demo: Item[];
@@ -82,6 +84,25 @@ export function resolve(query: GalleryQuery): Resolved {
   }
   if (query.q) levels.push(`“${query.q}”`);
 
+  /*
+   * THE TYPE, as a filter (r9 §8).
+   *
+   * The review's note was "no way to filter by the new types": a rail row opens a type page, and nothing in the grid
+   * could be narrowed to one. The address is `site/typeIndex.ts`'s own (`components/sidebar`), read back through the
+   * same module's map, so a link and a hand-typed filter cannot mean two different types. Applied last, as an
+   * intersection with whatever else the filter asked for, so `?sec=Components&type=components/sidebar` means what it
+   * looks like it means. A type this build does not have is reported in `unknown`, never ignored.
+   */
+  if (query.type) {
+    const hit = TYPE_BY_ROUTE.get(query.type);
+    if (!hit) unknown.push(`type “${query.type}”`);
+    else {
+      const ids = new Set(hit.members.map(idOf));
+      rows = rows.filter((i) => ids.has(idOf(i)));
+      levels.push(hit.type);
+    }
+  }
+
   const uniq = [...new Map(rows.map((i) => [i.id, i])).values()];
   const demo = uniq.filter(hasDemo);
   const refOnly = uniq.filter((i) => !hasDemo(i));
@@ -94,29 +115,51 @@ export function resolve(query: GalleryQuery): Resolved {
 /**
  * `#/g[?filter]`: what is here, how much of it is hidden, and the grid itself.
  *
- * The header is the whole contract of §3.3 — how many are shown, how many are reference-only and hidden, one
+ * The header is the whole contract of §3.3 — how many are shown, how many have no demo and are hidden, one
  * honest toggle that is also in the URL. A filter value that matches nothing is named, because a gallery that
  * silently renders the catalogue for a typo is the defect this route replaces.
  */
 /**
- * The concept sets worth a door of their own: four or more members, so the comparison is a comparison and not a pair.
- * Computed from the manifest's per-item `concepts` — the same field `#/c/<key>` reads, so a link here cannot point
- * at a set the page does not know.
+ * The compact row that replaced the twenty-link comparison strip (r5 §Gallery, §Phones; r9 §5).
  *
- * Each entry carries its members' ids, because the strip below is **scoped to what the grid is showing**: the review
- * of the collections found the strip listing all twenty sets in every section, which put checkbox, switches and
- * tables on a navigation page. A set is offered here only when at least one of its members is in this filter.
+ * What was here linked every concept set in the grid — up to twenty `#/c/<key>` addresses — and at 375 px it stood
+ * 284 px tall, filling the first phone screen above the first tile. It also pointed at the route this round retires
+ * (`#/c/` → `#/t/`). What replaces it is one line: the three types with the most members in the filter the visitor is
+ * actually looking at. Each entry is two links, both meaningful and both named for what they do — the **name** opens
+ * the type page, which is the comparison; the **count** narrows this grid to that type (`#/g?type=…`, the filter r9
+ * added). Three types, six links, one line: a reader who wants neither scrolls past 44 px instead of 284.
  */
-const COMPARABLE = (() => {
-  const members = new Map<string, Set<string>>();
-  for (const i of items) for (const k of (i as Item & { concepts?: string[] }).concepts ?? []) {
-    if (!members.has(k)) members.set(k, new Set());
-    members.get(k)!.add(i.id);
-  }
-  return [...members.entries()].filter(([, ids]) => ids.size >= 4)
-    .sort((a, b) => b[1].size - a[1].size || a[0].localeCompare(b[0]))
-    .map(([key, ids]) => ({ key, n: ids.size, ids }));
-})();
+function TypesHere({ rows, query }: { rows: Item[]; query: GalleryQuery }) {
+  const top = useMemo(() => {
+    const n = new Map<string, number>();
+    for (const i of rows) {
+      const t = typeOfItem(i);
+      if (!t) continue;           // a variant folds into its parent's type, so it is not a type of its own here
+      n.set(t.key, (n.get(t.key) ?? 0) + 1);
+    }
+    return [...n.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 3)
+      .map(([key, count]) => ({ t: TYPES.find((x) => x.key === key), count }))
+      .filter((e): e is { t: (typeof TYPES)[number]; count: number } => !!e.t);
+  }, [rows]);
+  if (!top.length) return null;
+  return (
+    <p className="g-types" data-type-links="">
+      <span className="g-types-label">Types here:</span>
+      {top.map(({ t, count }) => (
+        <span className="g-type" key={t.key} data-type-link={t.key}>
+          <a href={typeHref(t)} aria-label={`${t.type} — the page that compares its ${count} members`}>{t.type}</a>
+          <a
+            className="g-type-n"
+            href={gridHref({ ...query, type: typeRoute(t.section, t.type) })}
+            aria-label={`Show only the ${count} ${t.type} items in this filter`}
+          >{count}</a>
+        </span>
+      ))}
+    </p>
+  );
+}
 
 export function Gallery({ query }: { query: GalleryQuery }) {
   const narrow = useNarrow();
@@ -126,19 +169,14 @@ export function Gallery({ query }: { query: GalleryQuery }) {
   // a subscription, so a theme change reaches the frames that are already mounted below (§ the hook's comment)
   const theme = useSiteTheme();
   const sig = JSON.stringify([query, resolved.shown.length]);
-  /* the sets this filter actually touches — see COMPARABLE: never another section's sets on this section's page */
-  const comparable = useMemo(() => {
-    const here = new Set(resolved.rows.map((i) => i.id));
-    return COMPARABLE.filter((c) => [...c.ids].some((id) => here.has(id)));
-  }, [resolved.rows]);
 
   const title = resolved.levels.length
     ? resolved.levels.join(" · ")
     : query.q ? `“${query.q}”` : "Everything";
   // the first number is the filter's total — the same count the rail row showed — then what of it is on screen
-  const counted = `${resolved.rows.length} items · ${resolved.shown.length} shown · ${resolved.refOnly.length} reference-only ${query.ref ? "included" : "hidden"}`;
+  const counted = `${resolved.rows.length} items · ${resolved.shown.length} shown · ${resolved.refOnly.length} of them without a demo ${query.ref ? "included" : "hidden"}`;
   const chips = ([
-    ["src", query.src], ["q", query.q], ["kind", query.kind],
+    ["src", query.src], ["q", query.q], ["kind", query.kind], ["type", query.type],
   ] as const).filter(([, v]) => v);
 
   return (
@@ -146,23 +184,11 @@ export function Gallery({ query }: { query: GalleryQuery }) {
       <h2 className="title" data-gallery-title="">{title}</h2>
       <p className="lede" style={{ marginBottom: 12 }}>
         {resolved.demo.length} of the items in this filter run live here — a scaled viewport onto the demo, with the
-        item page behind the tile. {resolved.refOnly.length} are reference-only: a licence entry with no demo.
+        item page behind the tile. {resolved.refOnly.length} have no demo at all: items whose source this catalogue
+        may not republish, listed so the count is the catalogue's and not the demos'.
       </p>
-      {/*
-       * Comparisons were reachable only from an item page, which a tester reported as "no one can find it".
-       * These are the sets big enough to be worth comparing (four or more members), named by the concept's own
-       * key — the same key the store uses, so `#/c/sidebar` here and `compare sidebar` on the CLI are one set.
-       */}
-      {comparable.length > 0 && (
-        <p data-compare-links="" style={{ fontSize: 13, margin: "0 0 10px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
-          <span style={{ color: "var(--ink-muted)" }}>Compare side by side:</span>
-          {comparable.map((c) => (
-            <a key={c.key} href={`#/c/${c.key}`} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, minWidth: 44, paddingInline: 6 }}>
-              {c.key} <span style={{ color: "var(--ink-muted)", marginLeft: 4 }}>{c.n}</span>
-            </a>
-          ))}
-        </p>
-      )}
+      {/* the compact row that replaced the twenty-link comparison strip — see `TypesHere` */}
+      <TypesHere rows={resolved.rows} query={query} />
       <div style={{
         display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, margin: "0 0 16px",
         paddingBottom: 12, borderBottom: "1px solid var(--border)",
@@ -182,7 +208,7 @@ export function Gallery({ query }: { query: GalleryQuery }) {
           aria-pressed={!!query.ref}
           onClick={() => { location.hash = gridHref({ ...query, ref: !query.ref }); }}
         >
-          {query.ref ? "Hide reference-only" : `Show reference-only (${resolved.refOnly.length})`}
+          {query.ref ? "Hide the ones without a demo" : `Show the ${resolved.refOnly.length} without a demo`}
         </Button>
         {(chips.length > 0 || query.sec || query.cat || query.fam || query.sub) && (
           <a href="#/g" style={{ fontSize: 13, display: "inline-flex", alignItems: "center", minHeight: 44 }}>All items</a>
@@ -206,7 +232,7 @@ export function Gallery({ query }: { query: GalleryQuery }) {
           <div className="withheld" style={{ margin: "0 0 24px" }}>
             No item matches this filter.{" "}
             {resolved.refOnly.length ? (
-              <><a href={gridHref({ ...query, ref: true })}>Include {resolved.refOnly.length} reference-only items</a>, or{" "}</>
+              <><a href={gridHref({ ...query, ref: true })}>Include {resolved.refOnly.length} items without a demo</a>, or{" "}</>
             ) : null}
             <a href="#/g">show everything</a>.
           </div>
