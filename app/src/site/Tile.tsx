@@ -297,7 +297,63 @@ export function Facets({ item, mode = "card" }: { item: Item; mode?: "card" | "a
   );
 }
 
-/** The one-line meta every card shares: source, licence, facets. Never wider than the card. */
+/**
+ * What a card prints under its canvas: **the item's own one-line description**, its provenance, and nothing about
+ * file counts.
+ *
+ * The review was blunt and right: "27 pattern · 21 files · sidebar" is not what a visitor needs; the item's
+ * one-line description is. `item.one_line` is the data unit's sentence — it is read, never generated, and when the
+ * manifest publishes none (355 of the 486 items that have a demo, and 107 of the 283 that do not) the slot stays
+ * *empty* rather than being filled with something we wrote. The counts the card used to print are still on the
+ * item page's own fact table (`site/ItemPage.tsx`), where a reader has decided to look at one thing.
+ *
+ * Why the geometry is fixed rather than content-sized: a grid is scanned by row, so a row where one card is two
+ * lines taller than its neighbours is a row whose titles do not line up, and the measured spread of card heights
+ * before this block existed was **0 px** at both 1440 and 390 (486 cards, all 275.9 px / all 247.9 px). Every slot
+ * below is therefore a fixed height — a two-line name box (44 px, which is also the tap floor the name sits in), a
+ * two-line description box (36 px), one provenance line (16 px) — so the spread stays 0 whatever the copy does.
+ * The description is clamped with `-webkit-line-clamp`, which ends a cut line **with an ellipsis**, so nothing is
+ * ever severed mid-word in silence.
+ */
+export function CardText({ item, name }: { item: Item; name: React.ReactNode }) {
+  return (
+    <div className="dc-card-text" data-card-text={item.id} data-card-has-line={item.one_line ? "1" : "0"}>
+      {/*
+       * The provenance is the **eyebrow**, above the name: which of the five libraries, and the item's licence, in
+       * the system's 12/16 mono step. It was under the description, and that was the wrong place for a reason that
+       * took a reader to point out: 355 of the 486 cards publish no description, so the reserved description slot
+       * became a hole *between* the name and the provenance — the two things a card always has — and a grid of
+       * holes reads as a broken grid. Above the name it is a subtitle, the description hangs under the name where a
+       * description belongs, and a card with nothing to say simply ends after its name, with the whitespace below
+       * it (the block's height is fixed, so the slide-rule does not change).
+       */}
+      <span className="dc-card-prov">{item.source} · {item.licence}</span>
+      <span className="dc-card-name">{name}</span>
+      {item.one_line ? <span className="dc-card-line" data-card-line={item.id}>{item.one_line}</span> : null}
+    </div>
+  );
+}
+
+/**
+ * The one sentence an item with no demo gets, in the item page's own voice.
+ *
+ * The page says "No demo for this one — it is a helper or a doc, not a component." and, for the 93 items whose
+ * licence forbids republication, "Code not shown here because the licence does not allow us to republish it."
+ * A card is smaller than a page, so the two are cut to one clause each and keep the page's own words: **"No demo
+ * for this one"** — not "NO DEMO", which is a label shouting at the reader, and not "reference-only", which is
+ * our internal word. `withheld` decides which reason is printed, because the two absences are not the same fact.
+ *
+ * 283 items in this manifest have `has_demo === false`; all 283 are reference-only, and 93 of them are withheld.
+ * Before this, a card that could not show a demo said only "no demo" in a mono kicker, and the *reason* — and the
+ * fact that the code is not here at all — was one click away.
+ */
+export const NO_DEMO = {
+  withheld: "No demo for this one — the licence does not allow us to republish the code.",
+  absent: "No demo for this one — it is a helper or a doc, not a component.",
+};
+export const noDemoSentence = (i: Item) => (faceted(i).withheld ? NO_DEMO.withheld : NO_DEMO.absent);
+
+/** The old one-line meta, kept for the surfaces that still want the facets (the item page's own table). */
 export function CardMeta({ item }: { item: Item }) {
   return (
     <div style={{
@@ -466,10 +522,7 @@ export function DemoTile({ item, pool, colW, bodyH, theme, frozen, caption = "bl
             {title(item)}
           </div>
         ) : (
-          <div style={{ padding: "8px 10px", borderTop: "1px solid var(--border)", display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 14, lineHeight: 1.35, fontWeight: 500, overflowWrap: "anywhere" }}>{title(item)}</span>
-            <CardMeta item={item} />
-          </div>
+          <CardText item={item} name={title(item)} />
         )}
       </a>
     </li>
@@ -518,9 +571,11 @@ export function Poster({ item }: { item: Item }) {
         <span style={{ ...POSTER_MONO, textTransform: "none", letterSpacing: "0.02em", overflow: "hidden", textOverflow: "ellipsis" }}>
           {item.source} · {item.kind}
         </span>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.45, color: "var(--ink-muted)" }}>
-          <Facets item={item} />
-        </span>
+        {/*
+         * The poster used to print the same facet line the card printed below it ("11 files · 37 KB · ≥2 parts"),
+         * which made a parked tile repeat the numbers the card beneath it was already replacing with a sentence.
+         * A parked tile names the item it will become; the description is the card's job, one block down.
+         */}
       </span>
     </div>
   );
@@ -533,34 +588,41 @@ export function Poster({ item }: { item: Item }) {
 export function RefCard({ item, bodyH }: { item: Item; bodyH: number }) {
   const out = item.page ?? item.url ?? null;
   return (
-    <li data-tile={item.id} data-mode="reference" style={{ listStyle: "none", minWidth: 0, display: "flex" }}>
-      <div style={{ ...cardStyle, borderStyle: "dashed", flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{
-          height: bodyH, display: "grid", alignContent: "center", justifyItems: "start", gap: 6,
-          padding: 12, background: "transparent", borderBottom: "1px dashed var(--border)",
-        }}>
-          <span style={{
-            fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase",
-            color: "var(--ink-muted)",
-          }}>no demo</span>
-          <span style={{ fontSize: 13, color: "var(--ink-muted)" }}>{item.kind}</span>
-        </div>
-        <div style={{ padding: "8px 10px", display: "grid", gap: 4 }}>
-          <a href={`#/i/${item.id}`} data-catalog-item={item.id}
+    <li data-tile={item.id} data-mode="reference" style={{ listStyle: "none", minWidth: 0, display: "block" }}>
+      {/* `display: block`, not `flex: 1`: a card that stretches to a taller neighbour's row is a card whose own
+          two halves are no longer its own height, and the block below is measured in fixed slots. */}
+      <div style={{ ...cardStyle, borderStyle: "dashed" }}>
+        {/*
+         * The canvas a demo would have been in is where the absence belongs, and it is a **link to the item page**
+         * (44 px, the tap floor) that says why in the page's own words. The kicker is a sentence now, not the mono
+         * label "no demo": a reader who lands here should not have to infer whether the demo is missing, broken or
+         * merely below the fold.
+         */}
+        <a
+          href={`#/i/${item.id}`}
+          data-catalog-item={item.id}
+          data-no-demo={item.id}
+          data-no-demo-reason={faceted(item).withheld ? "withheld" : "absent"}
+          style={{
+            height: bodyH, display: "grid", alignContent: "center", justifyItems: "start", gap: 4,
+            padding: "12px 14px", minHeight: 44, color: "inherit", textDecoration: "none",
+            background: "transparent", borderBottom: "1px dashed var(--border)", boxSizing: "border-box",
+          }}
+        >
+          <span style={{ fontSize: 13, lineHeight: "19px", color: "var(--ink)" }}>{noDemoSentence(item)}</span>
+          {out && <span style={{ fontSize: 12.5, lineHeight: "18px", color: "var(--ink-muted)" }}>Read it on {item.source} ↗</span>}
+        </a>
+        <CardText item={item} name={title(item)} />
+        {/* the outbound link keeps its own 44 px row, under the block, so it never competes with the name */}
+        {out && (
+          <a href={out} target="_blank" rel="noreferrer" className="dc-card-out"
             style={{
-              fontSize: 14, lineHeight: 1.35, fontWeight: 500, color: "inherit", textDecoration: "none",
-              overflowWrap: "anywhere", display: "inline-flex", alignItems: "center", minHeight: 44,
+              fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6, minHeight: 44,
+              padding: "0 10px", borderTop: "1px solid var(--border)", color: "var(--ink)",
             }}>
-            {title(item)}
+            View on {item.source} ↗
           </a>
-          <CardMeta item={item} />
-          {out && (
-            <a href={out} target="_blank" rel="noreferrer"
-              style={{ fontSize: 13, display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-              View on {item.source} ↗
-            </a>
-          )}
-        </div>
+        )}
       </div>
     </li>
   );

@@ -8,6 +8,7 @@ import { variantsOf, type TypeEntry } from "./taxonomy";
 import { sectionGalleryHref, typeHref, typesIn } from "./typeIndex";
 import { DemoFrame } from "./demo";
 import { hasDemo, Pool, scrollerOf, useSiteTheme } from "./Tile";
+import { FontSpecimens, hasPalette, ThemeSwatches } from "./specimens";
 
 /**
  * `#/t/<section-slug>/<type-slug>` — ONE COLLECTION PER TYPE, drawn from the taxonomy.
@@ -297,6 +298,18 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
   }, [pool, rows]);
 
   const siblings = useMemo(() => typesIn(entry.section).filter((t) => t.key !== entry.key), [entry]);
+  /*
+   * THE TWO FOUNDATIONS ROW KINDS (see `site/specimens.tsx`).
+   *
+   * `Foundations/Fonts` is 52 members and not one of them has a demo — its rows are type specimens. `Themes` is
+   * seven members, five of which are theme *files* with a palette; the other two (`beui/theme-toggle`,
+   * `rareui/theme-selector`) are components that switch a theme, and one of them has a live demo, so they stay in
+   * the ordinary list where `RowDemo` already knows what to do with them. The taxonomy is unchanged either way: the
+   * type is still the collection, and this is only the shape of its rows.
+   */
+  const foundation = entry.section === "Foundations" ? entry.type : null;
+  const palette = useMemo(() => [...members].filter(hasPalette).sort(nameOrder), [members]);
+  const listed = useMemo(() => [...unmeasured].filter((m) => !hasPalette(m)).sort(nameOrder), [unmeasured]);
   const subject = `the ${entry.type.toLowerCase()}`;
   const toggle = (key: string) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
@@ -396,13 +409,20 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
         </div>
       ) : null}
 
-      {unmeasured.length ? (
+      {foundation === "Fonts" ? (
+        <Fragment>
+          <div className="section-h" style={{ margin: "18px 0 6px" }}>In this set</div>
+          <FontSpecimens items={[...members].sort(nameOrder)} />
+        </Fragment>
+      ) : unmeasured.length ? (
         <Fragment>
           <div className="section-h" style={{ margin: "18px 0 6px" }}>
             {rows.length ? "Also in this set" : "In this set"}
           </div>
+          {palette.length ? <ThemeSwatches items={palette} /> : null}
+          {listed.length ? (
           <ul className="also-list" data-type-also={entry.key}>
-            {[...unmeasured].sort(nameOrder).map((item) => (
+            {listed.map((item) => (
               <li key={item.id} data-also-row={item.id}>
                 {/*
                   * The same demo as a table row's, at the size a list entry leaves for it. A member nobody measured
@@ -420,6 +440,7 @@ function TypeBody({ entry }: { entry: TypeEntry }) {
               </li>
             ))}
           </ul>
+          ) : null}
         </Fragment>
       ) : null}
 
