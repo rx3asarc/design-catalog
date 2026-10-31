@@ -19,9 +19,16 @@
  */
 import { chromium } from "/root/camofox-browser/node_modules/playwright/index.mjs";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 const BASE = (process.argv[2] ?? "http://localhost:8830/design-catalog/").replace(/\/?$/, "/");
-const REPO = "/mnt/HC_Volume_105573741/design-catalog-site-r8-collections";
+/**
+ * The taxonomy and the manifest come from **this gate's own repo**, not from a hardcoded worktree path. It used to
+ * be `/mnt/HC_Volume_105573741/design-catalog-site-r8-collections`, which meant a gate served one build and read
+ * another worktree's manifest: that worktree's `behaviour` records would decide which type was sampled, no matter
+ * which build was under test. `python3 app/gen.py` writes this file in the same tree the server serves.
+ */
+const REPO = fileURLToPath(new URL("..", import.meta.url));
 const taxonomy = JSON.parse(readFileSync(`${REPO}/app/src/site/taxonomy.json`, "utf8"));
 const manifest = JSON.parse(readFileSync(`${REPO}/app/manifest.json`, "utf8"));
 /** a concept's members, read from the item's own `concepts` — the field `#/c/<key>` and the strip both read */
@@ -30,6 +37,31 @@ const membersOf = (key) => manifest.filter((i) => (i.concepts ?? []).includes(ke
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const pairs = Object.entries(taxonomy.sections).flatMap(([section, types]) =>
   Object.keys(types).map((type) => ({ section, type })));
+
+/**
+ * Which type is *a set nobody measured*, read from the build's own manifest instead of being hardcoded.
+ *
+ * It was `components/button` until r8-probe measured Button's first demoed member (`beui/action-swap`); Button is
+ * now a one-row table, which is the new normal and not a regression. After that run every type whose members ship
+ * a demo has a measured member, so the only unmeasured sets left are the ones with nothing to measure: the members
+ * are all reference-only, which is why this block can no longer assert that the list has demo windows (a type with
+ * no demo has no demo to show). That half of the property moved to Button, below, where a list of unmeasured
+ * members *with* demos exists. The sample is named in the output, always.
+ */
+const FACTS = ["collapses", "sheet", "nests", "animates", "keyboard", "shape"];
+const answered = (i) => !!i.behaviour && FACTS.some((k) => typeof i.behaviour[k] === "boolean");
+const byId = new Map(manifest.map((i) => [`${i.source}/${i.slug}`, i]));
+const measuredTypeCount = (p) =>
+  (taxonomy.sections[p.section]?.[p.type] ?? []).filter((id) => answered(byId.get(id) ?? {})).length;
+const PREFERRED_NO_TABLE = { section: "Components", type: "Attachment" };
+const noTableType = [PREFERRED_NO_TABLE, ...pairs].find((p) =>
+  measuredTypeCount(p) === 0 && (taxonomy.sections[p.section]?.[p.type] ?? []).length > 0) ?? null;
+/** a set with a measured row *and* unmeasured members that do have demos: the `also` list with windows in it */
+const alsoWithDemos = pairs
+  .map((p) => ({ ...p, ids: taxonomy.sections[p.section]?.[p.type] ?? [] }))
+  .find((p) => p.ids.some((id) => answered(byId.get(id) ?? {})) && p.ids.some((id) => !answered(byId.get(id) ?? {}) && ((byId.get(id)?.variants ?? []).length > 0))) ?? null;
+console.log(`sample no-table type  ${noTableType ? `${noTableType.section}/${noTableType.type}` : "(none — every type has a measured member)"}`);
+console.log(`sample also-with-demos ${alsoWithDemos ? `${alsoWithDemos.section}/${alsoWithDemos.type}` : "(none)"}`);
 const route = (p) => `#/t/${slug(p.section)}/${slug(p.type)}`;
 
 let fails = 0;
@@ -191,24 +223,44 @@ await page.waitForSelector("[data-type-table]", { timeout: 10000 });
   ok("the strip does not include the page it is on", !strip.includes("#/t/components/sidebar"), "0 self-links");
 }
 
-/* ── a type nobody measured: no table, no explanation, and every member still has its demo ──────────────── */
-await page.evaluate(() => { location.hash = "#/t/components/button"; });
-await settle();
-{
-  const f = await facts();
-  const t = await page.evaluate(() => ({
-    table: document.querySelectorAll("[data-type-table]").length,
-    also: document.querySelectorAll("[data-also-row]").length,
-    windows: document.querySelectorAll("[data-also-row] [data-row-demo]").length,
-    heading: [...document.querySelectorAll(".section-h")].map((h) => h.textContent),
-    text: document.body.innerText.replace(/\s+/g, " ").toLowerCase(),
-  }));
-  ok("a set nobody measured has no table", t.table === 0 && f.d.typeMeasured === "0", `${f.d.typeMembers} members, 0 measured`);
-  ok("its members are listed, not hidden", t.also === Number(f.d.typeMembers) && t.heading.includes("In this set"), `${t.also} entries`);
-  ok("and their demos are there", t.windows > 0, `${t.windows} demo windows in the list`);
-  const banned = BAN.filter((b) => t.text.includes(b));
-  ok("and it does not explain the absence", banned.length === 0, banned.join(" | ") || "nothing said about it");
-  ok("no date is printed for a set with no measurement", !/\b\d{1,2} [A-Z][a-z]+ 20\d{2}\b/.test(t.text), "no date");
+/* ── a type nobody measured: no table, no explanation, every member still listed ──────────────────────────── */
+if (noTableType) {
+  const route = `#/t/${slug(noTableType.section)}/${slug(noTableType.type)}`;
+  await page.evaluate((h) => { location.hash = h; }, route);
+  await settle();
+  {
+    const f = await facts();
+    const t = await page.evaluate(() => ({
+      table: document.querySelectorAll("[data-type-table]").length,
+      also: document.querySelectorAll("[data-also-row]").length,
+      heading: [...document.querySelectorAll(".section-h")].map((h) => h.textContent),
+      text: document.body.innerText.replace(/\s+/g, " ").toLowerCase(),
+    }));
+    ok("a set nobody measured has no table", t.table === 0 && f.d.typeMeasured === "0", `${f.d.typeMembers} members, 0 measured`);
+    ok("its members are listed, not hidden", t.also === Number(f.d.typeMembers) && t.heading.includes("In this set"), `${t.also} entries`);
+    const banned = BAN.filter((b) => t.text.includes(b));
+    ok("and it does not explain the absence", banned.length === 0, banned.join(" | ") || "nothing said about it");
+    ok("no date is printed for a set with no measurement", !/\b\d{1,2} [A-Z][a-z]+ 20\d{2}\b/.test(t.text), "no date");
+  }
+}
+
+/* ── a set with one measured row: the table exists, and the unmeasured members below it keep their demos ── */
+if (alsoWithDemos) {
+  const route = `#/t/${slug(alsoWithDemos.section)}/${slug(alsoWithDemos.type)}`;
+  await page.evaluate((h) => { location.hash = h; }, route);
+  await settle();
+  {
+    const f = await facts();
+    const t = await page.evaluate(() => ({
+      table: document.querySelectorAll("[data-type-table]").length,
+      rows: document.querySelectorAll("[data-type-row]").length,
+      also: document.querySelectorAll("[data-also-row]").length,
+      windows: document.querySelectorAll("[data-also-row] [data-row-demo]").length,
+    }));
+    ok("a set with one measured member is a table, not a list", t.table === 1 && t.rows === Number(f.d.typeMeasured),
+      `${t.rows} rows for ${f.d.typeMeasured} measured of ${f.d.typeMembers}`);
+    ok("the unmeasured members below it keep their demos", t.also > 0 && t.windows > 0, `${t.windows} demo windows in ${t.also} entries`);
+  }
 }
 
 /* ── 7b. the gallery's compare strip is scoped to the grid it sits in ────────────────────────────────────── */
