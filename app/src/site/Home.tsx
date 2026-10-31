@@ -8,6 +8,7 @@ import { MOD, openPalette } from "./CommandPalette";
 import { BrowseByType } from "./BrowseByType";
 import { CompareShowcase } from "./CompareShowcase";
 import { Featured } from "./Featured";
+import { useNarrow } from "./Tile";
 
 /**
  * THE FRONT PAGE, REBUILT AROUND "BROWSE BY TYPE".
@@ -95,7 +96,7 @@ export function Cmd({ text, label }: { text: string; label?: string }) {
 function Terminal() {
   const [open, setOpen] = useState(false);
   const shown = open ? Math.min(SEARCH_SHOWN, SEARCH_TOTAL) : Math.min(SEARCH_FOLD, SEARCH_TOTAL);
-  const rest = SEARCH_TOTAL - shown;
+  const all = SEARCH_TOTAL;
   return (
     <>
       <div className="demo">
@@ -105,9 +106,17 @@ function Terminal() {
           <Copy text={`npx -y ${TARBALL} search "${SEARCH_QUERY}"`} />
         </div>
         <div className="demo-code">
-          <pre id="term-answer" data-term-answer={shown}>
+          {/*
+           * ONE NUMBER, IN ONE PLACE (r9). The marker under the answer used to read "… 21 more of 25 matched"
+           * while the button under it promised "Show all 8 rows": three numbers, none of them the same fact, and a
+           * reader could only conclude the counter was broken. The marker now states what the block is showing out
+           * of the total, and the button states the next step in the same unit — "showing 4 of 25" then "Show 8 of
+           * the 25" — so the two sentences are one sentence with a control between them.
+           */}
+          <pre id="term-answer" data-term-answer={shown} data-term-total={all}>
             {searchText(shown)}
-            {rest > 0 ? `\n\n… ${rest} more of ${SEARCH_TOTAL} matched` : `\n\n${SEARCH_TOTAL} of ${SEARCH_TOTAL}, the whole answer`}
+            {`\n\n`}
+            {shown < all ? `showing ${shown} of the ${all} matched rows` : `${all} of ${all} — the whole answer`}
           </pre>
         </div>
       </div>
@@ -126,17 +135,19 @@ function Terminal() {
           aria-controls="term-answer"
           onClick={() => setOpen((v) => !v)}
         >
-          {open
-            ? `Show the first ${SEARCH_FOLD} only`
-            : `Show all ${Math.min(SEARCH_SHOWN, SEARCH_TOTAL)} rows`}
+          {open ? `Show the first ${Math.min(SEARCH_FOLD, all)} of the ${all}` : `Show ${Math.min(SEARCH_SHOWN, all)} of the ${all}`}
         </Button>
       </p>
+      {/*
+       * The one sentence about the block, in a visitor's words (r9). It used to explain where the rows came from
+       * ("read out of the catalogue when this page renders, not pasted") — machinery, and said twice on this page,
+       * because the libraries section explained the same thing about the licences. What a reader needs is what the
+       * rows ARE: a search of this catalogue for one word, and the shape of a result.
+       */}
       <p className="hint">
-        Read out of the catalogue when this page renders, not pasted: the first{" "}
-        {Math.min(SEARCH_SHOWN, SEARCH_TOTAL)} of {SEARCH_TOTAL} items whose name or slug says{" "}
-        <code>{SEARCH_QUERY}</code>, name matches first. A row reads <code>name [source/kind]</code>, then the
-        item&apos;s own one-line description, then the command its library publishes for it.{" "}
-        <code>{SEARCH_CMD}</code> returns the same rows with their fields.
+        Every row is one item of this catalogue that matches <code>{SEARCH_QUERY}</code> — {SEARCH_TOTAL} of them, name
+        matches first. A row reads <code>name [source/kind]</code>, then the item&apos;s own one-line description, then
+        the command its library publishes for it. <code>{SEARCH_CMD}</code> returns the same rows with their fields.
       </p>
     </>
   );
@@ -146,6 +157,7 @@ function Terminal() {
 
 export function Home() {
   const c = counts;
+  const narrow = useNarrow();
   const libraries = useMemo(() => c.sources.length, [c.sources.length]);
   const [setup, setSetup] = useState(false);
   return (
@@ -164,7 +176,15 @@ export function Home() {
       {/* 2. the main action: one field, which opens the palette the site already answers to on ⌘K */}
       <div className="home-actions">
         <Button variant="ghost" className="home-search" data-home-search="" onClick={() => openPalette()}>
-          <span className="home-search-ph">Search {c.total} items — name, slug or concept</span>
+          {/*
+           * ONE placeholder, in one node, short on a phone (r9 §7). "Search 769 items — name, slug or concept" is 39
+           * characters in a 343 px field at 375 px wide: measured, `scrollWidth` 11 px wider than the box, so the
+           * phone read "Search 769 items — name, slug or co…". Switching the *string* — rather than printing two and
+           * hiding one — keeps one text node, so the field's own measurement (and any reader's) has one answer.
+           */}
+          <span className="home-search-ph">
+            {narrow ? `Search ${c.total} items` : `Search ${c.total} items — name, slug or concept`}
+          </span>
           <kbd className="home-kbd">{MOD} K</kbd>
         </Button>
         <a className="home-ctl" href="#/g" data-home-gallery="">
@@ -185,8 +205,8 @@ export function Home() {
       <section className="libs-sec" aria-labelledby="libs-h">
         <h2 className="section-h" id="libs-h">The five libraries</h2>
         <p className="home-sub">
-          What each one allows, from the manifest&apos;s own licence string. A library that cannot be republished
-          still has its page here, with the item&apos;s fields and a link to the original.
+          What each one allows. A library whose licence does not let us republish still has its page here, with the
+          item&apos;s fields and a link to the original.
         </p>
         <ul className="libs">
           {c.sources.map((s) => (

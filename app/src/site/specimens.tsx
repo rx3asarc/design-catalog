@@ -1,5 +1,6 @@
 import { asWords, label, type Item } from "./lib";
 import palettes from "./foundations.json";
+import { SAMPLE, isSelfHosted, useFaces } from "./fontFamilies";
 
 /**
  * THE TWO FOUNDATIONS SURFACES: a type specimen, and a theme's palette.
@@ -34,90 +35,124 @@ import palettes from "./foundations.json";
 /* ── fonts ──────────────────────────────────────────────────────────────────────────────────────────────── */
 
 /**
- * The two families this build self-hosts, by the family token in the item's slug (`font-jetbrains-mono`,
- * `font-heading-jetbrains-mono` → `jetbrains-mono`).
+ * The face a family is drawn in, which is a different question for each of the three kinds of row and is answered
+ * in `site/fontFamilies.ts`: this build's own binary, the font service on this page, or nowhere (and the row says so).
  *
- * The binaries and their provenance are `app/public/fonts/` and `LICENSES-FONTS.md`; the `font-family` strings are
- * the ones `app/src/styles.css` declares in its two `@font-face` rules, so a row here and the site's own text are
- * the same face. Adding a third family means adding its binary and its row here — not a wider fallback stack.
+ * `HOSTED` used to be a two-entry table here and the rest of the type was "not self-hosted" — honest about the build
+ * and useless as a specimen page: the review's line was that "DM Sans" and "EB Garamond" looked identical, and they
+ * did, because both were set in Instrument Sans. The rule it replaces is the same rule, applied to a page that can
+ * now actually show the letterforms:
+ *
+ *   - the two families this build self-hosts are set in their own binary, from `app/public/fonts/`;
+ *   - every other family is requested from Google Fonts **on this surface only** (`useFaces` appends the stylesheet
+ *     when the type page mounts and removes it when it goes), and each row states what actually arrived — measured
+ *     with `document.fonts.load`, not assumed from the family's name;
+ *   - a family whose face did not arrive is set in the interface face and says so on the row, in the same position
+ *     the loaded rows use for their own provenance. A name drawn in the wrong typeface would be a picture of a
+ *     typeface that does not exist.
  */
-const HOSTED: Record<string, string> = {
-  "instrument-sans": "Instrument Sans",
-  "jetbrains-mono": "JetBrains Mono",
-};
 
-/** `shadcn/font-heading-ibm-plex-sans` → `ibm-plex-sans`; the heading variants are the same typeface. */
+/** `shadcn/font-heading-ibm-plex-sans` → `ibm-plex-sans`; the heading cut is the same typeface. */
 export const familyToken = (id: string) =>
   (id.split("/")[1] ?? "")
     .replace(/^font-/, "")
     .replace(/^heading-/, "");
 
-/** The face this build can actually set, or null when it only has the registry declaration. */
-export const hostedFamily = (i: Item) => HOSTED[familyToken(i.id)] ?? null;
+const isHeadingCut = (id: string) => /\/font-heading-/.test(id);
+
+/** A family, its two declarations, and the name a person reads. */
+type Family = {
+  token: string;
+  name: string;
+  /** the body cut — the row's own link — or the heading cut when a family declares only that */
+  body: Item;
+  heading: Item | null;
+};
+
+/** 52 items → 26 families. Two rows per typeface was the review's "the '(Heading)' entries double every typeface". */
+export function familiesOf(items: Item[]): Family[] {
+  const by = new Map<string, { body?: Item; heading?: Item }>();
+  for (const item of items) {
+    const token = familyToken(item.id);
+    const at = by.get(token) ?? {};
+    if (isHeadingCut(item.id)) at.heading = item; else at.body = item;
+    by.set(token, at);
+  }
+  return [...by.entries()]
+    .map(([token, at]) => {
+      const body = at.body ?? at.heading!;
+      const name = asWords(label(body)).replace(/\s*\(Heading\)$/, "");
+      return { token, name, body, heading: at.heading && at.heading !== body ? at.heading : null };
+    })
+    .filter((f) => !!f.body)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** The face this build can set for an item, or null when nothing on this page can set it. */
+export const hostedFamily = (i: Item) => {
+  const name = asWords(label(i)).replace(/\s*\(Heading\)$/, "");
+  return isSelfHosted(name) ? name : null;
+};
 
 /**
- * The one thing a row must never do: draw a name in a face the row is not claiming.
- *
- * It is a fragment in the mono meta line, not a sentence under every row. The first pass printed "shown in
- * Instrument Sans — this face is not self-hosted here" 48 times down the page, and 48 copies of the same sentence
- * is not honesty, it is noise: the reader stops seeing it after the third. The lede states it once, the meta line
- * carries the mark on the row it applies to, and the two rows that *can* show their face say `self-hosted, OFL-1.1`
- * in the same position — so the contrast between the two kinds of row is what carries the fact.
+ * The mono line's last clause: what is under this row, in the same position on every row so the three kinds are read
+ * by contrast rather than by reading twenty-six sentences.
  */
-const NOT_SHIPPED = "not self-hosted";
+const faceWord = (state: "pending" | "ok" | "absent", selfHosted: boolean) =>
+  selfHosted ? "self-hosted, OFL-1.1" : state === "ok" ? "loaded from Google Fonts" : state === "pending" ? "loading the face…" : "that face did not load — set in the interface face";
 
 /**
- * A type specimen, one row per member of the `Fonts` type — 52 of them, which is 26 families and their `heading`
- * declarations. The name is the specimen; the mono line is the provenance the brief asked for (source and licence,
- * plus which binary is underneath when there is one).
+ * A type specimen: **one row per typeface**, the name and a sample line set in the face itself.
+ *
+ * 26 rows, not 52. The two cuts of a family are one typeface and one specimen: the row draws it once and names both
+ * declarations — the name links to the body cut's item page, and `heading cut` links to the heading cut's — so the
+ * 52 items of the type are all still reachable and none of them is a second copy of another one's letterforms.
  */
 export function FontSpecimens({ items }: { items: Item[] }) {
-  const hosted = items.filter(hostedFamily).length;
-  // NB: `map(familyToken)` would pass the *item* where the token is wanted — hence the explicit lambdas
-  const families = new Set(items.map((i) => familyToken(i.id))).size;
-  const hostedFamilies = new Set(items.filter(hostedFamily).map((i) => familyToken(i.id))).size;
+  const families = familiesOf(items);
+  const names = families.map((f) => f.name);
+  const faces = useFaces(names);
+  const loaded = families.filter((f) => isSelfHosted(f.name) || faces[f.name] === "ok").length;
+  const absent = families.length - loaded;
   return (
-    <div data-spec-surface="fonts" data-spec-count={items.length} data-spec-hosted={hosted}>
-      {/*
-       * One statement about the surface, printed once — not 48 copies of the same apology under 48 names. It says
-       * what is true of this build and lets every row below be a row rather than a paragraph.
-       */}
+    <div data-spec-surface="fonts" data-spec-count={items.length} data-spec-rows={families.length} data-spec-hosted={loaded}>
       <p className="spec-lede" data-spec-lede="">
-        {items.length} rows: {families} typefaces and their heading cuts. {hosted === 0
-          ? "None"
-          : hostedFamilies === 1
-            ? "One of those families is"
-            : `Two of those families are`}{" "}
-        self-hosted in this catalogue — Instrument Sans and JetBrains Mono, OFL-1.1, with the binaries beside their
-        licence text — so {hosted === 2 ? "both rows" : `the ${hosted} rows`} below are the face itself. Every other
-        row prints the name in Instrument Sans and says so on the row, because a specimen set in the wrong face is a
-        picture of a typeface that does not exist.
+        {families.length} typefaces from {items.length} items — the {items.length - families.length} heading cuts are
+        the same typefaces and are named on their family&apos;s row rather than drawn twice. {loaded === families.length
+          ? "Every row below is set in the face it names"
+          : `${loaded} of ${families.length} rows are set in the face they name`}: two are this catalogue&apos;s own
+        binaries (Instrument Sans and JetBrains Mono, self-hosted, OFL-1.1) and the rest are loaded for this page from
+        Google Fonts, which is the only page here that asks a third party for anything.
+        {absent > 0 ? ` ${absent === 1 ? "One row's face did not load" : `${absent} rows' faces did not load`} and
+          those rows say so and are set in the interface face.` : ""}
       </p>
       <ul className="spec-list">
-        {items.map((item) => {
-          const family = hostedFamily(item);
+        {families.map((f) => {
+          const self = isSelfHosted(f.name);
+          const state = self ? "ok" : faces[f.name] ?? "pending";
+          const family = `"${f.name}", var(--font-sans)`;
           return (
             <li
-              key={item.id}
+              key={f.token}
               className="spec-row"
-              data-also-row={item.id}
-              data-specimen={item.id}
-              data-specimen-face={family ? "hosted" : "absent"}
+              data-also-row={f.body.id}
+              data-specimen={f.body.id}
+              data-specimen-ids={[f.body.id, f.heading?.id].filter(Boolean).join(" ")}
+              data-specimen-face={self ? "hosted" : state === "ok" ? "google" : state === "absent" ? "absent" : "pending"}
+              data-specimen-family={f.name}
             >
-              <a
-                href={`#/i/${item.id}`}
-                className="spec-name"
-                style={family ? { fontFamily: `"${family}", var(--font-sans)` } : undefined}
-              >
-                {asWords(label(item))}
+              <a className="spec-name" href={`#/i/${f.body.id}`} style={{ fontFamily: family }}>
+                {f.name}
               </a>
+              <span className="spec-sample" style={{ fontFamily: family }} aria-hidden="true">{SAMPLE}</span>
               <span className="spec-meta">
-                {item.source} · {item.licence}
-                {family ? (
-                  <span className="spec-hosted-mark"> · self-hosted, OFL-1.1</span>
-                ) : (
-                  <span className="spec-absent-mark" data-specimen-note={item.id}> · {NOT_SHIPPED}</span>
-                )}
+                {f.body.source} · {f.body.licence} · {faceWord(state, self)}
+                {f.heading ? (
+                  <>
+                    {" · "}
+                    <a className="spec-cut" href={`#/i/${f.heading.id}`}>heading cut</a>
+                  </>
+                ) : null}
               </span>
             </li>
           );

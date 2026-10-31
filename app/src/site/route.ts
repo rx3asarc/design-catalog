@@ -22,6 +22,9 @@ import { typeAt, typeHref } from "./typeIndex";
  */
 export type GalleryQuery = {
   src?: string; sec?: string; cat?: string; fam?: string; sub?: string; kind?: string; q?: string;
+  /** `type` is one of the taxonomy's 89 types, addressed the way the type page addresses it: `components/sidebar`.
+   *  Added in r9 so the gallery can print a type's members without leaving the grid (`#/g?type=…`). */
+  type?: string;
   ref?: boolean; ignored?: string[];
 };
 
@@ -74,7 +77,7 @@ export type Route = {
   | { kind: "notfound"; miss: Miss };
 
 /** The keys this build understands. Any other key in the hash is reported, never obeyed. */
-export const GALLERY_KEYS = ["src", "sec", "cat", "fam", "sub", "kind", "q", "ref"] as const;
+export const GALLERY_KEYS = ["src", "sec", "cat", "fam", "sub", "kind", "type", "q", "ref"] as const;
 
 /** `?a=b&c=d` (or the same string without the `?`, or after `#/g/`) into a filter. */
 export function parseGalleryQuery(raw: string): GalleryQuery {
@@ -96,7 +99,7 @@ export function parseGalleryQuery(raw: string): GalleryQuery {
  */
 export function gridHref(q: GalleryQuery): string {
   const p = new URLSearchParams();
-  for (const k of ["sec", "cat", "fam", "sub", "src", "kind", "q"] as const) {
+  for (const k of ["sec", "cat", "fam", "sub", "src", "kind", "type", "q"] as const) {
     const v = q[k];
     if (typeof v === "string" && v) p.set(k, v);
   }
