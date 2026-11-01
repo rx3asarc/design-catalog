@@ -2489,3 +2489,37 @@ pre, .demo-code pre, .cmd, .type-table-wrap {
   display: inline-flex; align-items: center; min-height: 32px; }
 @media (max-width: 639px) { .g-types-all { min-height: 44px; } }
 .g-types-all:hover, .g-types-all:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── r10: one name for the top bar's height, and the pager pinned UNDER it ────────────────────────────────────────
+   r9 moved the scrollport from `.page` to the window and gave the desktop a 56 px TopBar that does not scroll away.
+   The item page's pager was written against the old model — `position: sticky; top: 0` (styles.css, the r8 `.pager`
+   rule, and `.page-in > .related-pager.pager-top`) — so it pinned to the window's top edge, which is now the *bar's*
+   top edge: measured at 1440x900 with `window.scrollTo(0, 1500)`, the bar's rect was `top 0 / bottom 56` and the
+   pager's `top 0 / height 57`, i.e. 56 of its 57 px sat behind the bar. The phone was worse, not better: its bar is
+   65 px (10 + a 44 px control + 10 + the 1 px hairline), and the phone bar pads `.cat` in flow so the old 56 px
+   reservation was never involved — measured at 390x844 the pager's top was 0 against a bar bottom of 65.
+
+   There was no custom property that meant "the bar's height": `grep -n -- '--.*56\|topbar' app/src/styles.css
+   app/src/tokens.css` found only literals. Four rules re-typed 56 px and the fifth place (the pager) forgot the bar
+   existed at all, so this round defines the height ONCE per breakpoint and every one of those rules reads it. Two
+   values because there are two bars and they are not the same height — a token that claimed the phone bar was 56
+   would be the same lie the old literal told.
+
+   Appended, per the round-9 convention: the rules below are later than every rule they correct, so at equal
+   specificity they win by order, and nothing above this block was edited. */
+@media (min-width: 861px) {
+  /* `.topbar`'s own `height: 56px` (the vendor TopBar's height), and the phone bar's 10 + 44 + 10 + 1 hairline. */
+  :root { --topbar-h: 56px; }
+  .cat { padding-top: var(--topbar-h); }
+  .cat [data-slot="sidebar-container"] { top: var(--topbar-h); height: calc(100dvh - var(--topbar-h)); }
+  .rail-reopen { top: calc(var(--topbar-h) + 10px); }
+  /* the r8 pager row: no markup emits a bare `.pager` any more, but its sticky rule is still in the file and a
+     stale `top: 0` here would be the next round's bug report — restated on the same token, not left behind. */
+  .pager { top: var(--topbar-h); }
+}
+@media (max-width: 860px) {
+  :root { --topbar-h: 65px; }
+}
+/* the pager that is actually on the page: sticky at the bar's bottom edge, so the row a reader reaches for is the
+   row they can see. Same height as in flow (57 px at 1440, 85 px at 390), it is offset, not clipped. */
+.page-in > .related-pager.pager-top { top: var(--topbar-h); }
