@@ -448,3 +448,99 @@ crossing ones (fonts, the gallery strip, `#/c/`) were assigned to whoever alread
 Merge order follows the reviewer's suggested order: **stage → scroll → home → taxonomy → search**. The last two are the
 ones whose data changes under the others, so they land last; `typeIndex.ts`'s exported names are the contract between
 them and stay stable.
+
+### What landed, and what the merge had to finish
+
+All five units committed within ninety seconds of the same instruction, which is how a fleet is supposed to behave
+and is worth writing down: `0ff577f6` stage, `0b2c7bf2` + `3a39a932` scroll, `9a79359e` home, `d5544ed3` taxonomy,
+`dfcaa13a` search. Merged in the reviewer's order — `64768376` (scroll), `76a6e268` (home), `da2baf9d` (taxonomy),
+`4d0f91fe` (search) — with **three** `styles.css` conflicts and one `route.ts` crossing, every one resolved by keeping
+both sides whole and each side's block closed by its own brace: 718/718, 745/745, 769/769, 800/800 braces, markers 0
+in all four cases. Never by eye, never by choosing.
+
+A merge is not a finish. On the merged build, measured rather than assumed, five things were still wrong — each one
+found by a number, and each one fixed where the behaviour is consumed:
+
+| Found | Measured | Fixed |
+| --- | --- | --- |
+| the 560 px cap was on the window *inside* the canvas | canvas 645 px, frame 744 px on a block's page — "more than a whole screen" | the cap is on the canvas; the bands stay, the window scrolls inside: **560 / 744** |
+| the header row wrapped into **three** rows on a component's page | a component's stage is a ~700 px column even at 1440, and the row asked the *window* its width | the row asks its own box (ResizeObserver on the canvas) and folds the settings into the `Stage` popover below 780 px: **one row, every width** |
+| the bar *was* the settings group | folding the settings made the bar itself disappear, and four assertions with it | the row carries `data-stage-bar`; the settings keep their own attribute |
+| `Tooltip must be used within TooltipProvider` on in-page navigation to a type page | a cold load mounted a provider from another preview first, so the same URL passed | the demo document wraps every preview in one provider — the preview is a component, the document is the app |
+| every page ended with a `/favicon.ico` 404 | the site had no icon at all; the browser guessed the origin root | one inline SVG data URI: no second request, no path that rots under a subdirectory deploy |
+
+And the two that a reviewer would have caught before a gate did: the card printed the raw label (`form-formisch-comple`)
+while the page it opens printed `Formisch form, complex` — both now use `readableName`, one rule, one name; and the
+rail's brand was an `<h1>`, so every item page had **two** h1s. The rail's wordmark is a `div` and a route has one
+heading.
+
+### The canvas, decided rather than drifted
+
+The stage had swung to the opposite error of the one the review found. r5 saw the frame paint the demo's own
+`--background` inside a canvas of another colour — a black slab in a light card — and its fix was "give the frame a
+transparent background so the canvas colour shows through". Taken as "the canvas paints *the demo's* paper", that
+removes the slab and also removes the separation whenever the stage and the site agree: **Δ luminance 0.000**, measured
+on `#/i/beui/bloom-menu`, in both themes.
+
+So the canvas keeps the **station's** surface (`surface-300`), the frame element and the demo document paint nothing,
+and there is exactly one paint in the box: both themes, both mixed cases. The honest trade-off is written in the file
+and asserted: separation from the page is one surface step — Δ 0.006 dark, 0.095 light — carried by the hairline and
+the header band, not by a colour jump, and the canvas never repaints itself when you flip the demo's theme. That last
+part is the important one: a station that follows the demo's theme is the second-paper bug moving house.
+
+### The gates were half the work
+
+Round 5 asked for changes; round 8's gates asserted the **opposite** of six of them, so they failed on the merged
+build for being right about a rule that had been retired. `r9-gates` restated seven of them **as properties that hold
+now** — never deleted, never softened to `ok(true)` — and marked three of its findings as the lead's, not the gates':
+
+- `r2_check` kept the strict **no console errors** rule, which is how the tooltip crash and the missing icon were found
+  instead of filtered.
+- `slice3_check`'s "Enter in search must land on `#/i/`" was stale: a type-name query now leads with the type page,
+  which is exactly what the review demanded, and a query naming no type still lands on `#/i/` (`sankey`).
+- `foundations_check` counted *attributes* and so read seven palette members as duplicated rows. It counts **elements**
+  now: 7 members, 7 elements, 5 swatches + 2 cards.
+- three gates had been reading a **reaped worktree** (`…-r8-cards`) or another unit's `dist/`: a gate that cannot run
+  anywhere its repo is checked out is a crashed script pretending to be a measurement. All derive their tree from
+  `import.meta.url` now.
+
+Three unit gates were restated by the lead with the review's own numbers instead: the canvas cap at 560, the demo
+centred (left gap == right gap), **one** row of controls at any width, a title that is not a slug, a selected segment
+that is *painted* (its fill differs from its track — the "neutral" assertion had encoded the invisibility as a rule),
+and 44 px asserted where touch is rather than on a mouse viewport, where the review asked for 32.
+
+### Copy, and one sentence that printed a zero
+
+The fonts lede said **"the 0 heading cuts are the same typefaces"**: the cuts were computed as `items − families`, and
+once the taxonomy folds a cut into its family both numbers are 26. It counts the folded variants now (26), and drops
+the clause rather than print a zero if a type ever has none.
+
+### Verification
+
+Seventeen gates, run by the lead on a quiet box, three times: on the merged build, on the published `docs/` tree
+(served at the same base the site is), and **against the live URL**.
+
+```
+local merged build   0 of 17 red        entry main-…  (build ✓ 13–30 s, load 1–6)
+published docs/      0 of 17 red        served at /design-catalog/, 3039 asset files identical to dist/
+live, after Pages    0 of 17 red        https://rx3asarc.github.io/design-catalog/ · assets/main-BEhOFEjZ.js
+```
+
+`publish.sh` deleted **900** stale hashed chunks this round (`reachable 3852 | dead 900 | docs 40.6 MB`) — old build
+output, not content: every file in `app/dist/assets` is present in `docs/assets` (3039 = 3039, zero missing either way).
+
+### Still open, and honestly so
+
+- **Paint timings for the rebuilt front page** were taken while the box was at load 24–25 with five units building;
+  the serial-mount number fell 2041 → 882 ms unthrottled, but there is **no 400 kbit/s after-run** to compare with the
+  before-run. A quiet-box re-measure is the next thing anyone should do.
+- **`r9-scroll`'s two `position: sticky; top: 0` pagers** now need `top: 56px`, because `.page` is no longer the
+  scrollport and the window is. Read-only in that unit's tree; unbuilt.
+- **`r9-taxonomy` never saw its own grid-first type page at 1440 and 390** — the visual pass was cut by the
+  commit-now instruction. Measured here after the merge, not eyeballed.
+- **Five of seventy-six types never reach the gallery's type line.** The line names the three biggest types *in the
+  current filter* by design; it now ends with one link to the home grid, which draws every type by section.
+- **Human `pick` curation** — 3–5 sentences per item — remains the one thing an agent may not invent.
+
+Reports: `build/r9-stage.md`, `build/r9-scroll.md`, `build/r9-home.md`, `build/r9-taxonomy.md`, `build/r9-search.md`,
+`build/r9-gates.md`, all also at `/design-catalog/redesign/` once this section is published.
