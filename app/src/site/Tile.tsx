@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/registry/new-york-v4/ui/badge";
-import { type Item, isMotionItem } from "./lib";
+import { type Item, isMotionItem, readableName } from "./lib";
 import { DemoFrame } from "./demo";
-import { readableName } from "./Stage";
 
 /**
  * The tile, and the pool that decides which tiles hold a frame.

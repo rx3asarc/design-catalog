@@ -2523,3 +2523,32 @@ pre, .demo-code pre, .cmd, .type-table-wrap {
 /* the pager that is actually on the page: sticky at the bar's bottom edge, so the row a reader reaches for is the
    row they can see. Same height as in flow (57 px at 1440, 85 px at 390), it is offset, not clipped. */
 .page-in > .related-pager.pager-top { top: var(--topbar-h); }
+/* ── the rail's wordmark, given the step the `<h1>` had (r10) ───────────────────────────────────────────────────
+   `site/Rail.tsx` stopped printing the brand as an `<h1>` — a route has exactly one `h1` and it is the item's own
+   name (`qa/stage_check.mjs`) — and moved it to `<div class="rail-wordmark"><a href="#/">` so that slot could stop
+   competing with the route's heading. The class it moved to never got a rule, so the site's own name drew as a
+   default body-size link: 16 px, default link blue, underlined. This is the step the `h1` had (13 px, 600, tight
+   tracking) in `--ink`, which is what the top bar's `.brand` uses and what the rail's own rows use when they are
+   current.
+
+   Three states, and the rail's own two numbers:
+     · at rest — no underline. A wordmark is a name, not a sentence's link: the underline is the *hover* state.
+     · hover — `--ink` and the underline, so a mouse can see the link is a link. The focus ring is not restated
+       here: the rail lives inside `.cat`, and `.cat :focus-visible` above already draws 2 px of `--focus` at a
+       2 px offset on everything in it. One ring, one rule.
+     · a target — 32 px on a mouse, 44 px on a thumb (`max-width: 860px`, the breakpoint every rail row uses for
+       the same reason), so the same one-number-per-input rule `.g-types-all` follows applies here.
+     · hidden at 861 px and up, which is what the `h1` it replaced was (`min-width: 861px .rail-brand h1`): the top
+       bar carries the brand on a desktop and the rail is the second surface, so without this the desktop would
+       print the name twice. */
+.rail-wordmark { min-width: 0; }
+.rail-wordmark a {
+  display: inline-flex; align-items: center; min-height: 32px;
+  font-family: var(--font-sans); font-size: 13px; line-height: 20px; font-weight: 600; letter-spacing: -.01em;
+  color: var(--ink); text-decoration: none;
+}
+.rail-wordmark a:hover, .rail-wordmark a:focus-visible {
+  color: var(--ink); text-decoration: underline; text-underline-offset: 2px;
+}
+@media (max-width: 860px) { .rail-wordmark a { min-height: 44px; } }
+@media (min-width: 861px) { .rail-brand .rail-wordmark { display: none; } }

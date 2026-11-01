@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/registry/new-york-v4/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/registry/new-york-v4/ui/toggle-group";
 import { Copy } from "./Code";
 import { DemoFrame, FRAME_SURFACE } from "./demo";
-import { isMotionItem, useCode, type Item, type ItemFull, type Variant } from "./lib";
+import { isMotionItem, readableName, useCode, type Item, type ItemFull, type Variant } from "./lib";
 
 /**
  * The item page's stage: the four things a visitor needs in order to judge a component instead of glancing at
@@ -150,40 +150,10 @@ export const MOTION_NOTE =
   "Reduce motion stops CSS animation and transition in the demo. Motion driven by script — framer-motion, canvas, timers — keeps running: a parent frame cannot stop it.";
 
 /* ── the readable name ───────────────────────────────────────────────────────────────────────────────────────
-   A title is a name, not an address. 410 of the 769 items publish a slug as their `name` ("button",
-   "form-formisch-complex"), so the page's `<h1>` used to be an address bar with a heading's step. The rule below
-   is mechanical — it never invents a product name, it only re-spaces the one the manifest already published:
-
-     · a name that already carries a capital or a space is the publisher's own words and is printed as it is
-       ("Animated Sidebar", "Dynamic Island");
-     · a single lowercase word is capitalised ("button" → "Button");
-     · inside a slug, a known library word keeps its capital ("formisch" → "Formisch", "shadcn" → "Shadcn") and
-       every other word is lowercase, because a slug is lowercase by construction;
-     · `<subject>-<library>-<rest…>` is read as the library naming its subject, with the rest after a comma:
-       `form-formisch-complex` → "Formisch form, complex" — the review's own example, derived, not typed.
-
-   The library list is written down rather than guessed from a source name: a word is a library here only because
-   somebody put it in this line. */
-const LIBRARY = new Set([
-  "formisch", "shadcn", "beui", "tanstack", "radix", "framer", "recharts", "valibot", "vaul", "cmdk",
-  "base", "dnd", "primereact", "chakra", "mantine", "daisyui", "flowbite",
-]);
-
-const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
-
-/** An item's name as a title: "Button", "Animated Sidebar", "Formisch form, complex". See the table above. */
-export function readableName(item: Item): string {
-  const name = (item.displayName ?? item.name).trim();
-  if (/\s/.test(name) || /[A-Z]/.test(name.slice(1))) return name;
-  const words = name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-  if (!words.length) return name;
-  if (words.length === 1) return cap(words[0]);
-  if (LIBRARY.has(words[1])) {
-    const [subject, library, ...rest] = words;
-    return `${cap(library)} ${subject}${rest.length ? `, ${rest.join(" ")}` : ""}`;
-  }
-  return words.map((w, i) => (LIBRARY.has(w) || i === 0 ? cap(w) : w)).join(" ");
-}
+   Moved to `site/lib.ts` in r10, and not re-exported from here: a card's title and this page's `<h1>` are the same
+   derivation, and a shim would let a third copy appear without a compile error. The rule, its table and the
+   library list now sit next to the data they read, so `site/Tile.tsx` no longer imports the stage — React state,
+   the demo runtime and four vendor registry modules — to print one string. */
 
 /* ── the sizes ────────────────────────────────────────────────────────────────────────────────────────────── */
 
