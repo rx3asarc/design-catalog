@@ -128,6 +128,7 @@ const r8 = await p.evaluate(() => {
     h2Title: document.querySelectorAll(".page-in h2.title").length,
     order: { h1BeforeStage: after(h1, stage), stageBeforeInstall: after(stage, install), installBeforeFacts: after(install, facts) },
     pagers: pagers.map((n) => ({ pos: getComputedStyle(n).position, y: Math.round(n.getBoundingClientRect().top), sticky: getComputedStyle(n).top })),
+    bar: (() => { const b = document.querySelector(".topbar"); return b ? Math.round(b.getBoundingClientRect().bottom) : null; })(),
     accentEls, segs, s300, ink,
   };
 });
@@ -136,9 +137,18 @@ push("r8 order title→preview→install→facts",
   r8.order.h1BeforeStage && r8.order.stageBeforeInstall && r8.order.installBeforeFacts,
   `h1<h1:stage=${r8.order.h1BeforeStage} stage<install=${r8.order.stageBeforeInstall} install<facts=${r8.order.installBeforeFacts}`);
 push("r8 one pager", r8.pagers.length === 1, `${r8.pagers.length} pager(s): ${JSON.stringify(r8.pagers)}`);
-push("r8 pager sticky at the top",
-  r8.pagers.length === 1 && r8.pagers[0].pos === "sticky" && r8.pagers[0].y < 120 && r8.pagers[0].sticky === "0px",
-  `position=${r8.pagers[0]?.pos} top=${r8.pagers[0]?.sticky} y=${r8.pagers[0]?.y}`);
+/*
+ * Round 5's "one pager, at the top" was measured when `.page` was the scrollport, so `top: 0` was right. Round 9 made
+ * the WINDOW the scrollport and the top bar `position: sticky; top: 0`, and this gate went on asserting `top: 0px` —
+ * which is now the offset that pins the pager *behind* the bar: measured at 1440×900, bar bottom 56, pager top 0, 56
+ * of the pager's 57 px hidden. Round 10 gave the bar's height one name (`--topbar-h`, 56 px desktop / 65 px phone) and
+ * the pager reads it. Restated as the property that holds now and that the reviewer would have wanted anyway: the
+ * pager is sticky, and it is pinned at or below the bar's bottom edge rather than under it.
+ */
+push("r10 pager sticky, pinned under the bar",
+  r8.pagers.length === 1 && r8.pagers[0].pos === "sticky" && r8.bar !== null
+    && parseFloat(r8.pagers[0].sticky) >= r8.bar - 1 && r8.pagers[0].y >= r8.bar - 1 && r8.pagers[0].y < 200,
+  `position=${r8.pagers[0]?.pos} top=${r8.pagers[0]?.sticky} y=${r8.pagers[0]?.y} bar bottom=${r8.bar}`);
 push("r8 one accent fill, and it is the install Copy",
   r8.accentEls.length === 1 && r8.accentEls[0].inInstall && /copy install command/i.test(r8.accentEls[0].label),
   `${r8.accentEls.length} element(s) painted --accent: ${JSON.stringify(r8.accentEls)}`);
