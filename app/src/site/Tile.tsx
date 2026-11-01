@@ -48,7 +48,79 @@ const REF_WIDTH = 768;       // logical width a tile's demo lays out at, before 
 const ZOOM_MIN = 0.25;
 const ZOOM_MAX = 1.6;
 const SETTLE_MS = 140;       // mounts wait for the scroller to be still this long (see Pool.tick)
-const HOLD_MS = 6000;        // a serial surface waits this long for a tile to paint, then moves on regardless
+
+/* ── the serial gate: a budget derived from the wire, not a constant ────────────────────────────────────────
+ *
+ * A serial surface waits for the tile it just mounted to paint before it starts the next one. That wait used to be
+ * a flat `HOLD_MS = 6000`, and at 400 kbit/s the constant was the schedule rather than a failsafe: measured, the
+ * front page's six tiles mounted 6 s apart five times, and **only the first tile ever reported inside 6 s** — so
+ * five of the six waits were the constant, and the last demo painted 30 s after the fifth mount (`build/r10-pool.md`,
+ * the same staircase as `build/r10-perf.md`).
+ *
+ * The right wait is not knowable in advance and is not the same twice: it is how long **one tile** takes to cross
+ * this pipe and boot on this machine. Two measured quantities say that, and neither is a constant:
+ *
+ *   · the wire — the browser records every transfer in `performance.getEntriesByType("resource")` with its
+ *     compressed body and the moments its headers and body arrived, so a tile's bytes at the rate this pipe has
+ *     actually been moving is  `DEMO_TILE_BYTES / rate + rtt`;
+ *   · the tile itself — the pool measures every serial gate from mount to the child's report, so once one tile has
+ *     painted on this connection, its own paint time is the better estimate for the next one.
+ *
+ *     budget = clamp(max(pipeBudget, lastPaintMs), HOLD_FLOOR_MS, HOLD_CEIL_MS)
+ *
+ * Before the first tile has painted there is nothing measured about this box, so the gate is `HOLD_CEIL_MS` — the
+ * old constant — and the child's report still ends it early (measured at 400 kbit/s: the first tile reports at 5.3 s,
+ * inside the six). Every gate after that is derived from a real measurement and can only be shorter than the old
+ * constant, never longer. The three promises the constant carried are kept exactly:
+ *
+ *   · a demo that never reports cannot stall the row — `HOLD_CEIL_MS` is the old flat six seconds, as a ceiling;
+ *   · a fast pipe is never slowed — a report always beats the timer, and the floor is one request cycle;
+ *   · serial is not switched off — the first tile still gets the pipe to itself, which is the measured win.
+ */
+const HOLD_FLOOR_MS = 900;      // one request cycle's head start; under it a tile is started before its predecessor asked
+const HOLD_CEIL_MS = 6000;      // the old flat wait, now only the ceiling, for a pipe that teaches us nothing
+const DEMO_TILE_BYTES = 25_000; // measured: the front page's six demo documents are 149 KB, ≈24.8 KB each (r10-perf.md)
+const WIRE_MIN_BYTES = 4096;    // smaller than this is a cache hit or a 304 and says nothing about the pipe
+
+/**
+ * What the pipe has said about itself, read from the browser's own transfer records.
+ *
+ * One observer for the page, not one per pool: the numbers describe the wire, and a grid and a row on the same page
+ * are behind the same wire. `buffered: true` picks up transfers that happened before this code ran — the shell's
+ * own chunks — which is how even the *first* serial mount has an opinion instead of starting blind.
+ */
+const WIRE = { rate: 0, rtt: 0, samples: 0 };
+let wired = false;
+function learnWire() {
+  if (wired || typeof PerformanceObserver === "undefined") return;
+  wired = true;
+  try {
+    const po = new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as PerformanceResourceTiming[]) {
+        const bytes = e.encodedBodySize || e.transferSize;
+        const body = e.responseEnd - e.responseStart;
+        if (!bytes || bytes < WIRE_MIN_BYTES || body <= 0) continue;
+        // an EWMA, because one transfer is not the wire: the first one on a page is the least typical, and a single
+        // stalled request must not be able to double the next gate
+        const sample = bytes / body;
+        WIRE.rate = WIRE.rate > 0 ? WIRE.rate * 0.55 + sample * 0.45 : sample;
+        const wait = e.responseStart - e.requestStart;
+        if (wait > 0) WIRE.rtt = WIRE.rtt > 0 ? WIRE.rtt * 0.7 + wait * 0.3 : wait;
+        WIRE.samples++;
+      }
+    });
+    po.observe({ type: "resource", buffered: true });
+  } catch {
+    /* no resource timing in this browser: the ceiling is the gate, exactly the behaviour of the old constant */
+  }
+}
+
+/** The wire's half of the gate: one demo tile's bytes, at the rate this pipe has actually been moving. */
+function pipeBudget(): number {
+  // with nothing measured there is no evidence of a slow pipe, so the row moves on one request cycle, not on six seconds
+  const ms = WIRE.rate > 0 ? DEMO_TILE_BYTES / WIRE.rate + WIRE.rtt : HOLD_FLOOR_MS;
+  return Math.max(HOLD_FLOOR_MS, Math.min(HOLD_CEIL_MS, ms));
+}
 
 /**
  * The element that actually scrolls this tile, or null when the document does.
@@ -71,6 +143,9 @@ export function scrollerOf(el: HTMLElement | null): HTMLElement | null {
 type Slot = { key: string; el: HTMLElement; setLive: (v: boolean) => void }; 
 export type PoolStats = {
   mounts: number; perFrameMax: number; frames: number; evictions: number; deferred: number; live: number; cap: number;
+  /** the gate this pool last armed, and the numbers the wire armed it with (`wireRate` is bytes/ms) — published for
+   *  the same reason as the counters: a measurement of an adaptive gate that cannot see the gate is not one */
+  holdMs: number; wireRate: number; wireRtt: number;
 };
 
 /**
@@ -85,7 +160,7 @@ export type PoolStats = {
  * and a measurement that has to guess what the queue did is not a measurement.
  */
 export class Pool {
-  readonly stats: PoolStats = { mounts: 0, perFrameMax: 0, frames: 0, evictions: 0, deferred: 0, live: 0, cap: 0 };
+  readonly stats: PoolStats = { mounts: 0, perFrameMax: 0, frames: 0, evictions: 0, deferred: 0, live: 0, cap: 0, holdMs: 0, wireRate: 0, wireRtt: 0 };
   private slots = new Map<string, Slot>();
   private live = new Map<string, Slot>();
   private queue: string[] = [];
@@ -102,12 +177,19 @@ export class Pool {
    *
    * A surface that IS the first screen (`serial`) therefore mounts **one tile at a time, in view order, and waits
    * for that tile's child to speak before it starts the next**: the first demo gets the pipe to itself, so it is a
-   * demo rather than a seventh of one. The hold is released by the child's first `onSize` message (`reportReady`) or
-   * by `HOLD_MS`, because a demo that never reports must not be able to stall the rest of the row.
+   * demo rather than a seventh of one. The hold is released by the child's first `onSize` message (`reportReady`)
+   * or by the gate's own budget — `holdBudget()`, the larger of one demo tile's measured paint time at this speed
+   * and its bytes at the rate this pipe has been measured to move, floored and ceilinged — because a demo that never
+   * reports must not be able to stall the rest of the row, and because a wait that is the same number on every
+   * connection is a schedule, not a failsafe (see the constants above for the measurement that made it one here).
    */
   private serially = false;
   private holding: string | null = null;
   private holdTimer: ReturnType<typeof setTimeout> | 0 = 0;
+  /** when the current gate was armed, and how long the last tile that reported took from mount to its report: the
+   *  measured half of the gate (`holdBudget`), 0 until one serial tile has painted. */
+  private holdSince = 0;
+  private paintedMs = 0;
   /** the scrolling ancestor, resolved once: `scrollerOf` walks the tree and reads computed styles, and doing that
    *  per queued tile per mount cost ~10 ms of forced style recalc on a 486-tile grid. */
   private root: HTMLElement | null = null;
@@ -116,6 +198,7 @@ export class Pool {
   constructor(readonly cap: number) {
     this.stats.cap = cap;
     (window as any).__gallery = this.stats;
+    learnWire();   // one observer per page (`learnWire` is idempotent); a grid never arms the gate but may still read it
   }
 
   register(slot: Slot) {
@@ -153,7 +236,21 @@ export class Pool {
   }
   /** The child has spoken (its first measured size): a serial pool may start the next tile now. */
   reportReady(key: string) {
-    if (this.holding === key) this.unhold();
+    if (this.holding !== key) return;
+    // how long one tile actually took, here, at this speed: the gate's best evidence for the next one
+    this.paintedMs = Math.max(0, performance.now() - this.holdSince);
+    this.unhold();
+  }
+  /**
+   * The gate: how long the tile just mounted may hold the row before the next one starts.
+   *
+   * Never longer than the old flat constant and never shorter than one tile's measured paint at this speed, so a
+   * slow connection gets a gate that reflects what a tile really costs and a fast one is never held back by a number
+   * chosen for a slow one. The wire's budget is the evidence that always exists; the tile's own paint beats it when known.
+   */
+  private holdBudget(): number {
+    const want = this.paintedMs > 0 ? Math.max(pipeBudget(), this.paintedMs) : HOLD_CEIL_MS;
+    return Math.max(HOLD_FLOOR_MS, Math.min(HOLD_CEIL_MS, want));
   }
   private unhold() {
     if (this.holdTimer) { clearTimeout(this.holdTimer); this.holdTimer = 0; }
@@ -241,8 +338,15 @@ export class Pool {
       this.stats.mounts++;
       mounted = 1;
       if (this.serially) {
+        // how long this tile may hold the row: what the wire says one demo tile costs, not a constant (see the
+        // constants at the top of the file). Republished on the counters so the measurement can read the gate.
+        const wait = this.holdBudget();
         this.holding = slot.key;
-        this.holdTimer = setTimeout(() => { this.holdTimer = 0; this.unhold(); }, HOLD_MS);
+        this.holdSince = performance.now();
+        this.stats.holdMs = Math.round(wait);
+        this.stats.wireRate = Math.round(WIRE.rate * 10) / 10;
+        this.stats.wireRtt = Math.round(WIRE.rtt);
+        this.holdTimer = setTimeout(() => { this.holdTimer = 0; this.unhold(); }, wait);
       }
     }
     if (mounted) this.stats.perFrameMax = Math.max(this.stats.perFrameMax, mounted);
