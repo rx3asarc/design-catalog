@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./button-BMNaTw4d.js";import{n,t as r}from"./button-group-xUE3X8WN.js";var i=e();function a(){return(0,i.jsxs)(r,{children:[(0,i.jsx)(t,{variant:`secondary`,size:`sm`,children:`Copy`}),(0,i.jsx)(n,{}),(0,i.jsx)(t,{variant:`secondary`,size:`sm`,children:`Paste`})]})}function o(){return(0,i.jsx)(a,{})}export{o as default};

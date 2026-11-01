@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./textarea-UOFGJhmL.js";var n=e();function r(){return(0,n.jsx)(t,{placeholder:`Type your message here.`})}function i(){return(0,n.jsx)(r,{})}export{r as TextareaDemo,i as default};

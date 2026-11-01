@@ -544,3 +544,72 @@ output, not content: every file in `app/dist/assets` is present in `docs/assets`
 
 Reports: `build/r9-stage.md`, `build/r9-scroll.md`, `build/r9-home.md`, `build/r9-taxonomy.md`, `build/r9-search.md`,
 `build/r9-gates.md`, all also at `/design-catalog/redesign/` once this section is published.
+
+## Round 10 — the four things round 9 left open (1 Nov 2026)
+
+Round 9 shipped with four items its own write-up called open. Four units, all on the light model
+(`orcarouter/deepseek/deepseek-v4-flash`), each with a brief that named the number to move and the one it must not
+break; the lead ran every gate and made every merge.
+
+| Unit | The open item | Result |
+| --- | --- | --- |
+| `r10-pager` | `r9-scroll`'s pagers still `top: 0`, left unbuilt | **fixed**: the bar's height had no name — four rules re-typed `56` and the pager forgot the bar existed. `--topbar-h` is defined once per breakpoint (**56 px desktop, 65 px phone** — the two bars are not the same height) and `.cat`, `.rail`, `.rail-reopen`, the stale `.pager` rule and `.related-pager.pager-top` all read it |
+| `r10-rail` | `.rail-wordmark` had no CSS rule; `Tile → Stage` import unchecked; the type page's visual pass cut for time | **fixed**: 13 px/600 wordmark with the rail's own 32/44 px target; `readableName` moved to `lib.ts` (the import graph says `Tile → Stage` was **not** a cycle, but it did drag React state, the demo runtime and four vendor registry modules into every call site — entry chunk 170 606 → 170 031 B); the type page measured at 1440 and 390 |
+| `r10-perf` | no 400 kbit/s after-run for the rebuilt front page | **measured, with a control**: first demo 23.97 → **15.43 s**, last 56.17 → **69.62 s** on the gzip fixture the before-run used |
+| `r10-pool` | — (the mechanism the perf run exposed) | the 6 s serial failsafe *was* the schedule. Now a measured budget; **a wash** at this profile, and the report says so |
+
+### The measurement was the finding
+
+`r10-perf` found that the mandated port (8830) is stock Python `SimpleHTTPRequestHandler` — **no gzip** — while the
+before-run came from a handler that gzips. The same script on the same tree read `firstMountedMs` **33.8 s** there and
+**10.0 s** on a gzip fixture; the browser was being handed 1 579 KB instead of 366 KB. The script's own
+`"profile": "…server gzip"` string is a hardcoded literal, so the number *claimed* gzip while the wire sent none. It
+built the fixture (`r10-gzip-serve.py`, the before-run's handler) rather than reporting a comparison that was never one,
+and recorded both runs.
+
+The honest numbers, means of two runs each, loads recorded in every JSON:
+
+```
+                    before (r8 build)      after (r9 build)
+first demo ready      23.97 s               15.43 s     serial buys the first tile 8.5 s
+last demo ready       56.17 s               69.62 s     and costs the last 13.5 s (+24 %)
+mount times           all by 14.1 s         10.0 → 15.4 → 21.5 → 27.5 → 33.5 → 39.5 s, six seconds apart
+```
+
+**Why the tail moved the wrong way, and why the gate was not the lever.** At 400 kbit/s no demo reports its first size
+inside 6 s, so the failsafe fired on every tile and the staircase was the schedule. `r10-pool` replaced the constant
+with a budget derived from the observed wire rate and the last tile's own measured paint, clamped to
+`[900, 6000] ms`. Mounts went from 6.00 s apart to 5.35 s apart and **`lastReadyMs` did not fall** — +316 ms, 0.5 %, a
+wash. Its variant A, a pure byte budget, shortened the staircase 17 s and bought the last demo 1.2 s while costing the
+first 3.5 s (+24 %): *the staircase time is not lost, it becomes contention*. The change ships because it is derived,
+bounded and never longer than the constant it replaced; the report says plainly that it bought nothing.
+
+**The real lever, named and not pulled:** all six tiles stay live (cap 9) while the tail boots — tile 6's own
+mount→paint is 23.5 s with five demo documents already running on four cores. Parking a tile once it has painted is
+`Pool`'s eviction and `Featured.tsx`'s row cap, which is the next round's job and nobody's gamble today.
+
+### Four gates were wrong about the same thing
+
+`stage_check` still asserted the pager's `sticky top: 0px` — the geometry that, after round 9 made the window the
+scrollport, pins the pager *behind* the bar (measured: bar bottom 56, pager top 0, 56 of 57 px hidden). It now reads the
+bar's own rect and asserts the property the review wanted: sticky, and pinned at or below the bar's bottom edge.
+`stage_check` also had to learn to open the folded `Stage` popover before measuring what is inside it. Three gates had
+been reading a reaped worktree or another unit's `dist/`; all derive their tree from `import.meta.url`.
+
+### Verification
+
+```
+local merged build   0 of 17 red    entry main-BUoNTsrq.js
+published docs/      0 of 17 red    3039 assets in `docs/assets`, identical to `app/dist/assets`; publish deleted 866
+                                    stale chunks and 0 reachable ones
+live, after Pages    see below      https://rx3asarc.github.io/design-catalog/
+```
+
+Merge chain: `5c5643b8` (pager) → `f7543e8f` (rail) → `7a510a29` (stage_check restated) → `5ed4b437` (pool).
+One `styles.css` conflict, both units appending a balanced block after the same last rule; resolved by keeping both,
+ours then theirs, and the file verified as 820/820 braces with the depth returning to 0 and never going negative.
+
+**The whole round was four units that found their own briefs' mistakes** — the pager found the phone bar is 65 px, not
+56; the rail found the import was not a cycle but did drag four vendor modules into a card; perf found the port it was
+told to use sent no gzip; pool found the gate it was asked to tune was not the lever, and said so instead of shipping a
+number that looked like a win.
