@@ -4,6 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>design catalog</title>
+    <!--
+      THE ICON IS INLINE, SO THERE IS NO 404 ANYWHERE.
+
+      The site had no favicon at all, and every page load ended with a console error: the browser guessed
+      `/favicon.ico` at the *origin* root, which on a project page is not this site's directory, and on the live host
+      is not a file either. `qa/r2_check.mjs` asserts "no console errors" on a page, and it was right to stay red:
+      a missing icon is a real finish defect on a catalogue of finished things, not a warning to filter out.
+
+      An inline SVG data URI answers it without a second request, without a binary in the repo, and without a path
+      that can rot under a subdirectory deploy. The mark is the catalogue's own: a paper square with one card off it.
+      Colours are the tokens' own values (ink on the dark page), written literally because an SVG data URI cannot read
+      a CSS custom property.
+    -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090b'/%3E%3Crect x='6' y='6' width='12' height='12' rx='2' fill='%23fafafa'/%3E%3Crect x='6' y='21' width='20' height='5' rx='2' fill='%23a1a1aa'/%3E%3C/svg%3E" />
     <!-- the two counts below are filled in from manifest.json at build time (vite.config.ts), so they cannot drift -->
     <meta name="description" content="769 entries from five reference libraries — 486 rendered here, with their source." />
     <!--
@@ -69,61 +83,43 @@
         paint(read());
       })();
     </script>
-    <script type="module" crossorigin src="/design-catalog/assets/main-OZr2Pjcu.js"></script>
+    <script type="module" crossorigin src="/design-catalog/assets/main-BEhOFEjZ.js"></script>
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/jsx-runtime-EIAPxkjE.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/react-BPk_wmJm.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-1c6axDnY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/utils-D0T3A-kS.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CrmmMB6Z.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DRCNMsmo.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-v2fiQHm_.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-8Hn8bRnR.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DYP7iJt8.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CFG46m1a.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DkVxz1RS.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-LZsJZJ7J.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bu2gY_uY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D5_XqeZ4.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DLf8brth.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/styles-BeyAchpA.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/es2015-CT9qBaO1.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-sy2Cky8E.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.dom-BZqiDFn-.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/floating-ui.react-dom-5usaPxZT.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-BF5fa3YF.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-uDL4MkUU.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/popover-mhpujbly.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-ChPFJK-A.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-D8Wfxh48.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-BsSE5_c9.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-NilkmuZg.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DsJlRuxZ.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-OWdlzYUa.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-CGDUqbNw.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-BRaCyqKW.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-eANMqy9E.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/button-Ce2Do0lH.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/lib-Ct1oT2Iw.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/typeIndex-CHrOGnJi.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/scroll-area-gRILKu9f.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-DnDnZ5dN.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bf1e8U1T.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CiOJHHxV.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tabs-4zRd_OE2.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-oF0p72RF.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/toggle-group-JPwFOUBl.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/button-BK8i9Ztb.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/lib-Dd8X2ng_.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/typeIndex-DzeuXvve.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/createLucideIcon-D9y8R4Uu.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/x-CvPCzChs.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/input-tqgSFUZc.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-DHtfzt1E.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-Bb5j2STH.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/tooltip-CR8bjp1U.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/input-CdZSWMnv.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/separator-CzfGkvCa.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/panel-left-BzwMTzWJ.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/use-mobile-B_fF2G8h.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-OQ2-gYDY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-CfDHU76g.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/skeleton-BN0VueHu.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-Detr3-M_.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-SsHZzh_1.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-mc3i5O_B.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/badge-CC76XeoY.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/kbd-BHGc2fm9.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CaGuSAiW.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sheet-DC88UkXk.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/skeleton-BlnBXmH0.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/sidebar-CMph-9jL.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dist-CiYje66d.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/collapsible-BZUP3KHp.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/kbd-hTh7rYDG.js">
     <link rel="modulepreload" crossorigin href="/design-catalog/assets/search-CRDMuLPk.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-CUAyrbI6.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/command-BpGEasFX.js">
-    <link rel="modulepreload" crossorigin href="/design-catalog/assets/table-BwxuhHBZ.js">
-    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-C4CLEPM4.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-C4CLEPM4.css"></noscript>
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/dialog-DRGtwvzg.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/command-DGTYd4uU.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/table-BZp0sn0_.js">
+    <link rel="modulepreload" crossorigin href="/design-catalog/assets/badge-CAx27rUu.js">
+    <link rel="preload" as="style" crossorigin href="/design-catalog/assets/styles-B-gzNmv_.css" onload="this.rel='stylesheet'"><noscript><link rel="stylesheet" href="/design-catalog/assets/styles-B-gzNmv_.css"></noscript>
   </head>
   <body>
     <!--

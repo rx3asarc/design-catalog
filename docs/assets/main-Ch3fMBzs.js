@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";import{t}from"./input-CdZSWMnv.js";var n=e();function r(){return(0,n.jsx)(t,{disabled:!0,type:`email`,placeholder:`Email`})}function i(){return(0,n.jsx)(r,{})}export{i as default};
