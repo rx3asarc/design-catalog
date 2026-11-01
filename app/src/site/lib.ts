@@ -123,6 +123,51 @@ export const asWords = (s: string) =>
     : s;
 
 /**
+ * A title is a name, not an address — the one rule in the repo that turns a published slug into the words a
+ * person reads, and the reason a card and the page it opens cannot disagree about what a thing is called.
+ *
+ * It lives here rather than beside the item page's stage (`site/Stage.tsx`) because a card is not a stage: the
+ * gallery's tile wants a name and nothing else, and importing it from `Stage.tsx` made every card in the catalogue
+ * depend on the stage's React state, the demo runtime and four vendor registry modules to get one string. This
+ * module imports no other shell module and holds no state, so the derivation travels with the data it reads.
+ *
+ * 410 of the 769 items publish a slug as their `name` ("button", "form-formisch-complex"), so the rule below is
+ * mechanical — it never invents a product name, it only re-spaces the one the manifest already published:
+ *
+ *   · a name that already carries a capital or a space is the publisher's own words and is printed as it is
+ *     ("Animated Sidebar", "Dynamic Island");
+ *   · a single lowercase word is capitalised ("button" → "Button");
+ *   · inside a slug, a known library word keeps its capital ("formisch" → "Formisch", "shadcn" → "Shadcn") and
+ *     every other word is lowercase, because a slug is lowercase by construction;
+ *   · `<subject>-<library>-<rest…>` is read as the library naming its subject, with the rest after a comma:
+ *     `form-formisch-complex` → "Formisch form, complex" — the review's own example, derived, not typed.
+ *
+ * The library list is written down rather than guessed from a source name: a word is a library here only because
+ * somebody put it in this line. `asWords` above is the other, narrower rule — the data's own label re-spaced for a
+ * field name — and neither is a copy of the other.
+ */
+const LIBRARY = new Set([
+  "formisch", "shadcn", "beui", "tanstack", "radix", "framer", "recharts", "valibot", "vaul", "cmdk",
+  "base", "dnd", "primereact", "chakra", "mantine", "daisyui", "flowbite",
+]);
+
+const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
+
+/** An item's name as a title: "Button", "Animated Sidebar", "Formisch form, complex". See the table above. */
+export function readableName(item: Item): string {
+  const name = (item.displayName ?? item.name).trim();
+  if (/\s/.test(name) || /[A-Z]/.test(name.slice(1))) return name;
+  const words = name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  if (!words.length) return name;
+  if (words.length === 1) return cap(words[0]);
+  if (LIBRARY.has(words[1])) {
+    const [subject, library, ...rest] = words;
+    return `${cap(library)} ${subject}${rest.length ? `, ${rest.join(" ")}` : ""}`;
+  }
+  return words.map((w, i) => (LIBRARY.has(w) || i === 0 ? cap(w) : w)).join(" ");
+}
+
+/**
  * Concept membership, exactly as the manifest publishes it — the only input a comparison page has.
  *
  * What the manifest does **not** publish is the store's `concept.rule`: how each set was chosen

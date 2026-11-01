@@ -1,6 +1,6 @@
 import { Badge } from "@/registry/new-york-v4/ui/badge";
 import { Button } from "@/registry/new-york-v4/ui/button";
-import { mainFile, useDetail, type Item, type ItemFull } from "./lib";
+import { mainFile, readableName, useDetail, type Item, type ItemFull } from "./lib";
 import { DetailWait } from "./DetailWait";
 import { Files } from "./Code";
 import { ApiTable, type Fact } from "./ApiTable";
@@ -8,7 +8,7 @@ import { InstallBlock } from "./InstallBlock";
 import { pickLine } from "./behaviour";
 import { RelatedCard } from "./RelatedCard";
 import { faceted } from "./Tile";
-import { ItemStage, readableName, useStage } from "./Stage";
+import { ItemStage, useStage } from "./Stage";
 import type { Neighbour } from "./route";
 // the taxonomy's own address for a type: the pager walks inside one type, and the "compare with the others" card
 // goes to the type page rather than to the retired `#/c/` comparison
@@ -179,7 +179,7 @@ export function ItemPage({ item, prev, next }: { item: Item; prev?: Neighbour; n
 
 function ItemBody({ item, prev, next }: { item: ItemFull; prev?: Neighbour; next?: Neighbour }) {
   // a title is a name, not an address: "button" is printed "Button", "form-formisch-complex" as
-  // "Formisch form, complex" (`Stage.tsx`'s `readableName`, the one derivation the stage header also uses)
+  // "Formisch form, complex" (`lib.ts`'s `readableName`, the one derivation the stage header and every card use)
   const name = readableName(item);
   // the stage: ONE stage for the item, its state above the variant strip, so a 14-variant item does not grow 14
   // consoles and the theme a visitor chose survives picking another variant
